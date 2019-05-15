@@ -1,0 +1,63 @@
+type SynthExchange @entity {
+  id: ID!
+  account: Bytes! # address
+  fromCurrencyKey: Bytes! # bytes4
+  fromAmount: BigInt! # uint256
+  toCurrencyKey: Bytes! # bytes4
+  toAmount: BigInt! # uint256
+  toAddress: Bytes! # address
+}
+
+type Transfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
+}
+
+type Approval @entity {
+  id: ID!
+  owner: Bytes! # address
+  spender: Bytes! # address
+  value: BigInt! # uint256
+}
+
+type TokenStateUpdated @entity {
+  id: ID!
+  newTokenState: Bytes! # address
+}
+
+type ProxyUpdated @entity {
+  id: ID!
+  proxyAddress: Bytes! # address
+}
+
+type SelfDestructTerminated @entity {
+  id: ID!
+}
+
+type SelfDestructed @entity {
+  id: ID!
+  beneficiary: Bytes! # address
+}
+
+type SelfDestructInitiated @entity {
+  id: ID!
+  selfDestructDelay: BigInt! # uint256
+}
+
+type SelfDestructBeneficiaryUpdated @entity {
+  id: ID!
+  newBeneficiary: Bytes! # address
+}
+
+type OwnerNominated @entity {
+  id: ID!
+  newOwner: Bytes! # address
+}
+
+type OwnerChanged @entity {
+  id: ID!
+  oldOwner: Bytes! # address
+  newOwner: Bytes! # address
+}

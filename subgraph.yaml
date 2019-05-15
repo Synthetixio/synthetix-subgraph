@@ -1,0 +1,53 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: mainnet
+    source:
+      address: "0xEf8a2c1BC94e630463293F71bF5414d13e80F62D"
+      abi: Contract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - SynthExchange
+        - Transfer
+        - Approval
+        - TokenStateUpdated
+        - ProxyUpdated
+        - SelfDestructTerminated
+        - SelfDestructed
+        - SelfDestructInitiated
+        - SelfDestructBeneficiaryUpdated
+        - OwnerNominated
+        - OwnerChanged
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: SynthExchange(address,bytes4,uint256,bytes4,uint256,address)
+          handler: handleSynthExchange
+        - event: Transfer(address,address,uint256)
+          handler: handleTransfer
+        - event: Approval(address,address,uint256)
+          handler: handleApproval
+        - event: TokenStateUpdated(address)
+          handler: handleTokenStateUpdated
+        - event: ProxyUpdated(address)
+          handler: handleProxyUpdated
+        - event: SelfDestructTerminated()
+          handler: handleSelfDestructTerminated
+        - event: SelfDestructed(address)
+          handler: handleSelfDestructed
+        - event: SelfDestructInitiated(uint256)
+          handler: handleSelfDestructInitiated
+        - event: SelfDestructBeneficiaryUpdated(address)
+          handler: handleSelfDestructBeneficiaryUpdated
+        - event: OwnerNominated(address)
+          handler: handleOwnerNominated
+        - event: OwnerChanged(address,address)
+          handler: handleOwnerChanged
+      file: ./src/mapping.ts
