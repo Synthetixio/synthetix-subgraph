@@ -189,6 +189,15 @@ export class Transfer extends Entity {
   set block(value: BigInt) {
     this.set("block", Value.fromBigInt(value));
   }
+
+  get source(): string {
+    let value = this.get("source");
+    return value.toString();
+  }
+
+  set source(value: string) {
+    this.set("source", Value.fromString(value));
+  }
 }
 
 export class Approval extends Entity {

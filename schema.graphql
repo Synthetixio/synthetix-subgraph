@@ -17,6 +17,7 @@ type Transfer @entity {
   value: BigInt! # uint256
   timestamp: BigInt!
   block: BigInt!
+  source: String!
 }
 
 type Approval @entity {

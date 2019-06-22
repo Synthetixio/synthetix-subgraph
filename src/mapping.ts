@@ -39,8 +39,9 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.save();
 }
 
-export function handleTransfer(event: TransferEvent): void {
+export function handleTransfer(event: TransferEvent, source: string): void {
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.source = source;
   entity.from = event.params.from;
   entity.to = event.params.to;
   entity.value = event.params.value;
@@ -49,6 +50,17 @@ export function handleTransfer(event: TransferEvent): void {
   entity.save();
 }
 
+export function handleTransferSNX(event: TransferEvent): void {
+  handleTransfer(event, 'SNX');
+}
+
+export function handleTransferiBTC(event: TransferEvent): void {
+  handleTransfer(event, 'iBTC');
+}
+
+export function handleTransferiETH(event: TransferEvent): void {
+  handleTransfer(event, 'iETH');
+}
 export function handleApproval(event: ApprovalEvent): void {
   let entity = new Approval(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.owner = event.params.owner;

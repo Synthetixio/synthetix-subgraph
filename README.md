@@ -19,11 +19,11 @@ For example:
         where:{timestamp_gt: ${oneDayAgo}}
       )
       {
-        fromAmount,
-        fromCurrencyKey,
-        toCurrencyKey,
-        block,
-        timestamp,
+        fromAmount
+        fromCurrencyKey
+        toCurrencyKey
+        block
+        timestamp
         toAddress
       }
     }`,

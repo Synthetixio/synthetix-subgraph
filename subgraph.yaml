@@ -25,7 +25,7 @@ dataSources:
         - event: SynthExchange(address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange
         - event: Transfer(address,address,uint256)
-          handler: handleTransfer
+          handler: handleTransferSNX
   - kind: ethereum/contract
     name: iBTC
     network: mainnet
@@ -44,7 +44,7 @@ dataSources:
           file: ./abis/Synth.json
       eventHandlers:
         - event: Transfer(address,address,uint256)
-          handler: handleTransfer
+          handler: handleTransferiBTC
   - kind: ethereum/contract
     name: iETH
     network: mainnet
@@ -63,4 +63,4 @@ dataSources:
           file: ./abis/Synth.json
       eventHandlers:
         - event: Transfer(address,address,uint256)
-          handler: handleTransfer
+          handler: handleTransferiETH
