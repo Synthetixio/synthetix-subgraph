@@ -1,16 +1,30 @@
 {
-  "name": "synthetix",
-  "license": "UNLICENSED",
+  "name": "synthetix-subgraph",
+  "license": "MIT",
+  "author": "Synthetix",
   "scripts": {
-    "codegen": "graph codegen",
+    "codegen": "node index prepare-abis && graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ justinjmoses/synthetix",
-    "create-local": "graph create --node http://localhost:8020/ justinjmoses/synthetix",
-    "remove-local": "graph remove --node http://localhost:8020/ justinjmoses/synthetix",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 justinjmoses/synthetix"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ synthetixio-team/synthetix",
+    "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
+    "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.12.0",
-    "@graphprotocol/graph-ts": "0.11.0"
+    "@graphprotocol/graph-ts": "0.11.0",
+    "chalk": "2.4.2",
+    "commander": "2.20.0",
+    "ethers": "4.0.27",
+    "synthetix": "2.4.2-beta-1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "1.9.0",
+    "@typescript-eslint/parser": "1.9.0",
+    "eslint": "5.16.0",
+    "eslint-config-prettier": "4.3.0",
+    "eslint-plugin-prettier": "3.1.0",
+    "prettier": "1.17.1",
+    "typescript": "3.4.5"
   }
 }

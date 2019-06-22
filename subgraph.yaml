@@ -1,53 +1,66 @@
 specVersion: 0.0.1
+description: Synthetix API
+repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Contract
+    name: Synthetix
     network: mainnet
     source:
-      address: "0xEf8a2c1BC94e630463293F71bF5414d13e80F62D"
-      abi: Contract
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # ProxySynthetix
+      abi: Synthetix
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.2
       language: wasm/assemblyscript
+      file: ./src/mapping.ts
       entities:
         - SynthExchange
         - Transfer
-        - Approval
-        - TokenStateUpdated
-        - ProxyUpdated
-        - SelfDestructTerminated
-        - SelfDestructed
-        - SelfDestructInitiated
-        - SelfDestructBeneficiaryUpdated
-        - OwnerNominated
-        - OwnerChanged
       abis:
-        - name: Contract
-          file: ./abis/Contract.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
       eventHandlers:
         - event: SynthExchange(address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange
         - event: Transfer(address,address,uint256)
           handler: handleTransfer
-        - event: Approval(address,address,uint256)
-          handler: handleApproval
-        - event: TokenStateUpdated(address)
-          handler: handleTokenStateUpdated
-        - event: ProxyUpdated(address)
-          handler: handleProxyUpdated
-        - event: SelfDestructTerminated()
-          handler: handleSelfDestructTerminated
-        - event: SelfDestructed(address)
-          handler: handleSelfDestructed
-        - event: SelfDestructInitiated(uint256)
-          handler: handleSelfDestructInitiated
-        - event: SelfDestructBeneficiaryUpdated(address)
-          handler: handleSelfDestructBeneficiaryUpdated
-        - event: OwnerNominated(address)
-          handler: handleOwnerNominated
-        - event: OwnerChanged(address,address)
-          handler: handleOwnerChanged
+  - kind: ethereum/contract
+    name: iBTC
+    network: mainnet
+    source:
+      address: '0x2B143041a6F8BE9dCC66E9110178a264A223A3bd' # ProxyiBTC
+      abi: Synth
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
       file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+      eventHandlers:
+        - event: Transfer(address,address,uint256)
+          handler: handleTransfer
+  - kind: ethereum/contract
+    name: iETH
+    network: mainnet
+    source:
+      address: '0xD4fb1706Ae549FEBeC06bb7175b08010DD1B0C2e' # ProxyiETH
+      abi: Synth
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+      eventHandlers:
+        - event: Transfer(address,address,uint256)
+          handler: handleTransfer

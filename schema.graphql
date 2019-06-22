@@ -6,6 +6,8 @@ type SynthExchange @entity {
   toCurrencyKey: Bytes! # bytes4
   toAmount: BigInt! # uint256
   toAddress: Bytes! # address
+  timestamp: BigInt!
+  block: BigInt!
 }
 
 type Transfer @entity {
@@ -13,6 +15,8 @@ type Transfer @entity {
   from: Bytes! # address
   to: Bytes! # address
   value: BigInt! # uint256
+  timestamp: BigInt!
+  block: BigInt!
 }
 
 type Approval @entity {
