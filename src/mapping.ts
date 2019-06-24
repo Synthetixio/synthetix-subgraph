@@ -11,9 +11,12 @@ import {
   OwnerNominated as OwnerNominatedEvent,
   OwnerChanged as OwnerChangedEvent,
 } from '../generated/Synthetix/Synthetix';
+import { Synth, Issued as IssuedEvent, Burned as BurnedEvent } from '../generated/sUSD/Synth';
 import {
   SynthExchange,
   Transfer,
+  Issued,
+  Burned,
   Approval,
   TokenStateUpdated,
   ProxyUpdated,
@@ -39,9 +42,9 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.save();
 }
 
-export function handleTransfer(event: TransferEvent, source: string): void {
+export function handleTransferSNX(event: TransferEvent): void {
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = source;
+  entity.source = 'SNX';
   entity.from = event.params.from;
   entity.to = event.params.to;
   entity.value = event.params.value;
@@ -50,17 +53,36 @@ export function handleTransfer(event: TransferEvent, source: string): void {
   entity.save();
 }
 
-export function handleTransferSNX(event: TransferEvent): void {
-  handleTransfer(event, 'SNX');
+export function handleTransfer(event: TransferEvent): void {
+  let contract = Synth.bind(event.address);
+  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.source = contract.currencyKey().toString();
+  entity.from = event.params.from;
+  entity.to = event.params.to;
+  entity.value = event.params.value;
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
+  entity.save();
 }
 
-export function handleTransferiBTC(event: TransferEvent): void {
-  handleTransfer(event, 'iBTC');
+export function handleIssued(event: IssuedEvent): void {
+  let contract = Synth.bind(event.address);
+  let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.account = event.params.account;
+  entity.value = event.params.value;
+  entity.source = contract.currencyKey().toString();
+  entity.save();
 }
 
-export function handleTransferiETH(event: TransferEvent): void {
-  handleTransfer(event, 'iETH');
+export function handleBurned(event: BurnedEvent): void {
+  let contract = Synth.bind(event.address);
+  let entity = new Burned(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.account = event.params.account;
+  entity.value = event.params.value;
+  entity.source = contract.currencyKey().toString();
+  entity.save();
 }
+
 export function handleApproval(event: ApprovalEvent): void {
   let entity = new Approval(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.owner = event.params.owner;
