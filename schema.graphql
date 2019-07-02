@@ -22,19 +22,15 @@ type Transfer @entity {
   source: String!
 }
 
-# type Issued @entity {
-#   id: ID!
-#   account: Bytes! # address
-#   value: BigInt! # uint256
-#   source: String!
-# }
-
-# type Burned @entity {
-#   id: ID!
-#   account: Bytes! # address
-#   value: BigInt! # uint256
-#   source: String!
-# }
+type RatesUpdated @entity {
+  id: ID!
+  from: Bytes! # address
+  currencyKeys: [Bytes!]! # bytes4[]
+  newRates: [BigInt!]! # uint256[]
+  gasPrice: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
 
 type Approval @entity {
   id: ID!

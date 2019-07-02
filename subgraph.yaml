@@ -17,15 +17,34 @@ dataSources:
       file: ./src/mapping.ts
       entities:
         - SynthExchange
-        # - Transfer
+        - Transfer
       abis:
         - name: Synthetix
           file: ./abis/Synthetix.json
       eventHandlers:
         - event: SynthExchange(address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange
-  #       - event: Transfer(address,address,uint256)
-  #         handler: handleTransferSNX
+        - event: Transfer(address,address,uint256)
+          handler: handleTransferSNX
+  - kind: ethereum/contract
+    name: ExchangeRates
+    network: mainnet
+    source:
+      address: '0xba34e436c9383aa8fa1e3659d2807ae040592498' # ExchangeRates
+      abi: ExchangeRates
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ./abis/ExchangeRates.json
+      eventHandlers:
+        - event: RatesUpdated(bytes4[],uint256[])
+          handler: handleRatesUpdated
   # - kind: ethereum/contract
   #   name: sUSD
   #   network: mainnet
