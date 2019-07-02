@@ -22,6 +22,20 @@ type Transfer @entity {
   source: String!
 }
 
+# type Issued @entity {
+#   id: ID!
+#   account: Bytes! # address
+#   value: BigInt! # uint256
+#   source: String!
+# }
+
+# type Burned @entity {
+#   id: ID!
+#   account: Bytes! # address
+#   value: BigInt! # uint256
+#   source: String!
+# }
+
 type Approval @entity {
   id: ID!
   owner: Bytes! # address

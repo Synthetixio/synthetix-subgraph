@@ -24,8 +24,33 @@ dataSources:
       eventHandlers:
         - event: SynthExchange(address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange
-        # - event: Transfer(address,address,uint256)
-        #   handler: handleTransferSNX
+  #       - event: Transfer(address,address,uint256)
+  #         handler: handleTransferSNX
+  # - kind: ethereum/contract
+  #   name: sUSD
+  #   network: mainnet
+  #   source:
+  #     address: '0x57Ab1E02fEE23774580C119740129eAC7081e9D3' # ProxysUSD
+  #     abi: Synth
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.2
+  #     language: wasm/assemblyscript
+  #     file: ./src/mapping.ts
+  #     entities:
+  #       - Transfer
+  #       - Issued
+  #       - Burned
+  #     abis:
+  #       - name: Synth
+  #         file: ./abis/Synth.json
+  #     eventHandlers:
+  #       - event: Transfer(address,address,uint256)
+  #         handler: handleTransfer
+  #       - event: Issued(address,uint256)
+  #         handler: handleIssued
+  #       - event: Burned(address,uint256)
+  #         handler: handleBurned
   # - kind: ethereum/contract
   #   name: iBTC
   #   network: mainnet
@@ -39,12 +64,18 @@ dataSources:
   #     file: ./src/mapping.ts
   #     entities:
   #       - Transfer
+  #       - Issued
+  #       - Burned
   #     abis:
   #       - name: Synth
   #         file: ./abis/Synth.json
   #     eventHandlers:
   #       - event: Transfer(address,address,uint256)
-  #         handler: handleTransferiBTC
+  #         handler: handleTransfer
+  #       - event: Issued(address,uint256)
+  #         handler: handleIssued
+  #       - event: Burned(address,uint256)
+  #         handler: handleBurned
   # - kind: ethereum/contract
   #   name: iETH
   #   network: mainnet
@@ -58,9 +89,15 @@ dataSources:
   #     file: ./src/mapping.ts
   #     entities:
   #       - Transfer
+  #       - Issued
+  #       - Burned
   #     abis:
   #       - name: Synth
   #         file: ./abis/Synth.json
   #     eventHandlers:
   #       - event: Transfer(address,address,uint256)
-  #         handler: handleTransferiETH
+  #         handler: handleTransfer
+  #       - event: Issued(address,uint256)
+  #         handler: handleIssued
+  #       - event: Burned(address,uint256)
+  #         handler: handleBurned
