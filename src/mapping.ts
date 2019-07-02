@@ -28,6 +28,7 @@ import {
 export function handleSynthExchange(event: SynthExchangeEvent): void {
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
+  entity.from = event.transaction.from;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
   entity.fromAmount = event.params.fromAmount;
   entity.toCurrencyKey = event.params.toCurrencyKey;
@@ -35,7 +36,7 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.toAddress = event.params.toAddress;
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
-
+  entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 }
 

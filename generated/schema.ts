@@ -51,6 +51,15 @@ export class SynthExchange extends Entity {
     this.set("account", Value.fromBytes(value));
   }
 
+  get from(): Bytes {
+    let value = this.get("from");
+    return value.toBytes();
+  }
+
+  set from(value: Bytes) {
+    this.set("from", Value.fromBytes(value));
+  }
+
   get fromCurrencyKey(): Bytes {
     let value = this.get("fromCurrencyKey");
     return value.toBytes();
@@ -103,6 +112,15 @@ export class SynthExchange extends Entity {
 
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get gasPrice(): BigInt {
+    let value = this.get("gasPrice");
+    return value.toBigInt();
+  }
+
+  set gasPrice(value: BigInt) {
+    this.set("gasPrice", Value.fromBigInt(value));
   }
 
   get block(): BigInt {
