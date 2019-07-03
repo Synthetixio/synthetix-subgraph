@@ -30,7 +30,7 @@ dataSources:
     name: ExchangeRates
     network: mainnet
     source:
-      address: '0xba34e436c9383aa8fa1e3659d2807ae040592498' # ExchangeRates
+      address: '0x5cBB53Ca85A9E52B593Baf8ae90282C4B3dB0b25' # ExchangeRates
       abi: ExchangeRates
     mapping:
       kind: ethereum/events
