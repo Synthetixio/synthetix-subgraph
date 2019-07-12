@@ -13,7 +13,7 @@ import {
 } from '../generated/Synthetix/Synthetix';
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
 
-// import { Synth, Issued as IssuedEvent, Burned as BurnedEvent } from '../generated/sUSD/Synth';
+import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthXDR/Synth';
 import {
   SynthExchange,
   Transfer,
@@ -65,6 +65,18 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   entity.block = event.block.number;
   entity.from = event.transaction.from;
   entity.gasPrice = event.transaction.gasPrice;
+  entity.save();
+}
+
+export function handleTransferSynth(event: SynthTransferEvent): void {
+  let contract = Synth.bind(event.address);
+  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.source = contract.currencyKey().toString();
+  entity.from = event.params.from;
+  entity.to = event.params.to;
+  entity.value = event.params.value;
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
   entity.save();
 }
 
