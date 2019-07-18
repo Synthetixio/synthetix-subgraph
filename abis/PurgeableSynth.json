@@ -40,21 +40,6 @@
   },
   {
     "constant": false,
-    "inputs": [],
-    "name": "mint",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x1249c58b"
-  },
-  {
-    "constant": false,
     "inputs": [
       {
         "name": "_owner",
@@ -158,30 +143,6 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "issuer",
-        "type": "address"
-      },
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "debtBalanceOf",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x274ed288"
-  },
-  {
-    "constant": true,
     "inputs": [],
     "name": "decimals",
     "outputs": [
@@ -206,74 +167,26 @@
     "signature": "0x3278c960"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "sourceCurrencyKey",
-        "type": "bytes4"
-      },
-      {
-        "name": "sourceAmount",
-        "type": "uint256"
-      },
-      {
-        "name": "destinationCurrencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "effectiveValue",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x39d66fc0"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "totalIssuedSynths",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x403dca55"
-  },
-  {
     "constant": false,
     "inputs": [
       {
-        "name": "sourceCurrencyKey",
-        "type": "bytes4"
+        "name": "from",
+        "type": "address"
       },
       {
-        "name": "sourceAmount",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "name": "value",
         "type": "uint256"
       },
       {
-        "name": "destinationCurrencyKey",
-        "type": "bytes4"
-      },
-      {
-        "name": "destinationAddress",
-        "type": "address"
+        "name": "data",
+        "type": "bytes"
       }
     ],
-    "name": "exchange",
+    "name": "transferFromSenderPaysFee",
     "outputs": [
       {
         "name": "",
@@ -283,26 +196,7 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x405d3adf"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "issueSynths",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x49755b9e"
+    "signature": "0x3c960be9"
   },
   {
     "constant": true,
@@ -318,26 +212,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x4ffcd9df"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "bytes4"
-      }
-    ],
-    "name": "synths",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x502b8bda"
   },
   {
     "constant": true,
@@ -377,26 +251,6 @@
         "type": "address"
       }
     ],
-    "name": "transferableSynthetix",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x6ac0bf9c"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address"
-      }
-    ],
     "name": "balanceOf",
     "outputs": [
       {
@@ -412,17 +266,17 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "availableCurrencyKeys",
+    "name": "synthetix",
     "outputs": [
       {
         "name": "",
-        "type": "bytes4[]"
+        "type": "address"
       }
     ],
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x72cb051f"
+    "signature": "0x759b5225"
   },
   {
     "constant": false,
@@ -436,77 +290,37 @@
   },
   {
     "constant": true,
+    "inputs": [],
+    "name": "maxSupplyToPurgeInUSD",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x7e88ac16"
+  },
+  {
+    "constant": false,
     "inputs": [
       {
-        "name": "issuer",
+        "name": "account",
         "type": "address"
       },
       {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "maxIssuableSynths",
-    "outputs": [
-      {
-        "name": "",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x807d94a7"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "availableSynths",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x835e119c"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "synth",
-        "type": "address"
-      }
-    ],
-    "name": "addSynth",
+    "name": "issue",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x849cf588"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "removeSynth",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x84dcde97"
+    "signature": "0x867904b4"
   },
   {
     "constant": true,
@@ -522,21 +336,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x8da5cb5b"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_exchangeEnabled",
-        "type": "bool"
-      }
-    ],
-    "name": "setExchangeEnabled",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x94524096"
   },
   {
     "constant": true,
@@ -582,6 +381,25 @@
     "constant": false,
     "inputs": [
       {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "burn",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x9dc29fac"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "_tokenState",
         "type": "address"
       }
@@ -592,80 +410,6 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0x9f769807"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "issuer",
-        "type": "address"
-      },
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "remainingIssuableSynths",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9f9f83dd"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "issueMaxSynths",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x9ff8c63f"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "issuer",
-        "type": "address"
-      }
-    ],
-    "name": "collateralisationRatio",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xa311c7c2"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "rewardEscrow",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xa430be6c"
   },
   {
     "constant": true,
@@ -681,26 +425,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0xa461fc82"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "collateral",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xa5fdc5de"
   },
   {
     "constant": false,
@@ -725,6 +449,21 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0xa9059cbb"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "addresses",
+        "type": "address[]"
+      }
+    ],
+    "name": "purge",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xab593079"
   },
   {
     "constant": false,
@@ -777,20 +516,29 @@
     "constant": false,
     "inputs": [
       {
-        "name": "currencyKey",
-        "type": "bytes4"
+        "name": "to",
+        "type": "address"
       },
       {
-        "name": "amount",
+        "name": "value",
         "type": "uint256"
+      },
+      {
+        "name": "data",
+        "type": "bytes"
       }
     ],
-    "name": "burnSynths",
-    "outputs": [],
+    "name": "transferSenderPaysFee",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xaf023335"
+    "signature": "0xb4bede85"
   },
   {
     "constant": true,
@@ -836,42 +584,6 @@
     "constant": false,
     "inputs": [
       {
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "name": "sourceCurrencyKey",
-        "type": "bytes4"
-      },
-      {
-        "name": "sourceAmount",
-        "type": "uint256"
-      },
-      {
-        "name": "destinationCurrencyKey",
-        "type": "bytes4"
-      },
-      {
-        "name": "destinationAddress",
-        "type": "address"
-      }
-    ],
-    "name": "synthInitiatedExchange",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xbe0ecd32"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "name": "to",
         "type": "address"
       },
@@ -897,49 +609,6 @@
     "signature": "0xbe45fd62"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "name": "sourceCurrencyKey",
-        "type": "bytes4"
-      },
-      {
-        "name": "sourceAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "synthInitiatedFeePayment",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xbe576364"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "supplySchedule",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xc40dd66f"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "selfDestructBeneficiary",
@@ -958,46 +627,40 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_protectionCircuitIsActivated",
-        "type": "bool"
-      }
-    ],
-    "name": "setProtectionCircuit",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xc9df6df5"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "synthetixState",
-    "outputs": [
-      {
-        "name": "",
+        "name": "to",
         "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xdbd4a422"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "availableSynthCount",
-    "outputs": [
+      },
       {
-        "name": "",
+        "name": "value",
         "type": "uint256"
       }
     ],
+    "name": "transferSenderPaysFee",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xd66c9cc2"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "currencyKey",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xdbf63340"
+    "signature": "0xdbd06c85"
   },
   {
     "constant": true,
@@ -1024,19 +687,32 @@
     "signature": "0xdd62ed3e"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "escrow",
+    "constant": false,
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFromSenderPaysFee",
     "outputs": [
       {
         "name": "",
-        "type": "address"
+        "type": "bool"
       }
     ],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xe2fdcc17"
+    "signature": "0xe6fbf441"
   },
   {
     "constant": true,
@@ -1054,6 +730,29 @@
     "signature": "0xe90dd9e2"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "triggerTokenFallbackIfNeeded",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xeb6ecc03"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "proxy",
@@ -1069,19 +768,34 @@
     "signature": "0xec556889"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "exchangeEnabled",
-    "outputs": [
+    "constant": false,
+    "inputs": [
       {
-        "name": "",
-        "type": "bool"
+        "name": "amount",
+        "type": "uint256"
       }
     ],
+    "name": "setTotalSupply",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xf5343752"
+    "signature": "0xf7ea7a3d"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_synthetix",
+        "type": "address"
+      }
+    ],
+    "name": "setSynthetix",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xfec9f9da"
   },
   {
     "inputs": [
@@ -1094,15 +808,7 @@
         "type": "address"
       },
       {
-        "name": "_synthetixState",
-        "type": "address"
-      },
-      {
-        "name": "_owner",
-        "type": "address"
-      },
-      {
-        "name": "_exchangeRates",
+        "name": "_synthetix",
         "type": "address"
       },
       {
@@ -1110,26 +816,29 @@
         "type": "address"
       },
       {
-        "name": "_supplySchedule",
+        "name": "_tokenName",
+        "type": "string"
+      },
+      {
+        "name": "_tokenSymbol",
+        "type": "string"
+      },
+      {
+        "name": "_owner",
         "type": "address"
       },
       {
-        "name": "_rewardEscrow",
-        "type": "address"
+        "name": "_currencyKey",
+        "type": "bytes4"
       },
       {
-        "name": "_escrow",
+        "name": "_exchangeRates",
         "type": "address"
-      },
-      {
-        "name": "_totalSupply",
-        "type": "uint256"
       }
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "signature": "constructor"
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -1141,33 +850,75 @@
       },
       {
         "indexed": false,
-        "name": "fromCurrencyKey",
-        "type": "bytes4"
-      },
-      {
-        "indexed": false,
-        "name": "fromAmount",
+        "name": "value",
         "type": "uint256"
-      },
+      }
+    ],
+    "name": "Purged",
+    "type": "event",
+    "signature": "0x265db6c9c62cb962adbcf4398a54e4b02b2d87b28ab5b7538850150465a5f43c"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       {
         "indexed": false,
-        "name": "toCurrencyKey",
-        "type": "bytes4"
-      },
-      {
-        "indexed": false,
-        "name": "toAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "toAddress",
+        "name": "newSynthetix",
         "type": "address"
       }
     ],
-    "name": "SynthExchange",
+    "name": "SynthetixUpdated",
     "type": "event",
-    "signature": "0x39c45ff1d0f1b38968efe499465b2cefd52232ee48ae295f4abd485a6c118901"
+    "signature": "0x46e9c68bd7831071bdd478f1ae4c4a52463961a9d620383a0a121dbfc0e0f06d"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "newFeePool",
+        "type": "address"
+      }
+    ],
+    "name": "FeePoolUpdated",
+    "type": "event",
+    "signature": "0x6d1d088acfe4f30d6014f6f693c61c16258f9784a6ed8439b2c59213eecb6295"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Issued",
+    "type": "event",
+    "signature": "0xa59f12e354e8cd10bb74c559844c2dd69a5458e31fe56c7594c62ca57480509a"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Burned",
+    "type": "event",
+    "signature": "0x696de425f79f4a40bc6d2122ca50507f0efbeabbff86a84871b7196ab8ea8df7"
   },
   {
     "anonymous": false,

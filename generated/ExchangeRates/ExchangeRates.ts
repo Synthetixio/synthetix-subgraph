@@ -311,6 +311,11 @@ export class ExchangeRates extends SmartContract {
     return result[0].toBigInt();
   }
 
+  priceUpdateLock(): boolean {
+    let result = super.call("priceUpdateLock", []);
+    return result[0].toBoolean();
+  }
+
   nominatedOwner(): Address {
     let result = super.call("nominatedOwner", []);
     return result[0].toAddress();
@@ -569,6 +574,36 @@ export class DeleteRateCall__Outputs {
   _call: DeleteRateCall;
 
   constructor(call: DeleteRateCall) {
+    this._call = call;
+  }
+}
+
+export class SetPriceUpdateLockCall extends EthereumCall {
+  get inputs(): SetPriceUpdateLockCall__Inputs {
+    return new SetPriceUpdateLockCall__Inputs(this);
+  }
+
+  get outputs(): SetPriceUpdateLockCall__Outputs {
+    return new SetPriceUpdateLockCall__Outputs(this);
+  }
+}
+
+export class SetPriceUpdateLockCall__Inputs {
+  _call: SetPriceUpdateLockCall;
+
+  constructor(call: SetPriceUpdateLockCall) {
+    this._call = call;
+  }
+
+  get _priceUpdateLock(): boolean {
+    return this._call.inputValues[0].value.toBoolean();
+  }
+}
+
+export class SetPriceUpdateLockCall__Outputs {
+  _call: SetPriceUpdateLockCall;
+
+  constructor(call: SetPriceUpdateLockCall) {
     this._call = call;
   }
 }

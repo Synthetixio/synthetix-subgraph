@@ -64,6 +64,63 @@ dataSources:
       eventHandlers:
         - event: 'Transfer(address,address,uint256)'
           handler: handleTransferSynth
+  - kind: ethereum/contract
+    name: SynthsUSD
+    network: mainnet
+    source:
+      address: '0x57Ab1E02fEE23774580C119740129eAC7081e9D3' # ProxysUSD
+      abi: Synth
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+      eventHandlers:
+        - event: 'Transfer(address,address,uint256)'
+          handler: handleTransferSynth
+  - kind: ethereum/contract
+    name: SynthsETH
+    network: mainnet
+    source:
+      address: '0xaCf5C0101cbBe8476E87c652E0bEF33684Cc94D6' # ProxysETH
+      abi: Synth
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+      eventHandlers:
+        - event: 'Transfer(address,address,uint256)'
+          handler: handleTransferSynth
+  - kind: ethereum/contract
+    name: SynthsBTC
+    network: mainnet
+    source:
+      address: '0x9073Ee83b6CE96C444547DdCAf777b9352163581' # ProxysBTC
+      abi: Synth
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+      eventHandlers:
+        - event: 'Transfer(address,address,uint256)'
+          handler: handleTransferSynth
   # - kind: ethereum/contract
   #   name: sUSD
   #   network: mainnet

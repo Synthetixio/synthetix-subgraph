@@ -33,6 +33,26 @@
     "constant": true,
     "inputs": [
       {
+        "name": "_claimingAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getLastFeeWithdrawal",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x07ea50cd"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
         "name": "account",
         "type": "address"
       },
@@ -52,6 +72,30 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x0813071c"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "claimingForAddress",
+        "type": "address"
+      },
+      {
+        "name": "currencyKey",
+        "type": "bytes4"
+      }
+    ],
+    "name": "claimOnBehalf",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x0f5024a7"
   },
   {
     "constant": true,
@@ -157,6 +201,21 @@
     "signature": "0x22425fa4"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_percent",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTargetThreshold",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x2cce0e54"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "feeAuthority",
@@ -193,7 +252,7 @@
     "outputs": [
       {
         "name": "results",
-        "type": "uint256[2][6]"
+        "type": "uint256[2][3]"
       }
     ],
     "payable": false,
@@ -271,6 +330,36 @@
     "signature": "0x3fcd2240"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "approveClaimOnBehalf",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x4180e5b5"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "feePoolEternalStorage",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x52b9f8a2"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "nominatedOwner",
@@ -304,6 +393,56 @@
     "constant": true,
     "inputs": [
       {
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "feesClaimable",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x58aab84a"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_delegates",
+        "type": "address"
+      }
+    ],
+    "name": "setDelegateApprovals",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x5b292e94"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "delegates",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x6138b19e"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
         "name": "currencyKey",
         "type": "bytes4"
       }
@@ -321,19 +460,19 @@
     "signature": "0x639cd59c"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "nextFeePeriodId",
-    "outputs": [
+    "constant": false,
+    "inputs": [
       {
-        "name": "",
-        "type": "uint256"
+        "name": "account",
+        "type": "address"
       }
     ],
+    "name": "removeClaimOnBehalf",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x67fbc450"
+    "signature": "0x6c8bc9fe"
   },
   {
     "constant": true,
@@ -430,26 +569,6 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "lastFeeWithdrawal",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x8cf61204"
-  },
-  {
-    "constant": true,
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -536,6 +655,36 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0xa461fc82"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "TARGET_THRESHOLD",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xa6d5bb14"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getPenaltyThresholdRatio",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xac834193"
   },
   {
     "constant": false,
@@ -729,26 +878,6 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0xcd503c0b"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "currentPenalty",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xcf427d1b"
   },
   {
     "constant": true,
@@ -979,6 +1108,10 @@
         "type": "address"
       },
       {
+        "name": "_feePoolEternalStorage",
+        "type": "address"
+      },
+      {
         "name": "_synthetixState",
         "type": "address"
       },
@@ -1075,32 +1208,6 @@
     "inputs": [
       {
         "indexed": false,
-        "name": "newFeeAuthority",
-        "type": "address"
-      }
-    ],
-    "name": "FeeAuthorityUpdated",
-    "type": "event",
-    "signature": "0xeb54700789b1b422a4c425a3586e928427c0fa693cb1d37146c9b3153ca701dd"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "newFeePoolState",
-        "type": "address"
-      }
-    ],
-    "name": "FeePoolStateUpdated",
-    "type": "event",
-    "signature": "0x0cb9b499f18f0c7abda1bcb83291bf288ccb1be624fe6bd5edc9bf605aab8fa5"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "name": "feePeriodId",
         "type": "uint256"
       }
@@ -1121,42 +1228,16 @@
         "indexed": false,
         "name": "xdrAmount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "snxRewards",
+        "type": "uint256"
       }
     ],
     "name": "FeesClaimed",
     "type": "event",
-    "signature": "0x9493e5bbe4e8e0ac67284469a2d677403d0378a85a59e341d3abc433d0d9a209"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "snxAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "RewardsClaimed",
-    "type": "event",
-    "signature": "0xfc30cddea38e2bf4d6ea7d3f9ed3b6ad7f176419f4963bd81318067a4aee73fe"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "newSynthetix",
-        "type": "address"
-      }
-    ],
-    "name": "SynthetixUpdated",
-    "type": "event",
-    "signature": "0x46e9c68bd7831071bdd478f1ae4c4a52463961a9d620383a0a121dbfc0e0f06d"
+    "signature": "0x1ac537f0ad67b64ac68a04587ff3a4cb6977de22eb2c37ee560897a92c6d07c7"
   },
   {
     "anonymous": false,

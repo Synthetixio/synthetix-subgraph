@@ -14,16 +14,52 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class SynthExchange extends EthereumEvent {
-  get params(): SynthExchange__Params {
-    return new SynthExchange__Params(this);
+export class SynthetixUpdated extends EthereumEvent {
+  get params(): SynthetixUpdated__Params {
+    return new SynthetixUpdated__Params(this);
   }
 }
 
-export class SynthExchange__Params {
-  _event: SynthExchange;
+export class SynthetixUpdated__Params {
+  _event: SynthetixUpdated;
 
-  constructor(event: SynthExchange) {
+  constructor(event: SynthetixUpdated) {
+    this._event = event;
+  }
+
+  get newSynthetix(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class FeePoolUpdated extends EthereumEvent {
+  get params(): FeePoolUpdated__Params {
+    return new FeePoolUpdated__Params(this);
+  }
+}
+
+export class FeePoolUpdated__Params {
+  _event: FeePoolUpdated;
+
+  constructor(event: FeePoolUpdated) {
+    this._event = event;
+  }
+
+  get newFeePool(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class Issued extends EthereumEvent {
+  get params(): Issued__Params {
+    return new Issued__Params(this);
+  }
+}
+
+export class Issued__Params {
+  _event: Issued;
+
+  constructor(event: Issued) {
     this._event = event;
   }
 
@@ -31,24 +67,30 @@ export class SynthExchange__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get fromCurrencyKey(): Bytes {
-    return this._event.parameters[1].value.toBytes();
+  get value(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class Burned extends EthereumEvent {
+  get params(): Burned__Params {
+    return new Burned__Params(this);
+  }
+}
+
+export class Burned__Params {
+  _event: Burned;
+
+  constructor(event: Burned) {
+    this._event = event;
   }
 
-  get fromAmount(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
+  get account(): Address {
+    return this._event.parameters[0].value.toAddress();
   }
 
-  get toCurrencyKey(): Bytes {
-    return this._event.parameters[3].value.toBytes();
-  }
-
-  get toAmount(): BigInt {
-    return this._event.parameters[4].value.toBigInt();
-  }
-
-  get toAddress(): Address {
-    return this._event.parameters[5].value.toAddress();
+  get value(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -248,9 +290,9 @@ export class OwnerChanged__Params {
   }
 }
 
-export class Synthetix extends SmartContract {
-  static bind(address: Address): Synthetix {
-    return new Synthetix("Synthetix", address);
+export class Synth extends SmartContract {
+  static bind(address: Address): Synth {
+    return new Synth("Synth", address);
   }
 
   name(): string {
@@ -268,47 +310,9 @@ export class Synthetix extends SmartContract {
     return result[0].toBigInt();
   }
 
-  debtBalanceOf(issuer: Address, currencyKey: Bytes): BigInt {
-    let result = super.call("debtBalanceOf", [
-      EthereumValue.fromAddress(issuer),
-      EthereumValue.fromFixedBytes(currencyKey)
-    ]);
-    return result[0].toBigInt();
-  }
-
   decimals(): i32 {
     let result = super.call("decimals", []);
     return result[0].toI32();
-  }
-
-  effectiveValue(
-    sourceCurrencyKey: Bytes,
-    sourceAmount: BigInt,
-    destinationCurrencyKey: Bytes
-  ): BigInt {
-    let result = super.call("effectiveValue", [
-      EthereumValue.fromFixedBytes(sourceCurrencyKey),
-      EthereumValue.fromUnsignedBigInt(sourceAmount),
-      EthereumValue.fromFixedBytes(destinationCurrencyKey)
-    ]);
-    return result[0].toBigInt();
-  }
-
-  totalIssuedSynths(currencyKey: Bytes): BigInt {
-    let result = super.call("totalIssuedSynths", [
-      EthereumValue.fromFixedBytes(currencyKey)
-    ]);
-    return result[0].toBigInt();
-  }
-
-  exchangeRates(): Address {
-    let result = super.call("exchangeRates", []);
-    return result[0].toAddress();
-  }
-
-  synths(param0: Bytes): Address {
-    let result = super.call("synths", [EthereumValue.fromFixedBytes(param0)]);
-    return result[0].toAddress();
   }
 
   nominatedOwner(): Address {
@@ -316,35 +320,13 @@ export class Synthetix extends SmartContract {
     return result[0].toAddress();
   }
 
-  transferableSynthetix(account: Address): BigInt {
-    let result = super.call("transferableSynthetix", [
-      EthereumValue.fromAddress(account)
-    ]);
-    return result[0].toBigInt();
-  }
-
   balanceOf(account: Address): BigInt {
     let result = super.call("balanceOf", [EthereumValue.fromAddress(account)]);
     return result[0].toBigInt();
   }
 
-  availableCurrencyKeys(): Array<Bytes> {
-    let result = super.call("availableCurrencyKeys", []);
-    return result[0].toBytesArray();
-  }
-
-  maxIssuableSynths(issuer: Address, currencyKey: Bytes): BigInt {
-    let result = super.call("maxIssuableSynths", [
-      EthereumValue.fromAddress(issuer),
-      EthereumValue.fromFixedBytes(currencyKey)
-    ]);
-    return result[0].toBigInt();
-  }
-
-  availableSynths(param0: BigInt): Address {
-    let result = super.call("availableSynths", [
-      EthereumValue.fromUnsignedBigInt(param0)
-    ]);
+  synthetix(): Address {
+    let result = super.call("synthetix", []);
     return result[0].toAddress();
   }
 
@@ -358,33 +340,8 @@ export class Synthetix extends SmartContract {
     return result[0].toString();
   }
 
-  remainingIssuableSynths(issuer: Address, currencyKey: Bytes): BigInt {
-    let result = super.call("remainingIssuableSynths", [
-      EthereumValue.fromAddress(issuer),
-      EthereumValue.fromFixedBytes(currencyKey)
-    ]);
-    return result[0].toBigInt();
-  }
-
-  collateralisationRatio(issuer: Address): BigInt {
-    let result = super.call("collateralisationRatio", [
-      EthereumValue.fromAddress(issuer)
-    ]);
-    return result[0].toBigInt();
-  }
-
-  rewardEscrow(): Address {
-    let result = super.call("rewardEscrow", []);
-    return result[0].toAddress();
-  }
-
   SELFDESTRUCT_DELAY(): BigInt {
     let result = super.call("SELFDESTRUCT_DELAY", []);
-    return result[0].toBigInt();
-  }
-
-  collateral(account: Address): BigInt {
-    let result = super.call("collateral", [EthereumValue.fromAddress(account)]);
     return result[0].toBigInt();
   }
 
@@ -398,24 +355,14 @@ export class Synthetix extends SmartContract {
     return result[0].toBoolean();
   }
 
-  supplySchedule(): Address {
-    let result = super.call("supplySchedule", []);
-    return result[0].toAddress();
-  }
-
   selfDestructBeneficiary(): Address {
     let result = super.call("selfDestructBeneficiary", []);
     return result[0].toAddress();
   }
 
-  synthetixState(): Address {
-    let result = super.call("synthetixState", []);
-    return result[0].toAddress();
-  }
-
-  availableSynthCount(): BigInt {
-    let result = super.call("availableSynthCount", []);
-    return result[0].toBigInt();
+  currencyKey(): Bytes {
+    let result = super.call("currencyKey", []);
+    return result[0].toBytes();
   }
 
   allowance(owner: Address, spender: Address): BigInt {
@@ -426,11 +373,6 @@ export class Synthetix extends SmartContract {
     return result[0].toBigInt();
   }
 
-  escrow(): Address {
-    let result = super.call("escrow", []);
-    return result[0].toAddress();
-  }
-
   tokenState(): Address {
     let result = super.call("tokenState", []);
     return result[0].toAddress();
@@ -439,11 +381,6 @@ export class Synthetix extends SmartContract {
   proxy(): Address {
     let result = super.call("proxy", []);
     return result[0].toAddress();
-  }
-
-  exchangeEnabled(): boolean {
-    let result = super.call("exchangeEnabled", []);
-    return result[0].toBoolean();
   }
 }
 
@@ -477,36 +414,6 @@ export class ApproveCall__Outputs {
   _call: ApproveCall;
 
   constructor(call: ApproveCall) {
-    this._call = call;
-  }
-
-  get value0(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
-export class MintCall extends EthereumCall {
-  get inputs(): MintCall__Inputs {
-    return new MintCall__Inputs(this);
-  }
-
-  get outputs(): MintCall__Outputs {
-    return new MintCall__Outputs(this);
-  }
-}
-
-export class MintCall__Inputs {
-  _call: MintCall;
-
-  constructor(call: MintCall) {
-    this._call = call;
-  }
-}
-
-export class MintCall__Outputs {
-  _call: MintCall;
-
-  constructor(call: MintCall) {
     this._call = call;
   }
 
@@ -673,113 +580,49 @@ export class TerminateSelfDestructCall__Outputs {
   }
 }
 
-export class ExchangeCall extends EthereumCall {
-  get inputs(): ExchangeCall__Inputs {
-    return new ExchangeCall__Inputs(this);
+export class TransferFromSenderPaysFeeCall extends EthereumCall {
+  get inputs(): TransferFromSenderPaysFeeCall__Inputs {
+    return new TransferFromSenderPaysFeeCall__Inputs(this);
   }
 
-  get outputs(): ExchangeCall__Outputs {
-    return new ExchangeCall__Outputs(this);
+  get outputs(): TransferFromSenderPaysFeeCall__Outputs {
+    return new TransferFromSenderPaysFeeCall__Outputs(this);
   }
 }
 
-export class ExchangeCall__Inputs {
-  _call: ExchangeCall;
+export class TransferFromSenderPaysFeeCall__Inputs {
+  _call: TransferFromSenderPaysFeeCall;
 
-  constructor(call: ExchangeCall) {
+  constructor(call: TransferFromSenderPaysFeeCall) {
     this._call = call;
   }
 
-  get sourceCurrencyKey(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
+  get from(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 
-  get sourceAmount(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+  get to(): Address {
+    return this._call.inputValues[1].value.toAddress();
   }
 
-  get destinationCurrencyKey(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
+  get value(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 
-  get destinationAddress(): Address {
-    return this._call.inputValues[3].value.toAddress();
+  get data(): Bytes {
+    return this._call.inputValues[3].value.toBytes();
   }
 }
 
-export class ExchangeCall__Outputs {
-  _call: ExchangeCall;
+export class TransferFromSenderPaysFeeCall__Outputs {
+  _call: TransferFromSenderPaysFeeCall;
 
-  constructor(call: ExchangeCall) {
+  constructor(call: TransferFromSenderPaysFeeCall) {
     this._call = call;
   }
 
   get value0(): boolean {
     return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
-export class IssueSynthsCall extends EthereumCall {
-  get inputs(): IssueSynthsCall__Inputs {
-    return new IssueSynthsCall__Inputs(this);
-  }
-
-  get outputs(): IssueSynthsCall__Outputs {
-    return new IssueSynthsCall__Outputs(this);
-  }
-}
-
-export class IssueSynthsCall__Inputs {
-  _call: IssueSynthsCall;
-
-  constructor(call: IssueSynthsCall) {
-    this._call = call;
-  }
-
-  get currencyKey(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class IssueSynthsCall__Outputs {
-  _call: IssueSynthsCall;
-
-  constructor(call: IssueSynthsCall) {
-    this._call = call;
-  }
-}
-
-export class SetExchangeRatesCall extends EthereumCall {
-  get inputs(): SetExchangeRatesCall__Inputs {
-    return new SetExchangeRatesCall__Inputs(this);
-  }
-
-  get outputs(): SetExchangeRatesCall__Outputs {
-    return new SetExchangeRatesCall__Outputs(this);
-  }
-}
-
-export class SetExchangeRatesCall__Inputs {
-  _call: SetExchangeRatesCall;
-
-  constructor(call: SetExchangeRatesCall) {
-    this._call = call;
-  }
-
-  get _exchangeRates(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetExchangeRatesCall__Outputs {
-  _call: SetExchangeRatesCall;
-
-  constructor(call: SetExchangeRatesCall) {
-    this._call = call;
   }
 }
 
@@ -809,92 +652,36 @@ export class AcceptOwnershipCall__Outputs {
   }
 }
 
-export class AddSynthCall extends EthereumCall {
-  get inputs(): AddSynthCall__Inputs {
-    return new AddSynthCall__Inputs(this);
+export class IssueCall extends EthereumCall {
+  get inputs(): IssueCall__Inputs {
+    return new IssueCall__Inputs(this);
   }
 
-  get outputs(): AddSynthCall__Outputs {
-    return new AddSynthCall__Outputs(this);
+  get outputs(): IssueCall__Outputs {
+    return new IssueCall__Outputs(this);
   }
 }
 
-export class AddSynthCall__Inputs {
-  _call: AddSynthCall;
+export class IssueCall__Inputs {
+  _call: IssueCall;
 
-  constructor(call: AddSynthCall) {
+  constructor(call: IssueCall) {
     this._call = call;
   }
 
-  get synth(): Address {
+  get account(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
-}
 
-export class AddSynthCall__Outputs {
-  _call: AddSynthCall;
-
-  constructor(call: AddSynthCall) {
-    this._call = call;
+  get amount(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
-export class RemoveSynthCall extends EthereumCall {
-  get inputs(): RemoveSynthCall__Inputs {
-    return new RemoveSynthCall__Inputs(this);
-  }
+export class IssueCall__Outputs {
+  _call: IssueCall;
 
-  get outputs(): RemoveSynthCall__Outputs {
-    return new RemoveSynthCall__Outputs(this);
-  }
-}
-
-export class RemoveSynthCall__Inputs {
-  _call: RemoveSynthCall;
-
-  constructor(call: RemoveSynthCall) {
-    this._call = call;
-  }
-
-  get currencyKey(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-}
-
-export class RemoveSynthCall__Outputs {
-  _call: RemoveSynthCall;
-
-  constructor(call: RemoveSynthCall) {
-    this._call = call;
-  }
-}
-
-export class SetExchangeEnabledCall extends EthereumCall {
-  get inputs(): SetExchangeEnabledCall__Inputs {
-    return new SetExchangeEnabledCall__Inputs(this);
-  }
-
-  get outputs(): SetExchangeEnabledCall__Outputs {
-    return new SetExchangeEnabledCall__Outputs(this);
-  }
-}
-
-export class SetExchangeEnabledCall__Inputs {
-  _call: SetExchangeEnabledCall;
-
-  constructor(call: SetExchangeEnabledCall) {
-    this._call = call;
-  }
-
-  get _exchangeEnabled(): boolean {
-    return this._call.inputValues[0].value.toBoolean();
-  }
-}
-
-export class SetExchangeEnabledCall__Outputs {
-  _call: SetExchangeEnabledCall;
-
-  constructor(call: SetExchangeEnabledCall) {
+  constructor(call: IssueCall) {
     this._call = call;
   }
 }
@@ -955,6 +742,40 @@ export class SelfDestructCall__Outputs {
   }
 }
 
+export class BurnCall extends EthereumCall {
+  get inputs(): BurnCall__Inputs {
+    return new BurnCall__Inputs(this);
+  }
+
+  get outputs(): BurnCall__Outputs {
+    return new BurnCall__Outputs(this);
+  }
+}
+
+export class BurnCall__Inputs {
+  _call: BurnCall;
+
+  constructor(call: BurnCall) {
+    this._call = call;
+  }
+
+  get account(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class BurnCall__Outputs {
+  _call: BurnCall;
+
+  constructor(call: BurnCall) {
+    this._call = call;
+  }
+}
+
 export class SetTokenStateCall extends EthereumCall {
   get inputs(): SetTokenStateCall__Inputs {
     return new SetTokenStateCall__Inputs(this);
@@ -981,36 +802,6 @@ export class SetTokenStateCall__Outputs {
   _call: SetTokenStateCall;
 
   constructor(call: SetTokenStateCall) {
-    this._call = call;
-  }
-}
-
-export class IssueMaxSynthsCall extends EthereumCall {
-  get inputs(): IssueMaxSynthsCall__Inputs {
-    return new IssueMaxSynthsCall__Inputs(this);
-  }
-
-  get outputs(): IssueMaxSynthsCall__Outputs {
-    return new IssueMaxSynthsCall__Outputs(this);
-  }
-}
-
-export class IssueMaxSynthsCall__Inputs {
-  _call: IssueMaxSynthsCall;
-
-  constructor(call: IssueMaxSynthsCall) {
-    this._call = call;
-  }
-
-  get currencyKey(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-}
-
-export class IssueMaxSynthsCall__Outputs {
-  _call: IssueMaxSynthsCall;
-
-  constructor(call: IssueMaxSynthsCall) {
     this._call = call;
   }
 }
@@ -1099,37 +890,45 @@ export class TransferFrom1Call__Outputs {
   }
 }
 
-export class BurnSynthsCall extends EthereumCall {
-  get inputs(): BurnSynthsCall__Inputs {
-    return new BurnSynthsCall__Inputs(this);
+export class TransferSenderPaysFeeCall extends EthereumCall {
+  get inputs(): TransferSenderPaysFeeCall__Inputs {
+    return new TransferSenderPaysFeeCall__Inputs(this);
   }
 
-  get outputs(): BurnSynthsCall__Outputs {
-    return new BurnSynthsCall__Outputs(this);
+  get outputs(): TransferSenderPaysFeeCall__Outputs {
+    return new TransferSenderPaysFeeCall__Outputs(this);
   }
 }
 
-export class BurnSynthsCall__Inputs {
-  _call: BurnSynthsCall;
+export class TransferSenderPaysFeeCall__Inputs {
+  _call: TransferSenderPaysFeeCall;
 
-  constructor(call: BurnSynthsCall) {
+  constructor(call: TransferSenderPaysFeeCall) {
     this._call = call;
   }
 
-  get currencyKey(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
+  get to(): Address {
+    return this._call.inputValues[0].value.toAddress();
   }
 
-  get amount(): BigInt {
+  get value(): BigInt {
     return this._call.inputValues[1].value.toBigInt();
   }
+
+  get data(): Bytes {
+    return this._call.inputValues[2].value.toBytes();
+  }
 }
 
-export class BurnSynthsCall__Outputs {
-  _call: BurnSynthsCall;
+export class TransferSenderPaysFeeCall__Outputs {
+  _call: TransferSenderPaysFeeCall;
 
-  constructor(call: BurnSynthsCall) {
+  constructor(call: TransferSenderPaysFeeCall) {
     this._call = call;
+  }
+
+  get value0(): boolean {
+    return this._call.outputValues[0].value.toBoolean();
   }
 }
 
@@ -1189,56 +988,6 @@ export class InitiateSelfDestructCall__Outputs {
   }
 }
 
-export class SynthInitiatedExchangeCall extends EthereumCall {
-  get inputs(): SynthInitiatedExchangeCall__Inputs {
-    return new SynthInitiatedExchangeCall__Inputs(this);
-  }
-
-  get outputs(): SynthInitiatedExchangeCall__Outputs {
-    return new SynthInitiatedExchangeCall__Outputs(this);
-  }
-}
-
-export class SynthInitiatedExchangeCall__Inputs {
-  _call: SynthInitiatedExchangeCall;
-
-  constructor(call: SynthInitiatedExchangeCall) {
-    this._call = call;
-  }
-
-  get from(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get sourceCurrencyKey(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
-  }
-
-  get sourceAmount(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get destinationCurrencyKey(): Bytes {
-    return this._call.inputValues[3].value.toBytes();
-  }
-
-  get destinationAddress(): Address {
-    return this._call.inputValues[4].value.toAddress();
-  }
-}
-
-export class SynthInitiatedExchangeCall__Outputs {
-  _call: SynthInitiatedExchangeCall;
-
-  constructor(call: SynthInitiatedExchangeCall) {
-    this._call = call;
-  }
-
-  get value0(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
 export class Transfer1Call extends EthereumCall {
   get inputs(): Transfer1Call__Inputs {
     return new Transfer1Call__Inputs(this);
@@ -1281,40 +1030,36 @@ export class Transfer1Call__Outputs {
   }
 }
 
-export class SynthInitiatedFeePaymentCall extends EthereumCall {
-  get inputs(): SynthInitiatedFeePaymentCall__Inputs {
-    return new SynthInitiatedFeePaymentCall__Inputs(this);
+export class TransferSenderPaysFee1Call extends EthereumCall {
+  get inputs(): TransferSenderPaysFee1Call__Inputs {
+    return new TransferSenderPaysFee1Call__Inputs(this);
   }
 
-  get outputs(): SynthInitiatedFeePaymentCall__Outputs {
-    return new SynthInitiatedFeePaymentCall__Outputs(this);
+  get outputs(): TransferSenderPaysFee1Call__Outputs {
+    return new TransferSenderPaysFee1Call__Outputs(this);
   }
 }
 
-export class SynthInitiatedFeePaymentCall__Inputs {
-  _call: SynthInitiatedFeePaymentCall;
+export class TransferSenderPaysFee1Call__Inputs {
+  _call: TransferSenderPaysFee1Call;
 
-  constructor(call: SynthInitiatedFeePaymentCall) {
+  constructor(call: TransferSenderPaysFee1Call) {
     this._call = call;
   }
 
-  get from(): Address {
+  get to(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get sourceCurrencyKey(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
-  }
-
-  get sourceAmount(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+  get value(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
-export class SynthInitiatedFeePaymentCall__Outputs {
-  _call: SynthInitiatedFeePaymentCall;
+export class TransferSenderPaysFee1Call__Outputs {
+  _call: TransferSenderPaysFee1Call;
 
-  constructor(call: SynthInitiatedFeePaymentCall) {
+  constructor(call: TransferSenderPaysFee1Call) {
     this._call = call;
   }
 
@@ -1323,32 +1068,142 @@ export class SynthInitiatedFeePaymentCall__Outputs {
   }
 }
 
-export class SetProtectionCircuitCall extends EthereumCall {
-  get inputs(): SetProtectionCircuitCall__Inputs {
-    return new SetProtectionCircuitCall__Inputs(this);
+export class TransferFromSenderPaysFee1Call extends EthereumCall {
+  get inputs(): TransferFromSenderPaysFee1Call__Inputs {
+    return new TransferFromSenderPaysFee1Call__Inputs(this);
   }
 
-  get outputs(): SetProtectionCircuitCall__Outputs {
-    return new SetProtectionCircuitCall__Outputs(this);
+  get outputs(): TransferFromSenderPaysFee1Call__Outputs {
+    return new TransferFromSenderPaysFee1Call__Outputs(this);
   }
 }
 
-export class SetProtectionCircuitCall__Inputs {
-  _call: SetProtectionCircuitCall;
+export class TransferFromSenderPaysFee1Call__Inputs {
+  _call: TransferFromSenderPaysFee1Call;
 
-  constructor(call: SetProtectionCircuitCall) {
+  constructor(call: TransferFromSenderPaysFee1Call) {
     this._call = call;
   }
 
-  get _protectionCircuitIsActivated(): boolean {
-    return this._call.inputValues[0].value.toBoolean();
+  get from(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get to(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get value(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 }
 
-export class SetProtectionCircuitCall__Outputs {
-  _call: SetProtectionCircuitCall;
+export class TransferFromSenderPaysFee1Call__Outputs {
+  _call: TransferFromSenderPaysFee1Call;
 
-  constructor(call: SetProtectionCircuitCall) {
+  constructor(call: TransferFromSenderPaysFee1Call) {
+    this._call = call;
+  }
+
+  get value0(): boolean {
+    return this._call.outputValues[0].value.toBoolean();
+  }
+}
+
+export class TriggerTokenFallbackIfNeededCall extends EthereumCall {
+  get inputs(): TriggerTokenFallbackIfNeededCall__Inputs {
+    return new TriggerTokenFallbackIfNeededCall__Inputs(this);
+  }
+
+  get outputs(): TriggerTokenFallbackIfNeededCall__Outputs {
+    return new TriggerTokenFallbackIfNeededCall__Outputs(this);
+  }
+}
+
+export class TriggerTokenFallbackIfNeededCall__Inputs {
+  _call: TriggerTokenFallbackIfNeededCall;
+
+  constructor(call: TriggerTokenFallbackIfNeededCall) {
+    this._call = call;
+  }
+
+  get sender(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get recipient(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+}
+
+export class TriggerTokenFallbackIfNeededCall__Outputs {
+  _call: TriggerTokenFallbackIfNeededCall;
+
+  constructor(call: TriggerTokenFallbackIfNeededCall) {
+    this._call = call;
+  }
+}
+
+export class SetTotalSupplyCall extends EthereumCall {
+  get inputs(): SetTotalSupplyCall__Inputs {
+    return new SetTotalSupplyCall__Inputs(this);
+  }
+
+  get outputs(): SetTotalSupplyCall__Outputs {
+    return new SetTotalSupplyCall__Outputs(this);
+  }
+}
+
+export class SetTotalSupplyCall__Inputs {
+  _call: SetTotalSupplyCall;
+
+  constructor(call: SetTotalSupplyCall) {
+    this._call = call;
+  }
+
+  get amount(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class SetTotalSupplyCall__Outputs {
+  _call: SetTotalSupplyCall;
+
+  constructor(call: SetTotalSupplyCall) {
+    this._call = call;
+  }
+}
+
+export class SetSynthetixCall extends EthereumCall {
+  get inputs(): SetSynthetixCall__Inputs {
+    return new SetSynthetixCall__Inputs(this);
+  }
+
+  get outputs(): SetSynthetixCall__Outputs {
+    return new SetSynthetixCall__Outputs(this);
+  }
+}
+
+export class SetSynthetixCall__Inputs {
+  _call: SetSynthetixCall;
+
+  constructor(call: SetSynthetixCall) {
+    this._call = call;
+  }
+
+  get _synthetix(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetSynthetixCall__Outputs {
+  _call: SetSynthetixCall;
+
+  constructor(call: SetSynthetixCall) {
     this._call = call;
   }
 }
@@ -1378,36 +1233,28 @@ export class ConstructorCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get _synthetixState(): Address {
+  get _synthetix(): Address {
     return this._call.inputValues[2].value.toAddress();
   }
 
-  get _owner(): Address {
+  get _feePool(): Address {
     return this._call.inputValues[3].value.toAddress();
   }
 
-  get _exchangeRates(): Address {
-    return this._call.inputValues[4].value.toAddress();
+  get _tokenName(): string {
+    return this._call.inputValues[4].value.toString();
   }
 
-  get _feePool(): Address {
-    return this._call.inputValues[5].value.toAddress();
+  get _tokenSymbol(): string {
+    return this._call.inputValues[5].value.toString();
   }
 
-  get _supplySchedule(): Address {
+  get _owner(): Address {
     return this._call.inputValues[6].value.toAddress();
   }
 
-  get _rewardEscrow(): Address {
-    return this._call.inputValues[7].value.toAddress();
-  }
-
-  get _escrow(): Address {
-    return this._call.inputValues[8].value.toAddress();
-  }
-
-  get _totalSupply(): BigInt {
-    return this._call.inputValues[9].value.toBigInt();
+  get _currencyKey(): Bytes {
+    return this._call.inputValues[7].value.toBytes();
   }
 }
 

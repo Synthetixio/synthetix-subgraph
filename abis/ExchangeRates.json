@@ -183,6 +183,21 @@
   {
     "constant": true,
     "inputs": [],
+    "name": "priceUpdateLock",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x44d010d4"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "nominatedOwner",
     "outputs": [
       {
@@ -214,6 +229,21 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x5dc2944a"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_priceUpdateLock",
+        "type": "bool"
+      }
+    ],
+    "name": "setPriceUpdateLock",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x70bb5959"
   },
   {
     "constant": false,
