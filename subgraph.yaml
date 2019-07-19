@@ -82,7 +82,7 @@ dataSources:
           file: ./abis/Synth.json
       eventHandlers:
         - event: 'Transfer(address,address,uint256)'
-          handler: handleTransferSynth
+          handler: handleTransfersUSD
   - kind: ethereum/contract
     name: SynthsETH
     network: mainnet

@@ -80,6 +80,20 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.save();
 }
 
+export function handleTransfersUSD(event: SynthTransferEvent): void {
+  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  // sUSD contract didn't have the "currencyKey" field prior to the multicurrency release, so
+  // we hardcode this as The Graph doesn't yet support handling errors in calls.
+  // See https://github.com/graphprotocol/support/issues/21#issuecomment-507652767
+  entity.source = 'sUSD';
+  entity.from = event.params.from;
+  entity.to = event.params.to;
+  entity.value = event.params.value;
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
+  entity.save();
+}
+
 // export function handleTransfer(event: TransferEvent): void {
 //   let contract = Synth.bind(event.address);
 //   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
