@@ -13,12 +13,17 @@ import {
 } from '../generated/Synthetix/Synthetix';
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
 
-import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthXDR/Synth';
+import {
+  Synth,
+  Transfer as SynthTransferEvent,
+  Issued as IssuedEvent,
+  Burned as BurnedEvent,
+} from '../generated/SynthsUSD/Synth';
 import {
   SynthExchange,
   Transfer,
-  // Issued,
-  // Burned,
+  Issued,
+  Burned,
   RatesUpdated,
   Approval,
   TokenStateUpdated,
@@ -29,6 +34,7 @@ import {
   SelfDestructBeneficiaryUpdated,
   OwnerNominated,
   OwnerChanged,
+  Issuer,
 } from '../generated/schema';
 
 export function handleSynthExchange(event: SynthExchangeEvent): void {
@@ -94,35 +100,31 @@ export function handleTransfersUSD(event: SynthTransferEvent): void {
   entity.save();
 }
 
-// export function handleTransfer(event: TransferEvent): void {
-//   let contract = Synth.bind(event.address);
-//   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-//   entity.source = contract.currencyKey().toString();
-//   entity.from = event.params.from;
-//   entity.to = event.params.to;
-//   entity.value = event.params.value;
-//   entity.timestamp = event.block.timestamp;
-//   entity.block = event.block.number;
-//   entity.save();
-// }
+export function handleIssuedsUSD(event: IssuedEvent): void {
+  let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.account = event.params.account;
+  entity.value = event.params.value;
+  entity.source = 'sUSD';
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
+  entity.gasPrice = event.transaction.gasPrice;
+  entity.save();
 
-// export function handleIssued(event: IssuedEvent): void {
-//   let contract = Synth.bind(event.address);
-//   let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-//   entity.account = event.params.account;
-//   entity.value = event.params.value;
-//   entity.source = contract.currencyKey().toString();
-//   entity.save();
-// }
+  // now track individual issuers
+  let issuer = new Issuer(event.transaction.from.toHex());
+  issuer.save();
+}
 
-// export function handleBurned(event: BurnedEvent): void {
-//   let contract = Synth.bind(event.address);
-//   let entity = new Burned(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-//   entity.account = event.params.account;
-//   entity.value = event.params.value;
-//   entity.source = contract.currencyKey().toString();
-//   entity.save();
-// }
+export function handleBurnedsUSD(event: BurnedEvent): void {
+  let entity = new Burned(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.account = event.params.account;
+  entity.value = event.params.value;
+  entity.source = 'sUSD';
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
+  entity.gasPrice = event.transaction.gasPrice;
+  entity.save();
+}
 
 export function handleApproval(event: ApprovalEvent): void {
   let entity = new Approval(event.transaction.hash.toHex() + '-' + event.logIndex.toString());

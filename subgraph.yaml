@@ -62,7 +62,7 @@ dataSources:
         - name: Synth
           file: ./abis/Synth.json
       eventHandlers:
-        - event: 'Transfer(address,address,uint256)'
+        - event: Transfer(address,address,uint256)
           handler: handleTransferSynth
   - kind: ethereum/contract
     name: SynthsUSD
@@ -77,12 +77,18 @@ dataSources:
       file: ./src/mapping.ts
       entities:
         - Transfer
+        - Issued
+        - Burned
       abis:
         - name: Synth
           file: ./abis/Synth.json
       eventHandlers:
-        - event: 'Transfer(address,address,uint256)'
+        - event: Transfer(address,address,uint256)
           handler: handleTransfersUSD
+        - event: Issued(address,uint256)
+          handler: handleIssuedsUSD
+        - event: Burned(address,uint256)
+          handler: handleBurnedsUSD
   - kind: ethereum/contract
     name: SynthsETH
     network: mainnet
@@ -100,7 +106,7 @@ dataSources:
         - name: Synth
           file: ./abis/Synth.json
       eventHandlers:
-        - event: 'Transfer(address,address,uint256)'
+        - event: Transfer(address,address,uint256)
           handler: handleTransferSynth
   - kind: ethereum/contract
     name: SynthsBTC
@@ -119,7 +125,7 @@ dataSources:
         - name: Synth
           file: ./abis/Synth.json
       eventHandlers:
-        - event: 'Transfer(address,address,uint256)'
+        - event: Transfer(address,address,uint256)
           handler: handleTransferSynth
   # - kind: ethereum/contract
   #   name: sUSD

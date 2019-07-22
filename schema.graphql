@@ -32,6 +32,30 @@ type RatesUpdated @entity {
   timestamp: BigInt!
 }
 
+type Issued @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigInt! # uint256
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+type Issuer @entity {
+  id: ID!
+}
+
+type Burned @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigInt! # uint256
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
 type Approval @entity {
   id: ID!
   owner: Bytes! # address
