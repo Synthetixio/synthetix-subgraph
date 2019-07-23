@@ -18,6 +18,7 @@ dataSources:
       entities:
         - SynthExchange
         - Transfer
+        - ProxyTargetUpdated
       abis:
         - name: Synthetix
           file: ./abis/Synthetix.json
@@ -26,6 +27,25 @@ dataSources:
           handler: handleSynthExchange
         - event: Transfer(address,address,uint256)
           handler: handleTransferSNX
+  - kind: ethereum/contract
+    name: ProxySynthetix
+    network: mainnet
+    source:
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # ProxySynthetix
+      abi: Proxy
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - ProxyTargetUpdated
+      abis:
+        - name: Proxy
+          file: ./abis/Proxy.json
+      eventHandlers:
+        - event: TargetUpdated(address)
+          handler: handleProxyTargetUpdated
   - kind: ethereum/contract
     name: ExchangeRates
     network: mainnet

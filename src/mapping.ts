@@ -1,17 +1,6 @@
-import {
-  SynthExchange as SynthExchangeEvent,
-  Transfer as TransferEvent,
-  Approval as ApprovalEvent,
-  TokenStateUpdated as TokenStateUpdatedEvent,
-  ProxyUpdated as ProxyUpdatedEvent,
-  SelfDestructTerminated as SelfDestructTerminatedEvent,
-  SelfDestructed as SelfDestructedEvent,
-  SelfDestructInitiated as SelfDestructInitiatedEvent,
-  SelfDestructBeneficiaryUpdated as SelfDestructBeneficiaryUpdatedEvent,
-  OwnerNominated as OwnerNominatedEvent,
-  OwnerChanged as OwnerChangedEvent,
-} from '../generated/Synthetix/Synthetix';
+import { SynthExchange as SynthExchangeEvent, Transfer as TransferEvent } from '../generated/Synthetix/Synthetix';
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
+import { Proxy, TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
   Synth,
@@ -20,22 +9,17 @@ import {
   Burned as BurnedEvent,
 } from '../generated/SynthsUSD/Synth';
 import {
+  Synthetix,
   SynthExchange,
   Transfer,
   Issued,
   Burned,
   RatesUpdated,
-  Approval,
-  TokenStateUpdated,
-  ProxyUpdated,
-  SelfDestructTerminated,
-  SelfDestructed,
-  SelfDestructInitiated,
-  SelfDestructBeneficiaryUpdated,
-  OwnerNominated,
-  OwnerChanged,
   Issuer,
+  ProxyTargetUpdated,
 } from '../generated/schema';
+
+import { BigInt, Address } from '@graphprotocol/graph-ts';
 
 export function handleSynthExchange(event: SynthExchangeEvent): void {
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -100,6 +84,24 @@ export function handleTransfersUSD(event: SynthTransferEvent): void {
   entity.save();
 }
 
+function trackIssuer(account: Address): void {
+  let existingIssuer = Issuer.load(account.toHex());
+  // If this is a new issuer, track it in the metadata
+  if (existingIssuer == null) {
+    // update metadata
+    let metadata = Synthetix.load('1');
+    if (metadata != null) {
+      metadata.issuers = metadata.issuers.plus(BigInt.fromI32(1));
+    } else {
+      metadata = new Synthetix('1');
+      metadata.issuers = BigInt.fromI32(1);
+    }
+    metadata.save();
+  }
+  let issuer = new Issuer(account.toHex());
+  issuer.save();
+}
+
 export function handleIssuedsUSD(event: IssuedEvent): void {
   let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
@@ -110,9 +112,7 @@ export function handleIssuedsUSD(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  // now track individual issuers
-  let issuer = new Issuer(event.transaction.from.toHex());
-  issuer.save();
+  trackIssuer(event.transaction.from);
 }
 
 export function handleBurnedsUSD(event: BurnedEvent): void {
@@ -126,59 +126,11 @@ export function handleBurnedsUSD(event: BurnedEvent): void {
   entity.save();
 }
 
-export function handleApproval(event: ApprovalEvent): void {
-  let entity = new Approval(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.owner = event.params.owner;
-  entity.spender = event.params.spender;
-  entity.value = event.params.value;
-  entity.save();
-}
-
-export function handleTokenStateUpdated(event: TokenStateUpdatedEvent): void {
-  let entity = new TokenStateUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.newTokenState = event.params.newTokenState;
-  entity.save();
-}
-
-export function handleProxyUpdated(event: ProxyUpdatedEvent): void {
-  let entity = new ProxyUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.proxyAddress = event.params.proxyAddress;
-  entity.save();
-}
-
-export function handleSelfDestructTerminated(event: SelfDestructTerminatedEvent): void {
-  let entity = new SelfDestructTerminated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-
-  entity.save();
-}
-
-export function handleSelfDestructed(event: SelfDestructedEvent): void {
-  let entity = new SelfDestructed(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.beneficiary = event.params.beneficiary;
-  entity.save();
-}
-
-export function handleSelfDestructInitiated(event: SelfDestructInitiatedEvent): void {
-  let entity = new SelfDestructInitiated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.selfDestructDelay = event.params.selfDestructDelay;
-  entity.save();
-}
-
-export function handleSelfDestructBeneficiaryUpdated(event: SelfDestructBeneficiaryUpdatedEvent): void {
-  let entity = new SelfDestructBeneficiaryUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.newBeneficiary = event.params.newBeneficiary;
-  entity.save();
-}
-
-export function handleOwnerNominated(event: OwnerNominatedEvent): void {
-  let entity = new OwnerNominated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.newOwner = event.params.newOwner;
-  entity.save();
-}
-
-export function handleOwnerChanged(event: OwnerChangedEvent): void {
-  let entity = new OwnerChanged(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.oldOwner = event.params.oldOwner;
-  entity.newOwner = event.params.newOwner;
+export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
+  let entity = new ProxyTargetUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.source = 'SNX'; // hardcoded for now
+  let contract = Proxy.bind(event.address);
+  entity.oldTarget = contract.target();
+  entity.newTarget = event.params.newTarget;
   entity.save();
 }
