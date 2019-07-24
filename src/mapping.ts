@@ -1,6 +1,10 @@
-import { SynthExchange as SynthExchangeEvent, Transfer as TransferEvent } from '../generated/Synthetix/Synthetix';
+import {
+  Synthetix as SNX,
+  SynthExchange as SynthExchangeEvent,
+  Transfer as TransferEvent,
+} from '../generated/Synthetix/Synthetix';
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
-import { Proxy, TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
+import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
   Synth,
@@ -16,10 +20,89 @@ import {
   Burned,
   RatesUpdated,
   Issuer,
+  Exchanger,
   ProxyTargetUpdated,
+  SNXHolder,
 } from '../generated/schema';
 
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { Bytes, ByteArray, BigInt, Address } from '@graphprotocol/graph-ts';
+
+let contracts = new Map<string, string>();
+contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
+contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
+contracts.set('proxySynthetix', '0xc011a72400e58ecd99ee497cf89e3775d4bd732f');
+contracts.set('proxysUSD', '0x57ab1e02fee23774580c119740129eac7081e9d3');
+
+let sUSD = ByteArray.fromHexString('0x73555344') as Bytes;
+
+function getMetadata(): Synthetix {
+  let synthetix = Synthetix.load('1');
+
+  if (synthetix == null) {
+    synthetix = new Synthetix('1');
+    synthetix.issuers = BigInt.fromI32(0);
+    synthetix.exchangers = BigInt.fromI32(0);
+    synthetix.snxHolders = BigInt.fromI32(0);
+    synthetix.save();
+  }
+
+  return synthetix as Synthetix;
+}
+
+function incrementMetadata(field: string): void {
+  let metadata = getMetadata();
+  if (field == 'issuers') {
+    metadata.issuers = metadata.issuers.plus(BigInt.fromI32(1));
+  } else if (field == 'exchangers') {
+    metadata.exchangers = metadata.exchangers.plus(BigInt.fromI32(1));
+  } else if (field == 'snxHolders') {
+    metadata.snxHolders = metadata.snxHolders.plus(BigInt.fromI32(1));
+  }
+  metadata.save();
+}
+
+function trackExchanger(account: Address): void {
+  let existingExchanger = Exchanger.load(account.toHex());
+  if (existingExchanger == null) {
+    incrementMetadata('exchangers');
+  }
+  let exchanger = new Exchanger(account.toHex());
+  exchanger.save();
+}
+
+function trackIssuer(account: Address, block: BigInt): void {
+  let existingIssuer = Issuer.load(account.toHex());
+  if (existingIssuer == null) {
+    incrementMetadata('issuers');
+  }
+  let issuer = new Issuer(account.toHex());
+  // Note: currently cannot access this as earlier Synthetix deployments did not have debtBalance
+  if (block.toI32() > 7000000) {
+    let contract = SNX.bind(Address.fromString(contracts.get('proxySynthetix')));
+    issuer.debtBalance = contract.debtBalanceOf(account, sUSD); // sUSD
+    issuer.collateralisationRatio = contract.collateralisationRatio(account);
+  }
+  issuer.save();
+}
+
+function trackSNXHolder(account: Address, block: BigInt): void {
+  let holder = account.toHex();
+  // ignore escrow accounts
+  if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
+    return;
+  }
+  let existingSNXHolder = SNXHolder.load(account.toHex());
+  if (existingSNXHolder == null) {
+    incrementMetadata('snxHolders');
+  }
+  let snxHolder = new SNXHolder(account.toHex());
+  // Note: currently cannot access this as earlier Synthetix deployments did not have the "collateral" field
+  if (block.toI32() > 7000000) {
+    let synthetix = SNX.bind(Address.fromString(contracts.get('proxySynthetix')));
+    snxHolder.collateral = synthetix.collateral(account);
+  }
+  snxHolder.save();
+}
 
 export function handleSynthExchange(event: SynthExchangeEvent): void {
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -34,6 +117,8 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
+
+  trackExchanger(event.transaction.from);
 }
 
 export function handleTransferSNX(event: TransferEvent): void {
@@ -45,6 +130,9 @@ export function handleTransferSNX(event: TransferEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.save();
+
+  trackSNXHolder(event.params.from, entity.block);
+  trackSNXHolder(event.params.to, entity.block);
 }
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
@@ -84,24 +172,6 @@ export function handleTransfersUSD(event: SynthTransferEvent): void {
   entity.save();
 }
 
-function trackIssuer(account: Address): void {
-  let existingIssuer = Issuer.load(account.toHex());
-  // If this is a new issuer, track it in the metadata
-  if (existingIssuer == null) {
-    // update metadata
-    let metadata = Synthetix.load('1');
-    if (metadata != null) {
-      metadata.issuers = metadata.issuers.plus(BigInt.fromI32(1));
-    } else {
-      metadata = new Synthetix('1');
-      metadata.issuers = BigInt.fromI32(1);
-    }
-    metadata.save();
-  }
-  let issuer = new Issuer(account.toHex());
-  issuer.save();
-}
-
 export function handleIssuedsUSD(event: IssuedEvent): void {
   let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
@@ -112,7 +182,7 @@ export function handleIssuedsUSD(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackIssuer(event.transaction.from);
+  trackIssuer(event.transaction.from, entity.block);
 }
 
 export function handleBurnedsUSD(event: BurnedEvent): void {
@@ -128,9 +198,8 @@ export function handleBurnedsUSD(event: BurnedEvent): void {
 
 export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
   let entity = new ProxyTargetUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'SNX'; // hardcoded for now
-  let contract = Proxy.bind(event.address);
-  entity.oldTarget = contract.target();
+  entity.source = 'Synthetix'; // hardcoded for now
   entity.newTarget = event.params.newTarget;
+  entity.block = event.block.number;
   entity.save();
 }

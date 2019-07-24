@@ -50,6 +50,24 @@ export class Synthetix extends Entity {
   set issuers(value: BigInt) {
     this.set("issuers", Value.fromBigInt(value));
   }
+
+  get exchangers(): BigInt {
+    let value = this.get("exchangers");
+    return value.toBigInt();
+  }
+
+  set exchangers(value: BigInt) {
+    this.set("exchangers", Value.fromBigInt(value));
+  }
+
+  get snxHolders(): BigInt {
+    let value = this.get("snxHolders");
+    return value.toBigInt();
+  }
+
+  set snxHolders(value: BigInt) {
+    this.set("snxHolders", Value.fromBigInt(value));
+  }
 }
 
 export class SynthExchange extends Entity {
@@ -457,6 +475,119 @@ export class Issuer extends Entity {
   set id(value: string) {
     this.set("id", Value.fromString(value));
   }
+
+  get debtBalance(): BigInt | null {
+    let value = this.get("debtBalance");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set debtBalance(value: BigInt | null) {
+    if (value === null) {
+      this.unset("debtBalance");
+    } else {
+      this.set("debtBalance", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get collateralisationRatio(): BigInt | null {
+    let value = this.get("collateralisationRatio");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set collateralisationRatio(value: BigInt | null) {
+    if (value === null) {
+      this.unset("collateralisationRatio");
+    } else {
+      this.set("collateralisationRatio", Value.fromBigInt(value as BigInt));
+    }
+  }
+}
+
+export class Exchanger extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Exchanger entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Exchanger entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Exchanger", id.toString(), this);
+  }
+
+  static load(id: string): Exchanger | null {
+    return store.get("Exchanger", id) as Exchanger | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+}
+
+export class SNXHolder extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save SNXHolder entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save SNXHolder entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("SNXHolder", id.toString(), this);
+  }
+
+  static load(id: string): SNXHolder | null {
+    return store.get("SNXHolder", id) as SNXHolder | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get collateral(): BigInt | null {
+    let value = this.get("collateral");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set collateral(value: BigInt | null) {
+    if (value === null) {
+      this.unset("collateral");
+    } else {
+      this.set("collateral", Value.fromBigInt(value as BigInt));
+    }
+  }
 }
 
 export class Burned extends Entity {
@@ -583,15 +714,6 @@ export class ProxyTargetUpdated extends Entity {
     this.set("source", Value.fromString(value));
   }
 
-  get oldTarget(): Bytes {
-    let value = this.get("oldTarget");
-    return value.toBytes();
-  }
-
-  set oldTarget(value: Bytes) {
-    this.set("oldTarget", Value.fromBytes(value));
-  }
-
   get newTarget(): Bytes {
     let value = this.get("newTarget");
     return value.toBytes();
@@ -599,5 +721,14 @@ export class ProxyTargetUpdated extends Entity {
 
   set newTarget(value: Bytes) {
     this.set("newTarget", Value.fromBytes(value));
+  }
+
+  get block(): BigInt {
+    let value = this.get("block");
+    return value.toBigInt();
+  }
+
+  set block(value: BigInt) {
+    this.set("block", Value.fromBigInt(value));
   }
 }

@@ -1,6 +1,8 @@
 type Synthetix @entity {
   id: ID!
   issuers: BigInt!
+  exchangers: BigInt!
+  snxHolders: BigInt!
 }
 
 type SynthExchange @entity {
@@ -49,6 +51,17 @@ type Issued @entity {
 
 type Issuer @entity {
   id: ID!
+  debtBalance: BigInt # will be null before multicurrency release
+  collateralisationRatio: BigInt # will be null before multicurrency release
+}
+
+type Exchanger @entity {
+  id: ID!
+}
+
+type SNXHolder @entity {
+  id: ID!
+  collateral: BigInt # will be null before multicurrency release
 }
 
 type Burned @entity {
@@ -64,6 +77,6 @@ type Burned @entity {
 type ProxyTargetUpdated @entity {
   id: ID!
   source: String!
-  oldTarget: Bytes!
   newTarget: Bytes! # address
+  block: BigInt!
 }
