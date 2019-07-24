@@ -64,3 +64,4 @@ build
 .vscode
 
 do_deploy.bash
+generated
