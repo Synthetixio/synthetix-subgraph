@@ -102,6 +102,8 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
       eventHandlers:
         - event: Transfer(address,address,uint256)
           handler: handleTransfersUSD
