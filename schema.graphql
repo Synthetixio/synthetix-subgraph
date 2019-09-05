@@ -3,6 +3,7 @@ type Synthetix @entity {
   issuers: BigInt!
   exchangers: BigInt!
   snxHolders: BigInt!
+  exchangeUSDTally: BigInt!
 }
 
 type SynthExchange @entity {
@@ -79,4 +80,5 @@ type ProxyTargetUpdated @entity {
   source: String!
   newTarget: Bytes! # address
   block: BigInt!
+  tx: Bytes!
 }

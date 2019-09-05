@@ -3,7 +3,7 @@ import {
   SynthExchange as SynthExchangeEvent,
   Transfer as TransferEvent,
 } from '../generated/Synthetix/Synthetix';
-import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
+import { RatesUpdated as RatesUpdatedEvent, ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
@@ -43,6 +43,7 @@ function getMetadata(): Synthetix {
     synthetix.issuers = BigInt.fromI32(0);
     synthetix.exchangers = BigInt.fromI32(0);
     synthetix.snxHolders = BigInt.fromI32(0);
+    synthetix.exchangeUSDTally = BigInt.fromI32(0);
     synthetix.save();
   }
 
@@ -104,6 +105,20 @@ function trackSNXHolder(account: Address, block: BigInt): void {
   snxHolder.save();
 }
 
+// transactions to ignore: these were part of the oracle issue on June 24, 2019 where a bot
+// traded on an error with KRW pricing.
+let exchangesToIgnore = new Array<string>();
+exchangesToIgnore.push('0xfc394ccdc54e4a16f10e41abedf1e9687017d2d92fb910872df7a008441fcdb7');
+exchangesToIgnore.push('0x2fecbd27a9ab11f4168e84fe9058696c5654f85291079adb023e5ee49ce9b453');
+exchangesToIgnore.push('0x3b22d34d5bf672b4aa8d85c1f560d0b592a57f885bbbd44d55655b480a598e65');
+exchangesToIgnore.push('0x3bc868625212fc45baa9d43c8a04763d2d5130c4358bcd76712fd7dfb391f88d');
+exchangesToIgnore.push('0x0347037683e6164b7e88a6c5638ee24bf2e0a0cc5512123969ed85542fa51f0f');
+exchangesToIgnore.push('0xd68199987b6c457f783a5daeddb4154526003401125ab76cd9b6486be8944174');
+exchangesToIgnore.push('0x93819f6bbea390d7709fa033f5733d16418674e99c43b9ed23adb4110d657f0c');
+// this final txn was the agreed upon trade back into an artifically lowered synth by the
+// bot owner for an ETH bounty.
+exchangesToIgnore.push('0xc3fc19c63e1090eb624212bad71a27cd3dc7afcd0cf9063d24bfc47b5d036ae2');
+
 export function handleSynthExchange(event: SynthExchangeEvent): void {
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
@@ -119,6 +134,15 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.save();
 
   trackExchanger(event.transaction.from);
+
+  // now save the tally of USD value of all exchanges
+  if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
+    let metadata = getMetadata();
+    let contract = SNX.bind(event.address);
+    let toAmount = contract.effectiveValue(event.params.fromCurrencyKey, event.params.fromAmount, sUSD);
+    metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
+    metadata.save();
+  }
 }
 
 export function handleTransferSNX(event: TransferEvent): void {
@@ -201,5 +225,6 @@ export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
   entity.source = 'Synthetix'; // hardcoded for now
   entity.newTarget = event.params.newTarget;
   entity.block = event.block.number;
+  entity.tx = event.transaction.hash;
   entity.save();
 }
