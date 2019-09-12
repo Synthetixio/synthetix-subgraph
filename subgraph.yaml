@@ -1,4 +1,4 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 description: Synthetix API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
@@ -12,7 +12,7 @@ dataSources:
       abi: Synthetix
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
@@ -25,9 +25,9 @@ dataSources:
         - name: ExchangeRates
           file: ./abis/ExchangeRates.json
       eventHandlers:
-        - event: SynthExchange(address,bytes4,uint256,bytes4,uint256,address)
+        - event: SynthExchange(indexed address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange
-        - event: Transfer(address,address,uint256)
+        - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
   - kind: ethereum/contract
     name: ProxySynthetix
@@ -37,7 +37,7 @@ dataSources:
       abi: Proxy
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
@@ -56,7 +56,7 @@ dataSources:
       abi: ExchangeRates
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
@@ -75,7 +75,7 @@ dataSources:
       abi: Synth
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
@@ -84,7 +84,7 @@ dataSources:
         - name: Synth
           file: ./abis/Synth.json
       eventHandlers:
-        - event: Transfer(address,address,uint256)
+        - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
   - kind: ethereum/contract
     name: SynthsUSD
@@ -94,7 +94,7 @@ dataSources:
       abi: Synth
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
@@ -107,11 +107,11 @@ dataSources:
         - name: Synthetix
           file: ./abis/Synthetix.json
       eventHandlers:
-        - event: Transfer(address,address,uint256)
+        - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfersUSD
-        - event: Issued(address,uint256)
+        - event: Issued(indexed address,uint256)
           handler: handleIssuedsUSD
-        - event: Burned(address,uint256)
+        - event: Burned(indexed address,uint256)
           handler: handleBurnedsUSD
   - kind: ethereum/contract
     name: SynthsETH
@@ -121,7 +121,7 @@ dataSources:
       abi: Synth
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
@@ -130,7 +130,7 @@ dataSources:
         - name: Synth
           file: ./abis/Synth.json
       eventHandlers:
-        - event: Transfer(address,address,uint256)
+        - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
   - kind: ethereum/contract
     name: SynthsBTC
@@ -140,7 +140,7 @@ dataSources:
       abi: Synth
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
@@ -149,7 +149,7 @@ dataSources:
         - name: Synth
           file: ./abis/Synth.json
       eventHandlers:
-        - event: Transfer(address,address,uint256)
+        - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
   # - kind: ethereum/contract
   #   name: sUSD
@@ -159,7 +159,7 @@ dataSources:
   #     abi: Synth
   #   mapping:
   #     kind: ethereum/events
-  #     apiVersion: 0.0.2
+  #     apiVersion: 0.0.3
   #     language: wasm/assemblyscript
   #     file: ./src/mapping.ts
   #     entities:
@@ -170,7 +170,7 @@ dataSources:
   #       - name: Synth
   #         file: ./abis/Synth.json
   #     eventHandlers:
-  #       - event: Transfer(address,address,uint256)
+  #       - event: Transfer(indexed address,indexed address,uint256)
   #         handler: handleTransfer
   #       - event: Issued(address,uint256)
   #         handler: handleIssued
@@ -184,7 +184,7 @@ dataSources:
   #     abi: Synth
   #   mapping:
   #     kind: ethereum/events
-  #     apiVersion: 0.0.2
+  #     apiVersion: 0.0.3
   #     language: wasm/assemblyscript
   #     file: ./src/mapping.ts
   #     entities:
@@ -195,7 +195,7 @@ dataSources:
   #       - name: Synth
   #         file: ./abis/Synth.json
   #     eventHandlers:
-  #       - event: Transfer(address,address,uint256)
+  #       - event: Transfer(indexed address,indexed address,uint256)
   #         handler: handleTransfer
   #       - event: Issued(address,uint256)
   #         handler: handleIssued
@@ -209,7 +209,7 @@ dataSources:
   #     abi: Synth
   #   mapping:
   #     kind: ethereum/events
-  #     apiVersion: 0.0.2
+  #     apiVersion: 0.0.3
   #     language: wasm/assemblyscript
   #     file: ./src/mapping.ts
   #     entities:
@@ -220,7 +220,7 @@ dataSources:
   #       - name: Synth
   #         file: ./abis/Synth.json
   #     eventHandlers:
-  #       - event: Transfer(address,address,uint256)
+  #       - event: Transfer(indexed address,indexed address,uint256)
   #         handler: handleTransfer
   #       - event: Issued(address,uint256)
   #         handler: handleIssued

@@ -40,6 +40,15 @@ type RatesUpdated @entity {
   timestamp: BigInt!
 }
 
+type RateUpdate @entity {
+  id: ID!
+  currencyKey: Bytes!
+  synth: String!
+  rate: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
 type Issued @entity {
   id: ID!
   account: Bytes! # address

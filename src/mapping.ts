@@ -19,6 +19,7 @@ import {
   Issued,
   Burned,
   RatesUpdated,
+  RateUpdate,
   Issuer,
   Exchanger,
   ProxyTargetUpdated,
@@ -168,6 +169,17 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   entity.from = event.transaction.from;
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
+
+  // now save each individual update
+  while (entity.currencyKeys.length > 0) {
+    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+    rateEntity.block = event.block.number;
+    rateEntity.timestamp = event.block.timestamp;
+    rateEntity.currencyKey = entity.currencyKeys.shift();
+    rateEntity.synth = rateEntity.currencyKey.toString();
+    rateEntity.rate = event.params.newRates.shift();
+    rateEntity.save();
+  }
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
