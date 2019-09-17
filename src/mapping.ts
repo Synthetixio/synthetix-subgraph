@@ -170,14 +170,17 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
+  // required due to assemblyscript
+  let keys = entity.currencyKeys;
+  let rates = entity.newRates;
   // now save each individual update
-  while (entity.currencyKeys.length > 0) {
-    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  for (let i = 0; i < entity.currencyKeys.length; i++) {
+    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + keys[i].toString());
     rateEntity.block = event.block.number;
     rateEntity.timestamp = event.block.timestamp;
-    rateEntity.currencyKey = entity.currencyKeys.shift();
-    rateEntity.synth = rateEntity.currencyKey.toString();
-    rateEntity.rate = event.params.newRates.shift();
+    rateEntity.currencyKey = keys[i];
+    rateEntity.synth = keys[i].toString();
+    rateEntity.rate = rates[i];
     rateEntity.save();
   }
 }
