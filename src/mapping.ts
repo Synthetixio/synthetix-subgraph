@@ -31,8 +31,6 @@ import { Bytes, ByteArray, BigInt, Address } from '@graphprotocol/graph-ts';
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
-contracts.set('proxySynthetix', '0xc011a72400e58ecd99ee497cf89e3775d4bd732f');
-contracts.set('proxysUSD', '0x57ab1e02fee23774580c119740129eac7081e9d3');
 
 let ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 let FEE_ADDRESS = '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef';
@@ -76,22 +74,22 @@ function trackExchanger(account: Address): void {
   exchanger.save();
 }
 
-function trackIssuer(account: Address, block: BigInt): void {
+function trackIssuer(snxContract: Address, account: Address): void {
   let existingIssuer = Issuer.load(account.toHex());
   if (existingIssuer == null) {
     incrementMetadata('issuers');
   }
   let issuer = new Issuer(account.toHex());
-  // Note: currently cannot access this as earlier Synthetix deployments did not have debtBalance
-  if (block.toI32() > 7000000) {
-    let contract = SNX.bind(Address.fromString(contracts.get('proxySynthetix')));
-    issuer.debtBalance = contract.debtBalanceOf(account, sUSD); // sUSD
-    issuer.collateralisationRatio = contract.collateralisationRatio(account);
+
+  let synthetix = SNX.bind(snxContract);
+  if (!synthetix.try_debtBalanceOf(account, sUSD).reverted) {
+    issuer.debtBalance = synthetix.debtBalanceOf(account, sUSD); // sUSD
+    issuer.collateralisationRatio = synthetix.collateralisationRatio(account);
   }
   issuer.save();
 }
 
-function trackSNXHolder(account: Address, block: BigInt): void {
+function trackSNXHolder(snxContract: Address, account: Address): void {
   let holder = account.toHex();
   // ignore escrow accounts
   if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
@@ -102,21 +100,20 @@ function trackSNXHolder(account: Address, block: BigInt): void {
     incrementMetadata('snxHolders');
   }
   let snxHolder = new SNXHolder(account.toHex());
-  // Note: currently cannot access this as earlier Synthetix deployments did not have the "collateral" field
-  if (block.toI32() > 7000000) {
-    let synthetix = SNX.bind(Address.fromString(contracts.get('proxySynthetix')));
+  let synthetix = SNX.bind(snxContract);
+  if (!synthetix.try_collateral(account).reverted) {
     snxHolder.collateral = synthetix.collateral(account);
   }
   snxHolder.save();
 }
 
-function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, synthetixAddress: Address): void {
-  let synthetixContract = SNX.bind(synthetixAddress);
+function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, snxContract: Address): void {
+  let synthetix = SNX.bind(snxContract);
   // get ExchangeRates via the connection to Synthetix
-  let exchangeRatesContract = ExchangeRates.bind(synthetixContract.exchangeRates());
+  let exchangeRatesContract = ExchangeRates.bind(synthetix.exchangeRates());
   let metadata = getMetadata();
   let toAmount = exchangeRatesContract.effectiveValue(currencyKey, amount, sUSD);
-  metadata.totalFeesGenerated = metadata.exchangeUSDTally.plus(toAmount);
+  metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(toAmount);
   metadata.save();
 }
 
@@ -170,8 +167,8 @@ export function handleTransferSNX(event: TransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
-  trackSNXHolder(event.params.from, entity.block);
-  trackSNXHolder(event.params.to, entity.block);
+  trackSNXHolder(event.address, event.params.from);
+  trackSNXHolder(event.address, event.params.to);
 }
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
@@ -239,7 +236,8 @@ export function handleIssuedsUSD(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackIssuer(event.transaction.from, entity.block);
+  let synthContract = Synth.bind(event.address);
+  trackIssuer(synthContract.synthetix(), event.transaction.from);
 }
 
 export function handleBurnedsUSD(event: BurnedEvent): void {
