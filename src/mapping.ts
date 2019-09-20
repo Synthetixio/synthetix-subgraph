@@ -82,9 +82,13 @@ function trackIssuer(snxContract: Address, account: Address): void {
   let issuer = new Issuer(account.toHex());
 
   let synthetix = SNX.bind(snxContract);
-  if (!synthetix.try_debtBalanceOf(account, sUSD).reverted) {
-    issuer.debtBalance = synthetix.debtBalanceOf(account, sUSD); // sUSD
-    issuer.collateralisationRatio = synthetix.collateralisationRatio(account);
+  let synthetixDebtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD);
+  if (!synthetixDebtBalanceOfTry.reverted) {
+    issuer.debtBalance = synthetixDebtBalanceOfTry.value; // sUSD
+  }
+  let synthetixCRatioTry = synthetix.try_collateralisationRatio(account);
+  if (!synthetixCRatioTry.reverted) {
+    issuer.collateralisationRatio = synthetixCRatioTry.value;
   }
   issuer.save();
 }
@@ -101,8 +105,9 @@ function trackSNXHolder(snxContract: Address, account: Address): void {
   }
   let snxHolder = new SNXHolder(account.toHex());
   let synthetix = SNX.bind(snxContract);
-  if (!synthetix.try_collateral(account).reverted) {
-    snxHolder.collateral = synthetix.collateral(account);
+  let synthetixCollateralTry = synthetix.try_collateral(account);
+  if (!synthetixCollateralTry.reverted) {
+    snxHolder.collateral = synthetixCollateralTry.value;
   }
   snxHolder.save();
 }
@@ -199,7 +204,13 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
 export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = contract.currencyKey().toString();
+  let currencyKeyTry = contract.try_currencyKey();
+  if (!currencyKeyTry.reverted) {
+    entity.source = currencyKeyTry.value.toString();
+  } else {
+    // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
+    entity.source = 'sUSD';
+  }
   entity.from = event.params.from;
   entity.to = event.params.to;
   entity.value = event.params.value;
@@ -208,22 +219,9 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.save();
 
   if (entity.source == 'XDR' && entity.from.toHex() == ZERO_ADDRESS && entity.to.toHex() == FEE_ADDRESS) {
+    // safe to assume contract.synthetix() exists from v2 when XDRs were created
     addToFeesGenerated(contract.currencyKey(), event.params.value, contract.synthetix());
   }
-}
-
-export function handleTransfersUSD(event: SynthTransferEvent): void {
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  // sUSD contract didn't have the "currencyKey" field prior to the multicurrency release, so
-  // we hardcode this as The Graph doesn't yet support handling errors in calls.
-  // See https://github.com/graphprotocol/support/issues/21#issuecomment-507652767
-  entity.source = 'sUSD';
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = event.params.value;
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.save();
 }
 
 export function handleIssuedsUSD(event: IssuedEvent): void {
@@ -237,7 +235,11 @@ export function handleIssuedsUSD(event: IssuedEvent): void {
   entity.save();
 
   let synthContract = Synth.bind(event.address);
-  trackIssuer(synthContract.synthetix(), event.transaction.from);
+  // only track issuers after "synthetix" added to the synth (v2 - prior to that it was "havven")
+  let synthetixTry = synthContract.try_synthetix();
+  if (!synthetixTry.reverted) {
+    trackIssuer(synthetixTry.value, event.transaction.from);
+  }
 }
 
 export function handleBurnedsUSD(event: BurnedEvent): void {
