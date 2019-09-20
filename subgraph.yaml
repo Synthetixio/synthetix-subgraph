@@ -83,6 +83,8 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
+        - name: ExchangeRates
+          file: ./abis/ExchangeRates.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth

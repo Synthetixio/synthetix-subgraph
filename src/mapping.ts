@@ -34,6 +34,9 @@ contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 contracts.set('proxySynthetix', '0xc011a72400e58ecd99ee497cf89e3775d4bd732f');
 contracts.set('proxysUSD', '0x57ab1e02fee23774580c119740129eac7081e9d3');
 
+let ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+let FEE_ADDRESS = '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef';
+
 let sUSD = ByteArray.fromHexString('0x73555344') as Bytes;
 
 function getMetadata(): Synthetix {
@@ -45,6 +48,7 @@ function getMetadata(): Synthetix {
     synthetix.exchangers = BigInt.fromI32(0);
     synthetix.snxHolders = BigInt.fromI32(0);
     synthetix.exchangeUSDTally = BigInt.fromI32(0);
+    synthetix.totalFeesGenerated = BigInt.fromI32(0);
     synthetix.save();
   }
 
@@ -104,6 +108,16 @@ function trackSNXHolder(account: Address, block: BigInt): void {
     snxHolder.collateral = synthetix.collateral(account);
   }
   snxHolder.save();
+}
+
+function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, synthetixAddress: Address): void {
+  let synthetixContract = SNX.bind(synthetixAddress);
+  // get ExchangeRates via the connection to Synthetix
+  let exchangeRatesContract = ExchangeRates.bind(synthetixContract.exchangeRates());
+  let metadata = getMetadata();
+  let toAmount = exchangeRatesContract.effectiveValue(currencyKey, amount, sUSD);
+  metadata.totalFeesGenerated = metadata.exchangeUSDTally.plus(toAmount);
+  metadata.save();
 }
 
 // transactions to ignore: these were part of the oracle issue on June 24, 2019 where a bot
@@ -195,6 +209,10 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.save();
+
+  if (entity.source == 'XDR' && entity.from.toHex() == ZERO_ADDRESS && entity.to.toHex() == FEE_ADDRESS) {
+    addToFeesGenerated(contract.currencyKey(), event.params.value, contract.synthetix());
+  }
 }
 
 export function handleTransfersUSD(event: SynthTransferEvent): void {

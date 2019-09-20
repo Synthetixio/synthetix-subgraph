@@ -1,11 +1,14 @@
+# Synthentix is an aggregation entity
 type Synthetix @entity {
   id: ID!
   issuers: BigInt!
   exchangers: BigInt!
   snxHolders: BigInt!
   exchangeUSDTally: BigInt!
+  totalFeesGenerated: BigInt!
 }
 
+# SynthExchange tracks this event from the Synthetix.sol contract
 type SynthExchange @entity {
   id: ID!
   account: Bytes! # address
@@ -20,6 +23,7 @@ type SynthExchange @entity {
   block: BigInt!
 }
 
+# Transfer tracks this event from the Synthetix.sol contract and various Synth.sol contracts
 type Transfer @entity {
   id: ID!
   from: Bytes! # address
@@ -30,6 +34,7 @@ type Transfer @entity {
   source: String!
 }
 
+# RatesUpdated tracks this event from the ExchangeRates.sol contract
 type RatesUpdated @entity {
   id: ID!
   from: Bytes! # address
@@ -40,6 +45,7 @@ type RatesUpdated @entity {
   timestamp: BigInt!
 }
 
+# An individual RateUpdate - split out of RatesUpdated event
 type RateUpdate @entity {
   id: ID!
   currencyKey: Bytes!
@@ -49,6 +55,7 @@ type RateUpdate @entity {
   timestamp: BigInt!
 }
 
+# Issued tracks this event from various Synth.sol instances
 type Issued @entity {
   id: ID!
   account: Bytes! # address
@@ -59,21 +66,25 @@ type Issued @entity {
   block: BigInt!
 }
 
+# An individual Issuer (always overridden with their latest information)
 type Issuer @entity {
   id: ID!
   debtBalance: BigInt # will be null before multicurrency release
   collateralisationRatio: BigInt # will be null before multicurrency release
 }
 
+# An individual Exchanger
 type Exchanger @entity {
   id: ID!
 }
 
+# An individual SNX holder
 type SNXHolder @entity {
   id: ID!
   collateral: BigInt # will be null before multicurrency release
 }
 
+# Burned tracks this event from various Synth.sol instances
 type Burned @entity {
   id: ID!
   account: Bytes! # address
@@ -84,6 +95,7 @@ type Burned @entity {
   block: BigInt!
 }
 
+# ProxyTargetUpdated tracks this event from Synthetix.sol
 type ProxyTargetUpdated @entity {
   id: ID!
   source: String!
