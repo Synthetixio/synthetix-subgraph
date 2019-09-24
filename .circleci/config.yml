@@ -42,7 +42,7 @@ jobs:
           at: .
       - run: npm run codegen
       - run: npm run build
-      - run: npm run auth -- "$THEGRAPH_ACCESS_TOKEN" > /dev/null
+      - run: npm run auth -- $THEGRAPH_ACCESS_TOKEN > /dev/null
       - run: npm run deploy
 
 workflows:
