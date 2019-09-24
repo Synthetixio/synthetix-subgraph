@@ -49,7 +49,7 @@ jobs:
             ERRORS_FOUND=$(grep "Failed" output || true) # get any errors but don't fail this script if none found
             if [ ! -z "$ERRORS_FOUND" ]; then echo $ERRORS_FOUND; exit 1; fi # no
             echo "Here's what tee captured:"
-            echo output
+            cat ./output
 
 workflows:
   version: 2
