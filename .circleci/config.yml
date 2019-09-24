@@ -41,7 +41,13 @@ jobs:
       - attach_workspace:
           at: .
       - run: npm run codegen
-      - run: npm run deploy -- --access-token "$THEGRAPH_ACCESS_TOKEN" > /dev/null
+      - run:
+          name: Deploy wuth auth
+          command: |
+            npm run deploy -- --access-token "$THEGRAPH_ACCESS_TOKEN" > /dev/null | tee output
+            # Below is necessary as The Graph CLI does not
+            ERRORS_FOUND=$(grep "Failed" output || true) # get any errors but don't fail this script if none found
+            if [ ! -z "$ERRORS_FOUND" ]; then echo $ERRORS_FOUND; exit 1; fi # no
 
 workflows:
   version: 2
