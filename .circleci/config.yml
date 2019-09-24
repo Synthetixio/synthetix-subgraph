@@ -34,7 +34,7 @@ jobs:
           paths:
             - node_modules
 
-  build:
+  deploy:
     <<: *env_defaults
     steps:
       - checkout
@@ -42,13 +42,6 @@ jobs:
           at: .
       - run: npm run codegen
       - run: npm run build
-
-  deploy:
-    <<: *env_defaults
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
       - run: npm run deploy -- --access-token $THEGRAPH_ACCESS_TOKEN
 
 workflows:
@@ -60,15 +53,9 @@ workflows:
           filters:
             branches:
               only: master
-      - build:
-          requires:
-            - prepare
-          filters:
-            branches:
-              only: master
       - deploy:
           requires:
-            - build
+            - prepare
           filters:
             branches:
               only: master
