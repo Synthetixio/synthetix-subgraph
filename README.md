@@ -1,5 +1,7 @@
 # Synthetix Subgraph
 
+[![CircleCI](https://circleci.com/gh/Synthetixio/synthetix-subgraph.svg?style=svg)](https://circleci.com/gh/Synthetixio/synthetix-subgraph)
+
 Here is the code for Synthetix's current subgraph: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix
 
 The Graph exposes a GraphQL endpoint to query the events and entities within the Synthetix system.

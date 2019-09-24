@@ -3,7 +3,7 @@ import {
   SynthExchange as SynthExchangeEvent,
   Transfer as TransferEvent,
 } from '../generated/Synthetix/Synthetix';
-import { RatesUpdated as RatesUpdatedEvent, ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
+import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
@@ -114,10 +114,8 @@ function trackSNXHolder(snxContract: Address, account: Address): void {
 
 function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, snxContract: Address): void {
   let synthetix = SNX.bind(snxContract);
-  // get ExchangeRates via the connection to Synthetix
-  let exchangeRatesContract = ExchangeRates.bind(synthetix.exchangeRates());
   let metadata = getMetadata();
-  let toAmount = exchangeRatesContract.effectiveValue(currencyKey, amount, sUSD);
+  let toAmount = synthetix.effectiveValue(currencyKey, amount, sUSD);
   metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(toAmount);
   metadata.save();
 }

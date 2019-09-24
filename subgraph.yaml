@@ -22,8 +22,6 @@ dataSources:
       abis:
         - name: Synthetix
           file: ./abis/Synthetix.json
-        - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
       eventHandlers:
         - event: SynthExchange(indexed address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange
@@ -85,8 +83,6 @@ dataSources:
           file: ./abis/Synth.json
         - name: Synthetix
           file: ./abis/Synthetix.json
-        - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -110,8 +106,6 @@ dataSources:
           file: ./abis/Synth.json
         - name: Synthetix
           file: ./abis/Synthetix.json
-        - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -137,8 +131,6 @@ dataSources:
           file: ./abis/Synth.json
         - name: Synthetix
           file: ./abis/Synthetix.json
-        - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -160,8 +152,6 @@ dataSources:
           file: ./abis/Synth.json
         - name: Synthetix
           file: ./abis/Synthetix.json
-        - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth

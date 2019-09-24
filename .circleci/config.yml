@@ -1,0 +1,73 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+
+env_defaults: &env_defaults
+  working_directory: ~
+  docker:
+    - image: circleci/node:10.16
+
+version: 2
+jobs:
+  prepare:
+    <<: *env_defaults
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1.0-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1.0-dependencies-
+
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1.0-dependencies-{{ checksum "package-lock.json" }}
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+
+  build:
+    <<: *env_defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: npm run build
+
+  deploy:
+    <<: *env_defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: npm run deploy -- --access-token $THEGRAPH_ACCESS_TOKEN
+
+workflows:
+  version: 2
+
+  deploy-on-change:
+    jobs:
+      - prepare:
+          filters:
+            branches:
+              only: master
+      - build:
+          requires:
+            - prepare
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
