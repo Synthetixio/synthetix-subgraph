@@ -47,25 +47,6 @@ dataSources:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
   - kind: ethereum/contract
-    name: ExchangeRates
-    network: mainnet
-    source:
-      address: '0x70C629875daDBE702489a5E1E3bAaE60e38924fa' # ExchangeRates
-      abi: ExchangeRates
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.3
-      language: wasm/assemblyscript
-      file: ./src/mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
-      eventHandlers:
-        - event: RatesUpdated(bytes4[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
     name: SynthXDR
     network: mainnet
     source:

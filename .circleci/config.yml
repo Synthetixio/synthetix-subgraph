@@ -40,16 +40,15 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: npm run codegen
-      - run:
-          name: Deploy with auth
-          command: |
-            npm run deploy -- --access-token "$THEGRAPH_ACCESS_TOKEN" | tee output > /dev/null
-            # Below is necessary as The Graph CLI does not
-            ERRORS_FOUND=$(grep "Failed" output || true) # get any errors but don't fail this script if none found
-            if [ ! -z "$ERRORS_FOUND" ]; then echo $ERRORS_FOUND; exit 1; fi # no
-            echo "Here's what tee captured:"
-            cat ./output
+      - run: echo "Not yet implemented - waiting for https://github.com/graphprotocol/graph-cli/issues/351"
+      # - run: npm run codegen
+      # - run:
+      #     name: Deploy with auth
+      #     command: |
+      #       npm run deploy -- --access-token "$THEGRAPH_ACCESS_TOKEN" | tee output > /dev/null
+      #       # Below is necessary as The Graph CLI does not
+      #       ERRORS_FOUND=$(grep "Failed" output || true) # get any errors but don't fail this script if none found
+      #       if [ ! -z "$ERRORS_FOUND" ]; then echo $ERRORS_FOUND; exit 1; fi # no
 
 workflows:
   version: 2

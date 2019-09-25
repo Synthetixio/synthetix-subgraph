@@ -3,7 +3,6 @@ import {
   SynthExchange as SynthExchangeEvent,
   Transfer as TransferEvent,
 } from '../generated/Synthetix/Synthetix';
-import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
@@ -18,8 +17,6 @@ import {
   Transfer,
   Issued,
   Burned,
-  RatesUpdated,
-  RateUpdate,
   Issuer,
   Exchanger,
   ProxyTargetUpdated,
@@ -174,31 +171,6 @@ export function handleTransferSNX(event: TransferEvent): void {
   trackSNXHolder(event.address, event.params.to);
 }
 
-export function handleRatesUpdated(event: RatesUpdatedEvent): void {
-  let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.currencyKeys = event.params.currencyKeys;
-  entity.newRates = event.params.newRates;
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.from = event.transaction.from;
-  entity.gasPrice = event.transaction.gasPrice;
-  entity.save();
-
-  // required due to assemblyscript
-  let keys = entity.currencyKeys;
-  let rates = entity.newRates;
-  // now save each individual update
-  for (let i = 0; i < entity.currencyKeys.length; i++) {
-    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + keys[i].toString());
-    rateEntity.block = event.block.number;
-    rateEntity.timestamp = event.block.timestamp;
-    rateEntity.currencyKey = keys[i];
-    rateEntity.synth = keys[i].toString();
-    rateEntity.rate = rates[i];
-    rateEntity.save();
-  }
-}
-
 export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -217,8 +189,10 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.save();
 
   if (entity.source == 'XDR' && entity.from.toHex() == ZERO_ADDRESS && entity.to.toHex() == FEE_ADDRESS) {
-    // safe to assume contract.synthetix() exists from v2 when XDRs were created
-    addToFeesGenerated(contract.currencyKey(), event.params.value, contract.synthetix());
+    if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
+      // safe to assume contract.synthetix() exists from v2 when XDRs were created
+      addToFeesGenerated(contract.currencyKey(), event.params.value, contract.synthetix());
+    }
   }
 }
 

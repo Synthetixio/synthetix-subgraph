@@ -34,27 +34,6 @@ type Transfer @entity {
   source: String!
 }
 
-# RatesUpdated tracks this event from the ExchangeRates.sol contract
-type RatesUpdated @entity {
-  id: ID!
-  from: Bytes! # address
-  currencyKeys: [Bytes!]! # bytes4[]
-  newRates: [BigInt!]! # uint256[]
-  gasPrice: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-# An individual RateUpdate - split out of RatesUpdated event
-type RateUpdate @entity {
-  id: ID!
-  currencyKey: Bytes!
-  synth: String!
-  rate: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
 # Issued tracks this event from various Synth.sol instances
 type Issued @entity {
   id: ID!
