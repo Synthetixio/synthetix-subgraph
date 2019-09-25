@@ -11,8 +11,8 @@
     "cleanup": "(rm ./subgraph.yaml || true); (rm ./schema.graphql || true)",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
-    "deploy:snx": "npm run prepare:snx && npm run deploy -- synthetixio-team/synthetix; EXIT_CODE=$?; npm run cleanup; exit $EXIT_CODE",
-    "deploy:rates": "npm run prepare:rates && npm run deploy -- synthetixio-team/synthetix-rates; EXIT_CODE=$?; npm run cleanup; exit $EXIT_CODE",
+    "deploy:snx": "npm run prepare:snx && npm run deploy -- --access-token $THEGRAPH_SNX_ACCESS_TOKEN synthetixio-team/synthetix; EXIT_CODE=$?; npm run cleanup; exit $EXIT_CODE",
+    "deploy:rates": "npm run prepare:rates && npm run deploy -- --access-token $THEGRAPH_SNX_ACCESS_TOKEN synthetixio-team/synthetix-rates; EXIT_CODE=$?; npm run cleanup; exit $EXIT_CODE",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
     "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
