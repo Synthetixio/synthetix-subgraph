@@ -40,15 +40,15 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: echo "Not yet implemented - waiting for https://github.com/graphprotocol/graph-cli/issues/351"
-      # - run: npm run codegen
-      # - run:
-      #     name: Deploy with auth
-      #     command: |
-      #       npm run deploy -- --access-token "$THEGRAPH_ACCESS_TOKEN" | tee output > /dev/null
-      #       # Below is necessary as The Graph CLI does not
-      #       ERRORS_FOUND=$(grep "Failed" output || true) # get any errors but don't fail this script if none found
-      #       if [ ! -z "$ERRORS_FOUND" ]; then echo $ERRORS_FOUND; exit 1; fi # no
+      - run: npm run codegen:snx
+      - run:
+          name: Deploy with auth
+          command: |
+            npm run deploy:snx > /dev/null # output to dev/null to not show access code in logs
+            # Below is necessary as The Graph CLI does not
+            # ERRORS_FOUND=$(grep "Failed" output || true) # get any errors but don't fail this script if none found
+            # if [ ! -z "$ERRORS_FOUND" ]; then echo $ERRORS_FOUND; exit 1; fi # no
+      # - run: echo "Not yet implemented - waiting for https://github.com/graphprotocol/graph-cli/issues/351"
 
 workflows:
   version: 2
