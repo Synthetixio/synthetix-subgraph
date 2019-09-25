@@ -66,9 +66,9 @@ function trackExchanger(account: Address): void {
   let existingExchanger = Exchanger.load(account.toHex());
   if (existingExchanger == null) {
     incrementMetadata('exchangers');
+    let exchanger = new Exchanger(account.toHex());
+    exchanger.save();
   }
-  let exchanger = new Exchanger(account.toHex());
-  exchanger.save();
 }
 
 function trackIssuer(snxContract: Address, account: Address): void {
