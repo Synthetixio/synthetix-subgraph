@@ -37,7 +37,7 @@ function trackExchanger(account: Address): void {
   }
 }
 
-export function handleSynthExchange(event: SynthExchangeEvent): void {
+function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): void {
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.from = event.transaction.from;
@@ -57,11 +57,19 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
     let metadata = getMetadata();
     let contract = SNX.bind(event.address);
-    let toAmount = attemptEffectiveValue(contract, event.params.fromCurrencyKey, event.params.fromAmount);
+    let toAmount = attemptEffectiveValue(contract, event.params.fromCurrencyKey, event.params.fromAmount, useBytes32);
 
     if (toAmount != null) {
       metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
       metadata.save();
     }
   }
+}
+
+export function handleSynthExchange4(event: SynthExchangeEvent): void {
+  handleSynthExchange(event, false);
+}
+
+export function handleSynthExchange32(event: SynthExchangeEvent): void {
+  handleSynthExchange(event, true);
 }

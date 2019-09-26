@@ -19,7 +19,7 @@ dataSources:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
+          file: ./abis/ExchangeRates_bytes4.json
       eventHandlers:
         - event: RatesUpdated(bytes4[],uint256[])
           handler: handleRatesUpdated
@@ -38,7 +38,7 @@ dataSources:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
+          file: ./abis/ExchangeRates_bytes4.json
       eventHandlers:
         - event: RatesUpdated(bytes4[],uint256[])
           handler: handleRatesUpdated
@@ -57,7 +57,7 @@ dataSources:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
+          file: ./abis/ExchangeRates_bytes4.json
       eventHandlers:
         - event: RatesUpdated(bytes4[],uint256[])
           handler: handleRatesUpdated
@@ -76,7 +76,7 @@ dataSources:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
+          file: ./abis/ExchangeRates_bytes32.json
       eventHandlers:
-        - event: RatesUpdated(bytes4[],uint256[])
+        - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated

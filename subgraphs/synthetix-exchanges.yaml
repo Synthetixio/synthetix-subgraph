@@ -19,7 +19,26 @@ dataSources:
         - SynthExchange
       abis:
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ./abis/Synthetix_bytes4.json
       eventHandlers:
         - event: SynthExchange(indexed address,bytes4,uint256,bytes4,uint256,address)
-          handler: handleSynthExchange
+          handler: handleSynthExchange4
+  - kind: ethereum/contract
+    name: Synthetix
+    network: mainnet
+    source:
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # ProxySynthetix
+      abi: Synthetix
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/exchanges-mapping.ts
+      entities:
+        - SynthExchange
+      abis:
+        - name: Synthetix
+          file: ./abis/Synthetix_bytes32.json
+      eventHandlers:
+        - event: SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)
+          handler: handleSynthExchange32
