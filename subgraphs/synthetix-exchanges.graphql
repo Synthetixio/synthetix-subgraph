@@ -14,6 +14,7 @@ type SynthExchange @entity {
   fromAmount: BigInt! # uint256
   toCurrencyKey: Bytes! # bytes4
   toAmount: BigInt! # uint256
+  amountInUSD: BigInt!
   toAddress: Bytes! # address
   timestamp: BigInt!
   gasPrice: BigInt!

@@ -1,4 +1,4 @@
-import { Synthetix as SNX, SynthExchange as SynthExchangeEvent } from '../generated/Synthetix/Synthetix';
+import { Synthetix, SynthExchange as SynthExchangeEvent } from '../generated/Synthetix/Synthetix';
 import { Total, SynthExchange, Exchanger } from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
@@ -38,6 +38,13 @@ function trackExchanger(account: Address): void {
 }
 
 function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): void {
+  if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) >= 0) {
+    return;
+  }
+
+  let synthetix = Synthetix.bind(event.address);
+  let toAmount = attemptEffectiveValue(synthetix, event.params.fromCurrencyKey, event.params.fromAmount, useBytes32);
+
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.from = event.transaction.from;
@@ -49,20 +56,17 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
+  entity.amountInUSD = toAmount; // attemptEffectiveValue() can return null but this value can not be
   entity.save();
 
   trackExchanger(event.transaction.from);
 
   // now save the tally of USD value of all exchanges
-  if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
-    let metadata = getMetadata();
-    let contract = SNX.bind(event.address);
-    let toAmount = attemptEffectiveValue(contract, event.params.fromCurrencyKey, event.params.fromAmount, useBytes32);
+  let metadata = getMetadata();
 
-    if (toAmount != null) {
-      metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
-      metadata.save();
-    }
+  if (toAmount != null) {
+    metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
+    metadata.save();
   }
 }
 
