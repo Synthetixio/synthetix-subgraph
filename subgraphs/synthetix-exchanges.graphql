@@ -1,0 +1,26 @@
+# Synthentix is an aggregation entity
+type Total @entity {
+  id: ID!
+  exchangers: BigInt!
+  exchangeUSDTally: BigInt!
+}
+
+# SynthExchange tracks this event from the Synthetix.sol contract
+type SynthExchange @entity {
+  id: ID!
+  account: Bytes! # address
+  from: Bytes! # address
+  fromCurrencyKey: Bytes! # bytes4
+  fromAmount: BigInt! # uint256
+  toCurrencyKey: Bytes! # bytes4
+  toAmount: BigInt! # uint256
+  toAddress: Bytes! # address
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+# An individual Exchanger
+type Exchanger @entity {
+  id: ID!
+}

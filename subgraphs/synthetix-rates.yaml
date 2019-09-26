@@ -2,7 +2,7 @@ specVersion: 0.0.2
 description: Synthetix API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
-  file: ./schema.graphql
+  file: ./subgraphs/synthetix-rates.graphql
 dataSources:
   - kind: ethereum/contract
     name: ExchangeRates

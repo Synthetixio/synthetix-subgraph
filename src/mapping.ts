@@ -1,8 +1,4 @@
-import {
-  Synthetix as SNX,
-  SynthExchange as SynthExchangeEvent,
-  Transfer as TransferEvent,
-} from '../generated/Synthetix/Synthetix';
+import { Synthetix as SNX, Transfer as TransferEvent } from '../generated/Synthetix/Synthetix';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
@@ -11,19 +7,13 @@ import {
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/SynthsUSD/Synth';
-import {
-  Synthetix,
-  SynthExchange,
-  Transfer,
-  Issued,
-  Burned,
-  Issuer,
-  Exchanger,
-  ProxyTargetUpdated,
-  SNXHolder,
-} from '../generated/schema';
+import { Synthetix, Transfer, Issued, Burned, Issuer, ProxyTargetUpdated, SNXHolder } from '../generated/schema';
 
-import { Bytes, ByteArray, BigInt, Address } from '@graphprotocol/graph-ts';
+import { Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
+
+import { exchangesToIgnore } from './exchangesToIgnore';
+
+import { attemptEffectiveValue } from './common';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -32,18 +22,13 @@ contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 let ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 let FEE_ADDRESS = '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef';
 
-let sUSD4 = ByteArray.fromHexString('0x73555344') as Bytes;
-let sUSD32 = ByteArray.fromHexString('0x7355534400000000000000000000000000000000000000000000000000000000') as Bytes;
-
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
 
   if (synthetix == null) {
     synthetix = new Synthetix('1');
     synthetix.issuers = BigInt.fromI32(0);
-    synthetix.exchangers = BigInt.fromI32(0);
     synthetix.snxHolders = BigInt.fromI32(0);
-    synthetix.exchangeUSDTally = BigInt.fromI32(0);
     synthetix.totalFeesGenerated = BigInt.fromI32(0);
     synthetix.save();
   }
@@ -55,21 +40,10 @@ function incrementMetadata(field: string): void {
   let metadata = getMetadata();
   if (field == 'issuers') {
     metadata.issuers = metadata.issuers.plus(BigInt.fromI32(1));
-  } else if (field == 'exchangers') {
-    metadata.exchangers = metadata.exchangers.plus(BigInt.fromI32(1));
   } else if (field == 'snxHolders') {
     metadata.snxHolders = metadata.snxHolders.plus(BigInt.fromI32(1));
   }
   metadata.save();
-}
-
-function trackExchanger(account: Address): void {
-  let existingExchanger = Exchanger.load(account.toHex());
-  if (existingExchanger == null) {
-    incrementMetadata('exchangers');
-    let exchanger = new Exchanger(account.toHex());
-    exchanger.save();
-  }
 }
 
 function trackIssuer(snxContract: Address, account: Address): void {
@@ -79,7 +53,7 @@ function trackIssuer(snxContract: Address, account: Address): void {
   }
   let issuer = new Issuer(account.toHex());
 
-  let synthetix = SNX.bind(snxContract);
+  // let synthetix = SNX.bind(snxContract);
 
   // TODO: commented out for bytes32 upgrade (needs to use same technique as effectiveValue)
   // let synthetixDebtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD);
@@ -112,19 +86,6 @@ function trackSNXHolder(snxContract: Address, account: Address): void {
   snxHolder.save();
 }
 
-function attemptEffectiveValue(synthetix: SNX, currencyKey: Bytes, amount: BigInt): BigInt {
-  // Since v2.10 effectiveValue takes bytes32
-  let effectiveValueTry = synthetix.try_effectiveValue(currencyKey, amount, sUSD32);
-  if (effectiveValueTry.reverted) {
-    // Yet earlier it was bytes4
-    effectiveValueTry = synthetix.try_effectiveValue(currencyKey, amount, sUSD4);
-  }
-  if (!effectiveValueTry.reverted) {
-    return effectiveValueTry.value;
-  }
-  return null;
-}
-
 function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, snxContract: Address): void {
   let synthetix = SNX.bind(snxContract);
   let metadata = getMetadata();
@@ -133,49 +94,6 @@ function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, snxContract: Add
   if (effectiveValue != null) {
     metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(effectiveValue);
     metadata.save();
-  }
-}
-
-// transactions to ignore: these were part of the oracle issue on June 24, 2019 where a bot
-// traded on an error with KRW pricing.
-let exchangesToIgnore = new Array<string>();
-exchangesToIgnore.push('0xfc394ccdc54e4a16f10e41abedf1e9687017d2d92fb910872df7a008441fcdb7');
-exchangesToIgnore.push('0x2fecbd27a9ab11f4168e84fe9058696c5654f85291079adb023e5ee49ce9b453');
-exchangesToIgnore.push('0x3b22d34d5bf672b4aa8d85c1f560d0b592a57f885bbbd44d55655b480a598e65');
-exchangesToIgnore.push('0x3bc868625212fc45baa9d43c8a04763d2d5130c4358bcd76712fd7dfb391f88d');
-exchangesToIgnore.push('0x0347037683e6164b7e88a6c5638ee24bf2e0a0cc5512123969ed85542fa51f0f');
-exchangesToIgnore.push('0xd68199987b6c457f783a5daeddb4154526003401125ab76cd9b6486be8944174');
-exchangesToIgnore.push('0x93819f6bbea390d7709fa033f5733d16418674e99c43b9ed23adb4110d657f0c');
-// this final txn was the agreed upon trade back into an artifically lowered synth by the
-// bot owner for an ETH bounty.
-exchangesToIgnore.push('0xc3fc19c63e1090eb624212bad71a27cd3dc7afcd0cf9063d24bfc47b5d036ae2');
-
-export function handleSynthExchange(event: SynthExchangeEvent): void {
-  let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.account = event.params.account;
-  entity.from = event.transaction.from;
-  entity.fromCurrencyKey = event.params.fromCurrencyKey;
-  entity.fromAmount = event.params.fromAmount;
-  entity.toCurrencyKey = event.params.toCurrencyKey;
-  entity.toAmount = event.params.toAmount;
-  entity.toAddress = event.params.toAddress;
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.gasPrice = event.transaction.gasPrice;
-  entity.save();
-
-  trackExchanger(event.transaction.from);
-
-  // now save the tally of USD value of all exchanges
-  if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
-    let metadata = getMetadata();
-    let contract = SNX.bind(event.address);
-    let toAmount = attemptEffectiveValue(contract, event.params.fromCurrencyKey, event.params.fromAmount);
-
-    if (toAmount != null) {
-      metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
-      metadata.save();
-    }
   }
 }
 
