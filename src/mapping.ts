@@ -32,7 +32,8 @@ contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 let ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 let FEE_ADDRESS = '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef';
 
-let sUSD = ByteArray.fromHexString('0x73555344') as Bytes;
+let sUSD4 = ByteArray.fromHexString('0x73555344') as Bytes;
+let sUSD32 = ByteArray.fromHexString('0x7355534400000000000000000000000000000000000000000000000000000000') as Bytes;
 
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
@@ -79,14 +80,16 @@ function trackIssuer(snxContract: Address, account: Address): void {
   let issuer = new Issuer(account.toHex());
 
   let synthetix = SNX.bind(snxContract);
-  let synthetixDebtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD);
-  if (!synthetixDebtBalanceOfTry.reverted) {
-    issuer.debtBalance = synthetixDebtBalanceOfTry.value; // sUSD
-  }
-  let synthetixCRatioTry = synthetix.try_collateralisationRatio(account);
-  if (!synthetixCRatioTry.reverted) {
-    issuer.collateralisationRatio = synthetixCRatioTry.value;
-  }
+
+  // TODO: commented out for bytes32 upgrade (needs to use same technique as effectiveValue)
+  // let synthetixDebtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD);
+  // if (!synthetixDebtBalanceOfTry.reverted) {
+  //   issuer.debtBalance = synthetixDebtBalanceOfTry.value; // sUSD
+  // }
+  // let synthetixCRatioTry = synthetix.try_collateralisationRatio(account);
+  // if (!synthetixCRatioTry.reverted) {
+  //   issuer.collateralisationRatio = synthetixCRatioTry.value;
+  // }
   issuer.save();
 }
 
@@ -109,12 +112,28 @@ function trackSNXHolder(snxContract: Address, account: Address): void {
   snxHolder.save();
 }
 
+function attemptEffectiveValue(synthetix: SNX, currencyKey: Bytes, amount: BigInt): BigInt {
+  // Since v2.10 effectiveValue takes bytes32
+  let effectiveValueTry = synthetix.try_effectiveValue(currencyKey, amount, sUSD32);
+  if (effectiveValueTry.reverted) {
+    // Yet earlier it was bytes4
+    effectiveValueTry = synthetix.try_effectiveValue(currencyKey, amount, sUSD4);
+  }
+  if (!effectiveValueTry.reverted) {
+    return effectiveValueTry.value;
+  }
+  return null;
+}
+
 function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, snxContract: Address): void {
   let synthetix = SNX.bind(snxContract);
   let metadata = getMetadata();
-  let toAmount = synthetix.effectiveValue(currencyKey, amount, sUSD);
-  metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(toAmount);
-  metadata.save();
+  let effectiveValue = attemptEffectiveValue(synthetix, currencyKey, amount);
+
+  if (effectiveValue != null) {
+    metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(effectiveValue);
+    metadata.save();
+  }
 }
 
 // transactions to ignore: these were part of the oracle issue on June 24, 2019 where a bot
@@ -151,9 +170,12 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
     let metadata = getMetadata();
     let contract = SNX.bind(event.address);
-    let toAmount = contract.effectiveValue(event.params.fromCurrencyKey, event.params.fromAmount, sUSD);
-    metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
-    metadata.save();
+    let toAmount = attemptEffectiveValue(contract, event.params.fromCurrencyKey, event.params.fromAmount);
+
+    if (toAmount != null) {
+      metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
+      metadata.save();
+    }
   }
 }
 

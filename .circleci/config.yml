@@ -40,15 +40,13 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: npm run codegen:snx
+      - run: npm run codegen:snx # TODO: should kick-off codegen:snx when snx files changed, same with codegen:rates
       - run:
           name: Deploy with auth
           command: |
+            # TODO: as above, should be deploy:snx or deploy:rates depending on changes in commit
             npm run deploy:snx > /dev/null # output to dev/null to not show access code in logs
-            # Below is necessary as The Graph CLI does not
-            # ERRORS_FOUND=$(grep "Failed" output || true) # get any errors but don't fail this script if none found
-            # if [ ! -z "$ERRORS_FOUND" ]; then echo $ERRORS_FOUND; exit 1; fi # no
-      # - run: echo "Not yet implemented - waiting for https://github.com/graphprotocol/graph-cli/issues/351"
+            # Note: does not exit non-zero on failure, waiting for https://github.com/graphprotocol/graph-cli/issues/351"
 
 workflows:
   version: 2
