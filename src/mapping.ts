@@ -1,4 +1,6 @@
 import { Synthetix as SNX, Transfer as TransferEvent } from '../generated/Synthetix/Synthetix';
+import { SynthetixB32 } from '../generated/SynthXDR/SynthetixB32';
+import { SynthetixB4 } from '../generated/SynthXDR/SynthetixB4';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
@@ -9,11 +11,11 @@ import {
 } from '../generated/SynthsUSD/Synth';
 import { Synthetix, Transfer, Issued, Burned, Issuer, ProxyTargetUpdated, SNXHolder } from '../generated/schema';
 
-import { Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
+import { BigInt, Address } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
-import { attemptEffectiveValue } from './common';
+import { sUSD32, sUSD4 } from './common';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -86,17 +88,6 @@ function trackSNXHolder(snxContract: Address, account: Address): void {
   snxHolder.save();
 }
 
-function addToFeesGenerated(currencyKey: Bytes, amount: BigInt, snxContract: Address): void {
-  let synthetix = SNX.bind(snxContract);
-  let metadata = getMetadata();
-  let effectiveValue = attemptEffectiveValue(synthetix, currencyKey, amount);
-
-  if (effectiveValue != null) {
-    metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(effectiveValue);
-    metadata.save();
-  }
-}
-
 export function handleTransferSNX(event: TransferEvent): void {
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'SNX';
@@ -131,7 +122,29 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   if (entity.source == 'XDR' && entity.from.toHex() == ZERO_ADDRESS && entity.to.toHex() == FEE_ADDRESS) {
     if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
       // safe to assume contract.synthetix() exists from v2 when XDRs were created
-      addToFeesGenerated(contract.currencyKey(), event.params.value, contract.synthetix());
+
+      let effectiveValue: BigInt = null;
+      let useBytes32 = event.block.number >= BigInt.fromI32(8622911); // hard code block 8622911 when Synthetix v2.10 was deployed
+      if (useBytes32) {
+        // Since v2.10 effectiveValue takes bytes32
+        let synthetix = SynthetixB32.bind(contract.synthetix());
+        let effectiveValueTry = synthetix.try_effectiveValue(currencyKeyTry.value, entity.value, sUSD32);
+        if (!effectiveValueTry.reverted) {
+          effectiveValue = effectiveValueTry.value;
+        }
+      } else {
+        let synthetix = SynthetixB4.bind(contract.synthetix());
+        let effectiveValueTry = synthetix.try_effectiveValue(currencyKeyTry.value, entity.value, sUSD4);
+        if (!effectiveValueTry.reverted) {
+          effectiveValue = effectiveValueTry.value;
+        }
+      }
+
+      if (effectiveValue != null) {
+        let metadata = getMetadata();
+        metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(effectiveValue);
+        metadata.save();
+      }
     }
   }
 }
