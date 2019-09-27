@@ -58,8 +58,10 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
-        - name: Synthetix
-          file: ./abis/Synthetix.json
+        - name: SynthetixB4
+          file: ./abis/Synthetix_bytes4.json
+        - name: SynthetixB32
+          file: ./abis/Synthetix_bytes32.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
