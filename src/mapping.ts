@@ -1,6 +1,4 @@
 import { Synthetix as SNX, Transfer as TransferEvent } from '../generated/Synthetix/Synthetix';
-import { SynthetixB32 } from '../generated/SynthXDR/SynthetixB32';
-import { SynthetixB4 } from '../generated/SynthXDR/SynthetixB4';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 
 import {
@@ -13,16 +11,9 @@ import { Synthetix, Transfer, Issued, Burned, Issuer, ProxyTargetUpdated, SNXHol
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
 
-import { exchangesToIgnore } from './exchangesToIgnore';
-
-import { sUSD32, sUSD4 } from './common';
-
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
-
-let ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-let FEE_ADDRESS = '0xfeefeefeefeefeefeefeefeefeefeefeefeefeef';
 
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
@@ -31,7 +22,6 @@ function getMetadata(): Synthetix {
     synthetix = new Synthetix('1');
     synthetix.issuers = BigInt.fromI32(0);
     synthetix.snxHolders = BigInt.fromI32(0);
-    synthetix.totalFeesGenerated = BigInt.fromI32(0);
     synthetix.save();
   }
 
