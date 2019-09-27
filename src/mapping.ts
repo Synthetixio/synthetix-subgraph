@@ -118,35 +118,6 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.save();
-
-  if (entity.source == 'XDR' && entity.from.toHex() == ZERO_ADDRESS && entity.to.toHex() == FEE_ADDRESS) {
-    if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) < 0) {
-      // safe to assume contract.synthetix() exists from v2 when XDRs were created
-
-      let effectiveValue: BigInt = null;
-      let useBytes32 = event.block.number >= BigInt.fromI32(8622911); // hard code block 8622911 when Synthetix v2.10 was deployed
-      if (useBytes32) {
-        // Since v2.10 effectiveValue takes bytes32
-        let synthetix = SynthetixB32.bind(contract.synthetix());
-        let effectiveValueTry = synthetix.try_effectiveValue(currencyKeyTry.value, entity.value, sUSD32);
-        if (!effectiveValueTry.reverted) {
-          effectiveValue = effectiveValueTry.value;
-        }
-      } else {
-        let synthetix = SynthetixB4.bind(contract.synthetix());
-        let effectiveValueTry = synthetix.try_effectiveValue(currencyKeyTry.value, entity.value, sUSD4);
-        if (!effectiveValueTry.reverted) {
-          effectiveValue = effectiveValueTry.value;
-        }
-      }
-
-      if (effectiveValue != null) {
-        let metadata = getMetadata();
-        metadata.totalFeesGenerated = metadata.totalFeesGenerated.plus(effectiveValue);
-        metadata.save();
-      }
-    }
-  }
 }
 
 export function handleIssuedsUSD(event: IssuedEvent): void {

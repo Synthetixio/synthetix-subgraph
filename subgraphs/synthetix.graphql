@@ -3,7 +3,6 @@ type Synthetix @entity {
   id: ID!
   issuers: BigInt!
   snxHolders: BigInt!
-  totalFeesGenerated: BigInt!
 }
 
 # Transfer tracks this event from the Synthetix.sol contract and various Synth.sol contracts

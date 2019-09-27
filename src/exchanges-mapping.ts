@@ -1,23 +1,27 @@
 import { Synthetix, SynthExchange as SynthExchangeEvent } from '../generated/Synthetix/Synthetix';
+import { Synthetix as SynthetixForXDR } from '../generated/SynthXDR/Synthetix';
+import { Synth as SynthXDR, Issued } from '../generated/SynthXDR/Synth';
+
 import { Total, SynthExchange, Exchanger } from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
-import { attemptEffectiveValue } from './common';
+import { attemptEffectiveValue, sUSD32, sUSD4 } from './common';
 
 function getMetadata(): Total {
-  let synthetix = Total.load('1');
+  let total = Total.load('1');
 
-  if (synthetix == null) {
-    synthetix = new Total('1');
-    synthetix.exchangers = BigInt.fromI32(0);
-    synthetix.exchangeUSDTally = BigInt.fromI32(0);
-    synthetix.save();
+  if (total == null) {
+    total = new Total('1');
+    total.exchangers = BigInt.fromI32(0);
+    total.exchangeUSDTally = BigInt.fromI32(0);
+    total.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+    total.save();
   }
 
-  return synthetix as Total;
+  return total as Total;
 }
 
 function incrementMetadata(field: string): void {
@@ -61,10 +65,9 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
 
   trackExchanger(event.transaction.from);
 
-  // now save the tally of USD value of all exchanges
-  let metadata = getMetadata();
-
   if (toAmount != null) {
+    // now save the tally of USD value of all exchanges
+    let metadata = getMetadata();
     metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
     metadata.save();
   }
@@ -76,4 +79,33 @@ export function handleSynthExchange4(event: SynthExchangeEvent): void {
 
 export function handleSynthExchange32(event: SynthExchangeEvent): void {
   handleSynthExchange(event, true);
+}
+
+// Issuing of XDR is our fee mechanism
+function handleIssuedXDR(event: Issued, useBytes32: boolean): void {
+  if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) >= 0) {
+    return;
+  }
+
+  let synthXDR = SynthXDR.bind(event.address);
+  // Note: cannot use "attemptEffectiveValue" as it won't necessarily use the correct SynthetixABI
+  let synthetix = SynthetixForXDR.bind(synthXDR.synthetix());
+
+  let sUSD = sUSD4;
+  if (useBytes32) {
+    sUSD = sUSD32;
+  }
+  let effectiveValueTry = synthetix.try_effectiveValue(synthXDR.currencyKey(), event.params.value, sUSD);
+  if (!effectiveValueTry.reverted) {
+    let metadata = getMetadata();
+    metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
+    metadata.save();
+  }
+}
+
+export function handleIssuedXDR32(event: Issued): void {
+  handleIssuedXDR(event, true);
+}
+export function handleIssuedXDR4(event: Issued): void {
+  handleIssuedXDR(event, false);
 }
