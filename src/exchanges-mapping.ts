@@ -1,6 +1,8 @@
 import { Synthetix, SynthExchange as SynthExchangeEvent } from '../generated/Synthetix/Synthetix';
-import { Synthetix as SynthetixForXDR } from '../generated/SynthXDR/Synthetix';
-import { Synth as SynthXDR, Issued } from '../generated/SynthXDR/Synth';
+import { Synthetix as SynthetixForXDR4 } from '../generated/SynthXDR4/Synthetix';
+import { Synth as SynthXDR4, Issued } from '../generated/SynthXDR4/Synth';
+import { Synthetix as SynthetixForXDR32 } from '../generated/SynthXDR32/Synthetix';
+import { Synth as SynthXDR32 } from '../generated/SynthXDR32/Synth';
 
 import { Total, SynthExchange, Exchanger } from '../generated/schema';
 
@@ -87,19 +89,25 @@ function handleIssuedXDR(event: Issued, useBytes32: boolean): void {
     return;
   }
 
-  let synthXDR = SynthXDR.bind(event.address);
-  // Note: cannot use "attemptEffectiveValue" as it won't necessarily use the correct SynthetixABI
-  let synthetix = SynthetixForXDR.bind(synthXDR.synthetix());
-
-  let sUSD = sUSD4;
   if (useBytes32) {
-    sUSD = sUSD32;
-  }
-  let effectiveValueTry = synthetix.try_effectiveValue(synthXDR.currencyKey(), event.params.value, sUSD);
-  if (!effectiveValueTry.reverted) {
-    let metadata = getMetadata();
-    metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
-    metadata.save();
+    let synthXDR = SynthXDR32.bind(event.address);
+    let synthetix = SynthetixForXDR32.bind(synthXDR.synthetixProxy());
+    let effectiveValueTry = synthetix.try_effectiveValue(synthXDR.currencyKey(), event.params.value, sUSD32);
+    if (!effectiveValueTry.reverted) {
+      let metadata = getMetadata();
+      metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
+      metadata.save();
+    }
+  } else {
+    // This duping isn't great. We could probably rework it using synthXDR and synthetix as SmartContract and invoke call / tryCall
+    let synthXDR = SynthXDR4.bind(event.address);
+    let synthetix = SynthetixForXDR4.bind(synthXDR.synthetix());
+    let effectiveValueTry = synthetix.try_effectiveValue(synthXDR.currencyKey(), event.params.value, sUSD4);
+    if (!effectiveValueTry.reverted) {
+      let metadata = getMetadata();
+      metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
+      metadata.save();
+    }
   }
 }
 
