@@ -74,30 +74,6 @@
     "signature": "0x0813071c"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "claimingForAddress",
-        "type": "address"
-      },
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "claimOnBehalf",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x0f5024a7"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "exchangeFeeRate",
@@ -113,32 +89,19 @@
     "signature": "0x0f9b4955"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
-        "name": "account",
+        "name": "_integrationProxy",
         "type": "address"
-      },
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
       }
     ],
-    "name": "feesAvailable",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "setIntegrationProxy",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x10adda0e"
+    "signature": "0x131b0ae7"
   },
   {
     "constant": false,
@@ -174,6 +137,21 @@
     "constant": false,
     "inputs": [
       {
+        "name": "_rewardsAuthority",
+        "type": "address"
+      }
+    ],
+    "name": "setRewardsAuthority",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x1c6346ec"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "_beneficiary",
         "type": "address"
       }
@@ -202,6 +180,16 @@
   },
   {
     "constant": false,
+    "inputs": [],
+    "name": "recoverTransferFees",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x242696f6"
+  },
+  {
+    "constant": false,
     "inputs": [
       {
         "name": "_percent",
@@ -214,21 +202,6 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0x2cce0e54"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "feeAuthority",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x31dbd8a5"
   },
   {
     "constant": false,
@@ -259,21 +232,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x33140016"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "transferFeeRate",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x351bf518"
   },
   {
     "constant": false,
@@ -343,6 +301,26 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0x4180e5b5"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "currencyKey",
+        "type": "bytes32"
+      }
+    ],
+    "name": "claimFees",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x4effae80"
   },
   {
     "constant": true,
@@ -440,24 +418,28 @@
     "signature": "0x6138b19e"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
+        "name": "claimingForAddress",
+        "type": "address"
+      },
+      {
         "name": "currencyKey",
-        "type": "bytes4"
+        "type": "bytes32"
       }
     ],
-    "name": "totalFeesAvailable",
+    "name": "claimOnBehalf",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x639cd59c"
+    "signature": "0x682b9c16"
   },
   {
     "constant": false,
@@ -505,21 +487,6 @@
     "signature": "0x759b5225"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "MAX_TRANSFER_FEE_RATE",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x76d752a1"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "acceptOwnership",
@@ -553,21 +520,6 @@
     "signature": "0x86645274"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_feeAuthority",
-        "type": "address"
-      }
-    ],
-    "name": "setFeeAuthority",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x8a957929"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "owner",
@@ -598,6 +550,34 @@
     "signature": "0x97107d6d"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "currencyKey",
+        "type": "bytes32"
+      }
+    ],
+    "name": "feesAvailable",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x9a87239a"
+  },
+  {
     "constant": false,
     "inputs": [],
     "name": "selfDestruct",
@@ -608,23 +588,19 @@
     "signature": "0x9cb8a26a"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "integrationProxy",
+    "outputs": [
       {
-        "name": "currencyKey",
-        "type": "bytes4"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
+        "name": "",
+        "type": "address"
       }
     ],
-    "name": "feePaid",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function",
-    "signature": "0xa3fd6d0e"
+    "signature": "0x9cbdaeb6"
   },
   {
     "constant": true,
@@ -655,6 +631,25 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0xa461fc82"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "currencyKey",
+        "type": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "feePaid",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xa5fdab80"
   },
   {
     "constant": true,
@@ -730,24 +725,23 @@
     "signature": "0xb10090b8"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "exchangedAmountToReceive",
-    "outputs": [
+        "name": "account",
+        "type": "address"
+      },
       {
-        "name": "",
+        "name": "quantity",
         "type": "uint256"
       }
     ],
+    "name": "appendVestingEntry",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xb6dc8e25"
+    "signature": "0xb5ddb9c7"
   },
   {
     "constant": true,
@@ -825,21 +819,6 @@
     "signature": "0xc58aaae6"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_transferFeeRate",
-        "type": "uint256"
-      }
-    ],
-    "name": "setTransferFeeRate",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xc894e1e5"
-  },
-  {
     "constant": true,
     "inputs": [
       {
@@ -860,26 +839,6 @@
     "signature": "0xcc9b31c9"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "currencyKey",
-        "type": "bytes4"
-      }
-    ],
-    "name": "claimFees",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xcd503c0b"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "FEE_PERIOD_LENGTH",
@@ -897,6 +856,21 @@
   {
     "constant": true,
     "inputs": [],
+    "name": "rewardsAuthority",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xd028a3f7"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "MIN_FEE_PERIOD_DURATION",
     "outputs": [
       {
@@ -908,26 +882,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0xd62ae399"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "transferFeeIncurred",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xda46e6c4"
   },
   {
     "constant": true,
@@ -980,29 +934,14 @@
     "signature": "0xe3082f6a"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "rewardsMinted",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xe3f060ae"
-  },
-  {
     "constant": true,
     "inputs": [
       {
-        "name": "value",
-        "type": "uint256"
+        "name": "currencyKey",
+        "type": "bytes32"
       }
     ],
-    "name": "transferredAmountToReceive",
+    "name": "totalFeesAvailable",
     "outputs": [
       {
         "name": "",
@@ -1012,7 +951,7 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xe9d36c56"
+    "signature": "0xe99bc2d8"
   },
   {
     "constant": true,
@@ -1078,6 +1017,21 @@
     "constant": false,
     "inputs": [
       {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setRewardsToDistribute",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xfd1f498d"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "_synthetix",
         "type": "address"
       }
@@ -1120,12 +1074,8 @@
         "type": "address"
       },
       {
-        "name": "_feeAuthority",
+        "name": "_rewardsAuthority",
         "type": "address"
-      },
-      {
-        "name": "_transferFeeRate",
-        "type": "uint256"
       },
       {
         "name": "_exchangeFeeRate",
@@ -1135,6 +1085,42 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "LogInt",
+    "type": "event",
+    "signature": "0x3b53f2745f01e9cc7d8317d92cca0b2e25a1e0f710c5b65c2da4002d794e399f"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "name": "value",
+        "type": "address"
+      }
+    ],
+    "name": "LogAddress",
+    "type": "event",
+    "signature": "0x62ddffe5b5108385f7a590f100e1ee414ad9551a31f089e64e82998440785e1e"
   },
   {
     "anonymous": false,
@@ -1163,19 +1149,6 @@
     "name": "IssuanceDebtRatioEntry",
     "type": "event",
     "signature": "0x28dcdf40e6b6196065d54760038ab1a8c0c1d9cfa58a99e6b0cb6022f7e24775"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "newFeeRate",
-        "type": "uint256"
-      }
-    ],
-    "name": "TransferFeeUpdated",
-    "type": "event",
-    "signature": "0xf9f635b7cf851af6071aaf78ef8a5f752dc52f19d556fea4512b0c2ad4baea72"
   },
   {
     "anonymous": false,

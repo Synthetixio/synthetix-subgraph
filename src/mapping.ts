@@ -38,7 +38,7 @@ function incrementMetadata(field: string): void {
   metadata.save();
 }
 
-function trackIssuer(snxContract: Address, account: Address): void {
+function trackIssuer(account: Address): void {
   let existingIssuer = Issuer.load(account.toHex());
   if (existingIssuer == null) {
     incrementMetadata('issuers');
@@ -110,6 +110,8 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.save();
 }
 
+// Note this major limitation: Issued and Burned can happen on *any* Synth, where here we are only tracking
+// these events on SynthsUSD. Future implementations should include all synths
 export function handleIssuedsUSD(event: IssuedEvent): void {
   let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
@@ -120,12 +122,7 @@ export function handleIssuedsUSD(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  let synthContract = Synth.bind(event.address);
-  // only track issuers after "synthetix" added to the synth (v2 - prior to that it was "havven")
-  let synthetixTry = synthContract.try_synthetix();
-  if (!synthetixTry.reverted) {
-    trackIssuer(synthetixTry.value, event.transaction.from);
-  }
+  trackIssuer(event.transaction.from);
 }
 
 export function handleBurnedsUSD(event: BurnedEvent): void {

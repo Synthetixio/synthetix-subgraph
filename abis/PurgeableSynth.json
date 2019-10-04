@@ -42,6 +42,21 @@
     "constant": false,
     "inputs": [
       {
+        "name": "_integrationProxy",
+        "type": "address"
+      }
+    ],
+    "name": "setIntegrationProxy",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x131b0ae7"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "_owner",
         "type": "address"
       }
@@ -82,21 +97,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x18160ddd"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_feePool",
-        "type": "address"
-      }
-    ],
-    "name": "setFeePool",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x19db2228"
   },
   {
     "constant": false,
@@ -167,38 +167,6 @@
     "signature": "0x3278c960"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "transferFromSenderPaysFee",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x3c960be9"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "exchangeRates",
@@ -264,21 +232,6 @@
     "signature": "0x70a08231"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "synthetix",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x759b5225"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "acceptOwnership",
@@ -338,6 +291,21 @@
     "signature": "0x8da5cb5b"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_synthetixProxy",
+        "type": "address"
+      }
+    ],
+    "name": "setSynthetixProxy",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x95896b76"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "symbol",
@@ -376,6 +344,21 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0x9cb8a26a"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "integrationProxy",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x9cbdaeb6"
   },
   {
     "constant": false,
@@ -500,49 +483,6 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "feePool",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xae2e933b"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "transferSenderPaysFee",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xb4bede85"
-  },
-  {
-    "constant": true,
-    "inputs": [],
     "name": "selfDestructInitiated",
     "outputs": [
       {
@@ -579,6 +519,21 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0xbd32aa44"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "synthetixProxy",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xbdd12482"
   },
   {
     "constant": false,
@@ -624,28 +579,34 @@
     "signature": "0xc58aaae6"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "transferSenderPaysFee",
+    "constant": true,
+    "inputs": [],
+    "name": "feePoolProxy",
     "outputs": [
       {
         "name": "",
-        "type": "bool"
+        "type": "address"
       }
     ],
     "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xc9e9cc4d"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_feePoolProxy",
+        "type": "address"
+      }
+    ],
+    "name": "setFeePoolProxy",
+    "outputs": [],
+    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xd66c9cc2"
+    "signature": "0xd8297e44"
   },
   {
     "constant": true,
@@ -654,7 +615,7 @@
     "outputs": [
       {
         "name": "",
-        "type": "bytes4"
+        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -685,34 +646,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0xdd62ed3e"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "transferFromSenderPaysFee",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xe6fbf441"
   },
   {
     "constant": true,
@@ -783,21 +716,6 @@
     "signature": "0xf7ea7a3d"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_synthetix",
-        "type": "address"
-      }
-    ],
-    "name": "setSynthetix",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xfec9f9da"
-  },
-  {
     "inputs": [
       {
         "name": "_proxy",
@@ -808,7 +726,7 @@
         "type": "address"
       },
       {
-        "name": "_synthetix",
+        "name": "_synthetixProxy",
         "type": "address"
       },
       {
@@ -829,11 +747,15 @@
       },
       {
         "name": "_currencyKey",
-        "type": "bytes4"
+        "type": "bytes32"
       },
       {
         "name": "_exchangeRates",
         "type": "address"
+      },
+      {
+        "name": "_totalSupply",
+        "type": "uint256"
       }
     ],
     "payable": false,

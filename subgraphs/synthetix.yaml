@@ -8,7 +8,7 @@ dataSources:
     name: Synthetix
     network: mainnet
     source:
-      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # ProxySynthetix
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix
     mapping:
       kind: ethereum/events
@@ -27,7 +27,7 @@ dataSources:
     name: ProxySynthetix
     network: mainnet
     source:
-      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # ProxySynthetix
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Proxy
     mapping:
       kind: ethereum/events
@@ -43,10 +43,76 @@ dataSources:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
   - kind: ethereum/contract
+    name: Synthetix
+    network: mainnet
+    source:
+      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
+      abi: Synthetix
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSNX
+  - kind: ethereum/contract
+    name: ProxySynthetix
+    network: mainnet
+    source:
+      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
+      abi: Proxy
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - ProxyTargetUpdated
+      abis:
+        - name: Proxy
+          file: ./abis/Proxy.json
+      eventHandlers:
+        - event: TargetUpdated(address)
+          handler: handleProxyTargetUpdated
+
+  - kind: ethereum/contract
     name: SynthsUSD
     network: mainnet
     source:
-      address: '0x57Ab1E02fEE23774580C119740129eAC7081e9D3' # ProxysUSD
+      address: '0x57Ab1E02fEE23774580C119740129eAC7081e9D3' # ProxysUSD (old Proxy, will be decomissioned soon)
+      abi: Synth
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+        - Issued
+        - Burned
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth
+        - event: Issued(indexed address,uint256)
+          handler: handleIssuedsUSD
+        - event: Burned(indexed address,uint256)
+          handler: handleBurnedsUSD
+  - kind: ethereum/contract
+    name: SynthsUSD
+    network: mainnet
+    source:
+      address: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51' # ProxyERC20sUSD (new ERC20 Proxy)
       abi: Synth
     mapping:
       kind: ethereum/events
@@ -73,7 +139,28 @@ dataSources:
     name: SynthsETH
     network: mainnet
     source:
-      address: '0xaCf5C0101cbBe8476E87c652E0bEF33684Cc94D6' # ProxysETH
+      address: '0xaCf5C0101cbBe8476E87c652E0bEF33684Cc94D6' # (old sETH Proxy)
+      abi: Synth
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth
+  - kind: ethereum/contract
+    name: SynthsETH
+    network: mainnet
+    source:
+      address: '0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb' # ProxysETH (new ERC20 Proxy)
       abi: Synth
     mapping:
       kind: ethereum/events
