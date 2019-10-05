@@ -7,7 +7,7 @@ const { gray } = require('chalk');
 const program = require('commander');
 const snx = require('synthetix');
 
-program.command('prepare-abis').action(async () => {
+program.action(async () => {
   const abiPath = path.join(__dirname, 'abis');
   const sources = snx.getSource({ network: 'mainnet' });
 

@@ -3,7 +3,7 @@
   "license": "MIT",
   "author": "Synthetix",
   "scripts": {
-    "codegen": "node index prepare-abis && graph codegen",
+    "codegen": "node prepare-abis && graph codegen",
     "codegen:snx": "npm run prepare:snx && npm run codegen && npm run cleanup",
     "codegen:rates": "npm run prepare:rates && npm run codegen && npm run cleanup",
     "codegen:exchanges": "npm run prepare:exchanges && npm run codegen && npm run cleanup",
