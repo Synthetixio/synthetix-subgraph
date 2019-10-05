@@ -49,28 +49,36 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   }
 
   let synthetix = Synthetix.bind(event.address);
-  let toAmount = attemptEffectiveValue(synthetix, event.params.fromCurrencyKey, event.params.fromAmount, useBytes32);
+  let fromAmountInUSD = attemptEffectiveValue(
+    synthetix,
+    event.params.fromCurrencyKey,
+    event.params.fromAmount,
+    useBytes32,
+  );
+  let toAmountInUSD = attemptEffectiveValue(synthetix, event.params.toCurrencyKey, event.params.toAmount, useBytes32);
+  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.from = event.transaction.from;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
   entity.fromAmount = event.params.fromAmount;
+  entity.fromAmountInUSD = fromAmountInUSD; // attemptEffectiveValue() can return null but this value can not be
   entity.toCurrencyKey = event.params.toCurrencyKey;
   entity.toAmount = event.params.toAmount;
   entity.toAddress = event.params.toAddress;
+  entity.feesInUSD = feesInUSD;
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  entity.amountInUSD = toAmount; // attemptEffectiveValue() can return null but this value can not be
   entity.save();
 
   trackExchanger(event.transaction.from);
 
-  if (toAmount != null) {
+  if (fromAmountInUSD != null) {
     // now save the tally of USD value of all exchanges
     let metadata = getMetadata();
-    metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(toAmount);
+    metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(fromAmountInUSD);
     metadata.save();
   }
 }
