@@ -20,6 +20,7 @@ function getMetadata(): Total {
     total.exchangers = BigInt.fromI32(0);
     total.exchangeUSDTally = BigInt.fromI32(0);
     total.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+    total.totalFeesGeneratedInUSD_old = BigInt.fromI32(0); // deprecated
     total.save();
   }
 
@@ -63,9 +64,10 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.from = event.transaction.from;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
   entity.fromAmount = event.params.fromAmount;
-  entity.fromAmountInUSD = fromAmountInUSD; // attemptEffectiveValue() can return null but this value can not be
+  entity.fromAmountInUSD = fromAmountInUSD;
   entity.toCurrencyKey = event.params.toCurrencyKey;
   entity.toAmount = event.params.toAmount;
+  entity.toAmountInUSD = toAmountInUSD;
   entity.toAddress = event.params.toAddress;
   entity.feesInUSD = feesInUSD;
   entity.timestamp = event.block.timestamp;
@@ -75,10 +77,11 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
 
   trackExchanger(event.transaction.from);
 
-  if (fromAmountInUSD != null) {
+  if (fromAmountInUSD != null && feesInUSD != null) {
     // now save the tally of USD value of all exchanges
     let metadata = getMetadata();
     metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(fromAmountInUSD);
+    metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(feesInUSD);
     metadata.save();
   }
 }
@@ -103,7 +106,7 @@ function handleIssuedXDR(event: Issued, useBytes32: boolean): void {
     let effectiveValueTry = synthetix.try_effectiveValue(synthXDR.currencyKey(), event.params.value, sUSD32);
     if (!effectiveValueTry.reverted) {
       let metadata = getMetadata();
-      metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
+      metadata.totalFeesGeneratedInUSD_old = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
       metadata.save();
     }
   } else {
@@ -113,7 +116,7 @@ function handleIssuedXDR(event: Issued, useBytes32: boolean): void {
     let effectiveValueTry = synthetix.try_effectiveValue(synthXDR.currencyKey(), event.params.value, sUSD4);
     if (!effectiveValueTry.reverted) {
       let metadata = getMetadata();
-      metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
+      metadata.totalFeesGeneratedInUSD_old = metadata.totalFeesGeneratedInUSD.plus(effectiveValueTry.value);
       metadata.save();
     }
   }
