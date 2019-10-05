@@ -1,7 +1,7 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
+# Synthetix SubGraph auto-deployer
+
+# Deploys new synthetix subgraph when new versions are tagged and pushed
+# (via `git push --follow-tags` for example)
 
 env_defaults: &env_defaults
   working_directory: ~
@@ -51,15 +51,19 @@ jobs:
 workflows:
   version: 2
 
-  deploy-on-change:
+  deploy-on-new-version:
     jobs:
       - prepare:
           filters:
             branches:
-              only: master
+              ignore: /.*/
+            tags:
+              only: /^v.*/
       - deploy:
           requires:
             - prepare
           filters:
             branches:
-              only: master
+              ignore: /.*/
+            tags:
+              only: /^v.*/
