@@ -15,7 +15,7 @@
     module.exports = factory(require('node-fetch'));
   } else {
     // Browser globals
-    root.snxSubgraph = factory(root.fetch);
+    root.snxData1 = factory(root.fetch);
   }
   /* eslint-disable-next-line no-undef */
 })(typeof self !== 'undefined' ? self : this, function(fetch) {
