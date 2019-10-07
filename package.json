@@ -52,7 +52,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run compress && git add -u && git commit -m'Minifying'"
+      "pre-commit": "npm run compress"
     }
   }
 }
