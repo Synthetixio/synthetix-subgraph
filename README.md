@@ -10,14 +10,20 @@ Synthetix has three bundled subgraps, all generated from this one repository:
 2. Synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanges
 3. Historical rates on-chain for the various synths to USD
 
-## How to query via the npm library (CLE)
+## Using this as a JS module
+
+### Supported queries
+
+1. `exchanges.since({ timestampInSecs = 1 day ago })` Get the last `N` exchanges since the given timestampInSecs (in seconds, so one hour ago is `3600`). These are ordered in reverse chronological order.
+
+### How to query via the npm library (CLE)
 
 ```bash
 # get last 24 hours of exchange activity, ordered from latest to earliest
 npx synthetix-subgraph exchanges.since
 ```
 
-## Use as a module dependency
+### Use as a node or webpack dependency
 
 ```javascript
 const snxData = require('synthetix-subgraph');
@@ -25,16 +31,16 @@ const snxData = require('synthetix-subgraph');
 snxData.exchanges.since().then(exchnages => console.log(exchanges));
 ```
 
-## Use in a browser
+### Use in a browser
 
 ```html
-<script src="//cdn.jsdelivr.net/npm/synthetix-subgraph/index.js"></script>
+<script src="//cdn.jsdelivr.net/npm/synthetix-subgraph/index.min.js"></script>
 <script>
   window.snxData.exchanges.since().then(console.log);
 </script>
 ```
 
-## Use without this librarys
+## Or query the subgraphs without any JS library
 
 In it's simplest version (on a modern browser assuming `async await` support and `fetch`):
 
@@ -52,11 +58,15 @@ In it's simplest version (on a modern browser assuming `async await` support and
       )
       {
         fromAmount
+        fromAmountInUSD
         fromCurrencyKey
         toCurrencyKey
         block
         timestamp
         toAddress
+        toAmount
+        toAmountInUSD
+        feesInUSD
       }
     }`,
     variables: null,
@@ -73,3 +83,5 @@ In it's simplest version (on a modern browser assuming `async await` support and
   console.log(synthExchanges);
 })();
 ```
+
+> Note: due to The Graph limitation, only `100` results will be returned (the maximum allowed `first` amount). The way around this is to use paging (using the `skip` operator in GraphQL). See the function `pageResults` in [index.js](./index.js#L32-L53) for an example.
