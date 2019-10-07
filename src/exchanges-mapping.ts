@@ -1,5 +1,4 @@
 import { Synthetix, SynthExchange as SynthExchangeEvent } from '../generated/Synthetix/Synthetix';
-
 import { Total, SynthExchange, Exchanger } from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
@@ -16,7 +15,6 @@ function getMetadata(): Total {
     total.exchangers = BigInt.fromI32(0);
     total.exchangeUSDTally = BigInt.fromI32(0);
     total.totalFeesGeneratedInUSD = BigInt.fromI32(0);
-    total.totalFeesGeneratedInUSD_old = BigInt.fromI32(0); // deprecated
     total.save();
   }
 
@@ -24,7 +22,7 @@ function getMetadata(): Total {
 }
 
 function incrementMetadata(field: string): void {
-  let metadata = getMetadata();
+  const metadata = getMetadata();
   if (field == 'exchangers') {
     metadata.exchangers = metadata.exchangers.plus(BigInt.fromI32(1));
   }
@@ -32,10 +30,10 @@ function incrementMetadata(field: string): void {
 }
 
 function trackExchanger(account: Address): void {
-  let existingExchanger = Exchanger.load(account.toHex());
+  const existingExchanger = Exchanger.load(account.toHex());
   if (existingExchanger == null) {
     incrementMetadata('exchangers');
-    let exchanger = new Exchanger(account.toHex());
+    const exchanger = new Exchanger(account.toHex());
     exchanger.save();
   }
 }
@@ -45,17 +43,17 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     return;
   }
 
-  let synthetix = Synthetix.bind(event.address);
-  let fromAmountInUSD = attemptEffectiveValue(
+  const synthetix = Synthetix.bind(event.address);
+  const fromAmountInUSD = attemptEffectiveValue(
     synthetix,
     event.params.fromCurrencyKey,
     event.params.fromAmount,
     useBytes32,
   );
-  let toAmountInUSD = attemptEffectiveValue(synthetix, event.params.toCurrencyKey, event.params.toAmount, useBytes32);
-  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
+  const toAmountInUSD = attemptEffectiveValue(synthetix, event.params.toCurrencyKey, event.params.toAmount, useBytes32);
+  const feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
 
-  let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  const entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.from = event.transaction.from;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
@@ -75,7 +73,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
 
   if (fromAmountInUSD != null && feesInUSD != null) {
     // now save the tally of USD value of all exchanges
-    let metadata = getMetadata();
+    const metadata = getMetadata();
     metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(fromAmountInUSD);
     metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(feesInUSD);
     metadata.save();

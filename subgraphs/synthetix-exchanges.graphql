@@ -4,7 +4,6 @@ type Total @entity {
   exchangers: BigInt!
   exchangeUSDTally: BigInt!
   totalFeesGeneratedInUSD: BigInt!
-  totalFeesGeneratedInUSD_old: BigInt!
 }
 
 # SynthExchange tracks this event from the Synthetix.sol contract

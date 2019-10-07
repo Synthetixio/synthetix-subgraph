@@ -1,8 +1,15 @@
 {
   "name": "synthetix-subgraph",
   "license": "MIT",
+  "version": "1.0.0",
   "author": "Synthetix",
+  "main": "index.js",
+  "browser": "index.js",
+  "bin": {
+    "snxData": "bin.js"
+  },
   "scripts": {
+    "lint": "eslint .",
     "codegen": "node prepare-abis && graph codegen",
     "codegen:snx": "npm run prepare:snx && npm run codegen && npm run cleanup",
     "codegen:rates": "npm run prepare:rates && npm run codegen && npm run cleanup",
@@ -26,6 +33,7 @@
     "chalk": "2.4.2",
     "commander": "2.20.0",
     "ethers": "4.0.27",
+    "node-fetch": "2.6.0",
     "synthetix": "2.11.2"
   },
   "devDependencies": {
@@ -33,6 +41,8 @@
     "@typescript-eslint/parser": "1.9.0",
     "eslint": "5.16.0",
     "eslint-config-prettier": "4.3.0",
+    "eslint-import-resolver-typescript": "1.1.1",
+    "eslint-plugin-import": "2.18.2",
     "eslint-plugin-prettier": "3.1.0",
     "prettier": "1.17.1",
     "typescript": "3.4.5"
