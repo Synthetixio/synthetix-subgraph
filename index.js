@@ -76,7 +76,7 @@
           api: graph.exchanges,
           field: 'synthExchanges',
           queryCreator: ({ skip }) =>
-            `{"query":"{synthExchanges(first:${PAGE_SIZE},skip:${skip},orderBy:timestamp,orderDirection:desc,where:{timestamp_gt: ${timestampInSecs}}){id,from,gasPrice,fromAmount,fromAmountInUSD,fromCurrencyKey,toCurrencyKey,toAmount,toAmountInUSD,feesInUSD,block,timestamp,toAddress}}","variables":null}`,
+            `{"query":"{synthExchanges(first:${PAGE_SIZE},skip:${skip},orderBy:timestamp,orderDirection:desc,where:{timestamp_gt: ${timestampInSecs}}){id,from,gasPrice,from,fromAmount,fromAmountInUSD,fromCurrencyKey,toCurrencyKey,toAddress,toAmount,toAmountInUSD,feesInUSD,block,timestamp}}","variables":null}`,
         })
           .then(results =>
             results.map(
@@ -84,19 +84,23 @@
                 gasPrice,
                 timestamp,
                 id,
+                from,
                 fromAmount,
+                block,
                 fromAmountInUSD,
                 fromCurrencyKey,
+                toAddress,
                 toAmount,
                 toAmountInUSD,
                 toCurrencyKey,
                 feesInUSD,
               }) => ({
                 gasPrice: gasPrice / 1e9,
-
+                block,
                 timestamp: Number(timestamp * 1000),
                 date: new Date(timestamp * 1000),
                 hash: id.split('-')[0],
+                fromAddress: from,
                 fromAmount: fromAmount / 1e18, // shorthand way to convert wei into eth
                 fromCurrencyKeyBytes: fromCurrencyKey,
                 fromCurrencyKey: hexToAscii(fromCurrencyKey),
@@ -105,6 +109,7 @@
                 toAmountInUSD: toAmountInUSD / 1e18,
                 toCurrencyKeyBytes: toCurrencyKey,
                 toCurrencyKey: hexToAscii(toCurrencyKey),
+                toAddress,
                 feesInUSD: feesInUSD / 1e18,
               }),
             ),
