@@ -52,7 +52,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run commit"
+      "pre-commit": "npm run compress"
     }
   }
 }
