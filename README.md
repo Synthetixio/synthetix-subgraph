@@ -8,7 +8,7 @@ Synthetix has three bundled subgraps, all generated from this one repository:
 
 1. Minting, Burning and Transferring SNX & Synths: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix
 2. Synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanges
-3. Historical rates on-chain for the various synths to USD
+3. Historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-rates
 
 ## Using this as a JS module
 
@@ -28,7 +28,7 @@ npx synthetix-subgraph exchanges.since
 ```javascript
 const snxData = require('synthetix-subgraph');
 
-snxData.exchanges.since().then(exchnages => console.log(exchanges));
+snxData.exchanges.since().then(exchanges => console.log(exchanges));
 ```
 
 ### Use in a browser
