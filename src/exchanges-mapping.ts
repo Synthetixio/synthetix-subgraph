@@ -22,7 +22,7 @@ function getMetadata(): Total {
 }
 
 function incrementMetadata(field: string): void {
-  const metadata = getMetadata();
+  let metadata = getMetadata();
   if (field == 'exchangers') {
     metadata.exchangers = metadata.exchangers.plus(BigInt.fromI32(1));
   }
@@ -30,10 +30,10 @@ function incrementMetadata(field: string): void {
 }
 
 function trackExchanger(account: Address): void {
-  const existingExchanger = Exchanger.load(account.toHex());
+  let existingExchanger = Exchanger.load(account.toHex());
   if (existingExchanger == null) {
     incrementMetadata('exchangers');
-    const exchanger = new Exchanger(account.toHex());
+    let exchanger = new Exchanger(account.toHex());
     exchanger.save();
   }
 }
@@ -43,17 +43,17 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     return;
   }
 
-  const synthetix = Synthetix.bind(event.address);
-  const fromAmountInUSD = attemptEffectiveValue(
+  let synthetix = Synthetix.bind(event.address);
+  let fromAmountInUSD = attemptEffectiveValue(
     synthetix,
     event.params.fromCurrencyKey,
     event.params.fromAmount,
     useBytes32,
   );
-  const toAmountInUSD = attemptEffectiveValue(synthetix, event.params.toCurrencyKey, event.params.toAmount, useBytes32);
-  const feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
+  let toAmountInUSD = attemptEffectiveValue(synthetix, event.params.toCurrencyKey, event.params.toAmount, useBytes32);
+  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
 
-  const entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.from = event.transaction.from;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
@@ -67,13 +67,14 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
+  entity.network = 'mainnet';
   entity.save();
 
   trackExchanger(event.transaction.from);
 
   if (fromAmountInUSD != null && feesInUSD != null) {
     // now save the tally of USD value of all exchanges
-    const metadata = getMetadata();
+    let metadata = getMetadata();
     metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(fromAmountInUSD);
     metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(feesInUSD);
     metadata.save();
