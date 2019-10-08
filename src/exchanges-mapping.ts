@@ -8,10 +8,10 @@ import { exchangesToIgnore } from './exchangesToIgnore';
 import { attemptEffectiveValue } from './common';
 
 function getMetadata(): Total {
-  let total = Total.load('1');
+  let total = Total.load('mainnet');
 
   if (total == null) {
-    total = new Total('1');
+    total = new Total('mainnet');
     total.exchangers = BigInt.fromI32(0);
     total.exchangeUSDTally = BigInt.fromI32(0);
     total.totalFeesGeneratedInUSD = BigInt.fromI32(0);

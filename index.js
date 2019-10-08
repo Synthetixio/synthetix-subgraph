@@ -67,6 +67,21 @@
   return {
     pageResults,
     exchanges: {
+      total({ network = 'mainnet' } = {}) {
+        return pageResults({
+          api: graph.exchanges,
+          field: 'totals',
+          queryCreator: () =>
+            '{"query": "{totals(first: 1) {id,exchangers,exchangeUSDTally,totalFeesGeneratedInUSD}}", "variables": null}',
+        })
+          .then(([{ id, exchangers, exchangeUSDTally, totalFeesGeneratedInUSD }]) => ({
+            id,
+            exchangers: Number(exchangers),
+            exchangeUSDTally: exchangeUSDTally / 1e18,
+            totalFeesGeneratedInUSD: totalFeesGeneratedInUSD / 1e18,
+          }))
+          .catch(err => console.error(err));
+      },
       /**
        * Get all exchanges since some timestamp
        * @param {timestampInSecs: Number} the
