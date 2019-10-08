@@ -71,12 +71,15 @@
        * Get all exchanges since some timestamp
        * @param {timestampInSecs: Number} the
        */
-      since({ timestampInSecs = Math.floor(Date.now() / 1e3) - 3600 * 24 /* default is 1 day ago */ } = {}) {
+      since({
+        network = 'mainnet',
+        timestampInSecs = Math.floor(Date.now() / 1e3) - 3600 * 24 /* default is 1 day ago */,
+      } = {}) {
         return pageResults({
           api: graph.exchanges,
           field: 'synthExchanges',
           queryCreator: ({ skip }) =>
-            `{"query":"{synthExchanges(first:${PAGE_SIZE},skip:${skip},orderBy:timestamp,orderDirection:desc,where:{timestamp_gt: ${timestampInSecs}}){id,from,gasPrice,from,fromAmount,fromAmountInUSD,fromCurrencyKey,toCurrencyKey,toAddress,toAmount,toAmountInUSD,feesInUSD,block,timestamp}}","variables":null}`,
+            `{"query":"{synthExchanges(first:${PAGE_SIZE},skip:${skip},orderBy:timestamp,orderDirection:desc,where:{network: \\"${network}\\", timestamp_gt: ${timestampInSecs}}){id,from,gasPrice,from,fromAmount,fromAmountInUSD,fromCurrencyKey,toCurrencyKey,toAddress,toAmount,toAmountInUSD,feesInUSD,block,timestamp}}","variables":null}`,
         })
           .then(results =>
             results.map(
