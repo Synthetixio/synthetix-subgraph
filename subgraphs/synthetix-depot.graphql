@@ -1,0 +1,50 @@
+type UserAction @entity {
+  id: ID!
+  user: Bytes! # address
+  amount: BigInt! # uint256
+  type: String! # ('deposit', 'withdrawl', 'removal', 'unaccepted')
+  depositIndex: BigInt # (SynthDeposit, SynthDepositRemoved)
+  minimum: BigInt # (SynthDepositNotAccepted)
+  block: BigInt!
+  timestamp: BigInt!
+  network: String!
+}
+
+type ClearedDeposit @entity {
+  id: ID!
+  fromAddress: Bytes! # address
+  toAddress: Bytes! # address
+  fromETHAmount: BigInt! # uint256
+  toAmount: BigInt! # uint256
+  depositIndex: BigInt! # uint256
+  block: BigInt!
+  timestamp: BigInt!
+  network: String!
+}
+
+# type SynthWithdrawal @entity {
+#   id: ID!
+#   user: Bytes! # address
+#   amount: BigInt! # uint256
+# }
+
+# type SynthDeposit @entity {
+#   id: ID!
+#   user: Bytes! # address
+#   amount: BigInt! # uint256
+#   depositIndex: BigInt! # uint256
+# }
+
+# type SynthDepositRemoved @entity {
+#   id: ID!
+#   user: Bytes! # address
+#   amount: BigInt! # uint256
+#   depositIndex: BigInt! # uint256
+# }
+
+# type SynthDepositNotAccepted @entity {
+#   id: ID!
+#   user: Bytes! # address
+#   amount: BigInt! # uint256
+#   minimum: BigInt! # uint256
+# }
