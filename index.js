@@ -72,7 +72,7 @@
           api: graph.exchanges,
           field: 'totals',
           queryCreator: () =>
-            '{"query": "{totals(first: 1) {id,exchangers,exchangeUSDTally,totalFeesGeneratedInUSD}}", "variables": null}',
+            `{"query": "{totals(first: 1, where: {id: \\"${network}\\"}){id,exchangers,exchangeUSDTally,totalFeesGeneratedInUSD}}", "variables": null}`,
         })
           .then(([{ id, exchangers, exchangeUSDTally, totalFeesGeneratedInUSD }]) => ({
             id,
