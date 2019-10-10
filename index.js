@@ -67,6 +67,9 @@
   return {
     pageResults,
     exchanges: {
+      /**
+       * Get the exchange totals for the given network.
+       */
       total({ network = 'mainnet' } = {}) {
         return pageResults({
           api: graph.exchanges,
@@ -83,8 +86,7 @@
           .catch(err => console.error(err));
       },
       /**
-       * Get all exchanges since some timestamp
-       * @param {timestampInSecs: Number} the
+       * Get all exchanges since some timestamp in seconds (ordered reverse chronological)
        */
       since({
         network = 'mainnet',
