@@ -15,6 +15,9 @@ Synthetix has three bundled subgraps, all generated from this one repository:
 ### Supported queries
 
 1. `exchanges.since({ timestampInSecs = 1 day ago })` Get the last `N` exchanges since the given timestampInSecs (in seconds, so one hour ago is `3600`). These are ordered in reverse chronological order.
+2. `exchanges.total()` Get the total exchange volume, total fees and total number of unique exchange addresses.
+3. `depot.userActions({ user })` Get all depot deposit (`sUSD`) actions for the given user - `deposit`, `withdrawl`, `unaccepted`, `removed`.
+4. `depot.clearedDeposits({ fromAddress, toAddress })` Get all cleared synth deposits (payments of `ETH` for `sUSD`) either from a given `fromAddress` or (and as well as) to a given `toAddress`
 
 ### How to query via the npm library (CLE)
 
