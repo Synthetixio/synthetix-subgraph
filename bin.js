@@ -10,6 +10,14 @@ program
     depot.userActions({ user }).then(console.log);
   });
 
+program
+  .command('depot.clearedDeposits')
+  .option('-f, --fromAddress <value>', 'A from address')
+  .option('-t, --toAddress <value>', 'A to address')
+  .action(async ({ fromAddress, toAddress }) => {
+    depot.clearedDeposits({ fromAddress, toAddress }).then(console.log);
+  });
+
 program.command('exchanges.total').action(async () => {
   exchanges.total().then(console.log);
 });

@@ -117,6 +117,52 @@
           )
           .catch(err => console.error(err));
       },
+      clearedDeposits({ network = 'mainnet', fromAddress = undefined, toAddress = undefined }) {
+        return pageResults({
+          api: graph.depot,
+          field: 'clearedDeposits',
+          queryCreator: ({ skip }) =>
+            `{
+              "query": "{
+                clearedDeposits(
+                  first:${PAGE_SIZE},
+                  skip:${skip},
+                  orderBy:timestamp,
+                  orderDirection:desc,
+                  where: {
+                    network: \\"${network}\\"
+                    ${fromAddress ? `,fromAddress: \\"${fromAddress}\\"` : ''}
+                    ${toAddress ? `,toAddress: \\"${toAddress}\\"` : ''}
+                  }
+                ){
+                  id,
+                  fromAddress,
+                  toAddress,
+                  fromETHAmount,
+                  toAmount,
+                  depositIndex,
+                  block,
+                  timestamp
+                }
+              }",
+              "variables": null
+            }`,
+        })
+          .then(results =>
+            results.map(({ id, fromAddress, toAddress, fromETHAmount, toAmount, depositIndex, block, timestamp }) => ({
+              hash: id.split('-')[0],
+              fromAddress,
+              toAddress,
+              fromETHAmount: fromETHAmount / 1e18,
+              toAmount: toAmount / 1e18,
+              depositIndex: depositIndex !== null ? Number(depositIndex) : null,
+              block: Number(block),
+              timestamp: Number(timestamp * 1000),
+              date: new Date(timestamp * 1000),
+            })),
+          )
+          .catch(err => console.error(err));
+      },
     },
     exchanges: {
       /**
