@@ -1,7 +1,7 @@
 {
   "name": "synthetix-subgraph",
   "license": "MIT",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "author": "Synthetix",
   "main": "index.js",
   "browser": "index.min.js",
