@@ -2,13 +2,7 @@
 // UMD via https://github.com/umdjs/umd/blob/master/templates/returnExportsGlobal.js
 (function(root, factory) {
   /* eslint-disable-next-line no-undef */
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    /* eslint-disable-next-line no-undef */
-    define(['fetch'], function(b) {
-      return (root.snxSubgraph = factory(b));
-    });
-  } else if (typeof module === 'object' && module.exports) {
+  if (typeof module === 'object' && module.exports) {
     // Node. Does not work with strict CommonJS, but
     // only CommonJS-like environments that support module.exports,
     // like Node.
