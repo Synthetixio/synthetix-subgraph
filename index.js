@@ -23,6 +23,7 @@
 
   const graph = {
     snx: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix',
+    depot: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-depot',
     exchanges: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-exchanges',
     rates: 'https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-rates',
   };
@@ -31,7 +32,11 @@
 
   const pageResults = ({ api, queryCreator, field }) => {
     const runner = ({ skip }) => {
-      return fetch(api, { method: 'POST', body: queryCreator({ skip }) })
+      return fetch(api, {
+        method: 'POST',
+        // remove tabs and other control codes from body
+        body: queryCreator({ skip }).replace(/\n+/g, ''),
+      })
         .then(response => response.json())
         .then(json => {
           if (json.errors) {
@@ -66,6 +71,53 @@
 
   return {
     pageResults,
+    depot: {
+      userActions({ network = 'mainnet', user }) {
+        return pageResults({
+          api: graph.depot,
+          field: 'userActions',
+          queryCreator: ({ skip }) =>
+            `{
+              "query": "{
+                userActions(
+                  first:${PAGE_SIZE},
+                  skip:${skip},
+                  orderBy:timestamp,
+                  orderDirection:desc,
+                  where: {
+                    network: \\"${network}\\",
+                    user: \\"${user}\\"
+                  }
+                ){
+                  id,
+                  user
+                  amount,
+                  minimum,
+                  depositIndex,
+                  type,
+                  block,
+                  timestamp
+                }
+              }",
+              "variables": null
+            }`,
+        })
+          .then(results =>
+            results.map(({ id, user, amount, type, minimum, depositIndex, block, timestamp }) => ({
+              hash: id.split('-')[0],
+              user,
+              amount: amount / 1e18,
+              type,
+              minimum: minimum !== null ? Number(minimum) : null,
+              depositIndex: depositIndex !== null ? Number(depositIndex) : null,
+              block: Number(block),
+              timestamp: Number(timestamp * 1000),
+              date: new Date(timestamp * 1000),
+            })),
+          )
+          .catch(err => console.error(err));
+      },
+    },
     exchanges: {
       /**
        * Get the exchange totals for the given network.
@@ -75,7 +127,22 @@
           api: graph.exchanges,
           field: 'totals',
           queryCreator: () =>
-            `{"query": "{totals(first: 1, where: {id: \\"${network}\\"}){id,exchangers,exchangeUSDTally,totalFeesGeneratedInUSD}}", "variables": null}`,
+            `{
+              "query": "{
+                totals(
+                  first: 1,
+                  where: {
+                    id: \\"${network}\\"
+                  }
+                ){
+                  id,
+                  exchangers,
+                  exchangeUSDTally,
+                  totalFeesGeneratedInUSD
+                }
+              }",
+              "variables": null
+            }`,
         })
           .then(([{ id, exchangers, exchangeUSDTally, totalFeesGeneratedInUSD }]) => ({
             id,
@@ -96,7 +163,36 @@
           api: graph.exchanges,
           field: 'synthExchanges',
           queryCreator: ({ skip }) =>
-            `{"query":"{synthExchanges(first:${PAGE_SIZE},skip:${skip},orderBy:timestamp,orderDirection:desc,where:{network: \\"${network}\\", timestamp_gt: ${timestampInSecs}}){id,from,gasPrice,from,fromAmount,fromAmountInUSD,fromCurrencyKey,toCurrencyKey,toAddress,toAmount,toAmountInUSD,feesInUSD,block,timestamp}}","variables":null}`,
+            `{
+              "query":"{
+                synthExchanges(
+                  first:${PAGE_SIZE},
+                  skip:${skip},
+                  orderBy:timestamp,
+                  orderDirection:desc,
+                  where:{
+                    network: \\"${network}\\",
+                    timestamp_gt: ${timestampInSecs}
+                  }
+                ){
+                  id,
+                  from,
+                  gasPrice,
+                  from,
+                  fromAmount,
+                  fromAmountInUSD,
+                  fromCurrencyKey,
+                  toCurrencyKey,
+                  toAddress,
+                  toAmount,
+                  toAmountInUSD,
+                  feesInUSD,
+                  block,
+                  timestamp
+                }
+              }",
+              "variables":null
+            }`,
         })
           .then(results =>
             results.map(
@@ -116,7 +212,7 @@
                 feesInUSD,
               }) => ({
                 gasPrice: gasPrice / 1e9,
-                block,
+                block: Number(block),
                 timestamp: Number(timestamp * 1000),
                 date: new Date(timestamp * 1000),
                 hash: id.split('-')[0],
