@@ -29,19 +29,10 @@ module.exports = {
       },
     },
   },
-  // overrides: [
-  //   {
-  //     files: ['**/*.ts'],
-  //     parser: '@typescript-eslint/parser', // Specifies the ESLint parser
-  //     rules: {
-  //       'import/no-unresolved': 2,
-  //     },
-  //   },
-  // ],
 
   rules: {
     quotes: ['error', 'single'],
-    'import/no-unresolved': [2, { commonjs: true }],
+    'import/no-unresolved': 2,
     'no-undef': 2,
     'prefer-const': 0,
     semi: ['error', 'always'],

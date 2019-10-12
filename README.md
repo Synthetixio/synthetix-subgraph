@@ -4,46 +4,18 @@
 
 The Graph exposes a GraphQL endpoint to query the events and entities within the Synthetix system.
 
-Synthetix has three bundled subgraps, all generated from this one repository:
+Synthetix has four bundled subgraps, all generated from this one repository:
 
 1. Minting, Burning and Transferring SNX & Synths: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix
 2. Synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanges
 3. Historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-rates
+4. Depot deposits, withdrawls and successful exchanges: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-depot
 
-## Using this as a JS module
+## To query these subgraphs
 
-### Supported queries
+Please use our node & browser utility: [synthetix-data](https://github.com/Synthetixio/synthetix-data).
 
-1. `exchanges.since({ timestampInSecs = 1 day ago })` Get the last `N` exchanges since the given timestampInSecs (in seconds, so one hour ago is `3600`). These are ordered in reverse chronological order.
-2. `exchanges.total()` Get the total exchange volume, total fees and total number of unique exchange addresses.
-3. `depot.userActions({ user })` Get all depot deposit (`sUSD`) actions for the given user - `deposit`, `withdrawl`, `unaccepted`, `removed`.
-4. `depot.clearedDeposits({ fromAddress, toAddress })` Get all cleared synth deposits (payments of `ETH` for `sUSD`) either from a given `fromAddress` or (and as well as) to a given `toAddress`
-
-### How to query via the npm library (CLE)
-
-```bash
-# get last 24 hours of exchange activity, ordered from latest to earliest
-npx synthetix-subgraph exchanges.since
-```
-
-### Use as a node or webpack dependency
-
-```javascript
-const snxData = require('synthetix-subgraph');
-
-snxData.exchanges.since().then(exchanges => console.log(exchanges));
-```
-
-### Use in a browser
-
-```html
-<script src="//cdn.jsdelivr.net/npm/synthetix-subgraph/index.min.js"></script>
-<script>
-  window.snxData.exchanges.since().then(console.log);
-</script>
-```
-
-## Or query the subgraphs without any JS library
+## Or to query the subgraphs without any JS library
 
 In it's simplest version (on a modern browser assuming `async await` support and `fetch`):
 
