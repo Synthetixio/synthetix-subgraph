@@ -24,6 +24,10 @@ let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 
+// Synthetix upgrade from Havven at txn: https://etherscan.io/tx/0x4a19db6cd8f01226bfe74a1a194f971e5d19568b019a45efd0dfbcaf9a901b02
+// Block #: 6840246
+let v2UpgradeBlock = BigInt.fromI32(6840246);
+
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
 
@@ -68,7 +72,7 @@ function trackIssuer(account: Address): void {
   issuer.save();
 }
 
-function trackSNXHolder(snxContract: Address, account: Address): void {
+function trackSNXHolder(snxContract: Address, account: Address, block: BigInt): void {
   let holder = account.toHex();
   // ignore escrow accounts
   if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
@@ -80,9 +84,13 @@ function trackSNXHolder(snxContract: Address, account: Address): void {
   }
   let snxHolder = new SNXHolder(account.toHex());
   let synthetix = SNX.bind(snxContract);
-  let synthetixCollateralTry = synthetix.try_collateral(account);
-  if (!synthetixCollateralTry.reverted) {
-    snxHolder.collateral = synthetixCollateralTry.value;
+
+  // Don't bother trying collateral before v2 upgrade (slows down processing A LOT)
+  if (block > v2UpgradeBlock) {
+    let synthetixCollateralTry = synthetix.try_collateral(account);
+    if (!synthetixCollateralTry.reverted) {
+      snxHolder.collateral = synthetixCollateralTry.value;
+    }
   }
   snxHolder.save();
 }
@@ -97,19 +105,20 @@ export function handleTransferSNX(event: TransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
-  trackSNXHolder(event.address, event.params.from);
-  trackSNXHolder(event.address, event.params.to);
+  trackSNXHolder(event.address, event.params.from, event.block.number);
+  trackSNXHolder(event.address, event.params.to, event.block.number);
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  let currencyKeyTry = contract.try_currencyKey();
-  if (!currencyKeyTry.reverted) {
-    entity.source = currencyKeyTry.value.toString();
-  } else {
+  entity.source = 'sUSD';
+  if (event.block.number > v2UpgradeBlock) {
     // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
-    entity.source = 'sUSD';
+    let currencyKeyTry = contract.try_currencyKey();
+    if (!currencyKeyTry.reverted) {
+      entity.source = currencyKeyTry.value.toString();
+    }
   }
   entity.from = event.params.from;
   entity.to = event.params.to;
