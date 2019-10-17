@@ -198,3 +198,24 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+  - kind: ethereum/contract
+    name: RewardEscrow
+    network: mainnet
+    source:
+      address: '0xb671F2210B1F6621A2607EA63E6B2DC3e2464d1F' # RewardEscrow
+      abi: RewardEscrow
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: RewardEscrow
+          file: ./abis/RewardEscrow.json
+      eventHandlers:
+        - event: VestingEntryCreated(indexed address,uint256,uint256)
+          handler: handleRewardVestEvent
+        - event: Vested(indexed address,uint256,uint256)
+          handler: handleRewardVestEvent

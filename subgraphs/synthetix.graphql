@@ -59,3 +59,8 @@ type ProxyTargetUpdated @entity {
   block: BigInt!
   tx: Bytes!
 }
+
+type RewardEscrowHolder @entity {
+  id: ID!
+  balanceOf: BigInt!
+}

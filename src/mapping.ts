@@ -1,13 +1,22 @@
 import { Synthetix as SNX, Transfer as TransferEvent } from '../generated/Synthetix/Synthetix';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
-
+import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import {
   Synth,
   Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/SynthsUSD/Synth';
-import { Synthetix, Transfer, Issued, Burned, Issuer, ProxyTargetUpdated, SNXHolder } from '../generated/schema';
+import {
+  Synthetix,
+  Transfer,
+  Issued,
+  Burned,
+  Issuer,
+  ProxyTargetUpdated,
+  SNXHolder,
+  RewardEscrowHolder,
+} from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
 
@@ -142,5 +151,13 @@ export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
   entity.newTarget = event.params.newTarget;
   entity.block = event.block.number;
   entity.tx = event.transaction.hash;
+  entity.save();
+}
+
+// Note: we use VestedEvent here even though is also handles VestingEntryCreated (they share the same signature)
+export function handleRewardVestEvent(event: VestedEvent): void {
+  let entity = new RewardEscrowHolder(event.params.beneficiary.toHex());
+  let contract = RewardEscrow.bind(event.address);
+  entity.balanceOf = contract.balanceOf(event.params.beneficiary);
   entity.save();
 }
