@@ -214,6 +214,8 @@ dataSources:
       abis:
         - name: RewardEscrow
           file: ./abis/RewardEscrow.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
       eventHandlers:
         - event: VestingEntryCreated(indexed address,uint256,uint256)
           handler: handleRewardVestEvent

@@ -169,4 +169,7 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   let contract = RewardEscrow.bind(event.address);
   entity.balanceOf = contract.balanceOf(event.params.beneficiary);
   entity.save();
+  // now track the SNX holder as this action can impact their collateral
+  let synthetixAddress = contract.synthetix();
+  trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block.number);
 }
