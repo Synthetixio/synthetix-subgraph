@@ -105,8 +105,6 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
-        - name: Synthetix
-          file: ./abis/Synthetix.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -128,8 +126,6 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
-        - name: Synthetix
-          file: ./abis/Synthetix.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -149,8 +145,6 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
-        - name: Synthetix
-          file: ./abis/Synthetix.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -170,8 +164,6 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
-        - name: Synthetix
-          file: ./abis/Synthetix.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -191,8 +183,6 @@ dataSources:
       abis:
         - name: Synth
           file: ./abis/Synth.json
-        - name: Synthetix
-          file: ./abis/Synthetix.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
