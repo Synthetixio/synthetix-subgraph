@@ -23,6 +23,12 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
+      callHandlers:
+        - function: issueSynths(bytes32,uint256)
+          handler: handleIssueSynths
+        - function: burnSynths(bytes32,uint256)
+          handler: handleBurnSynths
+
   - kind: ethereum/contract
     name: ProxySynthetix
     network: mainnet
@@ -104,10 +110,6 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
-        - event: Issued(indexed address,uint256)
-          handler: handleIssuedsUSD
-        - event: Burned(indexed address,uint256)
-          handler: handleBurnedsUSD
   - kind: ethereum/contract
     name: SynthsUSD
     network: mainnet
@@ -131,10 +133,6 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
-        - event: Issued(indexed address,uint256)
-          handler: handleIssuedsUSD
-        - event: Burned(indexed address,uint256)
-          handler: handleBurnedsUSD
   - kind: ethereum/contract
     name: SynthsETH
     network: mainnet

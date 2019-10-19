@@ -1,4 +1,9 @@
-import { Synthetix as SNX, Transfer as TransferEvent } from '../generated/Synthetix/Synthetix';
+import {
+  Synthetix as SNX,
+  Transfer as TransferEvent,
+  IssueSynthsCall,
+  BurnSynthsCall,
+} from '../generated/Synthetix/Synthetix';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import {
@@ -128,32 +133,6 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.save();
 }
 
-// Note this major limitation: Issued and Burned can happen on *any* Synth, where here we are only tracking
-// these events on SynthsUSD. Future implementations should include all synths
-export function handleIssuedsUSD(event: IssuedEvent): void {
-  let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.account = event.params.account;
-  entity.value = event.params.value;
-  entity.source = 'sUSD';
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.gasPrice = event.transaction.gasPrice;
-  entity.save();
-
-  trackIssuer(event.transaction.from);
-}
-
-export function handleBurnedsUSD(event: BurnedEvent): void {
-  let entity = new Burned(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.account = event.params.account;
-  entity.value = event.params.value;
-  entity.source = 'sUSD';
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.gasPrice = event.transaction.gasPrice;
-  entity.save();
-}
-
 export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
   let entity = new ProxyTargetUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'Synthetix'; // hardcoded for now
@@ -172,4 +151,29 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   // now track the SNX holder as this action can impact their collateral
   let synthetixAddress = contract.synthetix();
   trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block.number);
+}
+
+export function handleIssueSynths(call: IssueSynthsCall): void {
+  let entity = new Issued(call.transaction.hash.toHex());
+  entity.account = call.transaction.from;
+
+  entity.value = call.inputs.amount;
+  entity.source = call.inputs.currencyKey.toString();
+  entity.timestamp = call.block.timestamp;
+  entity.block = call.block.number;
+  entity.gasPrice = call.transaction.gasPrice;
+  entity.save();
+  trackIssuer(call.transaction.from);
+}
+
+export function handleBurnSynths(call: BurnSynthsCall): void {
+  let entity = new Burned(call.transaction.hash.toHex());
+  entity.account = call.transaction.from;
+
+  entity.value = call.inputs.amount;
+  entity.source = call.inputs.currencyKey.toString();
+  entity.timestamp = call.block.timestamp;
+  entity.block = call.block.number;
+  entity.gasPrice = call.transaction.gasPrice;
+  entity.save();
 }
