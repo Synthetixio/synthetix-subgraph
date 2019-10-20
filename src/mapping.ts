@@ -105,7 +105,12 @@ function trackSNXHolder(snxContract: Address, account: Address, block: BigInt): 
     snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
   } else if (block > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
-    snxHolder.collateral = synthetix.collateral(account);
+    let collateralTry = synthetix.try_collateral(account);
+    if (!collateralTry.reverted) {
+      snxHolder.collateral = collateralTry.value;
+    } else {
+      snxHolder.collateral = synthetix.balanceOf(account);
+    }
   } else {
     // prior to this the full collateral was Havven.availableHavvens()
     // Not dealing with this for now, we'll stick with balanceOf and
