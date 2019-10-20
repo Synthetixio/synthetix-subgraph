@@ -30,7 +30,10 @@ dataSources:
           handler: handleIssueSynths
         - function: burnSynths(bytes32,uint256)
           handler: handleBurnSynths
-
+        - function: setExchangeRates(address)
+          handler: handleSetExchangeRates
+        - function: setFeePool(address)
+          handler: handleSetFeePool
   - kind: ethereum/contract
     name: ProxySynthetix
     network: mainnet
@@ -68,9 +71,21 @@ dataSources:
           file: ./abis/Synthetix.json
         - name: SynthetixState
           file: ./abis/SynthetixState.json
+      # Note: currently these events and calls are handled via the old ProxySynthetix
+      # We have these here to handle the time when we transition to using this
+      # proxy for events and calls instead
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
+      callHandlers:
+        - function: issueSynths(bytes32,uint256)
+          handler: handleIssueSynths
+        - function: burnSynths(bytes32,uint256)
+          handler: handleBurnSynths
+        - function: setExchangeRates(address)
+          handler: handleSetExchangeRates
+        - function: setFeePool(address)
+          handler: handleSetFeePool
   - kind: ethereum/contract
     name: ProxySynthetix
     network: mainnet

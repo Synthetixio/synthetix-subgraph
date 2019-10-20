@@ -54,13 +54,13 @@ type Burned @entity {
   block: BigInt!
 }
 
-# ProxyTargetUpdated tracks this event from Synthetix.sol
-type ProxyTargetUpdated @entity {
+# Tracks new Synthetix, ExchangeRates and FeePool contracts
+type ContractUpdated @entity {
   id: ID!
   source: String!
-  newTarget: Bytes! # address
+  target: Bytes! # address
   block: BigInt!
-  tx: Bytes!
+  timestamp: BigInt!
 }
 
 type RewardEscrowHolder @entity {

@@ -3,6 +3,8 @@ import {
   Transfer as TransferEvent,
   IssueSynthsCall,
   BurnSynthsCall,
+  SetExchangeRatesCall,
+  SetFeePoolCall,
 } from '../generated/Synthetix/Synthetix';
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
@@ -14,20 +16,20 @@ import {
   Issued,
   Burned,
   Issuer,
-  ProxyTargetUpdated,
+  ContractUpdated,
   SNXHolder,
   RewardEscrowHolder,
 } from '../generated/schema';
 
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { BigInt, Address, EthereumBlock, Bytes } from '@graphprotocol/graph-ts';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 
-// [reference only] Synthetix v2.11.x (bytes4 to bytes32) at txn
-// https://etherscan.io/tx/0x0496069ef40af0a1f066f333b5b01e0e78c7f316da5fd2487aba944b4c4b734c
-// let v2110UpgradeBlock = BigInt.fromI32(8672615);
+// [reference only] Synthetix v2.10.x (bytes4 to bytes32) at txn
+// https://etherscan.io/tx/0x612cf929f305af603e165f4cb7602e5fbeed3d2e2ac1162ac61087688a5990b6
+// let v2100UpgradeBlock = BigInt.fromI32(8622911);
 
 // Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
 // https://etherscan.io/tx/0x4a19db6cd8f01226bfe74a1a194f971e5d19568b019a45efd0dfbcaf9a901b02
@@ -153,15 +155,34 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.save();
 }
 
-export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
-  let entity = new ProxyTargetUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'Synthetix'; // hardcoded for now
-  entity.newTarget = event.params.newTarget;
-  entity.block = event.block.number;
-  entity.tx = event.transaction.hash;
+/**
+ * Track when underlying contracts change
+ */
+function contractUpdate(source: string, target: Address, block: EthereumBlock, hash: Bytes): void {
+  let entity = new ContractUpdated(hash.toHex());
+  entity.source = source;
+  entity.target = target;
+  entity.block = block.number;
+  entity.timestamp = block.timestamp;
   entity.save();
 }
 
+export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
+  contractUpdate('Synthetix', event.params.newTarget, event.block, event.transaction.hash);
+}
+
+export function handleSetExchangeRates(call: SetExchangeRatesCall): void {
+  contractUpdate('ExchangeRates', call.inputs._exchangeRates, call.block, call.transaction.hash);
+}
+
+export function handleSetFeePool(call: SetFeePoolCall): void {
+  contractUpdate('FeePool', call.inputs._feePool, call.block, call.transaction.hash);
+}
+
+/**
+ * Handle reward vest events so that we know which addresses have rewards, and
+ * to recalculate SNX Holders staking details.
+ */
 // Note: we use VestedEvent here even though is also handles VestingEntryCreated (they share the same signature)
 export function handleRewardVestEvent(event: VestedEvent): void {
   let entity = new RewardEscrowHolder(event.params.beneficiary.toHex());
