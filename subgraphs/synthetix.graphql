@@ -27,17 +27,20 @@ type Issued @entity {
   block: BigInt!
 }
 
-# An individual Issuer (always overridden with their latest information)
+# An individual Issuer
 type Issuer @entity {
   id: ID!
-  debtBalance: BigInt # will be null before multicurrency release
-  collateralisationRatio: BigInt # will be null before multicurrency release
 }
 
-# An individual SNX holder
+# An individual SNX holder (always overridden with their latest information)
 type SNXHolder @entity {
   id: ID!
-  collateral: BigInt # will be null before multicurrency release
+  # the following will be null before multicurrency (v2) release
+  collateral: BigInt
+  collateralisationRatio: BigInt
+  lockedRatio: BigInt
+  initialDebtOwnership: BigInt
+  debtEntryAtIndex: BigInt
 }
 
 # Burned tracks this event from various Synth.sol instances

@@ -20,6 +20,8 @@ dataSources:
       abis:
         - name: Synthetix
           file: ./abis/Synthetix.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
@@ -64,6 +66,8 @@ dataSources:
       abis:
         - name: Synthetix
           file: ./abis/Synthetix.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
@@ -204,6 +208,8 @@ dataSources:
           file: ./abis/RewardEscrow.json
         - name: Synthetix
           file: ./abis/Synthetix.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
       eventHandlers:
         - event: VestingEntryCreated(indexed address,uint256,uint256)
           handler: handleRewardVestEvent

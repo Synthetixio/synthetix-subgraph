@@ -4,14 +4,10 @@ import {
   IssueSynthsCall,
   BurnSynthsCall,
 } from '../generated/Synthetix/Synthetix';
+import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
-import {
-  Synth,
-  Transfer as SynthTransferEvent,
-  Issued as IssuedEvent,
-  Burned as BurnedEvent,
-} from '../generated/SynthsUSD/Synth';
+import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
 import {
   Synthetix,
   Transfer,
@@ -29,9 +25,21 @@ let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 
-// Synthetix upgrade from Havven at txn: https://etherscan.io/tx/0x4a19db6cd8f01226bfe74a1a194f971e5d19568b019a45efd0dfbcaf9a901b02
-// Block #: 6840246
-let v2UpgradeBlock = BigInt.fromI32(6840246);
+// [reference only] Synthetix v2.11.x (bytes4 to bytes32) at txn
+// https://etherscan.io/tx/0x0496069ef40af0a1f066f333b5b01e0e78c7f316da5fd2487aba944b4c4b734c
+// let v2110UpgradeBlock = BigInt.fromI32(8672615);
+
+// Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
+// https://etherscan.io/tx/0x4a19db6cd8f01226bfe74a1a194f971e5d19568b019a45efd0dfbcaf9a901b02
+let v200UpgradeBlock = BigInt.fromI32(6840246);
+
+// Havven v1.0.1 release at txn
+// https://etherscan.io/tx/0xd71402e7e06c669867f2ece75a5cdcbdd8bae764847bbc089d6fc549af1ad232
+let v101UpgradeBlock = BigInt.fromI32(5873039);
+
+// [reference only] Havven v1.0.0 release at txn
+// https://etherscan.io/tx/0x1c3b873d0ce0dfafff428fc019bc9f630ac51031fc6021e57fb24c65143d328a
+// let v100UpgradeBlock = BigInt.fromI32(5762355);
 
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
@@ -63,17 +71,6 @@ function trackIssuer(account: Address): void {
   }
   let issuer = new Issuer(account.toHex());
 
-  // let synthetix = SNX.bind(snxContract);
-
-  // TODO: commented out for bytes32 upgrade (needs to use same technique as effectiveValue)
-  // let synthetixDebtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD);
-  // if (!synthetixDebtBalanceOfTry.reverted) {
-  //   issuer.debtBalance = synthetixDebtBalanceOfTry.value; // sUSD
-  // }
-  // let synthetixCRatioTry = synthetix.try_collateralisationRatio(account);
-  // if (!synthetixCRatioTry.reverted) {
-  //   issuer.collateralisationRatio = synthetixCRatioTry.value;
-  // }
   issuer.save();
 }
 
@@ -90,12 +87,30 @@ function trackSNXHolder(snxContract: Address, account: Address, block: BigInt): 
   let snxHolder = new SNXHolder(account.toHex());
   let synthetix = SNX.bind(snxContract);
 
-  // Don't bother trying collateral before v2 upgrade (slows down processing A LOT)
-  if (block > v2UpgradeBlock) {
-    let synthetixCollateralTry = synthetix.try_collateral(account);
-    if (!synthetixCollateralTry.reverted) {
-      snxHolder.collateral = synthetixCollateralTry.value;
+  // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
+  if (block > v200UpgradeBlock) {
+    // Track all the staking information relevatn to this SNX Holder
+    snxHolder.collateral = synthetix.collateral(account);
+    snxHolder.collateralisationRatio = synthetix.collateralisationRatio(account);
+    let synthetixStateContract = synthetix.synthetixState();
+    let synthetixState = SynthetixState.bind(synthetixStateContract);
+    let issuanceRatio = synthetixState.issuanceRatio();
+    let lockedRatio = snxHolder.collateralisationRatio.div(issuanceRatio);
+    if (lockedRatio > BigInt.fromI32(1)) {
+      lockedRatio = BigInt.fromI32(1);
     }
+    snxHolder.lockedRatio = lockedRatio;
+    let issuanceData = synthetixState.issuanceData(account);
+    snxHolder.initialDebtOwnership = issuanceData.value0;
+    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+  } else if (block > v101UpgradeBlock) {
+    // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
+    snxHolder.collateral = synthetix.collateral(account);
+  } else {
+    // prior to this the full collateral was Havven.availableHavvens()
+    // Not dealing with this for now, we'll stick with balanceOf and
+    // accept escrowed Havvens from the ICO sale are not included - JJ
+    snxHolder.collateral = synthetix.balanceOf(account);
   }
   snxHolder.save();
 }
@@ -118,7 +133,7 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'sUSD';
-  if (event.block.number > v2UpgradeBlock) {
+  if (event.block.number > v200UpgradeBlock) {
     // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
     let currencyKeyTry = contract.try_currencyKey();
     if (!currencyKeyTry.reverted) {
@@ -163,7 +178,12 @@ export function handleIssueSynths(call: IssueSynthsCall): void {
   entity.block = call.block.number;
   entity.gasPrice = call.transaction.gasPrice;
   entity.save();
+
+  // track this issuer for reference
   trackIssuer(call.transaction.from);
+
+  // update SNX holder details
+  trackSNXHolder(call.to, call.transaction.from, call.block.number);
 }
 
 export function handleBurnSynths(call: BurnSynthsCall): void {
@@ -176,4 +196,7 @@ export function handleBurnSynths(call: BurnSynthsCall): void {
   entity.block = call.block.number;
   entity.gasPrice = call.transaction.gasPrice;
   entity.save();
+
+  // update SNX holder details
+  trackSNXHolder(call.to, call.transaction.from, call.block.number);
 }
