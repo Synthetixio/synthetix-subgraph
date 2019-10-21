@@ -93,18 +93,24 @@ function trackSNXHolder(snxContract: Address, account: Address, block: BigInt): 
   if (block > v200UpgradeBlock) {
     // Track all the staking information relevatn to this SNX Holder
     snxHolder.collateral = synthetix.collateral(account);
-    snxHolder.collateralisationRatio = synthetix.collateralisationRatio(account);
-    let synthetixStateContract = synthetix.synthetixState();
-    let synthetixState = SynthetixState.bind(synthetixStateContract);
-    let issuanceRatio = synthetixState.issuanceRatio();
-    let lockedRatio = snxHolder.collateralisationRatio.div(issuanceRatio);
-    if (lockedRatio > BigInt.fromI32(1)) {
-      lockedRatio = BigInt.fromI32(1);
+
+    // Not sure why this is necessary - collateralisationRatio() existed with
+    // collateral()... - JJ
+    let cratioTry = synthetix.try_collateralisationRatio(account);
+    if (!cratioTry.reverted) {
+      snxHolder.collateralisationRatio = cratioTry.value;
+      let synthetixStateContract = synthetix.synthetixState();
+      let synthetixState = SynthetixState.bind(synthetixStateContract);
+      let issuanceRatio = synthetixState.issuanceRatio();
+      let lockedRatio = snxHolder.collateralisationRatio.div(issuanceRatio);
+      if (lockedRatio > BigInt.fromI32(1)) {
+        lockedRatio = BigInt.fromI32(1);
+      }
+      snxHolder.lockedRatio = lockedRatio;
+      let issuanceData = synthetixState.issuanceData(account);
+      snxHolder.initialDebtOwnership = issuanceData.value0;
+      snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
     }
-    snxHolder.lockedRatio = lockedRatio;
-    let issuanceData = synthetixState.issuanceData(account);
-    snxHolder.initialDebtOwnership = issuanceData.value0;
-    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
   } else if (block > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let collateralTry = synthetix.try_collateral(account);
