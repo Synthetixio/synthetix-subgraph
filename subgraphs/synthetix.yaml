@@ -26,14 +26,48 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
       callHandlers:
+        # issueMaxSynths calls issueSynths but unfortunately it's not being processed right now
+        - function: issueMaxSynths(bytes32)
+          handler: handleIssueMaxSynths
         - function: issueSynths(bytes32,uint256)
           handler: handleIssueSynths
         - function: burnSynths(bytes32,uint256)
           handler: handleBurnSynths
-        - function: setExchangeRates(address)
-          handler: handleSetExchangeRates
-        - function: setFeePool(address)
-          handler: handleSetFeePool
+
+        # These aren't working because they have been called directly against the underlying
+        # - function: setExchangeRates(address)
+        #   handler: handleSetExchangeRates
+        # - function: setFeePool(address)
+        #   handler: handleSetFeePool
+
+  # Bytes4 handlers for older issue and burn calls
+  - kind: ethereum/contract
+    name: Synthetix4
+    network: mainnet
+    source:
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
+      abi: Synthetix
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synthetix
+          file: ./abis/Synthetix_bytes4.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
+      callHandlers:
+        # issueMaxSynths calls issueSynths but unfortunately it's not being processed right now
+        - function: issueMaxSynths(bytes4)
+          handler: handleIssueMaxSynths
+        - function: issueSynths(bytes4,uint256)
+          handler: handleIssueSynths
+        - function: burnSynths(bytes4,uint256)
+          handler: handleBurnSynths
+
   - kind: ethereum/contract
     name: ProxySynthetix
     network: mainnet
@@ -78,14 +112,16 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
       callHandlers:
+        - function: issueMaxSynths(bytes32)
+          handler: handleIssueMaxSynths
         - function: issueSynths(bytes32,uint256)
           handler: handleIssueSynths
         - function: burnSynths(bytes32,uint256)
           handler: handleBurnSynths
-        - function: setExchangeRates(address)
-          handler: handleSetExchangeRates
-        - function: setFeePool(address)
-          handler: handleSetFeePool
+        # - function: setExchangeRates(address)
+        #   handler: handleSetExchangeRates
+        # - function: setFeePool(address)
+        #   handler: handleSetFeePool
   - kind: ethereum/contract
     name: ProxySynthetix
     network: mainnet

@@ -2,6 +2,7 @@ import {
   Synthetix as SNX,
   Transfer as TransferEvent,
   IssueSynthsCall,
+  IssueMaxSynthsCall,
   BurnSynthsCall,
   SetExchangeRatesCall,
   SetFeePoolCall,
@@ -74,6 +75,16 @@ function incrementMetadata(field: string): void {
   metadata.save();
 }
 
+function decrementMetadata(field: string): void {
+  let metadata = getMetadata();
+  if (field == 'issuers') {
+    metadata.issuers = metadata.issuers.minus(BigInt.fromI32(1));
+  } else if (field == 'snxHolders') {
+    metadata.snxHolders = metadata.snxHolders.minus(BigInt.fromI32(1));
+  }
+  metadata.save();
+}
+
 function trackIssuer(account: Address): void {
   let existingIssuer = Issuer.load(account.toHex());
   if (existingIssuer == null) {
@@ -84,54 +95,40 @@ function trackIssuer(account: Address): void {
   issuer.save();
 }
 
-function trackSNXHolder(snxContract: Address, account: Address, block: BigInt): void {
+function trackSNXHolder(snxContract: Address, account: Address, block: EthereumBlock): void {
   let holder = account.toHex();
   // ignore escrow accounts
   if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
     return;
   }
   let existingSNXHolder = SNXHolder.load(account.toHex());
-  if (existingSNXHolder == null) {
-    incrementMetadata('snxHolders');
-  }
   let snxHolder = new SNXHolder(account.toHex());
   let synthetix = SNX.bind(snxContract);
+  snxHolder.balanceOf = synthetix.balanceOf(account);
+  snxHolder.block = block.number;
+  snxHolder.timestamp = block.timestamp;
+  if (existingSNXHolder == null && snxHolder.balanceOf > BigInt.fromI32(0)) {
+    incrementMetadata('snxHolders');
+  } else if (existingSNXHolder != null && snxHolder.balanceOf == BigInt.fromI32(0)) {
+    decrementMetadata('snxHolders');
+  }
 
   // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
-  if (block > v200UpgradeBlock) {
+  if (block.number > v200UpgradeBlock) {
     // Track all the staking information relevatn to this SNX Holder
     snxHolder.collateral = synthetix.collateral(account);
-
-    // Not sure why this is necessary - collateralisationRatio() existed with
-    // collateral()... - JJ
-    let cratioTry = synthetix.try_collateralisationRatio(account);
-    if (!cratioTry.reverted) {
-      snxHolder.collateralisationRatio = cratioTry.value;
-      let synthetixStateContract = synthetix.synthetixState();
-      let synthetixState = SynthetixState.bind(synthetixStateContract);
-      let issuanceRatio = synthetixState.issuanceRatio();
-      let lockedRatio = snxHolder.collateralisationRatio.div(issuanceRatio);
-      if (lockedRatio > BigInt.fromI32(1)) {
-        lockedRatio = BigInt.fromI32(1);
-      }
-      snxHolder.lockedRatio = lockedRatio;
-      let issuanceData = synthetixState.issuanceData(account);
-      snxHolder.initialDebtOwnership = issuanceData.value0;
-      snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
-    }
-  } else if (block > v101UpgradeBlock) {
+    snxHolder.transferable = synthetix.transferableSynthetix(account);
+    let synthetixStateContract = synthetix.synthetixState();
+    let synthetixState = SynthetixState.bind(synthetixStateContract);
+    let issuanceData = synthetixState.issuanceData(account);
+    snxHolder.initialDebtOwnership = issuanceData.value0;
+    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+  } else if (block.number > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let collateralTry = synthetix.try_collateral(account);
     if (!collateralTry.reverted) {
       snxHolder.collateral = collateralTry.value;
-    } else {
-      snxHolder.collateral = synthetix.balanceOf(account);
     }
-  } else {
-    // prior to this the full collateral was Havven.availableHavvens()
-    // Not dealing with this for now, we'll stick with balanceOf and
-    // accept escrowed Havvens from the ICO sale are not included - JJ
-    snxHolder.collateral = synthetix.balanceOf(account);
   }
   snxHolder.save();
 }
@@ -146,8 +143,7 @@ export function handleTransferSNX(event: TransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
-  trackSNXHolder(event.address, event.params.from, event.block.number);
-  trackSNXHolder(event.address, event.params.to, event.block.number);
+  trackSNXHolder(event.address, event.params.to, event.block);
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
@@ -205,7 +201,7 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   entity.save();
   // now track the SNX holder as this action can impact their collateral
   let synthetixAddress = contract.synthetix();
-  trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block.number);
+  trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block);
 }
 
 export function handleIssueSynths(call: IssueSynthsCall): void {
@@ -223,7 +219,29 @@ export function handleIssueSynths(call: IssueSynthsCall): void {
   trackIssuer(call.transaction.from);
 
   // update SNX holder details
-  trackSNXHolder(call.to, call.transaction.from, call.block.number);
+  trackSNXHolder(call.to, call.transaction.from, call.block);
+}
+
+// NOTE:
+// Annoying to have to do this - we can't get the amount
+export function handleIssueMaxSynths(call: IssueMaxSynthsCall): void {
+  let entity = new Issued(call.transaction.hash.toHex());
+  entity.account = call.transaction.from;
+
+  // we don't know how much because remainingIssuableSynths(call.transaction.from, currencyKey)
+  // will show the anounbt after
+  // entity.value = call.inputs.amount;
+  entity.source = call.inputs.currencyKey.toString();
+  entity.timestamp = call.block.timestamp;
+  entity.block = call.block.number;
+  entity.gasPrice = call.transaction.gasPrice;
+  entity.save();
+
+  // track this issuer for reference
+  trackIssuer(call.transaction.from);
+
+  // update SNX holder details
+  trackSNXHolder(call.to, call.transaction.from, call.block);
 }
 
 export function handleBurnSynths(call: BurnSynthsCall): void {
@@ -238,5 +256,5 @@ export function handleBurnSynths(call: BurnSynthsCall): void {
   entity.save();
 
   // update SNX holder details
-  trackSNXHolder(call.to, call.transaction.from, call.block.number);
+  trackSNXHolder(call.to, call.transaction.from, call.block);
 }
