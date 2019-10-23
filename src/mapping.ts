@@ -33,12 +33,12 @@ contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 // let v2100UpgradeBlock = BigInt.fromI32(8622911);
 
 // Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
-// https://etherscan.io/tx/0x4a19db6cd8f01226bfe74a1a194f971e5d19568b019a45efd0dfbcaf9a901b02
-let v200UpgradeBlock = BigInt.fromI32(6840246); // Dec 7, 2018
+// https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835/a
+let v200UpgradeBlock = BigInt.fromI32(6841188); // Dec 7, 2018
 
 // Havven v1.0.1 release at txn
-// https://etherscan.io/tx/0xd71402e7e06c669867f2ece75a5cdcbdd8bae764847bbc089d6fc549af1ad232
-let v101UpgradeBlock = BigInt.fromI32(5873039); // June 29, 2018 (nUSDa.1)
+// https://etherscan.io/tx/0x7d5e4d92c702d4863ed71d5c1348e9dec028afd8d165e673d4b6aea75c8b9e2c
+let v101UpgradeBlock = BigInt.fromI32(5873222); // June 29, 2018 (nUSDa.1)
 
 // [reference only] Havven v1.0.0 release at txn
 // https://etherscan.io/tx/0x1c3b873d0ce0dfafff428fc019bc9f630ac51031fc6021e57fb24c65143d328a
