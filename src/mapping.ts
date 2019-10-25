@@ -115,14 +115,21 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
 
   // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
   if (block.number > v200UpgradeBlock) {
-    // Track all the staking information relevatn to this SNX Holder
+    // Track all the staking information relevant to this SNX Holder
     snxHolder.collateral = synthetix.collateral(account);
-    snxHolder.transferable = synthetix.transferableSynthetix(account);
-    let synthetixStateContract = synthetix.synthetixState();
-    let synthetixState = SynthetixState.bind(synthetixStateContract);
-    let issuanceData = synthetixState.issuanceData(account);
-    snxHolder.initialDebtOwnership = issuanceData.value0;
-    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+    // Note: Below we try_transferableSynthetix as it uses debtBalanceOf, which eventually calls ExchangeRates.abs
+    // It's slower to use try but this protects against instances when Transfers were enabled
+    // yet ExchangeRates were stale and throwing errors when calling effectiveValue.
+    // E.g. https://etherscan.io/tx/0x5368339311aafeb9f92c5b5d84faa4864c2c3878681a402bbf0aabff60bafa08
+    let transferableTry = synthetix.try_transferableSynthetix(account);
+    if (!transferableTry.reverted) {
+      snxHolder.transferable = transferableTry.value;
+      let synthetixStateContract = synthetix.synthetixState();
+      let synthetixState = SynthetixState.bind(synthetixStateContract);
+      let issuanceData = synthetixState.issuanceData(account);
+      snxHolder.initialDebtOwnership = issuanceData.value0;
+      snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+    }
   } else if (block.number > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let collateralTry = synthetix.try_collateral(account);
