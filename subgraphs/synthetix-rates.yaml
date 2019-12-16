@@ -124,7 +124,7 @@ dataSources:
     name: Aggregator
     network: mainnet
     source:
-      address: '0x25Fa978ea1a7dc9bDc33a2959B9053EaE57169B5' # EUR
+      address: '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5' # EUR
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -181,7 +181,7 @@ dataSources:
     name: Aggregator
     network: mainnet
     source:
-      address: '0xe1407BfAa6B5965BAd1C9f38316A3b655A09d8A6' # JPY
+      address: '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6' # JPY
       abi: Aggregator
     mapping:
       kind: ethereum/events
