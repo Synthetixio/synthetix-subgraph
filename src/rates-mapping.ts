@@ -1,6 +1,9 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
+import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/Aggregator/Aggregator';
 
-import { RatesUpdated, RateUpdate } from '../generated/schema';
+import { RatesUpdated, RateUpdate, AggregatorAnswer } from '../generated/schema';
+
+import { ByteArray, Bytes, BigInt } from '@graphprotocol/graph-ts';
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -25,4 +28,58 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
     rateEntity.rate = rates[i];
     rateEntity.save();
   }
+}
+
+// ---------------------
+// Chainlink Aggregators
+// ---------------------
+
+// create a contract mapping to know which synth the aggregator corresponds to
+let contracts = new Map<string, string>();
+contracts.set(
+  // sAUD
+  '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231',
+  '0x7341554400000000000000000000000000000000000000000000000000000000',
+);
+contracts.set(
+  // sEUR
+  '0x25Fa978ea1a7dc9bDc33a2959B9053EaE57169B5',
+  '0x7345555200000000000000000000000000000000000000000000000000000000',
+);
+contracts.set(
+  // sCHF
+  '0x02d5c618dbc591544b19d0bf13543c0728a3c4ec',
+  '0x7343484600000000000000000000000000000000000000000000000000000000',
+);
+contracts.set(
+  // sGBP
+  '0x151445852b0cfdf6a4cc81440f2af99176e8ad08',
+  '0x7347425000000000000000000000000000000000000000000000000000000000',
+);
+contracts.set(
+  // sJPY
+  '0xe1407BfAa6B5965BAd1C9f38316A3b655A09d8A6',
+  '0x734a505900000000000000000000000000000000000000000000000000000000',
+);
+contracts.set(
+  // sXAG
+  '0x8946a183bfafa95becf57c5e08fe5b7654d2807b',
+  '0x7358414700000000000000000000000000000000000000000000000000000000',
+);
+contracts.set(
+  // sXAU
+  '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935',
+  '0x7358415500000000000000000000000000000000000000000000000000000000',
+);
+
+export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
+  let entity = new AggregatorAnswer(event.transaction.hash.toHex());
+  entity.block = event.block.number;
+  entity.timestamp = event.block.timestamp;
+  let currencyKey = contracts.get(event.address.toHexString());
+  entity.currencyKey = ByteArray.fromHexString(currencyKey) as Bytes;
+  entity.synth = entity.currencyKey.toString();
+  // now multiply by 1e10 to turn the 8 decimal int to a 18 decimal one
+  entity.rate = event.params.current.times(BigInt.fromI32(10).pow(10));
+  entity.save();
 }

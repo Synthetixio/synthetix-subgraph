@@ -18,3 +18,13 @@ type RateUpdate @entity {
   block: BigInt!
   timestamp: BigInt!
 }
+
+# A chainlink Answer
+type AggregatorAnswer @entity {
+  id: ID!
+  currencyKey: Bytes!
+  synth: String!
+  rate: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
