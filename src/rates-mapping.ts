@@ -81,5 +81,18 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   entity.synth = entity.currencyKey.toString();
   // now multiply by 1e10 to turn the 8 decimal int to a 18 decimal one
   entity.rate = event.params.current.times(BigInt.fromI32(10).pow(10));
+  entity.roundId = event.params.roundId;
+  entity.aggregator = event.address;
   entity.save();
+
+  // save aggregated event as rate update
+  if (event.block.number > BigInt.fromI32(9123000)) {
+    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
+    rateEntity.block = entity.block;
+    rateEntity.timestamp = entity.timestamp;
+    rateEntity.currencyKey = entity.currencyKey;
+    rateEntity.synth = entity.synth;
+    rateEntity.rate = entity.rate;
+    rateEntity.save();
+  }
 }

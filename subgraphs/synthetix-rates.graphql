@@ -24,7 +24,9 @@ type AggregatorAnswer @entity {
   id: ID!
   currencyKey: Bytes!
   synth: String!
+  aggregator: Bytes!
   rate: BigInt!
+  roundId: BigInt!
   block: BigInt!
   timestamp: BigInt!
 }
