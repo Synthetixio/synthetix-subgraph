@@ -99,6 +99,25 @@ dataSources:
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates
+    network: mainnet
+    source:
+      address: '0xE95Ef4e7a04d2fB05cb625c62CA58da10112c605' # ExchangeRates v2.17 (aggregators)
+      abi: ExchangeRates
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/rates-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ./abis/ExchangeRates_bytes32.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
 
   # Chainlink Aggregators Phase 1 (forex and commodities)
   - kind: ethereum/contract

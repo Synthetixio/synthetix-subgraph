@@ -85,8 +85,8 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   entity.aggregator = event.address;
   entity.save();
 
-  // save aggregated event as rate update
-  if (event.block.number > BigInt.fromI32(9123000)) {
+  // save aggregated event as rate update from v2.17.5 (Procyon)
+  if (event.block.number > BigInt.fromI32(9123410)) {
     let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
     rateEntity.block = entity.block;
     rateEntity.timestamp = entity.timestamp;
