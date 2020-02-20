@@ -35,6 +35,37 @@ dataSources:
           handler: handleSynthDepositRemoved
         - event: SynthDepositNotAccepted(address,uint256,uint256)
           handler: handleSynthDepositNotAccepted
+  - kind: ethereum/contract
+    name: Depot
+    network: mainnet
+    source:
+      address: '0xE1f64079aDa6Ef07b03982Ca34f1dD7152AA3b86'
+      abi: Depot
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/depot-mapping.ts
+      entities:
+        - SynthWithdrawal
+        - SynthDeposit
+        - SynthDepositRemoved
+        - SynthDepositNotAccepted
+        - ClearedDeposit
+      abis:
+        - name: Depot
+          file: ./abis/Depot.json
+      eventHandlers:
+        - event: ClearedDeposit(indexed address,indexed address,uint256,uint256,indexed uint256)
+          handler: handleClearedDeposit
+        - event: SynthWithdrawal(address,uint256)
+          handler: handleSynthWithdrawal
+        - event: SynthDeposit(indexed address,uint256,indexed uint256)
+          handler: handleSynthDeposit
+        - event: SynthDepositRemoved(indexed address,uint256,indexed uint256)
+          handler: handleSynthDepositRemoved
+        - event: SynthDepositNotAccepted(address,uint256,uint256)
+          handler: handleSynthDepositNotAccepted
   # - kind: ethereum/contract
   #   name: Depot
   #   network: kovan
