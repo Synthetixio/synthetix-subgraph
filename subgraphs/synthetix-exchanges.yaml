@@ -37,8 +37,14 @@ dataSources:
       entities:
         - SynthExchange
       abis:
-        - name: Synthetix
+        - name: Synthetix32
           file: ./abis/Synthetix_bytes32.json # Can assume bytes32 due to event signature below
+        - name: Synthetix
+          file: ./abis/Synthetix.json # Can assume bytes32 due to event signature below
+        - name: AddressResolver
+          file: ./abis/AddressResolver.json
+        - name: ExchangeRates
+          file: ./abis/ExchangeRates.json
       eventHandlers:
         - event: SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)
           handler: handleSynthExchange32

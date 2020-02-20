@@ -1,11 +1,17 @@
 import { Synthetix, SynthExchange as SynthExchangeEvent } from '../generated/Synthetix/Synthetix';
+import { AddressResolver } from '../generated/Synthetix/AddressResolver';
+import { ExchangeRates } from '../generated/Synthetix/ExchangeRates';
+import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
+
 import { Total, SynthExchange, Exchanger } from '../generated/schema';
 
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { BigInt, Address, Bytes, ByteArray } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
-import { attemptEffectiveValue } from './common';
+import { attemptEffectiveValue, sUSD32 } from './common';
+
+let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
 function getMetadata(): Total {
   let total = Total.load('mainnet');
@@ -38,20 +44,59 @@ function trackExchanger(account: Address): void {
   }
 }
 
+let exchangeRatesAsBytes = ByteArray.fromHexString(
+  '0x45786368616e6765526174657300000000000000000000000000000000000000',
+) as Bytes;
+
 function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): void {
   if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) >= 0) {
     return;
   }
 
-  let synthetix = Synthetix.bind(event.address);
-  let fromAmountInUSD = attemptEffectiveValue(
-    synthetix,
-    event.params.fromCurrencyKey,
-    event.params.fromAmount,
-    useBytes32,
-  );
-  let toAmountInUSD = attemptEffectiveValue(synthetix, event.params.toCurrencyKey, event.params.toAmount, useBytes32);
-  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
+  let fromAmountInUSD = BigInt.fromI32(0);
+  let toAmountInUSD = BigInt.fromI32(0);
+  let feesInUSD = BigInt.fromI32(0);
+
+  if (event.block.number > v219) {
+    let synthetix = Synthetix.bind(event.address);
+
+    let resolverTry = synthetix.try_resolver();
+
+    if (!resolverTry.reverted) {
+      let resolver = AddressResolver.bind(resolverTry.value);
+      let exRatesAddressTry = resolver.try_getAddress(exchangeRatesAsBytes);
+
+      if (!exRatesAddressTry.reverted) {
+        let exRates = ExchangeRates.bind(exRatesAddressTry.value);
+
+        let effectiveValueTryFrom = exRates.try_effectiveValue(
+          event.params.fromCurrencyKey,
+          event.params.fromAmount,
+          sUSD32,
+        );
+
+        if (!effectiveValueTryFrom.reverted) {
+          fromAmountInUSD = effectiveValueTryFrom.value;
+        }
+
+        let effectiveValueTryTo = exRates.try_effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD32);
+
+        if (!effectiveValueTryTo.reverted) {
+          toAmountInUSD = effectiveValueTryTo.value;
+        }
+      }
+    }
+  } else {
+    let synthetix = Synthetix32.bind(event.address);
+    fromAmountInUSD = attemptEffectiveValue(
+      synthetix,
+      event.params.fromCurrencyKey,
+      event.params.fromAmount,
+      useBytes32,
+    );
+    toAmountInUSD = attemptEffectiveValue(synthetix, event.params.toCurrencyKey, event.params.toAmount, useBytes32);
+  }
+  feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;

@@ -1,6 +1,6 @@
 import { Bytes, ByteArray, BigInt } from '@graphprotocol/graph-ts';
 
-import { Synthetix as SNX } from '../generated/Synthetix/Synthetix';
+import { Synthetix32 as SNX } from '../generated/Synthetix/Synthetix32';
 
 export let sUSD32 = ByteArray.fromHexString(
   '0x7355534400000000000000000000000000000000000000000000000000000000',
@@ -13,6 +13,8 @@ export function attemptEffectiveValue(synthetix: SNX, currencyKey: Bytes, amount
     // Since v2.10 effectiveValue takes bytes32
     sUSD = sUSD32;
   }
+
+  // Note: since v2.19.x the below no longer works
   let effectiveValueTry = synthetix.try_effectiveValue(currencyKey, amount, sUSD);
   if (!effectiveValueTry.reverted) {
     return effectiveValueTry.value;
