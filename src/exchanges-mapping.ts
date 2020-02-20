@@ -7,7 +7,7 @@ import {
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 import { ExchangeRates } from '../generated/Synthetix/ExchangeRates';
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
-import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
+import { Synthetix as Synthetix4 } from '../generated/Synthetix4/Synthetix';
 
 import { Total, SynthExchange, Exchanger, ExchangeReclaim, ExchangeRebate } from '../generated/schema';
 
