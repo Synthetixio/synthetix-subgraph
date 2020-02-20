@@ -25,6 +25,26 @@ type SynthExchange @entity {
   network: String!
 }
 
+type ExchangeReclaim @entity {
+  id: ID!
+  account: Bytes! # address
+  currencyKey: Bytes! # bytes4
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+type ExchangeRebate @entity {
+  id: ID!
+  account: Bytes! # address
+  currencyKey: Bytes! # bytes4
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
 # An individual Exchanger
 type Exchanger @entity {
   id: ID!

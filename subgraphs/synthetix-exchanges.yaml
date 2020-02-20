@@ -36,7 +36,11 @@ dataSources:
       file: ./src/exchanges-mapping.ts
       entities:
         - SynthExchange
+        - ExchangeReclaim
+        - ExchangeRebate
       abis:
+        - name: Synthetix4
+          file: ./abis/Synthetix_bytes4.json # Need to have this here to distinguish it in the code
         - name: Synthetix32
           file: ./abis/Synthetix_bytes32.json # Can assume bytes32 due to event signature below
         - name: Synthetix
@@ -48,3 +52,7 @@ dataSources:
       eventHandlers:
         - event: SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)
           handler: handleSynthExchange32
+        - event: ExchangeReclaim(indexed address,bytes32,uint256)
+          handler: handleExchangeReclaim
+        - event: ExchangeRebate(indexed address,bytes32,uint256)
+          handler: handleExchangeRebate
