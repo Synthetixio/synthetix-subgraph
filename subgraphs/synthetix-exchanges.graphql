@@ -30,6 +30,7 @@ type ExchangeReclaim @entity {
   account: Bytes! # address
   currencyKey: Bytes! # bytes4
   amount: BigInt! # uint256
+  amountInUSD: BigInt! # uint256
   timestamp: BigInt!
   gasPrice: BigInt!
   block: BigInt!
@@ -40,6 +41,7 @@ type ExchangeRebate @entity {
   account: Bytes! # address
   currencyKey: Bytes! # bytes4
   amount: BigInt! # uint256
+  amountInUSD: BigInt! # uint256
   timestamp: BigInt!
   gasPrice: BigInt!
   block: BigInt!
