@@ -1,12 +1,20 @@
 import {
   Synthetix as SNX,
-  Transfer as TransferEvent,
+  Transfer as SNXTransferEvent,
   IssueSynthsCall,
   IssueMaxSynthsCall,
   BurnSynthsCall,
-  SetExchangeRatesCall,
-  SetFeePoolCall,
 } from '../generated/Synthetix/Synthetix';
+
+import { AddressResolver } from '../generated/Synthetix/AddressResolver';
+
+import {
+  Synthetix as Synthetix32,
+  IssueSynthsCall as IssueSynthsCall32,
+  IssueMaxSynthsCall as IssueMaxSynthsCall32,
+  BurnSynthsCall as BurnSynthsCall32,
+} from '../generated/Synthetix32/Synthetix';
+
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
@@ -22,11 +30,13 @@ import {
   RewardEscrowHolder,
 } from '../generated/schema';
 
-import { BigInt, Address, EthereumBlock, Bytes } from '@graphprotocol/graph-ts';
+import { BigInt, Address, EthereumBlock, Bytes, EthereumTransaction, ByteArray } from '@graphprotocol/graph-ts';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
+
+let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
 // [reference only] Synthetix v2.10.x (bytes4 to bytes32) at txn
 // https://etherscan.io/tx  /0x612cf929f305af603e165f4cb7602e5fbeed3d2e2ac1162ac61087688a5990b6
@@ -95,6 +105,10 @@ function trackIssuer(account: Address): void {
   issuer.save();
 }
 
+let synthetixStateAsBytes = ByteArray.fromHexString(
+  '0x53796e7468657469785374617465000000000000000000000000000000000000',
+) as Bytes;
+
 function trackSNXHolder(snxContract: Address, account: Address, block: EthereumBlock): void {
   let holder = account.toHex();
   // ignore escrow accounts
@@ -124,8 +138,19 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     let transferableTry = synthetix.try_transferableSynthetix(account);
     if (!transferableTry.reverted) {
       snxHolder.transferable = transferableTry.value;
-      let synthetixStateContract = synthetix.synthetixState();
-      let synthetixState = SynthetixState.bind(synthetixStateContract);
+
+      let synthetixState: SynthetixState = null;
+
+      if (block.number > v219UpgradeBlock) {
+        let resolverAddress = synthetix.resolver();
+        let resolver = AddressResolver.bind(resolverAddress);
+        synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
+      } else {
+        let oldSynthetixContract = Synthetix32.bind(snxContract);
+        let synthetixStateContract = oldSynthetixContract.synthetixState();
+        synthetixState = SynthetixState.bind(synthetixStateContract);
+      }
+
       let issuanceData = synthetixState.issuanceData(account);
       snxHolder.initialDebtOwnership = issuanceData.value0;
       snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
@@ -140,7 +165,7 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
   snxHolder.save();
 }
 
-export function handleTransferSNX(event: TransferEvent): void {
+export function handleTransferSNX(event: SNXTransferEvent): void {
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'SNX';
   entity.from = event.params.from;
@@ -188,13 +213,13 @@ export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
   contractUpdate('Synthetix', event.params.newTarget, event.block, event.transaction.hash);
 }
 
-export function handleSetExchangeRates(call: SetExchangeRatesCall): void {
-  contractUpdate('ExchangeRates', call.inputs._exchangeRates, call.block, call.transaction.hash);
-}
+// export function handleSetExchangeRates(call: SetExchangeRatesCall): void {
+//   contractUpdate('ExchangeRates', call.inputs._exchangeRates, call.block, call.transaction.hash);
+// }
 
-export function handleSetFeePool(call: SetFeePoolCall): void {
-  contractUpdate('FeePool', call.inputs._feePool, call.block, call.transaction.hash);
-}
+// export function handleSetFeePool(call: SetFeePoolCall): void {
+//   contractUpdate('FeePool', call.inputs._feePool, call.block, call.transaction.hash);
+// }
 
 /**
  * Handle reward vest events so that we know which addresses have rewards, and
@@ -211,57 +236,76 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block);
 }
 
-export function handleIssueSynths(call: IssueSynthsCall): void {
-  let entity = new Issued(call.transaction.hash.toHex());
-  entity.account = call.transaction.from;
+function _handleIssueSynths(
+  txn: EthereumTransaction,
+  block: EthereumBlock,
+  to: Address,
+  source: string,
+  amount?: BigInt,
+): void {
+  let entity = new Issued(txn.hash.toHex());
+  entity.account = txn.from;
 
-  entity.value = call.inputs.amount;
-  entity.source = call.inputs.currencyKey.toString();
-  entity.timestamp = call.block.timestamp;
-  entity.block = call.block.number;
-  entity.gasPrice = call.transaction.gasPrice;
+  if (amount != null) {
+    entity.value = amount;
+  }
+  entity.source = source;
+
+  entity.timestamp = block.timestamp;
+  entity.block = block.number;
+  entity.gasPrice = txn.gasPrice;
   entity.save();
 
   // track this issuer for reference
-  trackIssuer(call.transaction.from);
+  trackIssuer(txn.from);
 
   // update SNX holder details
-  trackSNXHolder(call.to, call.transaction.from, call.block);
+  trackSNXHolder(to, txn.from, block);
 }
 
-// NOTE:
-// Annoying to have to do this - we can't get the amount
-export function handleIssueMaxSynths(call: IssueMaxSynthsCall): void {
-  let entity = new Issued(call.transaction.hash.toHex());
-  entity.account = call.transaction.from;
-
+export function handleIssueSynthsUSD(call: IssueSynthsCall): void {
+  _handleIssueSynths(call.transaction, call.block, call.to, 'sUSD', call.inputs.amount);
+}
+export function handleIssueSynths(call: IssueSynthsCall32): void {
+  _handleIssueSynths(call.transaction, call.block, call.to, call.inputs.currencyKey.toString(), call.inputs.amount);
+}
+export function handleIssueMaxSynthsUSD(call: IssueMaxSynthsCall): void {
+  // Annoying to have to do this - we can't get the amount
   // we don't know how much because remainingIssuableSynths(call.transaction.from, currencyKey)
   // will show the anounbt after
   // entity.value = call.inputs.amount;
-  entity.source = call.inputs.currencyKey.toString();
-  entity.timestamp = call.block.timestamp;
-  entity.block = call.block.number;
-  entity.gasPrice = call.transaction.gasPrice;
-  entity.save();
-
-  // track this issuer for reference
-  trackIssuer(call.transaction.from);
-
-  // update SNX holder details
-  trackSNXHolder(call.to, call.transaction.from, call.block);
+  _handleIssueSynths(call.transaction, call.block, call.to, 'sUSD', null);
 }
 
-export function handleBurnSynths(call: BurnSynthsCall): void {
-  let entity = new Burned(call.transaction.hash.toHex());
-  entity.account = call.transaction.from;
+export function handleIssueMaxSynths(call: IssueMaxSynthsCall32): void {
+  _handleIssueSynths(call.transaction, call.block, call.to, call.inputs.currencyKey.toString(), null);
+}
 
-  entity.value = call.inputs.amount;
-  entity.source = call.inputs.currencyKey.toString();
-  entity.timestamp = call.block.timestamp;
-  entity.block = call.block.number;
-  entity.gasPrice = call.transaction.gasPrice;
+function _handleBurnSnths(
+  txn: EthereumTransaction,
+  block: EthereumBlock,
+  to: Address,
+  source: string,
+  amount: BigInt,
+): void {
+  let entity = new Burned(txn.hash.toHex());
+  entity.account = txn.from;
+
+  entity.value = amount;
+  entity.source = source;
+  entity.timestamp = block.timestamp;
+  entity.block = block.number;
+  entity.gasPrice = txn.gasPrice;
   entity.save();
 
   // update SNX holder details
-  trackSNXHolder(call.to, call.transaction.from, call.block);
+  trackSNXHolder(to, txn.from, block);
+}
+
+export function handleBurnSynthsUSD(call: BurnSynthsCall): void {
+  _handleBurnSnths(call.transaction, call.block, call.to, 'sUSD', call.inputs.amount);
+}
+
+export function handleBurnSynths(call: BurnSynthsCall32): void {
+  _handleBurnSnths(call.transaction, call.block, call.to, call.inputs.currencyKey.toString(), call.inputs.amount);
 }

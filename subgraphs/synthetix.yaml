@@ -4,6 +4,7 @@ repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
   file: ./subgraphs/synthetix.graphql
 dataSources:
+  # Since Vega v2.14 and SIP-29 the removal of issue or burn any synth other than sUSD (https://sips.synthetix.io/sips/sip-29)
   - kind: ethereum/contract
     name: Synthetix
     network: mainnet
@@ -20,8 +21,71 @@ dataSources:
       abis:
         - name: Synthetix
           file: ./abis/Synthetix.json
+        - name: AddressResolver
+          file: ./abis/AddressResolver.json
         - name: SynthetixState
           file: ./abis/SynthetixState.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSNX
+      callHandlers:
+        # issueMaxSynths calls issueSynths but unfortunately it's not being processed right now
+        - function: issueMaxSynths()
+          handler: handleIssueMaxSynthsUSD
+        - function: issueSynths(uint256)
+          handler: handleIssueSynthsUSD
+        - function: burnSynths(uint256)
+          handler: handleBurnSynthsUSD
+
+  # Vega but for the new Proxy (not yet being emitted on)
+  - kind: ethereum/contract
+    name: Synthetix
+    network: mainnet
+    source:
+      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
+      abi: Synthetix
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+        - name: AddressResolver
+          file: ./abis/AddressResolver.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSNX
+      callHandlers:
+        - function: issueMaxSynths()
+          handler: handleIssueMaxSynthsUSD
+        - function: issueSynths(uint256)
+          handler: handleIssueSynthsUSD
+        - function: burnSynths(uint256)
+          handler: handleBurnSynthsUSD
+
+  # Since Sirius v2.10 and SIP-16 where bytes4 was migrated to bytes32 (http://sips.synthetix.io/sips/sip-16)
+  - kind: ethereum/contract
+    name: Synthetix32
+    network: mainnet
+    source:
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
+      abi: Synthetix
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synthetix
+          file: ./abis/Synthetix_bytes32.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
@@ -40,7 +104,7 @@ dataSources:
         # - function: setFeePool(address)
         #   handler: handleSetFeePool
 
-  # Bytes4 handlers for older issue and burn calls
+  # Prior to Sirius where bytes4 handlers for older issue and burn calls
   - kind: ethereum/contract
     name: Synthetix4
     network: mainnet
@@ -68,6 +132,7 @@ dataSources:
         - function: burnSynths(bytes4,uint256)
           handler: handleBurnSynths
 
+  # Handle Proxy target updated events on current Proxy
   - kind: ethereum/contract
     name: ProxySynthetix
     network: mainnet
@@ -87,41 +152,8 @@ dataSources:
       eventHandlers:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
-  - kind: ethereum/contract
-    name: Synthetix
-    network: mainnet
-    source:
-      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
-      abi: Synthetix
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.3
-      language: wasm/assemblyscript
-      file: ./src/mapping.ts
-      entities:
-        - Transfer
-      abis:
-        - name: Synthetix
-          file: ./abis/Synthetix.json
-        - name: SynthetixState
-          file: ./abis/SynthetixState.json
-      # Note: currently these events and calls are handled via the old ProxySynthetix
-      # We have these here to handle the time when we transition to using this
-      # proxy for events and calls instead
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSNX
-      callHandlers:
-        - function: issueMaxSynths(bytes32)
-          handler: handleIssueMaxSynths
-        - function: issueSynths(bytes32,uint256)
-          handler: handleIssueSynths
-        - function: burnSynths(bytes32,uint256)
-          handler: handleBurnSynths
-        # - function: setExchangeRates(address)
-        #   handler: handleSetExchangeRates
-        # - function: setFeePool(address)
-        #   handler: handleSetFeePool
+
+  # Handle Proxy target updated events on upcoming integration Proxy
   - kind: ethereum/contract
     name: ProxySynthetix
     network: mainnet
@@ -142,6 +174,7 @@ dataSources:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
 
+  #  Handle Transfer on current, but deprecated, ProxysUSD
   - kind: ethereum/contract
     name: SynthsUSD
     network: mainnet
@@ -163,6 +196,8 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+
+  # Handle Transfer on upcoming ProxysUSD Integration proxy
   - kind: ethereum/contract
     name: SynthsUSD
     network: mainnet
@@ -184,6 +219,8 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+
+  # Handle Transfer on previous ProxysETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
   - kind: ethereum/contract
     name: SynthsETH
     network: mainnet
@@ -203,6 +240,8 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+
+  # Handle Transfer on current ProxysETH
   - kind: ethereum/contract
     name: SynthsETH
     network: mainnet
@@ -222,6 +261,8 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+
+  # Handle Transfer on current ProxysBTC
   - kind: ethereum/contract
     name: SynthsBTC
     network: mainnet
@@ -241,6 +282,8 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+
+  # Handle RewardEscrow Transfers (determine who has collected )
   - kind: ethereum/contract
     name: RewardEscrow
     network: mainnet
@@ -253,7 +296,8 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
-        - Transfer
+        - RewardEscrowHolder
+        - SNXHolder
       abis:
         - name: RewardEscrow
           file: ./abis/RewardEscrow.json
