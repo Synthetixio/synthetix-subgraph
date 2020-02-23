@@ -39,11 +39,11 @@ contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
 // [reference only] Synthetix v2.10.x (bytes4 to bytes32) at txn
-// https://etherscan.io/tx  /0x612cf929f305af603e165f4cb7602e5fbeed3d2e2ac1162ac61087688a5990b6
+// https://etherscan.io/tx/0x612cf929f305af603e165f4cb7602e5fbeed3d2e2ac1162ac61087688a5990b6
 // let v2100UpgradeBlock = BigInt.fromI32(8622911);
 
 // Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
-// https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835/a
+// https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
 let v200UpgradeBlock = BigInt.fromI32(6841188); // Dec 7, 2018
 
 // Havven v1.0.1 release at txn
@@ -127,41 +127,48 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     decrementMetadata('snxHolders');
   }
 
-  // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
-  if (block.number > v200UpgradeBlock) {
-    // Track all the staking information relevant to this SNX Holder
-    snxHolder.collateral = synthetix.collateral(account);
-    // Note: Below we try_transferableSynthetix as it uses debtBalanceOf, which eventually calls ExchangeRates.abs
-    // It's slower to use try but this protects against instances when Transfers were enabled
-    // yet ExchangeRates were stale and throwing errors when calling effectiveValue.
-    // E.g. https://etherscan.io/tx/0x5368339311aafeb9f92c5b5d84faa4864c2c3878681a402bbf0aabff60bafa08
-    let transferableTry = synthetix.try_transferableSynthetix(account);
-    if (!transferableTry.reverted) {
-      snxHolder.transferable = transferableTry.value;
+  // Note: below not working since Achernar:
+  // > Subgraph instance failed to run:
+  // > Failed to process trigger in block #6841440 (5e252e5d60cbfac123db9e33f9440879d31b6101474024d7edd5eb8b35c63ffb),
+  // > transaction bd4ada74c7ec004e6119f82276d33e45fd747d1f3ad5766e0d50cf05b2bc4359: Failed to handle Ethereum event with handler "handleTransferSNX":
+  // > Unknown function "Synthetix::synthetixState" called from WASM runtime: Invalid name `synthetixState`, code: SubgraphSyncingFailure,
+  // > id: Qme6wA4Ghw2Pi7dqjY7g2iqPjgSmpAxhsp8eQdWQpzwR9B
 
-      let synthetixState: SynthetixState = null;
+  // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
+  // if (block.number > v200UpgradeBlock) {
+  //   // Track all the staking information relevant to this SNX Holder
+  //   snxHolder.collateral = synthetix.collateral(account);
+  //   // Note: Below we try_transferableSynthetix as it uses debtBalanceOf, which eventually calls ExchangeRates.abs
+  //   // It's slower to use try but this protects against instances when Transfers were enabled
+  //   // yet ExchangeRates were stale and throwing errors when calling effectiveValue.
+  //   // E.g. https://etherscan.io/tx/0x5368339311aafeb9f92c5b5d84faa4864c2c3878681a402bbf0aabff60bafa08
+  //   let transferableTry = synthetix.try_transferableSynthetix(account);
+  //   if (!transferableTry.reverted) {
+  //     snxHolder.transferable = transferableTry.value;
 
-      if (block.number > v219UpgradeBlock) {
-        let resolverAddress = synthetix.resolver();
-        let resolver = AddressResolver.bind(resolverAddress);
-        synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
-      } else {
-        let oldSynthetixContract = Synthetix32.bind(snxContract);
-        let synthetixStateContract = oldSynthetixContract.synthetixState();
-        synthetixState = SynthetixState.bind(synthetixStateContract);
-      }
-
-      let issuanceData = synthetixState.issuanceData(account);
-      snxHolder.initialDebtOwnership = issuanceData.value0;
-      snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
-    }
-  } else if (block.number > v101UpgradeBlock) {
-    // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
-    let collateralTry = synthetix.try_collateral(account);
-    if (!collateralTry.reverted) {
-      snxHolder.collateral = collateralTry.value;
-    }
-  }
+  //     if (block.number > v219UpgradeBlock) {
+  //       let resolverAddress = synthetix.resolver();
+  //       let resolver = AddressResolver.bind(resolverAddress);
+  //       let synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
+  //       let issuanceData = synthetixState.issuanceData(account);
+  //       snxHolder.initialDebtOwnership = issuanceData.value0;
+  //       snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+  //     } else {
+  //       let oldSynthetixContract = Synthetix32.bind(snxContract);
+  //       let synthetixStateContract = oldSynthetixContract.synthetixState();
+  //       let synthetixState = SynthetixState.bind(synthetixStateContract);
+  //       let issuanceData = synthetixState.issuanceData(account);
+  //       snxHolder.initialDebtOwnership = issuanceData.value0;
+  //       snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+  //     }
+  //   }
+  // } else if (block.number > v101UpgradeBlock) {
+  //   // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
+  //   let collateralTry = synthetix.try_collateral(account);
+  //   if (!collateralTry.reverted) {
+  //     snxHolder.collateral = collateralTry.value;
+  //   }
+  // }
   snxHolder.save();
 }
 
