@@ -1,3 +1,4 @@
+// The latest Synthetix and event invocations
 import {
   Synthetix as SNX,
   Transfer as SNXTransferEvent,
@@ -8,6 +9,7 @@ import {
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
+// Synthetix_bytes32 ABI and event invocations
 import {
   Synthetix as Synthetix32,
   IssueSynthsCall as IssueSynthsCall32,
@@ -15,7 +17,11 @@ import {
   BurnSynthsCall as BurnSynthsCall32,
 } from '../generated/Synthetix32/Synthetix';
 
+import { Synthetix as Synthetix4 } from '../generated/Synthetix4/Synthetix';
+
+// SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
+
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
@@ -117,8 +123,6 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
   }
   let existingSNXHolder = SNXHolder.load(account.toHex());
   let snxHolder = new SNXHolder(account.toHex());
-  let synthetix = SNX.bind(snxContract);
-  snxHolder.balanceOf = synthetix.balanceOf(account);
   snxHolder.block = block.number;
   snxHolder.timestamp = block.timestamp;
   if (existingSNXHolder == null && snxHolder.balanceOf > BigInt.fromI32(0)) {
@@ -128,7 +132,20 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
   }
 
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
-  if (block.number > v200UpgradeBlock) {
+  if (block.number > v219UpgradeBlock) {
+    let synthetix = SNX.bind(snxContract);
+    snxHolder.balanceOf = synthetix.balanceOf(account);
+    snxHolder.collateral = synthetix.collateral(account);
+    snxHolder.transferable = synthetix.transferableSynthetix(account);
+    let resolverAddress = synthetix.resolver();
+    let resolver = AddressResolver.bind(resolverAddress);
+    let synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
+    let issuanceData = synthetixState.issuanceData(account);
+    snxHolder.initialDebtOwnership = issuanceData.value0;
+    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+  } else if (block.number > v200UpgradeBlock) {
+    // Synthetix32 or Synthetix4
+    let synthetix = Synthetix32.bind(snxContract);
     // Track all the staking information relevant to this SNX Holder
     snxHolder.collateral = synthetix.collateral(account);
     // Note: Below we try_transferableSynthetix as it uses debtBalanceOf, which eventually calls ExchangeRates.abs
@@ -138,32 +155,15 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     let transferableTry = synthetix.try_transferableSynthetix(account);
     if (!transferableTry.reverted) {
       snxHolder.transferable = transferableTry.value;
-
-      if (block.number > v219UpgradeBlock) {
-        let resolverAddress = synthetix.resolver();
-        let resolver = AddressResolver.bind(resolverAddress);
-        let synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
-        let issuanceData = synthetixState.issuanceData(account);
-        snxHolder.initialDebtOwnership = issuanceData.value0;
-        snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
-      } else {
-        // Note: below not working since Achernar:
-        // > Subgraph instance failed to run:
-        // > Failed to process trigger in block #6841440 (5e252e5d60cbfac123db9e33f9440879d31b6101474024d7edd5eb8b35c63ffb),
-        // > transaction bd4ada74c7ec004e6119f82276d33e45fd747d1f3ad5766e0d50cf05b2bc4359: Failed to handle Ethereum event with handler "handleTransferSNX":
-        // > Unknown function "Synthetix::synthetixState" called from WASM runtime: Invalid name `synthetixState`, code: SubgraphSyncingFailure,
-        // > id: Qme6wA4Ghw2Pi7dqjY7g2iqPjgSmpAxhsp8eQdWQpzwR9B
-        //
-        // let oldSynthetixContract = Synthetix32.bind(snxContract);
-        // let synthetixStateContract = oldSynthetixContract.synthetixState();
-        // let synthetixState = SynthetixState.bind(synthetixStateContract);
-        // let issuanceData = synthetixState.issuanceData(account);
-        // snxHolder.initialDebtOwnership = issuanceData.value0;
-        // snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
-      }
     }
+    let synthetixStateContract = synthetix.synthetixState();
+    let synthetixState = SynthetixState.bind(synthetixStateContract);
+    let issuanceData = synthetixState.issuanceData(account);
+    snxHolder.initialDebtOwnership = issuanceData.value0;
+    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
   } else if (block.number > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
+    let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     let collateralTry = synthetix.try_collateral(account);
     if (!collateralTry.reverted) {
       snxHolder.collateral = collateralTry.value;
