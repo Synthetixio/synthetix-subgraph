@@ -147,6 +147,7 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     // Synthetix32 or Synthetix4
     let synthetix = Synthetix32.bind(snxContract);
     // Track all the staking information relevant to this SNX Holder
+    snxHolder.balanceOf = synthetix.balanceOf(account);
     snxHolder.collateral = synthetix.collateral(account);
     // Note: Below we try_transferableSynthetix as it uses debtBalanceOf, which eventually calls ExchangeRates.abs
     // It's slower to use try but this protects against instances when Transfers were enabled
@@ -164,11 +165,16 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
   } else if (block.number > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
+    snxHolder.balanceOf = synthetix.balanceOf(account);
     let collateralTry = synthetix.try_collateral(account);
     if (!collateralTry.reverted) {
       snxHolder.collateral = collateralTry.value;
     }
+  } else {
+    let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
+    snxHolder.balanceOf = synthetix.balanceOf(account);
   }
+
   snxHolder.save();
 }
 
