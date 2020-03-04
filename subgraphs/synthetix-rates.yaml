@@ -2,10 +2,10 @@ specVersion: 0.0.2
 description: Synthetix API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
-  file: ./subgraphs/synthetix-rates.graphql
+  file: ./synthetix-rates.graphql
 dataSources:
   - kind: ethereum/contract
-    name: ExchangeRates
+    name: ExchangeRates_v231
     network: mainnet
     source:
       address: '0xba34e436C9383aa8FA1e3659D2807ae040592498' # ExchangeRates v2.3.1 (with inverse pricing)
@@ -14,17 +14,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates_bytes4.json
+          file: ../abis/ExchangeRates_bytes4.json
       eventHandlers:
         - event: RatesUpdated(bytes4[],uint256[])
           handler: handleRatesUpdated
   - kind: ethereum/contract
-    name: ExchangeRates
+    name: ExchangeRates_v240
     network: mainnet
     source:
       address: '0x5cBB53Ca85A9E52B593Baf8ae90282C4B3dB0b25' # ExchangeRates v2.4.0 (with effectiveValue)
@@ -33,17 +33,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates_bytes4.json
+          file: ../abis/ExchangeRates_bytes4.json
       eventHandlers:
         - event: RatesUpdated(bytes4[],uint256[])
           handler: handleRatesUpdated
   - kind: ethereum/contract
-    name: ExchangeRates
+    name: ExchangeRates_v272
     network: mainnet
     source:
       address: '0x70C629875daDBE702489a5E1E3bAaE60e38924fa' # ExchangeRates v2.7.2 (price lock)
@@ -52,17 +52,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates_bytes4.json
+          file: ../abis/ExchangeRates_bytes4.json
       eventHandlers:
         - event: RatesUpdated(bytes4[],uint256[])
           handler: handleRatesUpdated
   - kind: ethereum/contract
-    name: ExchangeRates
+    name: ExchangeRates_v210
     network: mainnet
     source:
       address: '0x99a46c42689720d9118ff7af7ce80c2a92fc4f97' # ExchangeRates v2.10 (bytes32)
@@ -71,17 +71,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates_bytes32.json
+          file: ../abis/ExchangeRates_bytes32.json
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
   - kind: ethereum/contract
-    name: ExchangeRates
+    name: ExchangeRates_v213
     network: mainnet
     source:
       address: '0x565C9EB432f4AE9633e50e1213AB4f23D8f31f54' # ExchangeRates v2.13 (audit & gas fixes)
@@ -90,17 +90,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates_bytes32.json
+          file: ../abis/ExchangeRates_bytes32.json
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
   - kind: ethereum/contract
-    name: ExchangeRates
+    name: ExchangeRates_v217
     network: mainnet
     source:
       address: '0xE95Ef4e7a04d2fB05cb625c62CA58da10112c605' # ExchangeRates v2.17 (aggregators)
@@ -109,12 +109,12 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates_bytes32.json
+          file: ../abis/ExchangeRates_bytes32.json
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
@@ -129,18 +129,18 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - RatesUpdated
       abis:
         - name: ExchangeRates
-          file: ./abis/ExchangeRates_bytes32.json
+          file: ../abis/ExchangeRates_bytes32.json
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
   # Chainlink Aggregators Phase 1 (forex and commodities)
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorAUD
     network: mainnet
     source:
       address: '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231' # AUD
@@ -149,17 +149,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
         - name: Aggregator
-          file: ./abis/Aggregator.json
+          file: ../abis/Aggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorEUR
     network: mainnet
     source:
       address: '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5' # EUR
@@ -168,17 +168,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
         - name: Aggregator
-          file: ./abis/Aggregator.json
+          file: ../abis/Aggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorCHF
     network: mainnet
     source:
       address: '0x02d5c618dbc591544b19d0bf13543c0728a3c4ec' # CHF
@@ -187,17 +187,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
         - name: Aggregator
-          file: ./abis/Aggregator.json
+          file: ../abis/Aggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorGBP
     network: mainnet
     source:
       address: '0x151445852b0cfdf6a4cc81440f2af99176e8ad08' # GBP
@@ -206,17 +206,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
         - name: Aggregator
-          file: ./abis/Aggregator.json
+          file: ../abis/Aggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorJPY
     network: mainnet
     source:
       address: '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6' # JPY
@@ -225,17 +225,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
         - name: Aggregator
-          file: ./abis/Aggregator.json
+          file: ../abis/Aggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorXAG
     network: mainnet
     source:
       address: '0x8946a183bfafa95becf57c5e08fe5b7654d2807b' # XAG
@@ -244,17 +244,17 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
         - name: Aggregator
-          file: ./abis/Aggregator.json
+          file: ../abis/Aggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorXAU
     network: mainnet
     source:
       address: '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935' # XAU
@@ -263,12 +263,12 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/rates-mapping.ts
+      file: ../src/rates-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
         - name: Aggregator
-          file: ./abis/Aggregator.json
+          file: ../abis/Aggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated

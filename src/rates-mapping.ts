@@ -1,5 +1,5 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
-import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/Aggregator/Aggregator';
+import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
 
 import { RatesUpdated, RateUpdate, AggregatorAnswer } from '../generated/schema';
 
