@@ -91,9 +91,6 @@ dataSources:
           file: ../abis/Synthetix_bytes32.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSNX
       callHandlers:
         # issueMaxSynths calls issueSynths but unfortunately it's not being processed right now
         - function: issueMaxSynths(bytes32)
