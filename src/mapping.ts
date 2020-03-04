@@ -36,7 +36,7 @@ import {
   RewardEscrowHolder,
 } from '../generated/schema';
 
-import { BigInt, Address, EthereumBlock, Bytes, EthereumTransaction, ByteArray, log } from '@graphprotocol/graph-ts';
+import { BigInt, Address, EthereumBlock, Bytes, EthereumTransaction, ByteArray } from '@graphprotocol/graph-ts';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -130,13 +130,8 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
   } else if (existingSNXHolder != null && snxHolder.balanceOf == BigInt.fromI32(0)) {
     decrementMetadata('snxHolders');
   }
-
-  log.debug('Starting block check()', [block.number.toString()]);
-
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
   if (block.number > v219UpgradeBlock) {
-    log.debug('Post achernar', [block.number.toString()]);
-
     let synthetix = SNX.bind(snxContract);
     snxHolder.balanceOf = synthetix.balanceOf(account);
     snxHolder.collateral = synthetix.collateral(account);
@@ -148,8 +143,6 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     snxHolder.initialDebtOwnership = issuanceData.value0;
     snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
   } else if (block.number > v200UpgradeBlock) {
-    log.debug('Post multicurrency', [block.number.toString()]);
-
     // Synthetix32 or Synthetix4
     let synthetix = Synthetix32.bind(snxContract);
     // Track all the staking information relevant to this SNX Holder
@@ -169,8 +162,6 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     snxHolder.initialDebtOwnership = issuanceData.value0;
     snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
   } else if (block.number > v101UpgradeBlock) {
-    log.debug('Post v1.0.1', [block.number.toString()]);
-
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     snxHolder.balanceOf = synthetix.balanceOf(account);
@@ -179,7 +170,6 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
       snxHolder.collateral = collateralTry.value;
     }
   } else {
-    log.debug('Pre v1.0.1', [block.number.toString()]);
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     snxHolder.balanceOf = synthetix.balanceOf(account);
   }
@@ -197,7 +187,6 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
-  log.debug('Finished handleTransferSNX()', []);
   trackSNXHolder(event.address, event.params.to, event.block);
 }
 
