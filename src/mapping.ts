@@ -157,11 +157,14 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     if (!transferableTry.reverted) {
       snxHolder.transferable = transferableTry.value;
     }
-    let synthetixStateContract = synthetix.synthetixState();
-    let synthetixState = SynthetixState.bind(synthetixStateContract);
-    let issuanceData = synthetixState.issuanceData(account);
-    snxHolder.initialDebtOwnership = issuanceData.value0;
-    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+    let stateTry = synthetix.try_synthetixState();
+    if (!stateTry.reverted) {
+      let synthetixStateContract = synthetix.synthetixState();
+      let synthetixState = SynthetixState.bind(synthetixStateContract);
+      let issuanceData = synthetixState.issuanceData(account);
+      snxHolder.initialDebtOwnership = issuanceData.value0;
+      snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+    }
   } else if (block.number > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
