@@ -9,9 +9,10 @@ import {
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
+import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
+
 // Synthetix_bytes32 ABI and event invocations
 import {
-  Synthetix as Synthetix32,
   IssueSynthsCall as IssueSynthsCall32,
   IssueMaxSynthsCall as IssueMaxSynthsCall32,
   BurnSynthsCall as BurnSynthsCall32,
