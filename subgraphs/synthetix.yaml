@@ -320,6 +320,8 @@ dataSources:
           file: ../abis/RewardEscrow.json
         - name: Synthetix
           file: ../abis/Synthetix.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
