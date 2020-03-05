@@ -11,8 +11,8 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix
-      # startBlock: 5750875 # Creation of this proxy
-      startBlock: 6840000 # TEMP
+      startBlock: 5750875 # Creation of this proxy
+      # startBlock: 6840000 # TEMP
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -81,8 +81,8 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix32
-      # startBlock: 5750875 # Creation of this proxy
-      startBlock: 6840000 # TEMP
+      startBlock: 5750875 # Creation of this proxy
+      # startBlock: 6840000 # TEMP
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -116,7 +116,7 @@ dataSources:
     network: mainnet
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
-      abi: Synthetix
+      abi: Synthetix4
       startBlock: 5750875 # Creation of this proxy
     mapping:
       kind: ethereum/events
@@ -126,8 +126,10 @@ dataSources:
       entities:
         - Transfer
       abis:
-        - name: Synthetix
+        - name: Synthetix4
           file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       callHandlers:
