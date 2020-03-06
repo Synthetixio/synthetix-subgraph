@@ -322,6 +322,8 @@ dataSources:
           file: ../abis/Synthetix.json
         - name: Synthetix32
           file: ../abis/Synthetix_bytes32.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
