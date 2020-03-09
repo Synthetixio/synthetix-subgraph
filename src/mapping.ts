@@ -191,6 +191,7 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
+  trackSNXHolder(event.address, event.params.from, event.block);
   trackSNXHolder(event.address, event.params.to, event.block);
 }
 
