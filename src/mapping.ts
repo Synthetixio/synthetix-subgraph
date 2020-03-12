@@ -136,7 +136,12 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     let synthetix = SNX.bind(snxContract);
     snxHolder.balanceOf = synthetix.balanceOf(account);
     snxHolder.collateral = synthetix.collateral(account);
-    snxHolder.transferable = synthetix.transferableSynthetix(account);
+
+    // Check transferable because it will be null when rates are stale
+    let transferableTry = synthetix.try_transferableSynthetix(account);
+    if (!transferableTry.reverted) {
+      snxHolder.transferable = transferableTry.value;
+    }
     let resolverAddress = synthetix.resolver();
     let resolver = AddressResolver.bind(resolverAddress);
     let synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
