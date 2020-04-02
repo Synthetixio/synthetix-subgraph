@@ -71,6 +71,16 @@ contracts.set(
   '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935',
   '0x7358415500000000000000000000000000000000000000000000000000000000',
 );
+contracts.set(
+  // sFTSE
+  '0x16924ae9c2ac6cdbc9d6bb16fafcd38bed560936',
+  '0x7346545345000000000000000000000000000000000000000000000000000000',
+);
+contracts.set(
+  // sNIKKEI
+  '0x3f6e09a4ec3811765f5b2ad15c0279910dbb2c04',
+  '0x734e494b4b454900000000000000000000000000000000000000000000000000',
+);
 
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   let entity = new AggregatorAnswer(event.transaction.hash.toHex());

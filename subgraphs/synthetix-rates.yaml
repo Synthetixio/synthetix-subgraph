@@ -276,7 +276,7 @@ dataSources:
     name: AggregatorFTSE
     network: mainnet
     source:
-      address: '0x16924ae9C2ac6cdbC9D6bB16FAfCD38BeD560936' # FTSE
+      address: '0x16924ae9c2ac6cdbc9d6bb16fafcd38bed560936' # FTSE
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -295,7 +295,7 @@ dataSources:
     name: AggregatorN225
     network: mainnet
     source:
-      address: '0x3f6E09A4EC3811765F5b2ad15c0279910dbb2c04' # NIKKEI225
+      address: '0x3f6e09a4ec3811765f5b2ad15c0279910dbb2c04' # NIKKEI225
       abi: Aggregator
     mapping:
       kind: ethereum/events
