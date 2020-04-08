@@ -1,4 +1,4 @@
-import { EthereumEvent } from '@graphprotocol/graph-ts';
+import { ethereum } from '@graphprotocol/graph-ts';
 
 import {
   SynthWithdrawal as SynthWithdrawalEvent,
@@ -9,7 +9,7 @@ import {
 } from '../generated/Depot/Depot';
 import { UserAction, ClearedDeposit } from '../generated/schema';
 
-function createUserAction(event: EthereumEvent): UserAction {
+function createUserAction(event: ethereum.Event): UserAction {
   let entity = new UserAction(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
