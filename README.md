@@ -11,6 +11,14 @@ Synthetix has four bundled subgraps, all generated from this one repository:
 3. Historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-rates
 4. Depot deposits, withdrawls and successful exchanges: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-depot
 
+## To run and deploy locally
+
+For any of the four subgraphs: `snx`, `exchanges`, `rates` and `depot` as `[subgraph]`
+
+1. Run the `npm run codegen:[subgraph]` task to prepare the TypeScript sources for the GraphQL (generated/schema) and the ABIs (generated/[ABI]/\*)
+2. [Optional] run the `npm run build:[subgraph]` task for the subgraph
+3. Deploy via `npm run deploy:[subgraph]`. Note: requires env variable of `$THEGRAPH_SNX_ACCESS_TOKEN` set in bash to work.
+
 ## To query these subgraphs
 
 Please use our node & browser utility: [synthetix-data](https://github.com/Synthetixio/synthetix-data).
