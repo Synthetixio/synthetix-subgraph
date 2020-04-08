@@ -16,9 +16,9 @@ import {
   IssueSynthsCall as IssueSynthsCall32,
   IssueMaxSynthsCall as IssueMaxSynthsCall32,
   BurnSynthsCall as BurnSynthsCall32,
-} from '../generated/Synthetix32/Synthetix';
+} from '../generated/Synthetix32/Synthetix32';
 
-import { Synthetix as Synthetix4 } from '../generated/Synthetix4/Synthetix';
+import { Synthetix4 } from '../generated/Synthetix4/Synthetix4';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
@@ -37,7 +37,7 @@ import {
   RewardEscrowHolder,
 } from '../generated/schema';
 
-import { BigInt, Address, EthereumBlock, Bytes, EthereumTransaction, ByteArray } from '@graphprotocol/graph-ts';
+import { BigInt, Address, ethereum, Bytes, ByteArray } from '@graphprotocol/graph-ts';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -116,7 +116,7 @@ let synthetixStateAsBytes = ByteArray.fromHexString(
   '0x53796e7468657469785374617465000000000000000000000000000000000000',
 ) as Bytes;
 
-function trackSNXHolder(snxContract: Address, account: Address, block: EthereumBlock): void {
+function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.Block): void {
   let holder = account.toHex();
   // ignore escrow accounts
   if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
@@ -222,7 +222,7 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
 /**
  * Track when underlying contracts change
  */
-function contractUpdate(source: string, target: Address, block: EthereumBlock, hash: Bytes): void {
+function contractUpdate(source: string, target: Address, block: ethereum.Block, hash: Bytes): void {
   let entity = new ContractUpdated(hash.toHex());
   entity.source = source;
   entity.target = target;
@@ -259,8 +259,8 @@ export function handleRewardVestEvent(event: VestedEvent): void {
 }
 
 function _handleIssueSynths(
-  txn: EthereumTransaction,
-  block: EthereumBlock,
+  txn: ethereum.Transaction,
+  block: ethereum.Block,
   to: Address,
   source: string,
   amount?: BigInt,
@@ -304,8 +304,8 @@ export function handleIssueMaxSynths(call: IssueMaxSynthsCall32): void {
 }
 
 function _handleBurnSnths(
-  txn: EthereumTransaction,
-  block: EthereumBlock,
+  txn: ethereum.Transaction,
+  block: ethereum.Block,
   to: Address,
   source: string,
   amount: BigInt,
