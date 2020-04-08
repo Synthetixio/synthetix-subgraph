@@ -13,7 +13,7 @@ dataSources:
       startBlock: 6907423
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ../src/depot-mapping.ts
       entities:
@@ -45,7 +45,7 @@ dataSources:
       startBlock: 9518530
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ../src/depot-mapping.ts
       entities:
@@ -76,7 +76,7 @@ dataSources:
   #     abi: Depot
   #   mapping:
   #     kind: ethereum/events
-  #     apiVersion: 0.0.3
+  #     apiVersion: 0.0.4
   #     language: wasm/assemblyscript
   #     file: ../src/depot-mapping.ts
   #     entities:
@@ -107,7 +107,7 @@ dataSources:
   #     abi: Depot
   #   mapping:
   #     kind: ethereum/events
-  #     apiVersion: 0.0.3
+  #     apiVersion: 0.0.4
   #     language: wasm/assemblyscript
   #     file: ../src/depot-mapping.ts
   #     entities:
@@ -138,7 +138,7 @@ dataSources:
   #     abi: Depot
   #   mapping:
   #     kind: ethereum/events
-  #     apiVersion: 0.0.3
+  #     apiVersion: 0.0.4
   #     language: wasm/assemblyscript
   #     file: ../src/depot-mapping.ts
   #     entities:

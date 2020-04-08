@@ -12,7 +12,7 @@ dataSources:
       abi: Synthetix
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ../src/exchanges-mapping.ts
       entities:
@@ -31,7 +31,7 @@ dataSources:
       abi: Synthetix
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ../src/exchanges-mapping.ts
       entities:
