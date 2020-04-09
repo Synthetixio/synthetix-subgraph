@@ -26,7 +26,7 @@ import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
-import { FeesClaimed as FeesClaimedEvent, FeePool } from '../generated/FeePool/FeePool';
+import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
 import { FeePoolv217 } from '../generated/FeePool/FeePoolv217';
 
 import {
@@ -43,7 +43,7 @@ import {
 
 import { BigInt, Address, ethereum, Bytes, ByteArray } from '@graphprotocol/graph-ts';
 
-import { strToBytes32 } from './common';
+import { strToBytes } from './common';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -53,7 +53,7 @@ let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 202
 
 // [reference only] Synthetix v2.10.x (bytes4 to bytes32) at txn
 // https://etherscan.io/tx/0x612cf929f305af603e165f4cb7602e5fbeed3d2e2ac1162ac61087688a5990b6
-// let v2100UpgradeBlock = BigInt.fromI32(8622911);
+let v2100UpgradeBlock = BigInt.fromI32(8622911);
 
 // Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
 // https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
@@ -352,12 +352,18 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
     // as a public synthetix property on FeePool
     let feePool = FeePoolv217.bind(event.address);
 
-    let synthetix = Synthetix32.bind(feePool.synthetix());
-
-    // Note: the event param is called "sUSDAmount" because we are using the latest ABI to handle events
-    // from both newer and older invocations. Since the event signature of FeesClaimed hasn't changed between versions,
-    // we can reuse it, but accept that the variable naming uses the latest ABI
-    entity.value = synthetix.effectiveValue(strToBytes32('XDR'), event.params.sUSDAmount, strToBytes32('sUSD'));
+    if (event.block.number > v2100UpgradeBlock) {
+      // use bytes32
+      let synthetix = Synthetix32.bind(feePool.synthetix());
+      // Note: the event param is called "sUSDAmount" because we are using the latest ABI to handle events
+      // from both newer and older invocations. Since the event signature of FeesClaimed hasn't changed between versions,
+      // we can reuse it, but accept that the variable naming uses the latest ABI
+      entity.value = synthetix.effectiveValue(strToBytes('XDR'), event.params.sUSDAmount, strToBytes('sUSD'));
+    } else {
+      // use bytes4
+      let synthetix = Synthetix4.bind(feePool.synthetix());
+      entity.value = synthetix.effectiveValue(strToBytes('XDR', 4), event.params.sUSDAmount, strToBytes('sUSD', 4));
+    }
   }
 
   entity.block = event.block.number;
