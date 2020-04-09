@@ -26,6 +26,8 @@ import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
+import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
+
 import {
   Synthetix,
   Transfer,
@@ -35,6 +37,7 @@ import {
   ContractUpdated,
   SNXHolder,
   RewardEscrowHolder,
+  FeesClaimed,
 } from '../generated/schema';
 
 import { BigInt, Address, ethereum, Bytes, ByteArray } from '@graphprotocol/graph-ts';
@@ -330,4 +333,17 @@ export function handleBurnSynthsUSD(call: BurnSynthsCall): void {
 
 export function handleBurnSynths(call: BurnSynthsCall32): void {
   _handleBurnSnths(call.transaction, call.block, call.to, call.inputs.currencyKey.toString(), call.inputs.amount);
+}
+
+export function handleFeesClaimed(event: FeesClaimedEvent): void {
+  let entity = new FeesClaimed(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+
+  entity.account = event.params.account;
+  entity.value = event.params.sUSDAmount;
+  entity.rewards = event.params.snxRewards;
+
+  entity.block = event.block.number;
+  entity.timestamp = event.block.timestamp;
+
+  entity.save();
 }

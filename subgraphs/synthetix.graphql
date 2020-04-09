@@ -71,3 +71,12 @@ type RewardEscrowHolder @entity {
   id: ID!
   balanceOf: BigInt!
 }
+
+type FeesClaimed @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigInt! # uint256
+  rewards: BigInt! # uint256
+  block: BigInt!
+  timestamp: BigInt!
+}
