@@ -228,26 +228,6 @@
     "signature": "0x3278c960"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "feesByPeriod",
-    "outputs": [
-      {
-        "name": "results",
-        "type": "uint256[2][3]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x33140016"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "closeCurrentFeePeriod",
