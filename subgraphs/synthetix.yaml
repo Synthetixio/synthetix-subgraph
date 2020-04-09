@@ -362,6 +362,8 @@ dataSources:
       abis:
         - name: FeePool
           file: ../abis/FeePool.json
+        - name: FeePoolv217
+          file: ../abis/FeePool_v2.17.json
       eventHandlers:
         - event: FeesClaimed(address,uint256,uint256)
           handler: handleFeesClaimed

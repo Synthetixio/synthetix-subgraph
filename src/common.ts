@@ -1,6 +1,18 @@
-import { Bytes, ByteArray, BigInt } from '@graphprotocol/graph-ts';
+import { Bytes, ByteArray } from '@graphprotocol/graph-ts';
 
-import { Synthetix32 as SNX } from '../generated/Synthetix/Synthetix32';
+// import { Synthetix32 as SNX } from '../generated/Synthetix/Synthetix32';
+
+// Extrapolated from ByteArray.fromUTF8
+export function strToBytes32(string: string): Bytes {
+  // AssemblyScript counts a null terminator, we don't want that.
+  let len = 32;
+  let utf8 = string.toUTF8();
+  let bytes = new ByteArray(32);
+  for (let i: i32 = 0; i < len; i++) {
+    bytes[i] = load<u8>(utf8 + i);
+  }
+  return bytes as Bytes;
+}
 
 export let sUSD32 = ByteArray.fromHexString(
   '0x7355534400000000000000000000000000000000000000000000000000000000',

@@ -26,7 +26,8 @@ import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
+import { FeesClaimed as FeesClaimedEvent, FeePool } from '../generated/FeePool/FeePool';
+import { FeePoolv217 } from '../generated/FeePool/FeePoolv217';
 
 import {
   Synthetix,
@@ -41,6 +42,8 @@ import {
 } from '../generated/schema';
 
 import { BigInt, Address, ethereum, Bytes, ByteArray } from '@graphprotocol/graph-ts';
+
+import { strToBytes32 } from './common';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -339,8 +342,23 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   let entity = new FeesClaimed(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
 
   entity.account = event.params.account;
-  entity.value = event.params.sUSDAmount;
   entity.rewards = event.params.snxRewards;
+  if (event.block.number > v219UpgradeBlock) {
+    // post Achernar, we had no XDRs, so use the value as sUSD
+    entity.value = event.params.sUSDAmount;
+  } else {
+    // pre Achernar, we had XDRs, so we need to figure out their effective value,
+    // and for that we need to get to synthetix, which in pre-Achernar was exposed
+    // as a public synthetix property on FeePool
+    let feePool = FeePoolv217.bind(event.address);
+
+    let synthetix = Synthetix32.bind(feePool.synthetix());
+
+    // Note: the event param is called "sUSDAmount" because we are using the latest ABI to handle events
+    // from both newer and older invocations. Since the event signature of FeesClaimed hasn't changed between versions,
+    // we can reuse it, but accept that the variable naming uses the latest ABI
+    entity.value = synthetix.effectiveValue(strToBytes32('XDR'), event.params.sUSDAmount, strToBytes32('sUSD'));
+  }
 
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
