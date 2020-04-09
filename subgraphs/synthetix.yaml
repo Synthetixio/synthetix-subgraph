@@ -2,7 +2,7 @@ specVersion: 0.0.2
 description: Synthetix API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
-  file: ./subgraphs/synthetix.graphql
+  file: ./synthetix.graphql
 dataSources:
   # Since Vega v2.14 and SIP-29 the removal of issue or burn any synth other than sUSD (https://sips.synthetix.io/sips/sip-29)
   - kind: ethereum/contract
@@ -11,20 +11,26 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix
+      startBlock: 5750875 # Creation of this proxy
+      # startBlock: 6840000 # TEMP
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
       abis:
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ../abis/Synthetix.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
         - name: AddressResolver
-          file: ./abis/AddressResolver.json
+          file: ../abis/AddressResolver.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../abis/SynthetixState.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
@@ -39,25 +45,30 @@ dataSources:
 
   # Vega but for the new Proxy (not yet being emitted on)
   - kind: ethereum/contract
-    name: Synthetix
+    name: Synthetix_viaNewProxy # will be ignored in our mapping but needs to be unique
     network: mainnet
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
       abi: Synthetix
+      startBlock: 10000000 # TODO - update here once proxy migration complete
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
       abis:
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ../abis/Synthetix.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
         - name: AddressResolver
-          file: ./abis/AddressResolver.json
+          file: ../abis/AddressResolver.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../abis/SynthetixState.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
@@ -75,22 +86,23 @@ dataSources:
     network: mainnet
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
-      abi: Synthetix
+      abi: Synthetix32
+      startBlock: 5750875 # Creation of this proxy
+      # startBlock: 6840000 # TEMP
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
       abis:
-        - name: Synthetix
-          file: ./abis/Synthetix_bytes32.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSNX
+          file: ../abis/SynthetixState.json
       callHandlers:
         # issueMaxSynths calls issueSynths but unfortunately it's not being processed right now
         - function: issueMaxSynths(bytes32)
@@ -112,19 +124,22 @@ dataSources:
     network: mainnet
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
-      abi: Synthetix
+      abi: Synthetix4
+      startBlock: 5750875 # Creation of this proxy
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
       abis:
-        - name: Synthetix
-          file: ./abis/Synthetix_bytes4.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../abis/SynthetixState.json
       callHandlers:
         # issueMaxSynths calls issueSynths but unfortunately it's not being processed right now
         - function: issueMaxSynths(bytes4)
@@ -141,37 +156,39 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Proxy
+      startBlock: 5750875 # Creation of this proxy
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - ProxyTargetUpdated
       abis:
         - name: Proxy
-          file: ./abis/Proxy.json
+          file: ../abis/Proxy.json
       eventHandlers:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
 
   # Handle Proxy target updated events on upcoming integration Proxy
   - kind: ethereum/contract
-    name: ProxySynthetix
+    name: ProxySynthetixERC20
     network: mainnet
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
       abi: Proxy
+      startBlock: 10000000 # TODO - update here once proxy migration complete
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - ProxyTargetUpdated
       abis:
         - name: Proxy
-          file: ./abis/Proxy.json
+          file: ../abis/Proxy.json
       eventHandlers:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
@@ -183,62 +200,65 @@ dataSources:
     source:
       address: '0x57Ab1E02fEE23774580C119740129eAC7081e9D3' # ProxysUSD (old Proxy, will be decomissioned soon)
       abi: Synth
+      startBlock: 5751012 # creation
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
         - Issued
         - Burned
       abis:
         - name: Synth
-          file: ./abis/Synth.json
+          file: ../abis/Synth.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
 
   # Handle Transfer on upcoming ProxysUSD Integration proxy
   - kind: ethereum/contract
-    name: SynthsUSD
+    name: SynthsUSD_viaNewProxy
     network: mainnet
     source:
       address: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51' # ProxyERC20sUSD (new ERC20 Proxy)
       abi: Synth
+      startBlock: 10000000 # TODO - update here once proxy migration complete
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
         - Issued
         - Burned
       abis:
         - name: Synth
-          file: ./abis/Synth.json
+          file: ../abis/Synth.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
 
   # Handle Transfer on previous ProxysETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
   - kind: ethereum/contract
-    name: SynthsETH
+    name: SynthsETH_viaOldProxy
     network: mainnet
     source:
       address: '0xaCf5C0101cbBe8476E87c652E0bEF33684Cc94D6' # (old sETH Proxy)
       abi: Synth
+      startBlock: 7626522
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
       abis:
         - name: Synth
-          file: ./abis/Synth.json
+          file: ../abis/Synth.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -250,16 +270,17 @@ dataSources:
     source:
       address: '0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb' # ProxysETH (new ERC20 Proxy)
       abi: Synth
+      startBlock: 8533639
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
       abis:
         - name: Synth
-          file: ./abis/Synth.json
+          file: ../abis/Synth.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -271,16 +292,17 @@ dataSources:
     source:
       address: '0x9073Ee83b6CE96C444547DdCAf777b9352163581' # ProxysBTC
       abi: Synth
+      startBlock: 7264883
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - Transfer
       abis:
         - name: Synth
-          file: ./abis/Synth.json
+          file: ../abis/Synth.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -292,21 +314,30 @@ dataSources:
     source:
       address: '0xb671F2210B1F6621A2607EA63E6B2DC3e2464d1F' # RewardEscrow
       abi: RewardEscrow
+      startBlock: 7680399
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../src/mapping.ts
       entities:
         - RewardEscrowHolder
         - SNXHolder
       abis:
         - name: RewardEscrow
-          file: ./abis/RewardEscrow.json
+          file: ../abis/RewardEscrow.json
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ../abis/Synthetix.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../abis/SynthetixState.json
       eventHandlers:
         - event: VestingEntryCreated(indexed address,uint256,uint256)
           handler: handleRewardVestEvent

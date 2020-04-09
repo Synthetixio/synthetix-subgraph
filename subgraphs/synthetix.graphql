@@ -38,7 +38,7 @@ type SNXHolder @entity {
   # last block where an event happened
   block: BigInt!
   timestamp: BigInt!
-  balanceOf: BigInt!
+  balanceOf: BigInt
   # the following will be null before multicurrency (v2) release
   collateral: BigInt
   transferable: BigInt

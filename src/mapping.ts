@@ -9,15 +9,16 @@ import {
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
+import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
+
 // Synthetix_bytes32 ABI and event invocations
 import {
-  Synthetix as Synthetix32,
   IssueSynthsCall as IssueSynthsCall32,
   IssueMaxSynthsCall as IssueMaxSynthsCall32,
   BurnSynthsCall as BurnSynthsCall32,
-} from '../generated/Synthetix32/Synthetix';
+} from '../generated/Synthetix32/Synthetix32';
 
-import { Synthetix as Synthetix4 } from '../generated/Synthetix4/Synthetix';
+import { Synthetix4 } from '../generated/Synthetix4/Synthetix4';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
@@ -36,7 +37,7 @@ import {
   RewardEscrowHolder,
 } from '../generated/schema';
 
-import { BigInt, Address, EthereumBlock, Bytes, EthereumTransaction, ByteArray } from '@graphprotocol/graph-ts';
+import { BigInt, Address, ethereum, Bytes, ByteArray } from '@graphprotocol/graph-ts';
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -115,7 +116,7 @@ let synthetixStateAsBytes = ByteArray.fromHexString(
   '0x53796e7468657469785374617465000000000000000000000000000000000000',
 ) as Bytes;
 
-function trackSNXHolder(snxContract: Address, account: Address, block: EthereumBlock): void {
+function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.Block): void {
   let holder = account.toHex();
   // ignore escrow accounts
   if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
@@ -130,13 +131,17 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
   } else if (existingSNXHolder != null && snxHolder.balanceOf == BigInt.fromI32(0)) {
     decrementMetadata('snxHolders');
   }
-
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
   if (block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     snxHolder.balanceOf = synthetix.balanceOf(account);
     snxHolder.collateral = synthetix.collateral(account);
-    snxHolder.transferable = synthetix.transferableSynthetix(account);
+
+    // Check transferable because it will be null when rates are stale
+    let transferableTry = synthetix.try_transferableSynthetix(account);
+    if (!transferableTry.reverted) {
+      snxHolder.transferable = transferableTry.value;
+    }
     let resolverAddress = synthetix.resolver();
     let resolver = AddressResolver.bind(resolverAddress);
     let synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
@@ -157,11 +162,14 @@ function trackSNXHolder(snxContract: Address, account: Address, block: EthereumB
     if (!transferableTry.reverted) {
       snxHolder.transferable = transferableTry.value;
     }
-    let synthetixStateContract = synthetix.synthetixState();
-    let synthetixState = SynthetixState.bind(synthetixStateContract);
-    let issuanceData = synthetixState.issuanceData(account);
-    snxHolder.initialDebtOwnership = issuanceData.value0;
-    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+    let stateTry = synthetix.try_synthetixState();
+    if (!stateTry.reverted) {
+      let synthetixStateContract = synthetix.synthetixState();
+      let synthetixState = SynthetixState.bind(synthetixStateContract);
+      let issuanceData = synthetixState.issuanceData(account);
+      snxHolder.initialDebtOwnership = issuanceData.value0;
+      snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+    }
   } else if (block.number > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
@@ -188,6 +196,7 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
+  trackSNXHolder(event.address, event.params.from, event.block);
   trackSNXHolder(event.address, event.params.to, event.block);
 }
 
@@ -213,7 +222,7 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
 /**
  * Track when underlying contracts change
  */
-function contractUpdate(source: string, target: Address, block: EthereumBlock, hash: Bytes): void {
+function contractUpdate(source: string, target: Address, block: ethereum.Block, hash: Bytes): void {
   let entity = new ContractUpdated(hash.toHex());
   entity.source = source;
   entity.target = target;
@@ -250,8 +259,8 @@ export function handleRewardVestEvent(event: VestedEvent): void {
 }
 
 function _handleIssueSynths(
-  txn: EthereumTransaction,
-  block: EthereumBlock,
+  txn: ethereum.Transaction,
+  block: ethereum.Block,
   to: Address,
   source: string,
   amount?: BigInt,
@@ -295,8 +304,8 @@ export function handleIssueMaxSynths(call: IssueMaxSynthsCall32): void {
 }
 
 function _handleBurnSnths(
-  txn: EthereumTransaction,
-  block: EthereumBlock,
+  txn: ethereum.Transaction,
+  block: ethereum.Block,
   to: Address,
   source: string,
   amount: BigInt,
