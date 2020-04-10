@@ -358,7 +358,7 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
       // Note: the event param is called "sUSDAmount" because we are using the latest ABI to handle events
       // from both newer and older invocations. Since the event signature of FeesClaimed hasn't changed between versions,
       // we can reuse it, but accept that the variable naming uses the latest ABI
-      entity.value = synthetix.effectiveValue(strToBytes('XDR'), event.params.sUSDAmount, strToBytes('sUSD'));
+      entity.value = synthetix.effectiveValue(strToBytes('XDR', 32), event.params.sUSDAmount, strToBytes('sUSD', 32));
     } else {
       // use bytes4
       let synthetix = Synthetix4.bind(feePool.synthetix());
