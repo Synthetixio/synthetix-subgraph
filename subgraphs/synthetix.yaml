@@ -343,3 +343,31 @@ dataSources:
           handler: handleRewardVestEvent
         - event: Vested(indexed address,uint256,uint256)
           handler: handleRewardVestEvent
+
+  # Handle FeePool FeesClaimed
+  - kind: ethereum/contract
+    name: FeePool
+    network: mainnet
+    source:
+      address: '0xb440DD674e1243644791a4AdfE3A2AbB0A92d309' # ProxyFeePool
+      abi: FeePool
+      startBlock: 7680399
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - FeesClaimed
+      abis:
+        - name: FeePool
+          file: ../abis/FeePool.json
+        - name: FeePoolv217
+          file: ../abis/FeePool_v2.17.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
+      eventHandlers:
+        - event: FeesClaimed(address,uint256,uint256)
+          handler: handleFeesClaimed
