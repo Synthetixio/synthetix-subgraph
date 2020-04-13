@@ -6,8 +6,9 @@ import {
   SynthDepositRemoved as SynthDepositRemovedEvent,
   SynthDepositNotAccepted as SynthDepositNotAcceptedEvent,
   ClearedDeposit as ClearedDepositEvent,
+  Exchange as ExchangeEvent,
 } from '../generated/Depot/Depot';
-import { UserAction, ClearedDeposit } from '../generated/schema';
+import { UserAction, ClearedDeposit, Exchange } from '../generated/schema';
 
 function createUserAction(event: ethereum.Event): UserAction {
   let entity = new UserAction(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -62,5 +63,18 @@ export function handleClearedDeposit(event: ClearedDepositEvent): void {
   entity.network = 'mainnet';
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
+  entity.save();
+}
+
+export function handleExchange(event: ExchangeEvent): void {
+  let entity = new Exchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.from = event.transaction.from;
+  entity.fromCurrency = event.params.fromCurrency;
+  entity.fromAmount = event.params.fromAmount;
+  entity.toCurrency = event.params.toCurrency;
+  entity.toAmount = event.params.toAmount;
+  entity.block = event.block.number;
+  entity.timestamp = event.block.timestamp;
+  entity.network = 'mainnet';
   entity.save();
 }

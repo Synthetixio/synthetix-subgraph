@@ -17,11 +17,9 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/depot-mapping.ts
       entities:
-        - SynthWithdrawal
-        - SynthDeposit
-        - SynthDepositRemoved
-        - SynthDepositNotAccepted
+        - UserAction
         - ClearedDeposit
+        - Exchange
       abis:
         - name: Depot
           file: ../abis/Depot.json
@@ -36,6 +34,8 @@ dataSources:
           handler: handleSynthDepositRemoved
         - event: SynthDepositNotAccepted(address,uint256,uint256)
           handler: handleSynthDepositNotAccepted
+        - event: Exchange(string,uint256,string,uint256)
+          handler: handleExchange
   - kind: ethereum/contract
     name: Depot
     network: mainnet
@@ -49,11 +49,9 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/depot-mapping.ts
       entities:
-        - SynthWithdrawal
-        - SynthDeposit
-        - SynthDepositRemoved
-        - SynthDepositNotAccepted
+        - UserAction
         - ClearedDeposit
+        - Exchange
       abis:
         - name: Depot
           file: ../abis/Depot.json
@@ -68,96 +66,5 @@ dataSources:
           handler: handleSynthDepositRemoved
         - event: SynthDepositNotAccepted(address,uint256,uint256)
           handler: handleSynthDepositNotAccepted
-  # - kind: ethereum/contract
-  #   name: Depot
-  #   network: kovan
-  #   source:
-  #     address: '0x73a61f7D7401096ccB4AC883ebeb7bE7605c3955'
-  #     abi: Depot
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     file: ../src/depot-mapping.ts
-  #     entities:
-  #       - SynthWithdrawal
-  #       - SynthDeposit
-  #       - SynthDepositRemoved
-  #       - SynthDepositNotAccepted
-  #       - ClearedDeposit
-  #     abis:
-  #       - name: Depot
-  #         file: ../abis/Depot.json
-  #     eventHandlers:
-  #       - event: ClearedDeposit(indexed address,indexed address,uint256,uint256,indexed uint256)
-  #         handler: handleClearedDepositKovan
-  #       - event: SynthWithdrawal(address,uint256)
-  #         handler: handleSynthWithdrawalKovan
-  #       - event: SynthDeposit(indexed address,uint256,indexed uint256)
-  #         handler: handleSynthDepositKovan
-  #       - event: SynthDepositRemoved(indexed address,uint256,indexed uint256)
-  #         handler: handleSynthDepositRemovedKovan
-  #       - event: SynthDepositNotAccepted(address,uint256,uint256)
-  #         handler: handleSynthDepositNotAcceptedKovan
-  # - kind: ethereum/contract
-  #   name: Depot
-  #   network: rinkeby
-  #   source:
-  #     address: '0xDFd3CAde426Fc6A014fd2e0E1Cb3158F972A1A0D'
-  #     abi: Depot
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     file: ../src/depot-mapping.ts
-  #     entities:
-  #       - SynthWithdrawal
-  #       - SynthDeposit
-  #       - SynthDepositRemoved
-  #       - SynthDepositNotAccepted
-  #       - ClearedDeposit
-  #     abis:
-  #       - name: Depot
-  #         file: ../abis/Depot.json
-  #     eventHandlers:
-  #       - event: ClearedDeposit(indexed address,indexed address,uint256,uint256,indexed uint256)
-  #         handler: handleClearedDepositRinkeby
-  #       - event: SynthWithdrawal(address,uint256)
-  #         handler: handleSynthWithdrawalRinkeby
-  #       - event: SynthDeposit(indexed address,uint256,indexed uint256)
-  #         handler: handleSynthDepositRinkeby
-  #       - event: SynthDepositRemoved(indexed address,uint256,indexed uint256)
-  #         handler: handleSynthDepositRemovedRinkeby
-  #       - event: SynthDepositNotAccepted(address,uint256,uint256)
-  #         handler: handleSynthDepositNotAcceptedRinkeby
-  # - kind: ethereum/contract
-  #   name: Depot
-  #   network: ropsten
-  #   source:
-  #     address: '0x85a02d90B62c454d69eE1F3660BA5c2135Da0cd2'
-  #     abi: Depot
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.4
-  #     language: wasm/assemblyscript
-  #     file: ../src/depot-mapping.ts
-  #     entities:
-  #       - SynthWithdrawal
-  #       - SynthDeposit
-  #       - SynthDepositRemoved
-  #       - SynthDepositNotAccepted
-  #       - ClearedDeposit
-  #     abis:
-  #       - name: Depot
-  #         file: ../abis/Depot.json
-  #     eventHandlers:
-  #       - event: ClearedDeposit(indexed address,indexed address,uint256,uint256,indexed uint256)
-  #         handler: handleClearedDepositRopsten
-  #       - event: SynthWithdrawal(address,uint256)
-  #         handler: handleSynthWithdrawalRopsten
-  #       - event: SynthDeposit(indexed address,uint256,indexed uint256)
-  #         handler: handleSynthDepositRopsten
-  #       - event: SynthDepositRemoved(indexed address,uint256,indexed uint256)
-  #         handler: handleSynthDepositRemovedRopsten
-  #       - event: SynthDepositNotAccepted(address,uint256,uint256)
-  #         handler: handleSynthDepositNotAcceptedRopsten
+        - event: Exchange(string,uint256,string,uint256)
+          handler: handleExchange
