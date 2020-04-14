@@ -277,20 +277,18 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   functions.set('0xda5341a8', 'issueMaxNomins()'); // legacy
   functions.set('0x187cba25', 'issueNomins(uint256)'); // legacy
 
+  // so take the first four bytes of input
   let input = event.transaction.input.subarray(0, 4) as Bytes;
 
-  log.info('Issued event {} short {} via tx {} using from {} and to {}', [
-    input.toHexString(),
-    event.transaction.input.toHexString(),
-    event.transaction.hash.toHex(),
-    event.transaction.from.toHexString(),
-    event.transaction.to.toHexString(),
-  ]);
-
-  // ignore not issued
+  // and for any function calls that don't match our mapping, we ignore them
   if (!functions.has(input.toHexString())) {
+    log.debug('Ignoring Issued event with input: {}, hash: {}', [
+      event.transaction.input.toHexString(),
+      event.transaction.hash.toHex(),
+    ]);
     return;
   }
+
   let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.transaction.from;
   entity.value = event.params.value;
@@ -334,20 +332,18 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   // Prior to v2 (i.e. in Havven times)
   functions.set('0x3253ccdf', 'burnNomins(uint256');
 
+  // so take the first four bytes of input
   let input = event.transaction.input.subarray(0, 4) as Bytes;
 
-  log.info('Burned event {} short {} via tx {} using from {} and to {}', [
-    input.toHexString(),
-    event.transaction.input.toHexString(),
-    event.transaction.hash.toHex(),
-    event.transaction.from.toHexString(),
-    event.transaction.to.toHexString(),
-  ]);
-
-  // ignore not issued
+  // and for any function calls that don't match our mapping, we ignore them
   if (!functions.has(input.toHexString())) {
+    log.debug('Ignoring Burned event with input: {}, hash: {}', [
+      event.transaction.input.toHexString(),
+      event.transaction.hash.toHex(),
+    ]);
     return;
   }
+
   let entity = new Burned(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.transaction.from;
   entity.value = event.params.value;
