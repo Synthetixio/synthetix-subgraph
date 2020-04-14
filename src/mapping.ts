@@ -1,31 +1,23 @@
 // The latest Synthetix and event invocations
-import {
-  Synthetix as SNX,
-  Transfer as SNXTransferEvent,
-  IssueSynthsCall,
-  IssueMaxSynthsCall,
-  BurnSynthsCall,
-} from '../generated/Synthetix/Synthetix';
-
-import { AddressResolver } from '../generated/Synthetix/AddressResolver';
+import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/Synthetix/Synthetix';
 
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
 
-// Synthetix_bytes32 ABI and event invocations
-import {
-  IssueSynthsCall as IssueSynthsCall32,
-  IssueMaxSynthsCall as IssueMaxSynthsCall32,
-  BurnSynthsCall as BurnSynthsCall32,
-} from '../generated/Synthetix32/Synthetix32';
+import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
-import { Synthetix4 } from '../generated/Synthetix4/Synthetix4';
+import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
-import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
+import {
+  Synth,
+  Transfer as SynthTransferEvent,
+  Issued as IssuedEvent,
+  Burned as BurnedEvent,
+} from '../generated/SynthsUSD/Synth';
 import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
 import { FeePoolv217 } from '../generated/FeePool/FeePoolv217';
 
@@ -41,7 +33,7 @@ import {
   FeesClaimed,
 } from '../generated/schema';
 
-import { BigInt, Address, ethereum, Bytes, ByteArray } from '@graphprotocol/graph-ts';
+import { BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './common';
 
@@ -118,10 +110,6 @@ function trackIssuer(account: Address): void {
   issuer.save();
 }
 
-let synthetixStateAsBytes = ByteArray.fromHexString(
-  '0x53796e7468657469785374617465000000000000000000000000000000000000',
-) as Bytes;
-
 function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.Block): void {
   let holder = account.toHex();
   // ignore escrow accounts
@@ -150,7 +138,7 @@ function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.
     }
     let resolverAddress = synthetix.resolver();
     let resolver = AddressResolver.bind(resolverAddress);
-    let synthetixState = SynthetixState.bind(resolver.getAddress(synthetixStateAsBytes));
+    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
     let issuanceData = synthetixState.issuanceData(account);
     snxHolder.initialDebtOwnership = issuanceData.value0;
     snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
@@ -264,78 +252,86 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block);
 }
 
-function _handleIssueSynths(
-  txn: ethereum.Transaction,
-  block: ethereum.Block,
-  to: Address,
-  source: string,
-  amount?: BigInt,
-): void {
-  let entity = new Issued(txn.hash.toHex());
-  entity.account = txn.from;
+export function handleIssuedSynths(event: IssuedEvent): void {
+  // We need to figure out if this was generated from a call to Synthetix.issueSynths, issueMaxSynths or any earlier
+  // versions.
 
-  if (amount != null) {
-    entity.value = amount;
+  let functions = new Map<string, string>();
+
+  functions.set('0xaf086c7e', 'issueMaxSynths()');
+  functions.set('0x320223db', 'issueMaxSynthsOnBehalf(address)');
+  functions.set('0x8a290014', 'issueSynths(uint256)');
+  functions.set('0xe8e09b8b', 'issueSynthsOnBehalf(address,uint256');
+
+  // Prior to Vega we had the currency key option in issuance
+  functions.set('0xef7fae7c', 'issueMaxSynths(bytes32)'); // legacy
+  functions.set('0x0ee54a1d', 'issueSynths(bytes32,uint256)'); // legacy
+
+  // Prior to Sirius release, we had currency keys using bytes4
+  functions.set('0x9ff8c63f', 'issueMaxSynths(bytes4)'); // legacy
+  functions.set('0x49755b9e', 'issueSynths(bytes4,uint256)'); // legacy
+
+  let input = event.transaction.input.subarray(0, 4) as Bytes;
+
+  // ignore not issued
+  if (!functions.has(input.toHexString())) {
+    return;
   }
-  entity.source = source;
+  let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.account = event.transaction.from;
+  entity.value = event.params.value;
 
-  entity.timestamp = block.timestamp;
-  entity.block = block.number;
-  entity.gasPrice = txn.gasPrice;
+  let synth = Synth.bind(event.address);
+  entity.source = synth.currencyKey().toString();
+
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
+  entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
   // track this issuer for reference
-  trackIssuer(txn.from);
+  trackIssuer(event.transaction.from);
 
   // update SNX holder details
-  trackSNXHolder(to, txn.from, block);
+  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
 }
 
-export function handleIssueSynthsUSD(call: IssueSynthsCall): void {
-  _handleIssueSynths(call.transaction, call.block, call.to, 'sUSD', call.inputs.amount);
-}
-export function handleIssueSynths(call: IssueSynthsCall32): void {
-  _handleIssueSynths(call.transaction, call.block, call.to, call.inputs.currencyKey.toString(), call.inputs.amount);
-}
-export function handleIssueMaxSynthsUSD(call: IssueMaxSynthsCall): void {
-  // Annoying to have to do this - we can't get the amount
-  // we don't know how much because remainingIssuableSynths(call.transaction.from, currencyKey)
-  // will show the anounbt after
-  // entity.value = call.inputs.amount;
-  _handleIssueSynths(call.transaction, call.block, call.to, 'sUSD', null);
-}
+export function handleBurnedSynths(event: BurnedEvent): void {
+  // We need to figure out if this was generated from a call to Synthetix.burnSynths, burnSynthsToTarget or any earlier
+  // versions.
 
-export function handleIssueMaxSynths(call: IssueMaxSynthsCall32): void {
-  _handleIssueSynths(call.transaction, call.block, call.to, call.inputs.currencyKey.toString(), null);
-}
+  let functions = new Map<string, string>();
+  functions.set('0x295da87d', 'burnSynths(uint256)');
+  functions.set('0xc2bf3880', 'burnSynthsOnBehalf(address,uint256');
+  functions.set('0x9741fb22', 'burnSynthsToTarget()');
+  functions.set('0x2c955fa7', 'burnSynthsToTargetOnBehalf(address)');
 
-function _handleBurnSnths(
-  txn: ethereum.Transaction,
-  block: ethereum.Block,
-  to: Address,
-  source: string,
-  amount: BigInt,
-): void {
-  let entity = new Burned(txn.hash.toHex());
-  entity.account = txn.from;
+  // Prior to Vega we had the currency key option in issuance
+  functions.set('0xea168b62', 'burnSynths(bytes32,uint256)');
 
-  entity.value = amount;
-  entity.source = source;
-  entity.timestamp = block.timestamp;
-  entity.block = block.number;
-  entity.gasPrice = txn.gasPrice;
+  // Prior to Sirius release, we had currency keys using bytes4
+  functions.set('0xaf023335', 'burnSynths(bytes4,uint256)');
+
+  let input = event.transaction.input.subarray(0, 4) as Bytes;
+
+  // ignore not issued
+  if (!functions.has(input.toHexString())) {
+    return;
+  }
+  let entity = new Burned(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.account = event.transaction.from;
+  entity.value = event.params.value;
+
+  let synth = Synth.bind(event.address);
+  entity.source = synth.currencyKey().toString();
+
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
+  entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
   // update SNX holder details
-  trackSNXHolder(to, txn.from, block);
-}
-
-export function handleBurnSynthsUSD(call: BurnSynthsCall): void {
-  _handleBurnSnths(call.transaction, call.block, call.to, 'sUSD', call.inputs.amount);
-}
-
-export function handleBurnSynths(call: BurnSynthsCall32): void {
-  _handleBurnSnths(call.transaction, call.block, call.to, call.inputs.currencyKey.toString(), call.inputs.amount);
+  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
 }
 
 export function handleFeesClaimed(event: FeesClaimedEvent): void {
