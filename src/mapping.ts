@@ -37,6 +37,8 @@ import { BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './common';
 
+import { log } from '@graphprotocol/graph-ts';
+
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
@@ -271,7 +273,19 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   functions.set('0x9ff8c63f', 'issueMaxSynths(bytes4)'); // legacy
   functions.set('0x49755b9e', 'issueSynths(bytes4,uint256)'); // legacy
 
+  // Prior to v2
+  functions.set('0xda5341a8', 'issueMaxNomins()'); // legacy
+  functions.set('0x187cba25', 'issueNomins(uint256)'); // legacy
+
   let input = event.transaction.input.subarray(0, 4) as Bytes;
+
+  log.info('Issued event {} short {} via tx {} using from {} and to {}', [
+    input.toHexString(),
+    event.transaction.input.toHexString(),
+    event.transaction.hash.toHex(),
+    event.transaction.from.toHexString(),
+    event.transaction.to.toHexString(),
+  ]);
 
   // ignore not issued
   if (!functions.has(input.toHexString())) {
@@ -282,7 +296,12 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.value = event.params.value;
 
   let synth = Synth.bind(event.address);
-  entity.source = synth.currencyKey().toString();
+  let currencyKeyTry = synth.try_currencyKey();
+  if (!currencyKeyTry.reverted) {
+    entity.source = currencyKeyTry.value.toString();
+  } else {
+    entity.source = 'sUSD';
+  }
 
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
@@ -312,7 +331,18 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   // Prior to Sirius release, we had currency keys using bytes4
   functions.set('0xaf023335', 'burnSynths(bytes4,uint256)');
 
+  // Prior to v2 (i.e. in Havven times)
+  functions.set('0x3253ccdf', 'burnNomins(uint256');
+
   let input = event.transaction.input.subarray(0, 4) as Bytes;
+
+  log.info('Burned event {} short {} via tx {} using from {} and to {}', [
+    input.toHexString(),
+    event.transaction.input.toHexString(),
+    event.transaction.hash.toHex(),
+    event.transaction.from.toHexString(),
+    event.transaction.to.toHexString(),
+  ]);
 
   // ignore not issued
   if (!functions.has(input.toHexString())) {
@@ -323,7 +353,12 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.value = event.params.value;
 
   let synth = Synth.bind(event.address);
-  entity.source = synth.currencyKey().toString();
+  let currencyKeyTry = synth.try_currencyKey();
+  if (!currencyKeyTry.reverted) {
+    entity.source = currencyKeyTry.value.toString();
+  } else {
+    entity.source = 'sUSD';
+  }
 
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
