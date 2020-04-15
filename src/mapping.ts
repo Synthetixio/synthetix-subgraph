@@ -282,9 +282,10 @@ export function handleIssuedSynths(event: IssuedEvent): void {
 
   // and for any function calls that don't match our mapping, we ignore them
   if (!functions.has(input.toHexString())) {
-    log.debug('Ignoring Issued event with input: {}, hash: {}', [
+    log.debug('Ignoring Issued event with input: {}, hash: {}, address: {}', [
       event.transaction.input.toHexString(),
       event.transaction.hash.toHex(),
+      event.address.toHexString(),
     ]);
     return;
   }
@@ -337,9 +338,10 @@ export function handleBurnedSynths(event: BurnedEvent): void {
 
   // and for any function calls that don't match our mapping, we ignore them
   if (!functions.has(input.toHexString())) {
-    log.debug('Ignoring Burned event with input: {}, hash: {}', [
+    log.debug('Ignoring Burned event with input: {}, hash: {}, address: {}', [
       event.transaction.input.toHexString(),
       event.transaction.hash.toHex(),
+      event.address.toHexString(),
     ]);
     return;
   }

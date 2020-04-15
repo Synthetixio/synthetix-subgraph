@@ -40,7 +40,7 @@ dataSources:
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
       abi: Synthetix
-      startBlock: 10000000 # TODO - update here once proxy migration complete
+      startBlock: 13000000 # TODO - update here once proxy migration complete
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -92,7 +92,7 @@ dataSources:
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
       abi: Proxy
-      startBlock: 10000000 # TODO - update here once proxy migration complete
+      startBlock: 13000000 # TODO - update here once proxy migration complete
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -152,7 +152,7 @@ dataSources:
     source:
       address: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51' # ProxyERC20sUSD (new ERC20 Proxy)
       abi: Synth
-      startBlock: 10000000 # TODO - update here once proxy migration complete
+      startBlock: 13000000 # TODO - update here once proxy migration complete
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -198,12 +198,28 @@ dataSources:
       file: ../src/mapping.ts
       entities:
         - Transfer
+        - Issued
+        - Burned
       abis:
         - name: Synth
           file: ../abis/Synth.json
+        - name: Synthetix
+          file: ../abis/Synthetix.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+        - name: SynthetixState
+          file: ../abis/SynthetixState.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+        - event: Issued(indexed address,uint256)
+          handler: handleIssueSynths
+        - event: Burned(indexed address,uint256)
+          handler: handleBurnedSynths
 
   # Handle Transfer on current ProxysETH
   - kind: ethereum/contract
@@ -220,12 +236,28 @@ dataSources:
       file: ../src/mapping.ts
       entities:
         - Transfer
+        - Issued
+        - Burned
       abis:
         - name: Synth
           file: ../abis/Synth.json
+        - name: Synthetix
+          file: ../abis/Synthetix.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+        - name: SynthetixState
+          file: ../abis/SynthetixState.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+        - event: Issued(indexed address,uint256)
+          handler: handleIssueSynths
+        - event: Burned(indexed address,uint256)
+          handler: handleBurnedSynths
 
   # Handle Transfer on current ProxysBTC
   - kind: ethereum/contract
@@ -242,12 +274,28 @@ dataSources:
       file: ../src/mapping.ts
       entities:
         - Transfer
+        - Issued
+        - Burned
       abis:
         - name: Synth
           file: ../abis/Synth.json
+        - name: Synthetix
+          file: ../abis/Synthetix.json
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+        - name: SynthetixState
+          file: ../abis/SynthetixState.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
+        - event: Issued(indexed address,uint256)
+          handler: handleIssueSynths
+        - event: Burned(indexed address,uint256)
+          handler: handleBurnedSynths
 
   # Handle RewardEscrow Transfers (determine who has collected )
   - kind: ethereum/contract
