@@ -179,7 +179,7 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
-          handler: handleIssueSynths
+          handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
@@ -217,7 +217,7 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
-          handler: handleIssueSynths
+          handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
@@ -255,7 +255,7 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
-          handler: handleIssueSynths
+          handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
@@ -293,7 +293,7 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
-          handler: handleIssueSynths
+          handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
