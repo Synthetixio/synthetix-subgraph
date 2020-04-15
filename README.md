@@ -6,10 +6,12 @@ The Graph exposes a GraphQL endpoint to query the events and entities within the
 
 Synthetix has four bundled subgraps, all generated from this one repository:
 
-1. Minting, Burning and Transferring SNX & Synths: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix
-2. Synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanges
-3. Historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-rates
-4. Depot deposits, withdrawls and successful exchanges: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-depot
+![image](https://user-images.githubusercontent.com/799038/79390156-32c93080-7f3d-11ea-812a-34ad3543fc28.png)
+
+1. **Synthetix**: issuing (aka minting) sUSD, burning sUSD and transferring SNX & Synths: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix
+2. **Exchanges**: synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanges
+3. **Rates**: historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-rates
+4. **Depot**: deposits, withdrawls and successful exchanges in the Depot: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-depot
 
 ## To run and deploy locally
 
