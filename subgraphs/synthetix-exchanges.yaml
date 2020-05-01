@@ -5,11 +5,12 @@ schema:
   file: ./synthetix-exchanges.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Synthetix4
+    name: Synthetix4_viaOldProxy
     network: mainnet
     source:
-      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # ProxySynthetix
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix
+      startBlock: 6841188 # Synthetix v2.0.0 0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -23,12 +24,49 @@ dataSources:
       eventHandlers:
         - event: SynthExchange(indexed address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange4
+
+  - kind: ethereum/contract
+    name: Synthetix_viaOldProxy
+    network: mainnet
+    source:
+      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
+      abi: Synthetix
+      startBlock: 8622911 # Synthetix v2.10.x Vega
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - SynthExchange
+        - ExchangeReclaim
+        - ExchangeRebate
+      abis:
+        - name: Synthetix4
+          file: ../abis/Synthetix_bytes4.json # Need to have this here to distinguish it in the code
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json # Can assume bytes32 due to event signature below
+        - name: Synthetix
+          file: ../abis/Synthetix.json # Can assume bytes32 due to event signature below
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+      eventHandlers:
+        - event: SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)
+          handler: handleSynthExchange32
+        - event: ExchangeReclaim(indexed address,bytes32,uint256)
+          handler: handleExchangeReclaim
+        - event: ExchangeRebate(indexed address,bytes32,uint256)
+          handler: handleExchangeRebate
+
   - kind: ethereum/contract
     name: Synthetix
     network: mainnet
     source:
-      address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # ProxySynthetix
+      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
       abi: Synthetix
+      startBlock: 10000000 # prior to migration to new proxy on May 10, 2020
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

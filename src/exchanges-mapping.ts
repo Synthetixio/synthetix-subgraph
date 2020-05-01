@@ -7,15 +7,15 @@ import {
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 import { ExchangeRates } from '../generated/Synthetix/ExchangeRates';
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
-import { Synthetix as Synthetix4 } from '../generated/Synthetix4/Synthetix';
+import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
 import { Total, SynthExchange, Exchanger, ExchangeReclaim, ExchangeRebate } from '../generated/schema';
 
-import { BigInt, Address, Bytes, ByteArray } from '@graphprotocol/graph-ts';
+import { BigInt, Address } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
-import { sUSD32, sUSD4 } from './common';
+import { sUSD32, sUSD4, strToBytes } from './common';
 
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -50,9 +50,7 @@ function trackExchanger(account: Address): void {
   }
 }
 
-let exchangeRatesAsBytes = ByteArray.fromHexString(
-  '0x45786368616e6765526174657300000000000000000000000000000000000000',
-) as Bytes;
+let exchangeRatesAsBytes = strToBytes('ExchangeRates', 32);
 
 function getExchangeRates(address: Address): ExchangeRates {
   let synthetix = Synthetix.bind(address);
