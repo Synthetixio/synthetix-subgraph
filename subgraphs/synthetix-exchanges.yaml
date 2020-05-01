@@ -9,7 +9,7 @@ dataSources:
     network: mainnet
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
-      abi: Synthetix
+      abi: Synthetix4
       startBlock: 6841188 # Synthetix v2.0.0 0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
     mapping:
       kind: ethereum/events
@@ -19,8 +19,8 @@ dataSources:
       entities:
         - SynthExchange
       abis:
-        - name: Synthetix
-          file: ../abis/Synthetix_bytes4.json # Can assume bytes4 due to event signature below
+        - name: Synthetix4 # add this here so it follows the same convention as below and we can reuse the same ABI lookup pattern
+          file: ../abis/Synthetix_bytes4.json
       eventHandlers:
         - event: SynthExchange(indexed address,bytes4,uint256,bytes4,uint256,address)
           handler: handleSynthExchange4
