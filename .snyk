@@ -1,0 +1,24 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.14.1
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - '@graphprotocol/graph-cli > jayson > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
+    - '@graphprotocol/graph-cli > ipfs-http-client > async > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
+    - '@graphprotocol/graph-cli > ipfs-http-client > peer-id > async > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
+    - '@graphprotocol/graph-cli > ipfs-http-client > peer-id > libp2p-crypto > async > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
+    - '@graphprotocol/graph-cli > ipfs-http-client > peer-info > peer-id > async > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
+    - synthetix > chainlink > chainlinkv0.5 > truffle-contract > truffle-interface-adapter > lodash:
+        patched: '2020-05-01T08:32:29.627Z'
+    - '@graphprotocol/graph-cli > ipfs-http-client > peer-id > libp2p-crypto > libp2p-crypto-secp256k1 > async > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
+    - '@graphprotocol/graph-cli > ipfs-http-client > peer-info > peer-id > libp2p-crypto > async > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
+    - '@graphprotocol/graph-cli > ipfs-http-client > peer-info > peer-id > libp2p-crypto > libp2p-crypto-secp256k1 > async > lodash':
+        patched: '2020-05-01T08:32:29.627Z'
