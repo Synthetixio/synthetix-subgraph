@@ -292,6 +292,8 @@ export function handleIssuedSynths(event: IssuedEvent): void {
 
   let entity = new Issued(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.transaction.from;
+
+  // Note: this amount isn't in sUSD for sETH or sBTC issuance prior to Vega
   entity.value = event.params.value;
 
   let synth = Synth.bind(event.address);
@@ -348,6 +350,8 @@ export function handleBurnedSynths(event: BurnedEvent): void {
 
   let entity = new Burned(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.transaction.from;
+
+  // Note: this amount isn't in sUSD for sETH or sBTC issuance prior to Vega
   entity.value = event.params.value;
 
   let synth = Synth.bind(event.address);
