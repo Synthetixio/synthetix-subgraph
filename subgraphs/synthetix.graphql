@@ -20,7 +20,7 @@ type Transfer @entity {
 type Issued @entity {
   id: ID!
   account: Bytes! # address
-  value: BigInt # Nullable due to current limitation of Graph call handlers
+  value: BigInt!
   source: String!
   timestamp: BigInt!
   gasPrice: BigInt!
@@ -42,7 +42,6 @@ type SNXHolder @entity {
   # the following will be null before multicurrency (v2) release
   collateral: BigInt
   transferable: BigInt
-  # these don't seem to be working
   initialDebtOwnership: BigInt
   debtEntryAtIndex: BigInt
 }

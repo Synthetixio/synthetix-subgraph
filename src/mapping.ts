@@ -143,7 +143,37 @@ function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.
     let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
     let issuanceData = synthetixState.issuanceData(account);
     snxHolder.initialDebtOwnership = issuanceData.value0;
-    snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+
+    // Note: due to limitations with how The Graph deals with chain reorgs, we need to try_debtLedger
+    /*
+        From Jannis at The Graph:
+
+        graph-node currently makes contract calls by block number (that used to be the only way
+        to do it and we haven't switched to calling by block hash yet). If there is a reorg,
+        this may lead to making calls against a different block than expected.
+
+        If the subgraph doesn't fail on such a call, the resulting data should be reverted as
+        soon as the reorg is detected (e.g. when processing the next block). It can temporarily
+        cause inconsistent data until that happens.
+
+        However, if such a call fails (e.g. you're expecting an array to have grown by one but
+        in the fork of the chain it hasn't and the call doesn't use try_), then this can cause
+        the subgraph to fail.
+
+        Here's what happens during a reorg:
+
+        - Block 0xa (block number 100) is being processed.
+        - A handler makes a try_debtLedger call against block number 100 but hits block 0xb instead of 0xa.
+        - The result gets written to the store marked with block 0xa (because that's what we're processing).
+        - The reorg is detected: block number 100 is no longer 0xa, it's 0xb
+        - The changes made for 0xa (including the inconsistent/incorrect try_debtLedger result) are reverted.
+        - Block 0xb is processed. The handler now makes the try_debtLedger call against 100 -> 0xb and the correct data is being returned
+    */
+
+    let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+    if (!debtLedgerTry.reverted) {
+      snxHolder.debtEntryAtIndex = debtLedgerTry.value;
+    }
   } else if (block.number > v200UpgradeBlock) {
     // Synthetix32 or Synthetix4
     let synthetix = Synthetix32.bind(snxContract);
@@ -164,7 +194,10 @@ function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.
       let synthetixState = SynthetixState.bind(synthetixStateContract);
       let issuanceData = synthetixState.issuanceData(account);
       snxHolder.initialDebtOwnership = issuanceData.value0;
-      snxHolder.debtEntryAtIndex = synthetixState.debtLedger(issuanceData.value1);
+      let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+      if (!debtLedgerTry.reverted) {
+        snxHolder.debtEntryAtIndex = debtLedgerTry.value;
+      }
     }
   } else if (block.number > v101UpgradeBlock) {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
