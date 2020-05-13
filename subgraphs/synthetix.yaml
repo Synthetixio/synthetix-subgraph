@@ -334,6 +334,52 @@ dataSources:
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
+  # Handle Transfer on previous ProxyiETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
+  # This is to be able to track potential iETH holders
+  - kind: ethereum/contract
+    name: SynthiETH_viaOldProxy
+    network: mainnet
+    source:
+      address: '0x9B7E40031f7d4f6AB6e5D36bBF2Fea3bCCcc75a5' # (old iETH Proxy)
+      abi: Synth
+      startBlock: 7680400
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - Transfer
+        - SynthHolder
+      abis:
+        - name: Synth
+          file: ../abis/Synth.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth
+
+  - kind: ethereum/contract
+    name: SynthiETH
+    network: mainnet
+    source:
+      address: '0xA9859874e1743A32409f75bB11549892138BBA1E' # (new ERC20 iETH Proxy)
+      abi: Synth
+      startBlock: 8623214
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - Transfer
+        - SynthHolder
+      abis:
+        - name: Synth
+          file: ../abis/Synth.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth
+
   # Handle RewardEscrow Transfers (determine who has collected fees)
   - kind: ethereum/contract
     name: RewardEscrow
