@@ -29,6 +29,7 @@ import {
   Issuer,
   ContractUpdated,
   SNXHolder,
+  SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
 } from '../generated/schema';
@@ -229,6 +230,15 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   trackSNXHolder(event.address, event.params.to, event.block);
 }
 
+function trackSynthHolder(contract: Synth, source: string, account: Address, block: ethereum.Block): void {
+  let entity = new SynthHolder(account.toHexString());
+  entity.source = source;
+  entity.balanceOf = contract.balanceOf(account);
+  entity.block = block.number;
+  entity.timestamp = block.timestamp;
+  entity.save();
+}
+
 export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -246,6 +256,9 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.save();
+
+  trackSynthHolder(contract, entity.source, event.params.from, event.block);
+  trackSynthHolder(contract, entity.source, event.params.to, event.block);
 }
 
 /**

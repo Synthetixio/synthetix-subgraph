@@ -34,7 +34,7 @@ type Issuer @entity {
 
 # An individual SNX holder (always overridden with their latest information)
 type SNXHolder @entity {
-  id: ID!
+  id: ID! # address of potential holder
   # last block where an event happened
   block: BigInt!
   timestamp: BigInt!
@@ -44,6 +44,15 @@ type SNXHolder @entity {
   transferable: BigInt
   initialDebtOwnership: BigInt
   debtEntryAtIndex: BigInt
+}
+
+type SynthHolder @entity {
+  id: ID! # address of the potential holder
+  source: String! # the synth's currencyKey
+  # last block where an event happened
+  block: BigInt!
+  timestamp: BigInt!
+  balanceOf: BigInt!
 }
 
 # Burned tracks this event from various Synth.sol instances
