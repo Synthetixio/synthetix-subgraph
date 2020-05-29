@@ -46,6 +46,19 @@ type SNXHolder @entity {
   debtEntryAtIndex: BigInt
 }
 
+# An individual SNX holder
+type DebtHolder @entity {
+  id: ID! # address of potential holder
+  # last block where an event happened
+  block: BigInt!
+  timestamp: BigInt!
+  balanceOf: BigInt
+  account: Bytes! # address
+  # the following will be null before multicurrency (v2) release
+  collateral: BigInt
+  debtBalanceOf: BigInt
+}
+
 type SynthHolder @entity {
   id: ID! # a unique combination of txn hash and logIndex (to support 1:M txn to synth transfer cardinality)
   account: Bytes! # address of the potential holder
