@@ -46,9 +46,9 @@ type SNXHolder @entity {
   debtEntryAtIndex: BigInt
 }
 
-# An individual SNX holder
-type DebtHolder @entity {
-  id: ID! # address of potential holder
+# A historical debt tracker
+type DebtSnapshot @entity {
+  id: ID!
   # last block where an event happened
   block: BigInt!
   timestamp: BigInt!

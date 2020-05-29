@@ -31,7 +31,7 @@ import {
   Issuer,
   ContractUpdated,
   SNXHolder,
-  DebtHolder,
+  DebtSnapshot,
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
@@ -228,7 +228,7 @@ function trackDebtHolder(event: ethereum.Event): void {
     return;
   }
 
-  let entity = new DebtHolder(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let entity = new DebtSnapshot(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
   entity.account = account;
