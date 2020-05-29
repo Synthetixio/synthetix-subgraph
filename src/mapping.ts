@@ -7,6 +7,8 @@ import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
+import { sUSD32, sUSD4 } from './common';
+
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 
@@ -29,6 +31,7 @@ import {
   Issuer,
   ContractUpdated,
   SNXHolder,
+  DebtSnapshot,
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
@@ -216,6 +219,44 @@ function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.
   snxHolder.save();
 }
 
+function trackDebtSnapshot(event: ethereum.Event): void {
+  let snxContract = event.transaction.to as Address;
+  let account = event.transaction.from;
+
+  // ignore escrow accounts
+  if (contracts.get('escrow') == account.toHex() || contracts.get('rewardEscrow') == account.toHex()) {
+    return;
+  }
+
+  let entity = new DebtSnapshot(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.block = event.block.number;
+  entity.timestamp = event.block.timestamp;
+  entity.account = account;
+
+  // Use bytes32
+  if (event.block.number > v2100UpgradeBlock) {
+    let synthetix = SNX.bind(snxContract);
+    entity.balanceOf = synthetix.balanceOf(account);
+    entity.collateral = synthetix.collateral(account);
+    entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
+    // Use bytes4
+  } else if (event.block.number > v101UpgradeBlock) {
+    let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
+    entity.balanceOf = synthetix.balanceOf(account);
+    let collateralTry = synthetix.try_collateral(account);
+    if (!collateralTry.reverted) {
+      entity.collateral = collateralTry.value;
+    }
+    let debtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD4);
+    if (!debtBalanceOfTry.reverted) {
+      entity.debtBalanceOf = debtBalanceOfTry.value;
+      // If we can't get the debtBalanceOf value, no need to save the entity
+    } else return;
+  }
+
+  entity.save();
+}
+
 export function handleTransferSNX(event: SNXTransferEvent): void {
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'SNX';
@@ -363,6 +404,8 @@ export function handleIssuedSynths(event: IssuedEvent): void {
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
+  // update Debt snapshot history
+  trackDebtSnapshot(event);
 }
 
 export function handleBurnedSynths(event: BurnedEvent): void {
@@ -418,6 +461,8 @@ export function handleBurnedSynths(event: BurnedEvent): void {
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
+  // update Debt snapshot history
+  trackDebtSnapshot(event);
 }
 
 export function handleFeesClaimed(event: FeesClaimedEvent): void {
