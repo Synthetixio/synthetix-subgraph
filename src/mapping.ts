@@ -219,7 +219,7 @@ function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.
   snxHolder.save();
 }
 
-function trackDebtHolder(event: ethereum.Event): void {
+function trackDebtSnapshot(event: ethereum.Event): void {
   let snxContract = event.transaction.to as Address;
   let account = event.transaction.from;
 
@@ -404,8 +404,8 @@ export function handleIssuedSynths(event: IssuedEvent): void {
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
-  // update Debt holder details
-  trackDebtHolder(event);
+  // update Debt snapshot history
+  trackDebtSnapshot(event);
 }
 
 export function handleBurnedSynths(event: BurnedEvent): void {
@@ -461,8 +461,8 @@ export function handleBurnedSynths(event: BurnedEvent): void {
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
-  // update Debt holder details
-  trackDebtHolder(event);
+  // update Debt snapshot history
+  trackDebtSnapshot(event);
 }
 
 export function handleFeesClaimed(event: FeesClaimedEvent): void {
