@@ -219,33 +219,28 @@ function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.
   snxHolder.save();
 }
 
-function trackDebtHolder(
-  snxContract: Address,
-  account: Address,
-  hash: Bytes,
-  logIndex: BigInt,
-  blockNumber: BigInt,
-  blockTimestamp: BigInt,
-): void {
-  let holder = account.toHex();
+function trackDebtHolder(event: ethereum.Event): void {
+  let snxContract = event.transaction.to as Address;
+  let account = event.transaction.from;
+
   // ignore escrow accounts
-  if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
+  if (contracts.get('escrow') == account.toHex() || contracts.get('rewardEscrow') == account.toHex()) {
     return;
   }
 
-  let entity = new DebtHolder(hash.toHex() + '-' + logIndex.toString());
-  entity.block = blockNumber;
-  entity.timestamp = blockTimestamp;
+  let entity = new DebtHolder(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  entity.block = event.block.number;
+  entity.timestamp = event.block.timestamp;
   entity.account = account;
 
   // Use bytes32
-  if (blockNumber > v2100UpgradeBlock) {
+  if (event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     entity.balanceOf = synthetix.balanceOf(account);
     entity.collateral = synthetix.collateral(account);
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
     // Use bytes4
-  } else if (blockNumber > v101UpgradeBlock) {
+  } else if (event.block.number > v101UpgradeBlock) {
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     entity.balanceOf = synthetix.balanceOf(account);
     let collateralTry = synthetix.try_collateral(account);
@@ -410,14 +405,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
   // update Debt holder details
-  trackDebtHolder(
-    event.transaction.to as Address,
-    event.transaction.from,
-    event.transaction.hash,
-    event.logIndex,
-    event.block.number,
-    event.block.timestamp,
-  );
+  trackDebtHolder(event);
 }
 
 export function handleBurnedSynths(event: BurnedEvent): void {
@@ -474,14 +462,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
   // update Debt holder details
-  trackDebtHolder(
-    event.transaction.to as Address,
-    event.transaction.from,
-    event.transaction.hash,
-    event.logIndex,
-    event.block.number,
-    event.block.timestamp,
-  );
+  trackDebtHolder(event);
 }
 
 export function handleFeesClaimed(event: FeesClaimedEvent): void {

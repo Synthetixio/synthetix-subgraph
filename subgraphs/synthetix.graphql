@@ -52,11 +52,11 @@ type DebtHolder @entity {
   # last block where an event happened
   block: BigInt!
   timestamp: BigInt!
-  balanceOf: BigInt
+  balanceOf: BigInt!
   account: Bytes! # address
   # the following will be null before multicurrency (v2) release
   collateral: BigInt
-  debtBalanceOf: BigInt
+  debtBalanceOf: BigInt!
 }
 
 type SynthHolder @entity {
