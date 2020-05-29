@@ -236,13 +236,19 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   // Use bytes32
   if (event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
-    entity.balanceOf = synthetix.balanceOf(account);
+    let balanceOfTry = synthetix.try_balanceOf(account);
+    if (!balanceOfTry.reverted) {
+      entity.balanceOf = balanceOfTry.value;
+    } else return;
     entity.collateral = synthetix.collateral(account);
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
     // Use bytes4
   } else if (event.block.number > v101UpgradeBlock) {
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
-    entity.balanceOf = synthetix.balanceOf(account);
+    let balanceOfTry = synthetix.try_balanceOf(account);
+    if (!balanceOfTry.reverted) {
+      entity.balanceOf = balanceOfTry.value;
+    } else return;
     let collateralTry = synthetix.try_collateral(account);
     if (!collateralTry.reverted) {
       entity.collateral = collateralTry.value;
