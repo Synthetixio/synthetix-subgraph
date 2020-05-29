@@ -233,10 +233,6 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.timestamp = event.block.timestamp;
   entity.account = account;
 
-  entity.balanceOf = BigInt.fromI32(0);
-  entity.collateral = BigInt.fromI32(0);
-  entity.debtBalanceOf = BigInt.fromI32(0);
-
   // Use bytes32
   if (event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);

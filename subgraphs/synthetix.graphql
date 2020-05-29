@@ -52,11 +52,11 @@ type DebtSnapshot @entity {
   # last block where an event happened
   block: BigInt!
   timestamp: BigInt!
-  balanceOf: BigInt!
   account: Bytes! # address
+  balanceOf: BigInt # early on it was possible this wouldn't have a value (pre v2)
   # the following will be null before multicurrency (v2) release
-  collateral: BigInt!
-  debtBalanceOf: BigInt!
+  collateral: BigInt
+  debtBalanceOf: BigInt
 }
 
 type SynthHolder @entity {
