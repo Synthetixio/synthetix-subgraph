@@ -55,7 +55,7 @@ type DebtSnapshot @entity {
   balanceOf: BigInt!
   account: Bytes! # address
   # the following will be null before multicurrency (v2) release
-  collateral: BigInt
+  collateral: BigInt!
   debtBalanceOf: BigInt!
 }
 
