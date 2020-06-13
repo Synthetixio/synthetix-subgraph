@@ -1,5 +1,22 @@
 # Synthentix is an aggregation entity
+# Total synth exchanges in aggregate
 type Total @entity {
+  id: ID!
+  exchangers: BigInt!
+  exchangeUSDTally: BigInt!
+  totalFeesGeneratedInUSD: BigInt!
+}
+
+# Total synth exchanges per day
+type DailyTotal @entity {
+  id: ID!
+  exchangers: BigInt!
+  exchangeUSDTally: BigInt!
+  totalFeesGeneratedInUSD: BigInt!
+}
+
+# Total synth exchanges per 15 minute period
+type FifteenMinuteTotal @entity {
   id: ID!
   exchangers: BigInt!
   exchangeUSDTally: BigInt!
@@ -49,5 +66,13 @@ type ExchangeRebate @entity {
 
 # An individual Exchanger
 type Exchanger @entity {
+  id: ID!
+}
+
+type DailyExchanger @entity {
+  id: ID!
+}
+
+type FifteenMinuteExchanger @entity {
   id: ID!
 }
