@@ -9,7 +9,17 @@ import { ExchangeRates } from '../generated/Synthetix/ExchangeRates';
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
 import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
-import { Total, SynthExchange, Exchanger, ExchangeReclaim, ExchangeRebate } from '../generated/schema';
+import { 
+  Total,
+  DailyTotal,
+  FifteenMinuteTotal,
+  SynthExchange,
+  Exchanger,
+  DailyExchanger,
+  FifteenMinuteExchanger,
+  ExchangeReclaim,
+  ExchangeRebate
+} from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
 
@@ -18,37 +28,6 @@ import { exchangesToIgnore } from './exchangesToIgnore';
 import { sUSD32, sUSD4, strToBytes } from './common';
 
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
-
-function getMetadata(): Total {
-  let total = Total.load('mainnet');
-
-  if (total == null) {
-    total = new Total('mainnet');
-    total.exchangers = BigInt.fromI32(0);
-    total.exchangeUSDTally = BigInt.fromI32(0);
-    total.totalFeesGeneratedInUSD = BigInt.fromI32(0);
-    total.save();
-  }
-
-  return total as Total;
-}
-
-function incrementMetadata(field: string): void {
-  let metadata = getMetadata();
-  if (field == 'exchangers') {
-    metadata.exchangers = metadata.exchangers.plus(BigInt.fromI32(1));
-  }
-  metadata.save();
-}
-
-function trackExchanger(account: Address): void {
-  let existingExchanger = Exchanger.load(account.toHex());
-  if (existingExchanger == null) {
-    incrementMetadata('exchangers');
-    let exchanger = new Exchanger(account.toHex());
-    exchanger.save();
-  }
-}
 
 let exchangeRatesAsBytes = strToBytes('ExchangeRates', 32);
 
@@ -73,7 +52,8 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) >= 0) {
     return;
   }
-
+  
+  let account = event.transaction.from
   let fromAmountInUSD = BigInt.fromI32(0);
   let toAmountInUSD = BigInt.fromI32(0);
   let feesInUSD = BigInt.fromI32(0);
@@ -129,7 +109,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
-  entity.from = event.transaction.from;
+  entity.from = account;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
   entity.fromAmount = event.params.fromAmount;
   entity.fromAmountInUSD = fromAmountInUSD;
@@ -144,15 +124,73 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.network = 'mainnet';
   entity.save();
 
-  trackExchanger(event.transaction.from);
+  let timestamp = event.block.timestamp.toI32()
+
+  let dayID = timestamp / 86400
+  let fifteenMinuteID = timestamp / 900
+
+  let total = Total.load('mainnet');
+  let dailyTotal = DailyTotal.load(dayID.toString());
+  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString());
+
+  if (total == null) {
+    total = new Total('mainnet');
+    total.exchangers = BigInt.fromI32(0);
+    total.exchangeUSDTally = BigInt.fromI32(0);
+    total.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  }
+
+  if (dailyTotal == null) {
+    dailyTotal = new DailyTotal(dayID.toString());
+    dailyTotal.exchangers = BigInt.fromI32(0);
+    dailyTotal.exchangeUSDTally = BigInt.fromI32(0);
+    dailyTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  }
+
+  if (fifteenMinuteTotal == null) {
+    fifteenMinuteTotal = new FifteenMinuteTotal(fifteenMinuteID.toString());
+    fifteenMinuteTotal.exchangers = BigInt.fromI32(0);
+    fifteenMinuteTotal.exchangeUSDTally = BigInt.fromI32(0);
+    fifteenMinuteTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  }
+
+  let existingExchanger = Exchanger.load(account.toHex());
+  let existingDailyExchanger = DailyExchanger.load(account.toHex());
+  let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(account.toHex());
+
+  if (existingExchanger == null) {
+    total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
+    let exchanger = new Exchanger(account.toHex());
+    exchanger.save();
+  }
+
+  if (existingDailyExchanger == null) {
+    dailyTotal.exchangers = dailyTotal.exchangers.plus(BigInt.fromI32(1));
+    let dailyExchanger = new DailyExchanger(account.toHex());
+    dailyExchanger.save();
+  }
+
+  if (existingFifteenMinuteExchanger == null) {
+    fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
+    let fifteenMinuteExchanger = new FifteenMinuteExchanger(account.toHex());
+    fifteenMinuteExchanger.save();
+  }
+
+  total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
+  dailyTotal.exchangers = dailyTotal.exchangers.plus(BigInt.fromI32(1));
+  fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
 
   if (fromAmountInUSD != null && feesInUSD != null) {
-    // now save the tally of USD value of all exchanges
-    let metadata = getMetadata();
-    metadata.exchangeUSDTally = metadata.exchangeUSDTally.plus(fromAmountInUSD);
-    metadata.totalFeesGeneratedInUSD = metadata.totalFeesGeneratedInUSD.plus(feesInUSD);
-    metadata.save();
+    total.exchangeUSDTally = total.exchangeUSDTally.plus(fromAmountInUSD);
+    total.totalFeesGeneratedInUSD = total.totalFeesGeneratedInUSD.plus(feesInUSD);
+    dailyTotal.exchangeUSDTally = dailyTotal.exchangeUSDTally.plus(fromAmountInUSD);
+    dailyTotal.totalFeesGeneratedInUSD = dailyTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
+    fifteenMinuteTotal.exchangeUSDTally = fifteenMinuteTotal.exchangeUSDTally.plus(fromAmountInUSD);
+    fifteenMinuteTotal.totalFeesGeneratedInUSD = fifteenMinuteTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
   }
+  total.save();
+  dailyTotal.save();
+  fifteenMinuteTotal.save();
 }
 
 export function handleSynthExchange4(event: SynthExchangeEvent): void {
