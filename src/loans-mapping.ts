@@ -12,11 +12,13 @@ export function handleLoanCreated(event: LoanCreatedEvent): void {
   loanEntity.account = event.params.account;
   loanEntity.amount = event.params.amount;
   loanEntity.isOpen = true;
+  loanEntity.createdAt = event.block.timestamp;
   loanEntity.save();
 
   loanCreatedEntity.account = event.params.account;
   loanCreatedEntity.amount = event.params.amount;
   loanCreatedEntity.loanId = event.params.loanID;
+  loanCreatedEntity.timestamp = event.block.timestamp;
   loanCreatedEntity.save();
 }
 
@@ -30,5 +32,6 @@ export function handleLoanClosed(event: LoanClosedEvent): void {
   loanClosedEntity.account = event.params.account;
   loanClosedEntity.loanId = event.params.loanID;
   loanClosedEntity.feesPaid = event.params.feesPaid;
+  loanClosedEntity.timestamp = event.block.timestamp;
   loanClosedEntity.save();
 }

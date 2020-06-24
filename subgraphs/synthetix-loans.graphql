@@ -3,6 +3,7 @@ type Loan @entity {
   account: Bytes!
   amount: BigInt!
   isOpen: Boolean!
+  createdAt: BigInt!
 }
 
 type LoanCreated @entity {
@@ -10,6 +11,7 @@ type LoanCreated @entity {
   loanId: BigInt!
   account: Bytes!
   amount: BigInt!
+  timestamp: BigInt!
 }
 
 type LoanClosed @entity {
@@ -17,4 +19,5 @@ type LoanClosed @entity {
   loanId: BigInt!
   account: Bytes!
   feesPaid: BigInt!
+  timestamp: BigInt!
 }
