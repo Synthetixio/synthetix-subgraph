@@ -7,12 +7,14 @@ type Loan @entity {
 
 type LoanCreated @entity {
   id: ID!
+  loanId: BigInt!
   account: Bytes!
   amount: BigInt!
 }
 
 type LoanClosed @entity {
   id: ID!
+  loanId: BigInt!
   account: Bytes!
   feesPaid: BigInt!
 }
