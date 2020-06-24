@@ -9,7 +9,7 @@ export function handleLoanCreated(event: LoanCreatedEvent): void {
   let loanEntity = new Loan(event.params.loanID.toHex());
   let loanCreatedEntity = new LoanCreated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
 
-  loanEntity.acount = event.params.account;
+  loanEntity.account = event.params.account;
   loanEntity.amount = event.params.amount;
   loanEntity.isOpen = true;
   loanEntity.save();

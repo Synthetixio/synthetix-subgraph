@@ -1,6 +1,6 @@
 type Loan @entity {
   id: ID!
-  acount: Bytes!
+  account: Bytes!
   amount: BigInt!
   isOpen: Boolean!
 }
