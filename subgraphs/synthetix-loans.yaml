@@ -1,0 +1,30 @@
+specVersion: 0.0.2
+description: Synthetix EtherCollateral API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix-loans.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: EtherCollateral
+    network: mainnet
+    source:
+      address: '0x0F3d8ad599Be443A54c7934B433A87464Ed0DFdC'
+      abi: EtherCollateral
+      startBlock: 9518533
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/loans-mapping.ts
+      entities:
+        - Loan
+        - LoanCreated
+        - LoanClosed
+      abis:
+        - name: EtherCollateral
+          file: ../abis/EtherCollateral.json
+      eventHandlers:
+        - event: LoanCreated(indexed address,uint256,uint256)
+          handler: handleLoanCreated
+        - event: LoanClosed(indexed address,uint256,uint256)
+          handler: handleLoanClosed

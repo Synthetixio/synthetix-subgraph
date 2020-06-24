@@ -1,0 +1,18 @@
+type Loan @entity {
+  id: ID!
+  acount: Bytes!
+  amount: BigInt!
+  isOpen: Boolean!
+}
+
+type LoanCreated @entity {
+  id: ID!
+  account: Bytes!
+  amount: BigInt!
+}
+
+type LoanClosed @entity {
+  id: ID!
+  account: Bytes!
+  feesPaid: BigInt!
+}
