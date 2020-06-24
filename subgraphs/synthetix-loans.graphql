@@ -4,6 +4,7 @@ type Loan @entity {
   amount: BigInt!
   isOpen: Boolean!
   createdAt: BigInt!
+  closedAt: BigInt!
 }
 
 type LoanCreated @entity {

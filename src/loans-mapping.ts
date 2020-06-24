@@ -27,6 +27,7 @@ export function handleLoanClosed(event: LoanClosedEvent): void {
   let loanClosedEntity = new LoanClosed(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
 
   loanEntity.isOpen = false;
+  loanEntity.closedAt = event.block.timestamp;
   loanEntity.save();
 
   loanClosedEntity.account = event.params.account;
