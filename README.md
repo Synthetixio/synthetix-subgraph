@@ -12,10 +12,12 @@ Synthetix has four bundled subgraps, all generated from this one repository:
 2. **Exchanges**: synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanges
 3. **Rates**: historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-rates
 4. **Depot**: deposits, withdrawls and successful exchanges in the Depot: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-depot
+5. **Loans**: loans created and closed using EtherCollateral: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-loans
+6. **Binary Options**: Binary options data: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-binary-options
 
 ## To run and deploy locally
 
-For any of the four subgraphs: `snx`, `exchanges`, `rates` and `depot` as `[subgraph]`
+For any of the four subgraphs: `snx`, `exchanges`, `rates`, `depot`, `loans` and `binary-options` as `[subgraph]`
 
 1. Run the `npm run codegen:[subgraph]` task to prepare the TypeScript sources for the GraphQL (generated/schema) and the ABIs (generated/[ABI]/\*)
 2. [Optional] run the `npm run build:[subgraph]` task for the subgraph
