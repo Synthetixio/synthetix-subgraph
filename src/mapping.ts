@@ -261,7 +261,13 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.save();
 }
 
+// skip the 25K SNX recovery from the old grants DAO
+let snxRecoveryTxn = '0x1f862d93373e6d5dbf2438f478c05eac67b2949664bf1b3e6a5b6d5adf92fb3c';
+
 export function handleTransferSNX(event: SNXTransferEvent): void {
+  if (event.transaction.hash.toHex() == snxRecoveryTxn) {
+    return;
+  }
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'SNX';
   entity.from = event.params.from;
