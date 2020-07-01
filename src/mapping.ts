@@ -116,7 +116,12 @@ function trackIssuer(account: Address): void {
   issuer.save();
 }
 
-function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.Block): void {
+function trackSNXHolder(
+  snxContract: Address,
+  account: Address,
+  block: ethereum.Block,
+  txn: ethereum.Transaction,
+): void {
   let holder = account.toHex();
   // ignore escrow accounts
   if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
@@ -142,7 +147,20 @@ function trackSNXHolder(snxContract: Address, account: Address, block: ethereum.
     if (!transferableTry.reverted) {
       snxHolder.transferable = transferableTry.value;
     }
-    let resolverAddress = synthetix.resolver();
+    let resolverTry = synthetix.try_resolver();
+    if (resolverTry.reverted) {
+      // This happened when an old SNX token was reconnected to the old proxy temporarily to recover 25k SNX
+      // from the old grantsDAO:
+      // https://etherscan.io/tx/0x1f862d93373e6d5dbf2438f478c05eac67b2949664bf1b3e6a5b6d5adf92fb3c
+      // https://etherscan.io/tx/0x84b4e312188890d744f6912f1e5d3387e2bf314a335a4418980a938e36b3ef34
+      // In this case, the old Synthetix did not have a resolver property, so let's ignore
+      log.debug('Skipping SNX holder tracking: No resolver property from SNX holder from hash: {}, block: {}', [
+        txn.hash.toHex(),
+        block.number.toString(),
+      ]);
+      return;
+    }
+    let resolverAddress = resolverTry.value;
     let resolver = AddressResolver.bind(resolverAddress);
     let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
     let issuanceData = synthetixState.issuanceData(account);
@@ -261,13 +279,7 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.save();
 }
 
-// skip the 25K SNX recovery from the old grants DAO
-let snxRecoveryTxn = '0x1f862d93373e6d5dbf2438f478c05eac67b2949664bf1b3e6a5b6d5adf92fb3c';
-
 export function handleTransferSNX(event: SNXTransferEvent): void {
-  if (event.transaction.hash.toHex() == snxRecoveryTxn) {
-    return;
-  }
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'SNX';
   entity.from = event.params.from;
@@ -277,8 +289,8 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
-  trackSNXHolder(event.address, event.params.from, event.block);
-  trackSNXHolder(event.address, event.params.to, event.block);
+  trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
+  trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
 }
 
 function trackSynthHolder(contract: Synth, source: string, account: Address, event: SynthTransferEvent): void {
@@ -351,7 +363,7 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   entity.save();
   // now track the SNX holder as this action can impact their collateral
   let synthetixAddress = contract.synthetix();
-  trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block);
+  trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block, event.transaction);
 }
 
 export function handleIssuedSynths(event: IssuedEvent): void {
@@ -413,7 +425,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   trackIssuer(event.transaction.from);
 
   // update SNX holder details
-  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
+  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
   // update Debt snapshot history
   trackDebtSnapshot(event);
 }
@@ -470,7 +482,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.save();
 
   // update SNX holder details
-  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block);
+  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
   // update Debt snapshot history
   trackDebtSnapshot(event);
 }
