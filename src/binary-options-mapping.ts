@@ -94,7 +94,7 @@ export function handleMarketResolved(event: MarketResolvedEvent): void {
   market.save();
 }
 
-export function OptionsClaimed(event: OptionsClaimedEvent): void {
+export function handleOptionsClaimed(event: OptionsClaimedEvent): void {
   let marketEntity = Market.load(event.address.toHex());
   let binaryOptionContract = BinaryOptionMarket.bind(event.address);
   let poolSize = binaryOptionContract.exercisableDeposits();
@@ -103,7 +103,7 @@ export function OptionsClaimed(event: OptionsClaimedEvent): void {
   marketEntity.save();
 }
 
-export function OptionsExercised(event: OptionsExercisedEvent): void {
+export function handleOptionsExercised(event: OptionsExercisedEvent): void {
   let marketEntity = Market.load(event.address.toHex());
   let binaryOptionContract = BinaryOptionMarket.bind(event.address);
   let poolSize = binaryOptionContract.exercisableDeposits();
