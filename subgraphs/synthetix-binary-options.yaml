@@ -26,6 +26,8 @@ dataSources:
       eventHandlers:
         - event: MarketCreated(address,indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
           handler: handleNewMarket
+        - event: MarketExpired(address)
+          handler: handleMarketExpired
 templates:
   - name: BinaryOptionMarket
     kind: ethereum/contract
@@ -53,3 +55,7 @@ templates:
           handler: handleNewPricesUpdate
         - event: MarketResolved(uint8,uint256,uint256,uint256,uint256,uint256)
           handler: handleMarketResolved
+        - event: OptionsClaimed(indexed address,uint256,uint256)
+          handler: handleOptionsClaimed
+        - event: OptionsExercised(indexed address,uint256)
+          handler: handleOptionsExercised
