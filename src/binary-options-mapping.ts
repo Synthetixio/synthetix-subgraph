@@ -1,9 +1,15 @@
-import { MarketCreated as MarketCreatedEvent } from '../generated/BinaryOptionMarketManager/BinaryOptionMarketManager';
+import {
+  MarketCreated as MarketCreatedEvent,
+  MarketExpired as MarketExpiredEvent,
+  MarketExpired,
+} from '../generated/BinaryOptionMarketManager/BinaryOptionMarketManager';
 import {
   Bid as BidEvent,
   Refund as RefundEvent,
   PricesUpdated as PricesUpdatedEvent,
   MarketResolved as MarketResolvedEvent,
+  OptionsClaimed as OptionsClaimedEvent,
+  OptionsExercised as OptionsExercisedEvent,
   BinaryOptionMarket,
 } from '../generated/templates/BinaryOptionMarket/BinaryOptionMarket';
 import { Market, OptionTransaction, HistoricalOptionPrice } from '../generated/schema';
@@ -27,6 +33,12 @@ export function handleNewMarket(event: MarketCreatedEvent): void {
   entity.shortPrice = prices.value1;
   entity.poolSize = binaryOptionContract.exercisableDeposits();
   entity.save();
+}
+
+export function handleMarketExpired(event: MarketExpiredEvent): void {
+  let marketEntity = Market.load(event.params.market.toHex());
+  marketEntity.isOpen = false;
+  marketEntity.save();
 }
 
 export function handleNewBid(event: BidEvent): void {
@@ -80,4 +92,22 @@ export function handleMarketResolved(event: MarketResolvedEvent): void {
   market.result = event.params.result;
   market.poolSize = event.params.deposited;
   market.save();
+}
+
+export function OptionsClaimed(event: OptionsClaimedEvent): void {
+  let marketEntity = Market.load(event.address.toHex());
+  let binaryOptionContract = BinaryOptionMarket.bind(event.address);
+  let poolSize = binaryOptionContract.exercisableDeposits();
+
+  marketEntity.poolSize = poolSize;
+  marketEntity.save();
+}
+
+export function OptionsExercised(event: OptionsExercisedEvent): void {
+  let marketEntity = Market.load(event.address.toHex());
+  let binaryOptionContract = BinaryOptionMarket.bind(event.address);
+  let poolSize = binaryOptionContract.exercisableDeposits();
+
+  marketEntity.poolSize = poolSize;
+  marketEntity.save();
 }
