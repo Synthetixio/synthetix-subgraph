@@ -117,6 +117,7 @@ export function handleMarketsReceived(event: MarketsReceivedEvent): void {
   let marketsReceived = event.params.markets;
   for (let i = 0; i < marketsReceived.length; i++) {
     let market = marketsReceived[i];
+    BinaryOptionMarketContract.create(market);
     let binaryOptionContract = BinaryOptionMarket.bind(market);
     let prices = binaryOptionContract.prices();
     let oracleDetails = binaryOptionContract.oracleDetails();
