@@ -1,7 +1,7 @@
 import {
   MarketCreated as MarketCreatedEvent,
   MarketExpired as MarketExpiredEvent,
-  MarketExpired,
+  MarketCancelled as MarketCancelledEvent,
 } from '../generated/BinaryOptionMarketManager/BinaryOptionMarketManager';
 import {
   Bid as BidEvent,
@@ -109,5 +109,11 @@ export function handleOptionsExercised(event: OptionsExercisedEvent): void {
   let poolSize = binaryOptionContract.exercisableDeposits();
 
   marketEntity.poolSize = poolSize;
+  marketEntity.save();
+}
+
+export function handleMarketCancelled(event: MarketCancelledEvent): void {
+  let marketEntity = Market.load(event.params.market.toHex());
+  marketEntity.isOpen = false;
   marketEntity.save();
 }
