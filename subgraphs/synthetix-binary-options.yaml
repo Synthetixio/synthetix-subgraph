@@ -5,12 +5,36 @@ schema:
   file: ./synthetix-binary-options.graphql
 dataSources:
   - kind: ethereum/contract
+    name: BinaryOptionMarketManager_v1
+    network: mainnet
+    source:
+      address: '0x673e76631981Cb55783527F744e581ABA8Cf406D'
+      abi: BinaryOptionMarketManager
+      startBlock: 10364430
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/binary-options-mapping.ts
+      entities:
+        - Market
+      abis:
+        - name: BinaryOptionMarketManager
+          file: ../abis/BinaryOptionMarketManager_v1.json
+        - name: BinaryOptionMarket
+          file: '../abis/BinaryOptionMarket.json'
+      eventHandlers:
+        - event: MarketCreated(address,indexed address,indexed bytes32,uint256,uint256,uint256,uint256)
+          handler: handleNewMarket
+        - event: MarketExpired(address)
+          handler: handleMarketExpired
+  - kind: ethereum/contract
     name: BinaryOptionMarketManager
     network: mainnet
     source:
       address: '0x8071bA88e58a19176EF007995FB5D9E1Faa73F92'
       abi: BinaryOptionMarketManager
-      startBlock: 10364430
+      startBlock: 10493748
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -28,8 +52,6 @@ dataSources:
           handler: handleNewMarket
         - event: MarketExpired(address)
           handler: handleMarketExpired
-        - event: MarketsReceived(address,address[])
-          handler: handleMarketsReceived
         - event: MarketCancelled(address)
           handler: handleMarketCancelled
 templates:

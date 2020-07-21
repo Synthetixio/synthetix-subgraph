@@ -1,7 +1,6 @@
 import {
   MarketCreated as MarketCreatedEvent,
   MarketExpired as MarketExpiredEvent,
-  MarketsReceived as MarketsReceivedEvent,
   MarketCancelled as MarketCancelledEvent,
 } from '../generated/BinaryOptionMarketManager/BinaryOptionMarketManager';
 import {
@@ -111,35 +110,6 @@ export function handleOptionsExercised(event: OptionsExercisedEvent): void {
 
   marketEntity.poolSize = poolSize;
   marketEntity.save();
-}
-
-export function handleMarketsReceived(event: MarketsReceivedEvent): void {
-  let marketsReceived = event.params.markets;
-  for (let i = 0; i < marketsReceived.length; i++) {
-    let market = marketsReceived[i];
-    BinaryOptionMarketContract.create(market);
-    let binaryOptionContract = BinaryOptionMarket.bind(market);
-    let prices = binaryOptionContract.prices();
-    let oracleDetails = binaryOptionContract.oracleDetails();
-    let times = binaryOptionContract.times();
-    let deposited = binaryOptionContract.exercisableDeposits();
-    let phase = binaryOptionContract.phase();
-
-    let entity = new Market(market.toHex());
-
-    entity.creator = binaryOptionContract.creator();
-    entity.timestamp = event.block.timestamp;
-    entity.currencyKey = oracleDetails.value0;
-    entity.strikePrice = oracleDetails.value1;
-    entity.biddingEndDate = times.value0;
-    entity.maturityDate = times.value1;
-    entity.expiryDate = times.value2;
-    entity.isOpen = phase < 3;
-    entity.longPrice = prices.value0;
-    entity.shortPrice = prices.value1;
-    entity.poolSize = deposited;
-    entity.save();
-  }
 }
 
 export function handleMarketCancelled(event: MarketCancelledEvent): void {

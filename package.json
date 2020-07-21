@@ -31,7 +31,6 @@
     "deploy:exchanges": "npm run deploy -- synthetixio-team/synthetix-exchanges subgraphs/synthetix-exchanges.yaml",
     "deploy:loans": "npm run deploy -- synthetixio-team/synthetix-loans subgraphs/synthetix-loans.yaml",
     "deploy:options": "npm run deploy -- synthetixio-team/synthetix-binary-options subgraphs/synthetix-binary-options.yaml",
-    "deploy:options:kovan": "npm run deploy -- clementbalestrat/binaryOptions subgraphs/synthetix-binary-options.yaml",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
     "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
