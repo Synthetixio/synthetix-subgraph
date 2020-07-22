@@ -97,19 +97,36 @@ export function handleMarketResolved(event: MarketResolvedEvent): void {
 export function handleOptionsClaimed(event: OptionsClaimedEvent): void {
   let marketEntity = Market.load(event.address.toHex());
   let binaryOptionContract = BinaryOptionMarket.bind(event.address);
+  let optionTransactionEntity = new OptionTransaction(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   let poolSize = binaryOptionContract.exercisableDeposits();
 
   marketEntity.poolSize = poolSize;
   marketEntity.save();
+
+  optionTransactionEntity.type = 'claim';
+  optionTransactionEntity.timestamp = event.block.timestamp;
+  optionTransactionEntity.account = event.params.account;
+  optionTransactionEntity.market = event.address;
+  optionTransactionEntity.claimedLong = event.params.longOptions;
+  optionTransactionEntity.claimedShort = event.params.shortOptions;
+  optionTransactionEntity.save();
 }
 
 export function handleOptionsExercised(event: OptionsExercisedEvent): void {
   let marketEntity = Market.load(event.address.toHex());
   let binaryOptionContract = BinaryOptionMarket.bind(event.address);
+  let optionTransactionEntity = new OptionTransaction(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   let poolSize = binaryOptionContract.exercisableDeposits();
 
   marketEntity.poolSize = poolSize;
   marketEntity.save();
+
+  optionTransactionEntity.type = 'exercise';
+  optionTransactionEntity.timestamp = event.block.timestamp;
+  optionTransactionEntity.account = event.params.account;
+  optionTransactionEntity.market = event.address;
+  optionTransactionEntity.amount = event.params.value;
+  optionTransactionEntity.save();
 }
 
 export function handleMarketCancelled(event: MarketCancelledEvent): void {
