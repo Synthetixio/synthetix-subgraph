@@ -17,6 +17,8 @@ type Market @entity {
 enum OptionTransactionType {
   bid
   refund
+  claim
+  exercise
 }
 
 type OptionTransaction @entity {
@@ -24,11 +26,13 @@ type OptionTransaction @entity {
   timestamp: BigInt!
   type: OptionTransactionType!
   account: Bytes!
-  currencyKey: Bytes!
-  side: Int!
-  amount: BigInt!
   market: Bytes!
+  currencyKey: Bytes
+  side: Int
+  amount: BigInt
   fee: BigInt
+  claimedLong: BigInt
+  claimedShort: BigInt
 }
 
 type HistoricalOptionPrice @entity {
