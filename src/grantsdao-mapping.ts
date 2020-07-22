@@ -39,7 +39,7 @@ export function handleNewProposal(event: NewProposal): void {
   proposal.save();
 
   // Register proposer's approval
-  let vote = new Vote(proposal.id + '-' + proposal.approvals.plus(ONE).toString());
+  let vote = new Vote(proposal.id + '-' + proposal.voteCount.toString());
   vote.member = proposer.id;
   vote.proposal = proposal.id;
   vote.approve = true;
@@ -67,7 +67,7 @@ export function handleVoteProposal(event: VoteProposal): void {
 
     let member = getMember(event.params.member);
 
-    let vote = new Vote(proposal.id + '-' + proposal.approvals.plus(ONE).toString());
+    let vote = new Vote(proposal.id + '-' + proposal.voteCount.plus(ONE).toString());
     vote.member = member.id;
     vote.proposal = proposal.id;
     vote.approve = event.params.vote;
