@@ -27,12 +27,10 @@ type OptionTransaction @entity {
   type: OptionTransactionType!
   account: Bytes!
   market: Bytes!
+  amount: BigInt!
   currencyKey: Bytes
   side: Int
-  amount: BigInt
   fee: BigInt
-  claimedLong: BigInt
-  claimedShort: BigInt
 }
 
 type HistoricalOptionPrice @entity {
