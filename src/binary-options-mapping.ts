@@ -98,10 +98,10 @@ export function handleOptionsClaimed(event: OptionsClaimedEvent): void {
   let marketEntity = Market.load(event.address.toHex());
   let binaryOptionContract = BinaryOptionMarket.bind(event.address);
   let optionTransactionEntityLong = new OptionTransaction(
-    `${event.transaction.hash.toHex()}-${event.logIndex.toString()}-0`,
+    event.transaction.hash.toHex() + '-' + event.logIndex.toString() + '-0',
   );
   let optionTransactionEntityShort = new OptionTransaction(
-    `${event.transaction.hash.toHex()}-${event.logIndex.toString()}-1`,
+    event.transaction.hash.toHex() + '-' + event.logIndex.toString() + '-1',
   );
   let poolSize = binaryOptionContract.exercisableDeposits();
 
