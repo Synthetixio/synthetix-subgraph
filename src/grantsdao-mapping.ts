@@ -1,10 +1,15 @@
-import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts';
+import { Address, BigInt, dataSource, ethereum, log, store } from '@graphprotocol/graph-ts';
 
 import {
+  AddCommunityMemberCall,
+  AddTeamMemberCall,
   DeleteProposal,
   ExecuteProposal,
   GrantsDAO,
   NewProposal,
+  RemoveCommunityMemberCall,
+  RemoveTeamMemberCall,
+  UpdateToPassCall,
   VoteProposal,
 } from '../generated/GrantsDAO/GrantsDAO';
 
@@ -15,7 +20,7 @@ import { toDecimal, ZERO, ONE } from './common';
 export function handleNewProposal(event: NewProposal): void {
   let dao = GrantsDAO.bind(event.address);
 
-  let system = getSystemInfo(event);
+  let system = getSystemInfo(event.block, event.transaction);
 
   // Register new proposal
   let proposalData = dao.proposals(event.params.proposalNumber);
@@ -39,7 +44,7 @@ export function handleNewProposal(event: NewProposal): void {
   proposal.save();
 
   // Register proposer's approval
-  let vote = new Vote(proposal.id + '-' + proposal.voteCount.toString());
+  let vote = new Vote(proposal.id + '-' + proposer.id);
   vote.member = proposer.id;
   vote.proposal = proposal.id;
   vote.approve = true;
@@ -62,12 +67,14 @@ export function handleVoteProposal(event: VoteProposal): void {
   let proposal = Proposal.load(event.params.proposal.toString());
 
   if (proposal != null) {
+    let system = getSystemInfo(event.block, event.transaction);
+
     let dao = GrantsDAO.bind(event.address);
     let completeProposals = dao.getCompleteProposals();
 
     let member = getMember(event.params.member);
 
-    let vote = new Vote(proposal.id + '-' + proposal.voteCount.plus(ONE).toString());
+    let vote = new Vote(proposal.id + '-' + member.id);
     vote.member = member.id;
     vote.proposal = proposal.id;
     vote.approve = event.params.vote;
@@ -99,7 +106,6 @@ export function handleVoteProposal(event: VoteProposal): void {
     member.save();
 
     // Update entities summary
-    let system = getSystemInfo(event);
     system.voteCount = system.voteCount.plus(ONE);
 
     if (proposal.status == 'COMPLETED') {
@@ -126,7 +132,7 @@ export function handleExecuteProposal(event: ExecuteProposal): void {
   tribute.transaction = event.transaction.hash;
   tribute.save();
 
-  let system = getSystemInfo(event);
+  let system = getSystemInfo(event.block, event.transaction);
   system.totalExecuted = system.totalExecuted.plus(tribute.amount);
   system.save();
 }
@@ -146,6 +152,90 @@ export function handleDeleteProposal(event: DeleteProposal): void {
   }
 }
 
+export function handleAddCommunityMember(call: AddCommunityMemberCall): void {
+  let system = getSystemInfo(call.block, call.transaction);
+
+  // Register member
+  createMember(call.inputs._member, 'COMMUNITY');
+  system.communityMemberCount = system.communityMemberCount.plus(ONE);
+
+  system.save();
+}
+
+export function handleRemoveCommunityMember(call: RemoveCommunityMemberCall): void {
+  let system = getSystemInfo(call.block, call.transaction);
+
+  // Remove member
+  removeMember(call.inputs._member);
+  system.communityMemberCount = system.communityMemberCount.minus(ONE);
+
+  // Remove member's votes from proposals
+  call.inputs._proposals.forEach(proposalNumber => {
+    let proposal = Proposal.load(proposalNumber.toString());
+
+    if (proposal != null) {
+      let system = getSystemInfo(call.block, call.transaction);
+
+      store.remove('Vote', proposal.id + '-' + call.inputs._member.toHexString());
+
+      proposal.voteCount = proposal.voteCount.minus(ONE);
+      proposal.save();
+
+      system.voteCount = system.voteCount.minus(ONE);
+      system.save();
+    }
+  });
+}
+
+export function handleAddTeamMember(call: AddTeamMemberCall): void {
+  let system = getSystemInfo(call.block, call.transaction);
+
+  // Register member
+  createMember(call.inputs._member, 'TEAM');
+
+  system.teamMemberCount = system.teamMemberCount.plus(ONE);
+  system.save();
+}
+
+export function handleRemoveTeamMember(call: RemoveTeamMemberCall): void {
+  let system = getSystemInfo(call.block, call.transaction);
+
+  // Remove member
+  removeMember(call.inputs._member);
+
+  system.teamMemberCount = system.teamMemberCount.minus(ONE);
+  system.save();
+}
+
+export function handleUpdateToPass(call: UpdateToPassCall): void {
+  let system = getSystemInfo(call.block, call.transaction);
+
+  system.votesToPass = call.inputs._toPass;
+  system.save();
+}
+
+function createMember(address: Address, type: string): Member {
+  let account = getOrCreatedAccount(address);
+
+  let member = new Member(address.toHexString());
+  member.account = account.id;
+  member.type = type;
+  member.proposalCount = ZERO;
+  member.voteCount = ZERO;
+  member.save();
+
+  return member;
+}
+
+function getMember(address: Address): Member {
+  return Member.load(address.toHexString()) as Member;
+}
+
+function removeMember(address: Address): void {
+  store.remove('Member', address.toHexString());
+  log.warning('Member {} removed', [address.toHexString()]);
+}
+
 function getOrCreatedAccount(address: Address): Account {
   let account = Account.load(address.toHexString());
 
@@ -160,78 +250,59 @@ function getOrCreatedAccount(address: Address): Account {
   return account as Account;
 }
 
-function getMember(address: Address): Member {
-  return Member.load(address.toHexString()) as Member;
-}
+function getSystemInfo(block: ethereum.Block, transaction: ethereum.Transaction): SystemInfo {
+  let dao = GrantsDAO.bind(dataSource.address());
 
-function getSystemInfo(event: ethereum.Event): SystemInfo {
-  let dao = GrantsDAO.bind(event.address);
+  let state = SystemInfo.load('current');
 
-  let info = SystemInfo.load('current');
-
-  if (info == null) {
-    // Register community members
+  if (state == null) {
     let communityMembers = dao.getCommunityMembers();
+    let teamMembers = dao.getTeamMembers();
 
+    // Register community members
     communityMembers.forEach(address => {
-      let account = getOrCreatedAccount(address);
-
-      let member = new Member(address.toHexString());
-      member.account = account.id;
-      member.type = 'COMMUNITY';
-      member.proposalCount = ZERO;
-      member.voteCount = ZERO;
-      member.save();
+      createMember(address, 'COMMUNITY');
     });
 
     // Register team members
-    let teamMembers = dao.getTeamMembers();
-
     teamMembers.forEach(address => {
-      let account = getOrCreatedAccount(address);
-
-      let member = new Member(address.toHexString());
-      member.account = account.id;
-      member.type = 'TEAM';
-      member.proposalCount = ZERO;
-      member.voteCount = ZERO;
-      member.save();
+      createMember(address, 'TEAM');
     });
 
     // Create initial system summary entity
-    info = new SystemInfo('current');
+    state = new SystemInfo('current');
 
-    info.votesToPass = dao.toPass();
-    info.votingPhaseDuration = dao.VOTING_PHASE();
+    state.votesToPass = dao.toPass();
+    state.votingPhaseDuration = dao.VOTING_PHASE();
 
-    info.memberCount = BigInt.fromI32(communityMembers.length + teamMembers.length);
-    info.communityMemberCount = BigInt.fromI32(communityMembers.length);
-    info.teamMemberCount = BigInt.fromI32(teamMembers.length);
+    state.memberCount = BigInt.fromI32(communityMembers.length + teamMembers.length);
+    state.communityMemberCount = BigInt.fromI32(communityMembers.length);
+    state.teamMemberCount = BigInt.fromI32(teamMembers.length);
 
-    info.proposalCount = ZERO;
-    info.completedProposalCount = ZERO;
+    state.proposalCount = ZERO;
+    state.completedProposalCount = ZERO;
 
-    info.voteCount = ZERO;
+    state.voteCount = ZERO;
 
-    info.totalBalance = ZERO.toBigDecimal();
-    info.totalExecuted = ZERO.toBigDecimal();
+    state.totalBalance = ZERO.toBigDecimal();
+    state.totalExecuted = ZERO.toBigDecimal();
 
-    info.updatedAt = event.block.timestamp;
-    info.updatedAtBlock = event.block.number;
-    info.updatedAtTransaction = event.transaction.hash;
+    state.updatedAt = block.timestamp;
+    state.updatedAtBlock = block.number;
+    state.updatedAtTransaction = transaction.hash;
 
-    info.save();
+    state.save();
   }
 
   let totalBalance = dao.try_totalBalance();
 
-  if (!totalBalance.reverted) {
-    info.totalBalance = toDecimal(totalBalance.value);
+  if (!totalBalance.reverted && totalBalance.value != null) {
+    state.totalBalance = toDecimal(totalBalance.value);
   }
 
-  info.updatedAt = event.block.timestamp;
-  info.updatedAtBlock = event.block.number;
-  info.updatedAtTransaction = event.transaction.hash;
+  state.updatedAt = block.timestamp;
+  state.updatedAtBlock = block.number;
+  state.updatedAtTransaction = transaction.hash;
 
-  return info as SystemInfo;
+  return state as SystemInfo;
 }

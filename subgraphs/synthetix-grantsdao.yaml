@@ -30,3 +30,16 @@ dataSources:
           handler: handleExecuteProposal
         - event: DeleteProposal(uint256)
           handler: handleDeleteProposal
+      callHandlers:
+        - function: addCommunityMember(address)
+          handler: handleAddCommunityMember
+        - function: removeCommunityMember(address,uint256[])
+          handler: handleRemoveCommunityMember
+        - function: addTeamMember(address)
+          handler: handleAddTeamMember
+        - function: removeTeamMember(address)
+          handler: handleRemoveTeamMember
+        - function: updateToPass(uint256)
+          handler: handleUpdateToPass
+        - function: updateToPass(uint256)
+          handler: handleUpdateToPass
