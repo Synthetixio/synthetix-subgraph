@@ -97,19 +97,32 @@ export function handleMarketResolved(event: MarketResolvedEvent): void {
 export function handleOptionsClaimed(event: OptionsClaimedEvent): void {
   let marketEntity = Market.load(event.address.toHex());
   let binaryOptionContract = BinaryOptionMarket.bind(event.address);
-  let optionTransactionEntity = new OptionTransaction(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let optionTransactionEntityLong = new OptionTransaction(
+    `${event.transaction.hash.toHex()}-${event.logIndex.toString()}-0`,
+  );
+  let optionTransactionEntityShort = new OptionTransaction(
+    `${event.transaction.hash.toHex()}-${event.logIndex.toString()}-1`,
+  );
   let poolSize = binaryOptionContract.exercisableDeposits();
 
   marketEntity.poolSize = poolSize;
   marketEntity.save();
 
-  optionTransactionEntity.type = 'claim';
-  optionTransactionEntity.timestamp = event.block.timestamp;
-  optionTransactionEntity.account = event.params.account;
-  optionTransactionEntity.market = event.address;
-  optionTransactionEntity.claimedLong = event.params.longOptions;
-  optionTransactionEntity.claimedShort = event.params.shortOptions;
-  optionTransactionEntity.save();
+  optionTransactionEntityLong.type = 'claim';
+  optionTransactionEntityLong.timestamp = event.block.timestamp;
+  optionTransactionEntityLong.account = event.params.account;
+  optionTransactionEntityLong.market = event.address;
+  optionTransactionEntityLong.amount = event.params.longOptions;
+  optionTransactionEntityLong.side = 0;
+  optionTransactionEntityLong.save();
+
+  optionTransactionEntityShort.type = 'claim';
+  optionTransactionEntityShort.timestamp = event.block.timestamp;
+  optionTransactionEntityShort.account = event.params.account;
+  optionTransactionEntityShort.market = event.address;
+  optionTransactionEntityShort.amount = event.params.shortOptions;
+  optionTransactionEntityLong.side = 1;
+  optionTransactionEntityShort.save();
 }
 
 export function handleOptionsExercised(event: OptionsExercisedEvent): void {
