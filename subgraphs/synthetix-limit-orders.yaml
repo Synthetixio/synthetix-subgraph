@@ -1,0 +1,30 @@
+specVersion: 0.0.2
+description: Synthetix Binary Options API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix-limit-orders.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LimitOrders
+    network: rinkeby
+    source:
+      address: '0xF771A01C488c24F7755Ad1824650D3e243B65A9c'
+      abi: LimitOrders
+      startBlock: 6567478
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/limit-orders-mapping.ts
+      entities:
+        - LimitOrder
+      abis:
+        - name: LimitOrders
+          file: ../abis/LimitOrders.json
+      eventHandlers:
+        - event: Order(indexed uint256,indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256)
+          handler: handleNewOrder
+        - event: Cancel(indexed uint256)
+          handler: handleOrderCancellation
+        - event: Execute(indexed uint256,indexed address,address)
+          handler: handleOrderExecution

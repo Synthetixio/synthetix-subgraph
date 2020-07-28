@@ -1,0 +1,17 @@
+enum StatusType {
+  pending
+  filled
+  cancelled
+}
+
+type LimitOrder @entity {
+  id: ID!
+  timestamp: BigInt!
+  submitter: Bytes!
+  sourceCurrencyKey: Bytes!
+  destinationCurrencyKey: Bytes!
+  minDestinationAmount: BigInt!
+  executionFee: BigInt!
+  deposit: BigInt!
+  status: StatusType!
+}
