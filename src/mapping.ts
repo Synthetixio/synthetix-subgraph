@@ -127,15 +127,10 @@ function trackSNXHolder(
   if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
     return;
   }
-  let existingSNXHolder = SNXHolder.load(account.toHex());
-  let snxHolder = new SNXHolder(account.toHex());
+  let existingSNXHolder = SNXHolder.load(holder);
+  let snxHolder = new SNXHolder(holder);
   snxHolder.block = block.number;
   snxHolder.timestamp = block.timestamp;
-  if (existingSNXHolder == null && snxHolder.balanceOf > BigInt.fromI32(0)) {
-    incrementMetadata('snxHolders');
-  } else if (existingSNXHolder != null && snxHolder.balanceOf == BigInt.fromI32(0)) {
-    decrementMetadata('snxHolders');
-  }
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
   if (block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
@@ -232,6 +227,15 @@ function trackSNXHolder(
   } else {
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     snxHolder.balanceOf = synthetix.balanceOf(account);
+  }
+
+  if (
+    (existingSNXHolder == null && snxHolder.balanceOf > BigInt.fromI32(0)) ||
+    (existingSNXHolder != null && existingSNXHolder.balanceOf == BigInt.fromI32(0) && snxHolder.balanceOf > BigInt.fromI32(0))
+  ) {
+    incrementMetadata('snxHolders');
+  } else if (existingSNXHolder != null && existingSNXHolder.balanceOf > BigInt.fromI32(0) && snxHolder.balanceOf == BigInt.fromI32(0)) {
+    decrementMetadata('snxHolders');
   }
 
   snxHolder.save();
