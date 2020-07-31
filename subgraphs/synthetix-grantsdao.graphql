@@ -35,10 +35,10 @@ type SystemInfo @entity {
   " Total number of members registered "
   memberCount: BigInt!
 
-  " Number of community members registered "
+  " Number of active community members "
   communityMemberCount: BigInt!
 
-  " Number of team members registered "
+  " Number of active team members "
   teamMemberCount: BigInt!
 
   " Total number of proposals created "
@@ -118,14 +118,14 @@ type Proposal @entity {
   " Transaction hash in which this proposal was last modified "
   modifiedAtTransaction: Bytes
 
-  " Timestamp of the block in which this proposal was deleted [seconds] "
-  deletedAt: BigInt
+  " Timestamp of the block in which this proposal was removed [seconds] "
+  removedAt: BigInt
 
-  " Block number in which this proposal was deleted "
-  deletedAtBlock: BigInt
+  " Block number in which this proposal was removed "
+  removedAtBlock: BigInt
 
-  " Transaction hash in which this proposal was deleted "
-  deletedAtTransaction: Bytes
+  " Transaction hash in which this proposal was removed "
+  removedAtTransaction: Bytes
 
   " Votes associated to this proposal "
   votes: [Vote!] @derivedFrom(field: "proposal")
@@ -153,6 +153,15 @@ type Member @entity {
 
   " Number of votes submitted by the member "
   voteCount: BigInt!
+
+  " Timestamp of the block in which this member was removed [seconds] "
+  removedAt: BigInt
+
+  " Block number in which this member was removed "
+  removedAtBlock: BigInt
+
+  " Transaction hash in which this member was removed "
+  removedAtTransaction: Bytes
 
   " Member's proposals "
   proposals: [Proposal!] @derivedFrom(field: "proposer")

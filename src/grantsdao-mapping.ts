@@ -1,4 +1,4 @@
-import { Address, BigInt, dataSource, ethereum, log, store } from '@graphprotocol/graph-ts';
+import { Address, BigInt, dataSource, ethereum, store } from '@graphprotocol/graph-ts';
 
 import {
   AddCommunityMemberCall,
@@ -145,9 +145,14 @@ export function handleDeleteProposal(event: DeleteProposal): void {
       proposal.status = 'REJECTED';
     }
 
-    proposal.deletedAt = event.block.timestamp;
-    proposal.deletedAtBlock = event.block.number;
-    proposal.deletedAtTransaction = event.transaction.hash;
+    proposal.modifiedAt = event.block.timestamp;
+    proposal.modifiedAtBlock = event.block.number;
+    proposal.modifiedAtTransaction = event.transaction.hash;
+
+    proposal.removedAt = event.block.timestamp;
+    proposal.removedAtBlock = event.block.number;
+    proposal.removedAtTransaction = event.transaction.hash;
+
     proposal.save();
   }
 }
@@ -157,6 +162,8 @@ export function handleAddCommunityMember(call: AddCommunityMemberCall): void {
 
   // Register member
   createMember(call.inputs._member, 'COMMUNITY');
+
+  system.memberCount = system.memberCount.plus(ONE);
   system.communityMemberCount = system.communityMemberCount.plus(ONE);
 
   system.save();
@@ -166,8 +173,14 @@ export function handleRemoveCommunityMember(call: RemoveCommunityMemberCall): vo
   let system = getSystemInfo(call.block, call.transaction);
 
   // Remove member
-  removeMember(call.inputs._member);
+  let member = getMember(call.inputs._member);
+  member.removedAt = call.block.timestamp;
+  member.removedAtBlock = call.block.number;
+  member.removedAtTransaction = call.transaction.hash;
+  member.save();
+
   system.communityMemberCount = system.communityMemberCount.minus(ONE);
+  system.save();
 
   // Remove member's votes from proposals
   call.inputs._proposals.forEach(proposalNumber => {
@@ -193,7 +206,9 @@ export function handleAddTeamMember(call: AddTeamMemberCall): void {
   // Register member
   createMember(call.inputs._member, 'TEAM');
 
+  system.memberCount = system.memberCount.plus(ONE);
   system.teamMemberCount = system.teamMemberCount.plus(ONE);
+
   system.save();
 }
 
@@ -201,7 +216,11 @@ export function handleRemoveTeamMember(call: RemoveTeamMemberCall): void {
   let system = getSystemInfo(call.block, call.transaction);
 
   // Remove member
-  removeMember(call.inputs._member);
+  let member = getMember(call.inputs._member);
+  member.removedAt = call.block.timestamp;
+  member.removedAtBlock = call.block.number;
+  member.removedAtTransaction = call.transaction.hash;
+  member.save();
 
   system.teamMemberCount = system.teamMemberCount.minus(ONE);
   system.save();
@@ -229,11 +248,6 @@ function createMember(address: Address, type: string): Member {
 
 function getMember(address: Address): Member {
   return Member.load(address.toHexString()) as Member;
-}
-
-function removeMember(address: Address): void {
-  store.remove('Member', address.toHexString());
-  log.warning('Member {} removed', [address.toHexString()]);
 }
 
 function getOrCreatedAccount(address: Address): Account {
