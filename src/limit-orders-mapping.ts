@@ -8,8 +8,10 @@ import { LimitOrder } from '../generated/schema';
 
 export function handleNewOrder(event: OrderEvent): void {
   let orderEntity = new LimitOrder(event.params.orderID.toHex());
+  orderEntity.hash = event.transaction.hash;
   orderEntity.timestamp = event.block.timestamp;
   orderEntity.submitter = event.params.submitter;
+  orderEntity.sourceAmount = event.params.sourceAmount;
   orderEntity.sourceCurrencyKey = event.params.sourceCurrencyKey;
   orderEntity.destinationCurrencyKey = event.params.destinationCurrencyKey;
   orderEntity.minDestinationAmount = event.params.minDestinationAmount;
@@ -23,6 +25,7 @@ export function handleNewOrder(event: OrderEvent): void {
 export function handleOrderCancellation(event: CancelEvent): void {
   let orderEntity = LimitOrder.load(event.params.orderID.toHex());
   orderEntity.status = 'cancelled';
+  orderEntity.hash = event.transaction.hash;
 
   orderEntity.save();
 }
@@ -30,6 +33,7 @@ export function handleOrderCancellation(event: CancelEvent): void {
 export function handleOrderExecution(event: ExecuteEvent): void {
   let orderEntity = LimitOrder.load(event.params.orderID.toHex());
   orderEntity.status = 'filled';
+  orderEntity.hash = event.transaction.hash;
 
   orderEntity.save();
 }

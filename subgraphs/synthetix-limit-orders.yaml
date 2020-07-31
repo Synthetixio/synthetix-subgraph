@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: LimitOrders
-    network: rinkeby
+    network: kovan
     source:
-      address: '0xF771A01C488c24F7755Ad1824650D3e243B65A9c'
+      address: '0xc9c7613845A0c26169288C30eEF2604BeBf3A962'
       abi: LimitOrders
-      startBlock: 6567478
+      startBlock: 19897906
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

@@ -6,9 +6,11 @@ enum StatusType {
 
 type LimitOrder @entity {
   id: ID!
+  hash: Bytes!
   timestamp: BigInt!
   submitter: Bytes!
   sourceCurrencyKey: Bytes!
+  sourceAmount: BigInt!
   destinationCurrencyKey: Bytes!
   minDestinationAmount: BigInt!
   executionFee: BigInt!
