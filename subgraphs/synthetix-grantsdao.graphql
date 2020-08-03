@@ -32,7 +32,7 @@ type SystemInfo @entity {
   # Summary entities
   #
 
-  " Total number of members registered "
+  " Total number of active members "
   memberCount: BigInt!
 
   " Number of active community members "

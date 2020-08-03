@@ -179,6 +179,7 @@ export function handleRemoveCommunityMember(call: RemoveCommunityMemberCall): vo
   member.removedAtTransaction = call.transaction.hash;
   member.save();
 
+  system.memberCount = system.memberCount.minus(ONE);
   system.communityMemberCount = system.communityMemberCount.minus(ONE);
   system.save();
 
@@ -222,6 +223,7 @@ export function handleRemoveTeamMember(call: RemoveTeamMemberCall): void {
   member.removedAtTransaction = call.transaction.hash;
   member.save();
 
+  system.memberCount = system.memberCount.minus(ONE);
   system.teamMemberCount = system.teamMemberCount.minus(ONE);
   system.save();
 }
