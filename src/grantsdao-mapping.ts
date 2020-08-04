@@ -161,11 +161,23 @@ export function handleAddCommunityMember(call: AddCommunityMemberCall): void {
   let system = getSystemInfo(call.block, call.transaction);
 
   // Register member
-  createMember(call.inputs._member, 'COMMUNITY');
+  let member = getMember(call.inputs._member);
 
+  if (member == null) {
+    // New member to register
+    member = createMember(call.inputs._member, 'COMMUNITY');
+  } else {
+    // Member was previously registered
+    member.removedAt = null;
+    member.removedAtBlock = null;
+    member.removedAtTransaction = null;
+  }
+
+  member.save();
+
+  // Update entities summary
   system.memberCount = system.memberCount.plus(ONE);
   system.communityMemberCount = system.communityMemberCount.plus(ONE);
-
   system.save();
 }
 
@@ -205,11 +217,23 @@ export function handleAddTeamMember(call: AddTeamMemberCall): void {
   let system = getSystemInfo(call.block, call.transaction);
 
   // Register member
-  createMember(call.inputs._member, 'TEAM');
+  let member = getMember(call.inputs._member);
 
+  if (member == null) {
+    // New member to register
+    member = createMember(call.inputs._member, 'TEAM');
+  } else {
+    // Member was previously registered
+    member.removedAt = null;
+    member.removedAtBlock = null;
+    member.removedAtTransaction = null;
+  }
+
+  member.save();
+
+  // Update entities summary
   system.memberCount = system.memberCount.plus(ONE);
   system.teamMemberCount = system.teamMemberCount.plus(ONE);
-
   system.save();
 }
 
@@ -243,7 +267,6 @@ function createMember(address: Address, type: string): Member {
   member.type = type;
   member.proposalCount = ZERO;
   member.voteCount = ZERO;
-  member.save();
 
   return member;
 }
@@ -277,12 +300,12 @@ function getSystemInfo(block: ethereum.Block, transaction: ethereum.Transaction)
 
     // Register community members
     communityMembers.forEach(address => {
-      createMember(address, 'COMMUNITY');
+      createMember(address, 'COMMUNITY').save();
     });
 
     // Register team members
     teamMembers.forEach(address => {
-      createMember(address, 'TEAM');
+      createMember(address, 'TEAM').save();
     });
 
     // Create initial system summary entity
