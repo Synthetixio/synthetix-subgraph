@@ -1,0 +1,24 @@
+type ExchangeEntrySettled @entity {
+  id: ID!
+  from: Bytes!
+  src: Bytes!
+  amount: BigInt!
+  dest: Bytes!
+  reclaim: BigInt!
+  rebate: BigInt!
+  srcRoundIdAtPeriodEnd: BigInt!
+  destRoundIdAtPeriodEnd: BigInt!
+  exchangeTimestamp: BigInt!
+}
+
+type ExchangeEntryAppended @entity {
+  id: ID!
+  account: Bytes!
+  src: Bytes!
+  amount: BigInt!
+  dest: Bytes!
+  amountReceived: BigInt!
+  exchangeFeeRate: BigInt!
+  roundIdForSrc: BigInt!
+  roundIdForDest: BigInt!
+}

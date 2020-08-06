@@ -1,0 +1,27 @@
+specVersion: 0.0.2
+description: Synthetix Exchanger API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix-exchanger.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Exchanger
+    network: mainnet
+    source:
+      address: '0x439502C922ADA61FE49329248B7A8ecb31C0b329'
+      abi: Exchanger
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanger-mapping.ts
+      entities:
+        - ExchangeEntrySettled
+      abis:
+        - name: Exchanger
+          file: ../abis/Exchanger.json
+      eventHandlers:
+        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntrySettled
+        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntryAppended
