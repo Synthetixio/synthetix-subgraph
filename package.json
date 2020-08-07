@@ -18,6 +18,7 @@
     "codegen:loans": "npm run codegen -- subgraphs/synthetix-loans.yaml",
     "codegen:options": "npm run codegen -- subgraphs/synthetix-binary-options.yaml",
     "codegen:orders": "npm run codegen -- subgraphs/synthetix-limit-orders.yaml",
+    "codegen:exchanger": "npm run codegen -- subgraphs/synthetix-exchanger.yaml",
     "build": "graph build",
     "build:snx": "graph build subgraphs/synthetix.yaml",
     "build:rates": "graph build subgraphs/synthetix-rates.yaml",
@@ -26,6 +27,7 @@
     "build:loans": "graph build subgraphs/synthetix-loans.yaml",
     "build:options": "graph build subgraphs/synthetix-binary-options.yaml",
     "build:orders": "graph build subgraphs/synthetix-limit-orders.yaml",
+    "build:exchanger": "graph build subgraphs/synthetix-exchanger.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
     "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
     "deploy:rates": "npm run deploy -- synthetixio-team/synthetix-rates subgraphs/synthetix-rates.yaml",
@@ -34,6 +36,7 @@
     "deploy:loans": "npm run deploy -- synthetixio-team/synthetix-loans subgraphs/synthetix-loans.yaml",
     "deploy:options": "npm run deploy -- synthetixio-team/synthetix-binary-options subgraphs/synthetix-binary-options.yaml",
     "deploy:orders": "npm run deploy -- synthetixio-team/synthetix-limit-orders subgraphs/synthetix-limit-orders.yaml",
+    "deploy:exchanger": "npm run deploy -- synthetixio-team/synthetix-exchanger subgraphs/synthetix-exchanger.yaml",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
     "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
@@ -43,7 +46,7 @@
     "@graphprotocol/graph-ts": "0.18.1",
     "chalk": "2.4.2",
     "commander": "2.20.0",
-    "synthetix": "2.24.0"
+    "synthetix": "2.26.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "2.28.0",
