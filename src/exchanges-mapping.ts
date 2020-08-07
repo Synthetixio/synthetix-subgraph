@@ -9,7 +9,7 @@ import { ExchangeRates } from '../generated/Synthetix/ExchangeRates';
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
 import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
-import { 
+import {
   Total,
   DailyTotal,
   FifteenMinuteTotal,
@@ -52,7 +52,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) >= 0) {
     return;
   }
-  
+
   let account = event.transaction.from
   let fromAmountInUSD = BigInt.fromI32(0);
   let toAmountInUSD = BigInt.fromI32(0);
@@ -172,9 +172,9 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
 
   if (fromAmountInUSD != null && feesInUSD != null) {
-    total = addTotalFeesAndVolume(total, fromAmountInUSD, feesInUSD);
-    dailyTotal = addDailyTotalFeesAndVolume(dailyTotal, fromAmountInUSD, feesInUSD);
-    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(fifteenMinuteTotal, fromAmountInUSD, feesInUSD);
+    total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
+    dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
+    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(fifteenMinuteTotal as FifteenMinuteTotal, fromAmountInUSD, feesInUSD);
   }
   total.save();
   dailyTotal.save();
