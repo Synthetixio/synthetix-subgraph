@@ -164,21 +164,16 @@ function trackSNXHolder(
     // Note: due to limitations with how The Graph deals with chain reorgs, we need to try_debtLedger
     /*
         From Jannis at The Graph:
-
         graph-node currently makes contract calls by block number (that used to be the only way
         to do it and we haven't switched to calling by block hash yet). If there is a reorg,
         this may lead to making calls against a different block than expected.
-
         If the subgraph doesn't fail on such a call, the resulting data should be reverted as
         soon as the reorg is detected (e.g. when processing the next block). It can temporarily
         cause inconsistent data until that happens.
-
         However, if such a call fails (e.g. you're expecting an array to have grown by one but
         in the fork of the chain it hasn't and the call doesn't use try_), then this can cause
         the subgraph to fail.
-
         Here's what happens during a reorg:
-
         - Block 0xa (block number 100) is being processed.
         - A handler makes a try_debtLedger call against block number 100 but hits block 0xb instead of 0xa.
         - The result gets written to the store marked with block 0xa (because that's what we're processing).
