@@ -135,20 +135,6 @@
         "internalType": "address",
         "name": "market",
         "type": "address"
-      }
-    ],
-    "name": "MarketCancelled",
-    "type": "event",
-    "signature": "0x996fafab197beb99fff6fdc975bb6cf90352f2c733c76ef37c2e27f17d7d424b"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "market",
-        "type": "address"
       },
       {
         "indexed": true,
@@ -485,22 +471,6 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
-        "name": "market",
-        "type": "address"
-      }
-    ],
-    "name": "cancelMarket",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xfe40c470"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "oracleKey",
         "type": "bytes32"
@@ -509,11 +479,6 @@
         "internalType": "uint256",
         "name": "strikePrice",
         "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "refundsEnabled",
-        "type": "bool"
       },
       {
         "internalType": "uint256[2]",
@@ -537,7 +502,7 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x94fcf3c3"
+    "signature": "0xd79de07a"
   },
   {
     "constant": true,
