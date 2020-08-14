@@ -545,7 +545,14 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 
 function trackActiveStakers(account: Address, timestamp: BigInt, snxContract: Address, isBurn: boolean): void {
   let synthetix = SNX.bind(snxContract);
-  let accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
+  let accountDebtBalance = BigInt.fromI32(0);
+  let accountDebt = synthetix.try_debtBalanceOf(account, sUSD32);
+  if (!accountDebt.reverted) {
+    accountDebtBalance = accountDebt.value;
+  } else {
+    log.debug('Skipping track active stakers for account: {}, timestamp: {}', [account.toHex(), timestamp.toString()]);
+    return;
+  }
   let dayID = timestamp.toI32() / 86400;
 
   let activeStakers = ActiveStakers.load('1');
