@@ -429,7 +429,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackActiveStakers(event.transaction.from, event.block.timestamp, event.transaction.to as Address, false);
+  trackActiveStakers(event, false);
 
   // track this issuer for reference
   trackIssuer(event.transaction.from);
@@ -491,7 +491,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackActiveStakers(event.transaction.from, event.block.timestamp, event.transaction.to as Address, true);
+  trackActiveStakers(event, true);
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
@@ -543,10 +543,21 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.save();
 }
 
-function trackActiveStakers(account: Address, timestamp: BigInt, snxContract: Address, isBurn: boolean): void {
+function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
+  let account = event.transaction.from;
+  let timestamp = event.block.timestamp;
+  let snxContract = event.transaction.to as Address;
   let synthetix = SNX.bind(snxContract);
   let accountDebtBalance = BigInt.fromI32(0);
-  let accountDebt = synthetix.try_debtBalanceOf(account, sUSD32);
+  let accountDebt;
+
+  if (event.block.number > v2100UpgradeBlock) {
+    accountDebt = synthetix.try_debtBalanceOf(account, sUSD32);
+    // Use bytes4
+  } else if (event.block.number > v101UpgradeBlock) {
+    accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
+  }
+
   if (!accountDebt.reverted) {
     accountDebtBalance = accountDebt.value;
   } else {
