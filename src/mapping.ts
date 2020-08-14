@@ -35,9 +35,13 @@ import {
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
+  ActiveStakers,
+  DailyActiveStakers,
+  ActiveStaker,
+  DailyActiveStaker,
 } from '../generated/schema';
 
-import { BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
+import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './common';
 
@@ -110,10 +114,9 @@ function trackIssuer(account: Address): void {
   let existingIssuer = Issuer.load(account.toHex());
   if (existingIssuer == null) {
     incrementMetadata('issuers');
+    let issuer = new Issuer(account.toHex());
+    issuer.save();
   }
-  let issuer = new Issuer(account.toHex());
-
-  issuer.save();
 }
 
 function trackSNXHolder(
@@ -226,10 +229,16 @@ function trackSNXHolder(
 
   if (
     (existingSNXHolder == null && snxHolder.balanceOf > BigInt.fromI32(0)) ||
-    (existingSNXHolder != null && existingSNXHolder.balanceOf == BigInt.fromI32(0) && snxHolder.balanceOf > BigInt.fromI32(0))
+    (existingSNXHolder != null &&
+      existingSNXHolder.balanceOf == BigInt.fromI32(0) &&
+      snxHolder.balanceOf > BigInt.fromI32(0))
   ) {
     incrementMetadata('snxHolders');
-  } else if (existingSNXHolder != null && existingSNXHolder.balanceOf > BigInt.fromI32(0) && snxHolder.balanceOf == BigInt.fromI32(0)) {
+  } else if (
+    existingSNXHolder != null &&
+    existingSNXHolder.balanceOf > BigInt.fromI32(0) &&
+    snxHolder.balanceOf == BigInt.fromI32(0)
+  ) {
     decrementMetadata('snxHolders');
   }
 
@@ -420,6 +429,8 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
+  trackActiveStakers(event.transaction.from, event.block.timestamp, event.transaction.to as Address, false);
+
   // track this issuer for reference
   trackIssuer(event.transaction.from);
 
@@ -480,6 +491,8 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
+  trackActiveStakers(event.transaction.from, event.block.timestamp, event.transaction.to as Address, true);
+
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
   // update Debt snapshot history
@@ -528,4 +541,61 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.timestamp = event.block.timestamp;
 
   entity.save();
+}
+
+function trackActiveStakers(account: Address, timestamp: BigInt, snxContract: Address, isBurn: boolean): void {
+  let synthetix = SNX.bind(snxContract);
+  let accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
+  let dayID = timestamp.toI32() / 86400;
+
+  let activeStakers = ActiveStakers.load('1');
+  let activeStaker = ActiveStaker.load(account.toHex());
+
+  if (activeStakers == null) {
+    activeStakers = loadActiveStakers();
+  }
+
+  if (isBurn && activeStaker != null) {
+    if (accountDebtBalance.toI32() === 0) {
+      activeStakers.count = activeStakers.count.minus(BigInt.fromI32(1));
+      activeStakers.save();
+    }
+  } else if (!isBurn && activeStaker == null) {
+    activeStaker = new ActiveStaker(account.toHex());
+    activeStaker.save();
+    activeStakers.count = activeStakers.count.plus(BigInt.fromI32(1));
+    activeStakers.save();
+  }
+
+  let dailyActiveStakerID = dayID.toString() + '-' + account.toHex();
+  let dailyActiveStaker = DailyActiveStaker.load(dailyActiveStakerID);
+  let dailyActiveStakers = DailyActiveStakers.load(dayID.toString());
+  if (dailyActiveStakers == null) {
+    dailyActiveStakers = loadDailyActiveStakers(dayID.toString());
+  }
+
+  if (isBurn && dailyActiveStaker != null) {
+    if (accountDebtBalance.toI32() === 0) {
+      dailyActiveStakers.count = dailyActiveStakers.count.minus(BigInt.fromI32(1));
+      dailyActiveStakers.save();
+      store.remove('DailyActiveStaker', dailyActiveStakerID);
+    }
+  } else if (!isBurn && dailyActiveStaker == null) {
+    dailyActiveStaker = new DailyActiveStaker(dailyActiveStakerID);
+    dailyActiveStaker.save();
+    dailyActiveStakers.count = dailyActiveStakers.count.plus(BigInt.fromI32(1));
+    dailyActiveStakers.save();
+  }
+}
+
+function loadActiveStakers(): ActiveStakers {
+  let newActiveStakers = new ActiveStakers('1');
+  newActiveStakers.count = BigInt.fromI32(0);
+  return newActiveStakers;
+}
+
+function loadDailyActiveStakers(id: string): DailyActiveStakers {
+  let newDailyActiveStakers = new DailyActiveStakers(id);
+  newDailyActiveStakers.count = BigInt.fromI32(0);
+  return newDailyActiveStakers;
 }
