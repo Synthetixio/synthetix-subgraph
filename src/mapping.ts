@@ -549,21 +549,32 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   let snxContract = event.transaction.to as Address;
   let synthetix = SNX.bind(snxContract);
   let accountDebtBalance = BigInt.fromI32(0);
-  let accountDebt;
 
   if (event.block.number > v2100UpgradeBlock) {
-    accountDebt = synthetix.try_debtBalanceOf(account, sUSD32);
+    let accountDebt = synthetix.try_debtBalanceOf(account, sUSD32);
+    if (!accountDebt.reverted) {
+      accountDebtBalance = accountDebt.value;
+    } else {
+      log.debug('Skipping track active stakers for account: {}, timestamp: {}', [
+        account.toHex(),
+        timestamp.toString(),
+      ]);
+      return;
+    }
     // Use bytes4
   } else if (event.block.number > v101UpgradeBlock) {
-    accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
+    let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
+    if (!accountDebt.reverted) {
+      accountDebtBalance = accountDebt.value;
+    } else {
+      log.debug('Skipping track active stakers for account: {}, timestamp: {}', [
+        account.toHex(),
+        timestamp.toString(),
+      ]);
+      return;
+    }
   }
 
-  if (!accountDebt.reverted) {
-    accountDebtBalance = accountDebt.value;
-  } else {
-    log.debug('Skipping track active stakers for account: {}, timestamp: {}', [account.toHex(), timestamp.toString()]);
-    return;
-  }
   let dayID = timestamp.toI32() / 86400;
 
   let activeStakers = ActiveStakers.load('1');
