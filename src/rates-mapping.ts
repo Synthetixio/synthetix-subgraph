@@ -1,7 +1,7 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
 
-import { RatesUpdated, RateUpdate, AggregatorAnswer } from '../generated/schema';
+import { RatesUpdated, RateUpdate, AggregatorAnswer, LatestRate } from '../generated/schema';
 
 import { ByteArray, Bytes, BigInt } from '@graphprotocol/graph-ts';
 
@@ -27,6 +27,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
     rateEntity.synth = keys[i].toString();
     rateEntity.rate = rates[i];
     rateEntity.save();
+    addLatestRate(rateEntity.synth, rateEntity.rate);
   }
 }
 
@@ -104,5 +105,15 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     rateEntity.synth = entity.synth;
     rateEntity.rate = entity.rate;
     rateEntity.save();
+    addLatestRate(entity.synth, entity.rate);
   }
+}
+
+function addLatestRate(synth: string, rate: BigInt) {
+  let latestRate = LatestRate.load(synth);
+  if (latestRate == null) {
+    latestRate = new LatestRate(synth);
+  }
+  latestRate.rate = rate;
+  latestRate.save();
 }

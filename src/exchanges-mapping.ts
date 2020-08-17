@@ -18,14 +18,14 @@ import {
   DailyExchanger,
   FifteenMinuteExchanger,
   ExchangeReclaim,
-  ExchangeRebate
+  ExchangeRebate,
 } from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
-import { sUSD32, sUSD4, strToBytes } from './common';
+import { sUSD32, sUSD4, strToBytes, getTimeID } from './common';
 
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -53,7 +53,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     return;
   }
 
-  let account = event.transaction.from
+  let account = event.transaction.from;
   let fromAmountInUSD = BigInt.fromI32(0);
   let toAmountInUSD = BigInt.fromI32(0);
   let feesInUSD = BigInt.fromI32(0);
@@ -124,25 +124,23 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.network = 'mainnet';
   entity.save();
 
-  let timestamp = event.block.timestamp.toI32()
-
-  let dayID = timestamp / 86400
-  let fifteenMinuteID = timestamp / 900
+  let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
+  let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
 
   let total = Total.load('mainnet');
-  let dailyTotal = DailyTotal.load(dayID.toString());
-  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString());
+  let dailyTotal = DailyTotal.load(dayID);
+  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID);
 
   if (total == null) {
     total = loadTotal();
   }
 
   if (dailyTotal == null) {
-    dailyTotal = loadDailyTotal(dayID.toString());
+    dailyTotal = loadDailyTotal(dayID);
   }
 
   if (fifteenMinuteTotal == null) {
-    fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID.toString());
+    fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID);
   }
 
   let existingExchanger = Exchanger.load(account.toHex());
@@ -174,7 +172,11 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   if (fromAmountInUSD != null && feesInUSD != null) {
     total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
     dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
-    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(fifteenMinuteTotal as FifteenMinuteTotal, fromAmountInUSD, feesInUSD);
+    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(
+      fifteenMinuteTotal as FifteenMinuteTotal,
+      fromAmountInUSD,
+      feesInUSD,
+    );
   }
   total.save();
   dailyTotal.save();
@@ -243,21 +245,13 @@ function loadFifteenMinuteTotal(id: string): FifteenMinuteTotal {
   return newFifteenMinuteTotal;
 }
 
-function addTotalFeesAndVolume(
-  total: Total,
-  fromAmountInUSD: BigInt,
-  feesInUSD: BigInt
-): Total {
+function addTotalFeesAndVolume(total: Total, fromAmountInUSD: BigInt, feesInUSD: BigInt): Total {
   total.exchangeUSDTally = total.exchangeUSDTally.plus(fromAmountInUSD);
   total.totalFeesGeneratedInUSD = total.totalFeesGeneratedInUSD.plus(feesInUSD);
   return total;
 }
 
-function addDailyTotalFeesAndVolume(
-  dailyTotal: DailyTotal,
-  fromAmountInUSD: BigInt,
-  feesInUSD: BigInt
-): DailyTotal {
+function addDailyTotalFeesAndVolume(dailyTotal: DailyTotal, fromAmountInUSD: BigInt, feesInUSD: BigInt): DailyTotal {
   dailyTotal.exchangeUSDTally = dailyTotal.exchangeUSDTally.plus(fromAmountInUSD);
   dailyTotal.totalFeesGeneratedInUSD = dailyTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
   return dailyTotal;
@@ -266,7 +260,7 @@ function addDailyTotalFeesAndVolume(
 function addFifteenMinuteTotalFeesAndVolume(
   fifteenMinuteTotal: FifteenMinuteTotal,
   fromAmountInUSD: BigInt,
-  feesInUSD: BigInt
+  feesInUSD: BigInt,
 ): FifteenMinuteTotal {
   fifteenMinuteTotal.exchangeUSDTally = fifteenMinuteTotal.exchangeUSDTally.plus(fromAmountInUSD);
   fifteenMinuteTotal.totalFeesGeneratedInUSD = fifteenMinuteTotal.totalFeesGeneratedInUSD.plus(feesInUSD);

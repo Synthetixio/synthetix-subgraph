@@ -30,3 +30,8 @@ type AggregatorAnswer @entity {
   block: BigInt!
   timestamp: BigInt!
 }
+
+type LatestRate @entity {
+  id: ID! # the name of the synth
+  rate: BigInt!
+}

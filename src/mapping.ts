@@ -35,13 +35,20 @@ import {
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
+  DailyAccountSynthBalances,
+  FifteenMinuteAccountSynthBalances,
+  SynthBalance,
+  LatestRate,
 } from '../generated/schema';
 
-import { BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
+// import { BigInt, Address, ethereum, Bytes, ByteArray, log } from '@graphprotocol/graph-ts';
+import { BigInt, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts';
 
-import { strToBytes } from './common';
+import { strToBytes, getTimeID } from './common';
 
-import { log } from '@graphprotocol/graph-ts';
+// NOTE importing and exporting methods helps to keep the files modular
+import { handleRatesUpdated, handleAggregatorAnswerUpdated } from './rates-mapping';
+export { handleAggregatorAnswerUpdated, handleRatesUpdated };
 
 let contracts = new Map<string, string>();
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
@@ -226,10 +233,16 @@ function trackSNXHolder(
 
   if (
     (existingSNXHolder == null && snxHolder.balanceOf > BigInt.fromI32(0)) ||
-    (existingSNXHolder != null && existingSNXHolder.balanceOf == BigInt.fromI32(0) && snxHolder.balanceOf > BigInt.fromI32(0))
+    (existingSNXHolder != null &&
+      existingSNXHolder.balanceOf == BigInt.fromI32(0) &&
+      snxHolder.balanceOf > BigInt.fromI32(0))
   ) {
     incrementMetadata('snxHolders');
-  } else if (existingSNXHolder != null && existingSNXHolder.balanceOf > BigInt.fromI32(0) && snxHolder.balanceOf == BigInt.fromI32(0)) {
+  } else if (
+    existingSNXHolder != null &&
+    existingSNXHolder.balanceOf > BigInt.fromI32(0) &&
+    snxHolder.balanceOf == BigInt.fromI32(0)
+  ) {
     decrementMetadata('snxHolders');
   }
 
@@ -302,6 +315,60 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
   entity.save();
+
+  log.error('account.toHex(): {}', [account.toHex()]);
+
+  if (account.toHex() !== '0x0') {
+    let name = contract.name();
+    let latestRate = LatestRate.load(name);
+    if (latestRate == null) {
+      log.error('there does not exist a latest rate for synth: {}', [name]);
+      return;
+    }
+    let dayID = getTimeID(event.block.timestamp, 86400);
+    let fifteenMinuteID = getTimeID(event.block.timestamp, 900);
+
+    let fifteenMinuteAccountSynthBalancesID = account.toHex() + '-' + fifteenMinuteID;
+    let fifteenMinuteAccountSynthBalances = FifteenMinuteAccountSynthBalances.load(fifteenMinuteAccountSynthBalancesID);
+
+    let dailyAccountSynthBalancesID = account.toHex() + '-' + dayID;
+    let dailyAccountSynthBalances = DailyAccountSynthBalances.load(dailyAccountSynthBalancesID);
+
+    if (dailyAccountSynthBalances == null) {
+      dailyAccountSynthBalances = loadDailyAccountSynthBalances(dailyAccountSynthBalancesID, account);
+    }
+
+    if (fifteenMinuteAccountSynthBalances == null) {
+      fifteenMinuteAccountSynthBalances = loadFifteenMinuteAccountSynthBalances(
+        fifteenMinuteAccountSynthBalancesID,
+        account,
+      );
+    }
+
+    let dailySynthBalanceID = dailyAccountSynthBalancesID + '-' + name;
+    let fifteenMinuteSynthBalanceID = fifteenMinuteAccountSynthBalancesID + '-' + name;
+    log.error('dailySynthBalanceID and fifteenMinuteSynthBalanceID: {}, {}', [
+      dailySynthBalanceID,
+      fifteenMinuteSynthBalanceID,
+    ]);
+    let dailySynthBalance = SynthBalance.load(dailySynthBalanceID);
+    let fifteenMinuteSynthBalance = SynthBalance.load(fifteenMinuteSynthBalanceID);
+
+    if (dailySynthBalance == null) {
+      dailySynthBalance = loadSynthBalance(dailySynthBalanceID, name);
+    }
+    if (fifteenMinuteSynthBalance == null) {
+      fifteenMinuteSynthBalance = loadSynthBalance(fifteenMinuteSynthBalanceID, name);
+    }
+
+    dailySynthBalance = updateSynthBalance(dailySynthBalance, entity.balanceOf, latestRate.rate);
+    fifteenMinuteSynthBalance = updateSynthBalance(fifteenMinuteSynthBalance, entity.balanceOf, latestRate.rate);
+
+    dailyAccountSynthBalances.save();
+    fifteenMinuteAccountSynthBalances.save();
+    dailySynthBalance.save();
+    fifteenMinuteSynthBalance.save();
+  }
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
@@ -528,4 +595,32 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.timestamp = event.block.timestamp;
 
   entity.save();
+}
+
+export function loadDailyAccountSynthBalances(id: string, account: Address): DailyAccountSynthBalances {
+  let newDailyAccountSynthBalances = new DailyAccountSynthBalances(id);
+  newDailyAccountSynthBalances.account = account.toHex();
+  return newDailyAccountSynthBalances;
+}
+
+export function loadFifteenMinuteAccountSynthBalances(id: string, account: Address): FifteenMinuteAccountSynthBalances {
+  let newFifteenMinuteAccountSynthBalances = new FifteenMinuteAccountSynthBalances(id);
+  newFifteenMinuteAccountSynthBalances.account = account.toHex();
+  return newFifteenMinuteAccountSynthBalances;
+}
+
+export function loadSynthBalance(id: string, name: string): SynthBalance {
+  let newSynthBalance = SynthBalance.new(id);
+  newSynthBalance.synth = name;
+  newSynthBalance.balanceOf = BigInt.fromI32(0);
+  newSynthBalance.rate = BigInt.fromI32(0);
+  newSynthBalance.total = BigInt.fromI32(0);
+  return newSynthBalance;
+}
+
+export function updateSynthBalance(synthBalance: SynthBalance, balanceOf: BigInt, rate: BigInt): SynthBalance {
+  synthBalance.balanceOf = balanceOf;
+  synthBalance.rate = rate;
+  synthBalance.total = rate.times(balanceOf);
+  return synthBalance;
 }

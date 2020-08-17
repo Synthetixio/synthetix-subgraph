@@ -61,13 +61,35 @@ type DebtSnapshot @entity {
 
 type SynthHolder @entity {
   id: ID! # a unique combination of txn hash and logIndex (to support 1:M txn to synth transfer cardinality)
-  account: Bytes! # address of the potential holder
+  account: Bytes! # address of the holder
   source: String! # the synth's currencyKey
   # last block where an event happened
   block: BigInt!
   timestamp: BigInt!
   # the balance at the time
   balanceOf: BigInt!
+}
+
+type SynthBalance @entity {
+  id: ID! # format `${timeBasedID}-${synth}`
+  synth: String!
+  balanceOf: BigInt!
+  rate: BigInt!
+  total: BigInt!
+  dailyBalances: DailyAccountSynthBalances
+  fifteenMinuteBalances: FifteenMinuteAccountSynthBalances
+}
+
+type DailyAccountSynthBalances @entity {
+  id: ID! # time based id
+  account: Bytes!
+  balances: [SynthBalance] @derivedFrom(field: "dailyBalances")
+}
+
+type FifteenMinuteAccountSynthBalances @entity {
+  id: ID! # time based id
+  account: Bytes!
+  balances: [SynthBalance] @derivedFrom(field: "fifteenMinuteBalances")
 }
 
 # Burned tracks this event from various Synth.sol instances
@@ -102,4 +124,42 @@ type FeesClaimed @entity {
   rewards: BigInt! # uint256
   block: BigInt!
   timestamp: BigInt!
+}
+
+# RatesUpdated tracks this event from the ExchangeRates.sol contract
+type RatesUpdated @entity {
+  id: ID!
+  from: Bytes! # address
+  currencyKeys: [Bytes!]! # bytes4[]
+  newRates: [BigInt!]! # uint256[]
+  gasPrice: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+# An individual RateUpdate - split out of RatesUpdated event
+type RateUpdate @entity {
+  id: ID!
+  currencyKey: Bytes!
+  synth: String!
+  rate: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+# A chainlink Answer
+type AggregatorAnswer @entity {
+  id: ID!
+  currencyKey: Bytes!
+  synth: String!
+  aggregator: Bytes!
+  rate: BigInt!
+  roundId: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+type LatestRate @entity {
+  id: ID! # the name of the synth
+  rate: BigInt!
 }
