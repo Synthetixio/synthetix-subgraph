@@ -28,7 +28,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
     rateEntity.rate = rates[i];
     rateEntity.save();
     if (keys[i].toString() === 'SNX') {
-      handleSNXPrices(event.block.timestamp, rate);
+      handleSNXPrices(event.block.timestamp, rateEntity.rate);
     }
   }
 }
@@ -111,7 +111,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   }
 }
 
-function handleSNXPrices(timestamp: BigInt, rate: BigInt) {
+function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
   let dayID = timestamp.toI32() / 86400;
   let fifteenMinuteID = timestamp.toI32() / 900;
 
