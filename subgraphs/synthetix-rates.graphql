@@ -44,3 +44,8 @@ type DailySNXPrice @entity {
   count: BigInt!
   averagePrice: BigInt!
 }
+
+type LatestRate @entity {
+  id: ID! # the name of the synth
+  rate: BigInt!
+}

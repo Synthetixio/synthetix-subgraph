@@ -25,7 +25,7 @@ import { BigInt, Address } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
-import { sUSD32, sUSD4, strToBytes } from './common';
+import { sUSD32, sUSD4, strToBytes, getTimeID } from './common';
 
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -124,25 +124,30 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.network = 'mainnet';
   entity.save();
 
+<<<<<<< HEAD
   let timestamp = event.block.timestamp.toI32();
 
   let dayID = timestamp / 86400;
   let fifteenMinuteID = timestamp / 900;
+=======
+  let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
+  let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
+>>>>>>> Add synth balances for daily and fifteen minute periods
 
   let total = Total.load('mainnet');
-  let dailyTotal = DailyTotal.load(dayID.toString());
-  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString());
+  let dailyTotal = DailyTotal.load(dayID);
+  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID);
 
   if (total == null) {
     total = loadTotal();
   }
 
   if (dailyTotal == null) {
-    dailyTotal = loadDailyTotal(dayID.toString());
+    dailyTotal = loadDailyTotal(dayID);
   }
 
   if (fifteenMinuteTotal == null) {
-    fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID.toString());
+    fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID);
   }
 
   let existingExchanger = Exchanger.load(account.toHex());

@@ -2,7 +2,14 @@ import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates_v2
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
 import { ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
 
-import { RatesUpdated, RateUpdate, AggregatorAnswer, FifteenMinuteSNXPrice, DailySNXPrice } from '../generated/schema';
+import {
+  RatesUpdated,
+  RateUpdate,
+  AggregatorAnswer,
+  FifteenMinuteSNXPrice,
+  DailySNXPrice,
+  LatestRate,
+} from '../generated/schema';
 
 import { ByteArray, Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
 
@@ -56,6 +63,15 @@ function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
   fifteenMinuteSNXPrice.save();
 }
 
+function addLatestRate(synth: string, rate: BigInt) {
+  let latestRate = LatestRate.load(synth);
+  if (latestRate == null) {
+    latestRate = new LatestRate(synth);
+  }
+  latestRate.rate = rate;
+  latestRate.save();
+}
+
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.currencyKeys = event.params.currencyKeys;
@@ -81,6 +97,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
     if (keys[i].toString() == 'SNX') {
       handleSNXPrices(event.block.timestamp, rateEntity.rate);
     }
+    addLatestRate(rateEntity.synth, rateEntity.rate);
   }
 }
 
@@ -266,6 +283,8 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
   entity.roundId = event.params.roundId;
   entity.aggregator = event.address;
   entity.save();
+
+  addLatestRate(entity.synth, entity.rate);
 
   // save aggregated event as rate update from v2.17.5 (Procyon)
   if (event.block.number > BigInt.fromI32(9123410)) {
