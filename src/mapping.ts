@@ -547,15 +547,27 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   let account = event.transaction.from;
   let timestamp = event.block.timestamp;
   let snxContract = event.transaction.to as Address;
-  let synthetix = SNX.bind(snxContract);
   let accountDebtBalance = BigInt.fromI32(0);
 
-  if (event.block.number > v2100UpgradeBlock) {
+  if (event.block.number > v219UpgradeBlock) {
+    let synthetix = SNX.bind(snxContract);
     let accountDebt = synthetix.try_debtBalanceOf(account, sUSD32);
     if (!accountDebt.reverted) {
       accountDebtBalance = accountDebt.value;
     } else {
-      log.debug('Skipping track active stakers for account: {}, timestamp: {}', [
+      log.debug('v219UpgradeBlock Skipping track active stakers for account: {}, timestamp: {}', [
+        account.toHex(),
+        timestamp.toString(),
+      ]);
+      return;
+    }
+  } else if (event.block.number > v2100UpgradeBlock) {
+    let synthetix = Synthetix32.bind(snxContract);
+    let accountDebt = synthetix.try_debtBalanceOf(account, sUSD32);
+    if (!accountDebt.reverted) {
+      accountDebtBalance = accountDebt.value;
+    } else {
+      log.debug('v2100UpgradeBlock Skipping track active stakers for account: {}, timestamp: {}', [
         account.toHex(),
         timestamp.toString(),
       ]);
@@ -563,11 +575,12 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     }
     // Use bytes4
   } else if (event.block.number > v101UpgradeBlock) {
+    let synthetix = Synthetix4.bind(snxContract);
     let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
     if (!accountDebt.reverted) {
       accountDebtBalance = accountDebt.value;
     } else {
-      log.debug('Skipping track active stakers for account: {}, timestamp: {}', [
+      log.debug('v101UpgradeBlock Skipping track active stakers for account: {}, timestamp: {}', [
         account.toHex(),
         timestamp.toString(),
       ]);
@@ -585,6 +598,9 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   }
 
   if (isBurn && activeStaker != null) {
+    log.debug('this is not working for turning accountDebtBalance into proper format normal: {}', [
+      accountDebtBalance.toString(),
+    ]);
     if (accountDebtBalance.toI32() === 0) {
       activeStakers.count = activeStakers.count.minus(BigInt.fromI32(1));
       activeStakers.save();
