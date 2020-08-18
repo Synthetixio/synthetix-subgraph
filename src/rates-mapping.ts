@@ -107,7 +107,9 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     rateEntity.synth = entity.synth;
     rateEntity.rate = entity.rate;
     rateEntity.save();
-    handleSNXPrices(entity.timestamp, entity.rate);
+    if (entity.synth.toString() === 'SNX') {
+      handleSNXPrices(entity.timestamp, entity.rate);
+    }
   }
 }
 
