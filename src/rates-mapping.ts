@@ -27,7 +27,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
     rateEntity.synth = keys[i].toString();
     rateEntity.rate = rates[i];
     rateEntity.save();
-    if (keys[i].toString() === 'SNX') {
+    if (keys[i].toString() == 'SNX') {
       handleSNXPrices(event.block.timestamp, rateEntity.rate);
     }
   }
@@ -107,7 +107,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     rateEntity.synth = entity.synth;
     rateEntity.rate = entity.rate;
     rateEntity.save();
-    if (entity.synth.toString() === 'SNX') {
+    if (entity.synth.toString() == 'SNX') {
       handleSNXPrices(entity.timestamp, entity.rate);
     }
   }
