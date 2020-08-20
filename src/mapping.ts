@@ -544,6 +544,7 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
+  log.error('calling track active stakers with mint/burn, isBurn: {}', [isBurn.toString()]);
   let account = event.transaction.from;
   let timestamp = event.block.timestamp;
   let snxContract = event.transaction.to as Address;
@@ -552,19 +553,23 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   if (event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
+    log.error('post v2100UpgradeBlock accountDebtBalance: {}', [accountDebtBalance.toString()]);
     // Use bytes4
   } else if (event.block.number > v101UpgradeBlock) {
     let synthetix = Synthetix4.bind(snxContract);
     let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
     if (!accountDebt.reverted) {
+      log.error('post v101UpgradeBlock accountDebtBalance: {}', [accountDebt.value.toString()]);
       accountDebtBalance = accountDebt.value;
     } else {
-      log.debug('v101UpgradeBlock Skipping track active stakers for account: {}, timestamp: {}', [
+      log.error('this try_debtBalanceOf call has been reverted for account: {}, timestamp: {}', [
         account.toHex(),
         timestamp.toString(),
       ]);
       return;
     }
+  } else {
+    log.error('pre v101UpgradeBlock what to capture for this case??', []);
   }
 
   let dayID = timestamp.toI32() / 86400;
@@ -586,6 +591,17 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     activeStaker.save();
     activeStakers.count = activeStakers.count.plus(BigInt.fromI32(1));
     activeStakers.save();
+  } else {
+    if (activeStaker != null) {
+      log.error(
+        'this should never happen as the active staker does not exist but they are tryping to burn tokens: isBurn and activeStaker: {}, {}',
+        [isBurn.toString(), activeStaker.id.toString()],
+      );
+    } else {
+      log.error('this means the active staker exists and they are minting again so isBurn should be true: {}', [
+        isBurn.toString(),
+      ]);
+    }
   }
 
   let dailyActiveStakerID = dayID.toString() + '-' + account.toHex();
