@@ -35,9 +35,8 @@ import {
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
-  DailyAccountSynthBalances,
-  FifteenMinuteAccountSynthBalances,
-  SynthBalance,
+  DailySynthBalance,
+  FifteenMinuteSynthBalance,
   LatestRate,
 } from '../generated/schema';
 
@@ -325,49 +324,28 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
       log.error('there does not exist a latest rate for synth: {}', [name]);
       return;
     }
-    let dayID = getTimeID(event.block.timestamp, 86400);
-    let fifteenMinuteID = getTimeID(event.block.timestamp, 900);
+    let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
+    let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
 
-    let fifteenMinuteAccountSynthBalancesID = account.toHex() + '-' + fifteenMinuteID;
-    let fifteenMinuteAccountSynthBalances = FifteenMinuteAccountSynthBalances.load(fifteenMinuteAccountSynthBalancesID);
+    let fifteenMinuteSynthBalanceID = `${fifteenMinuteID}-${account.toHex()}`;
+    let fifteenMinuteSynthBalance = FifteenMinuteSynthBalance.load(fifteenMinuteSynthBalanceID);
 
-    let dailyAccountSynthBalancesID = account.toHex() + '-' + dayID;
-    let dailyAccountSynthBalances = DailyAccountSynthBalances.load(dailyAccountSynthBalancesID);
-
-    if (dailyAccountSynthBalances == null) {
-      dailyAccountSynthBalances = loadDailyAccountSynthBalances(dailyAccountSynthBalancesID, account);
-    }
-
-    if (fifteenMinuteAccountSynthBalances == null) {
-      fifteenMinuteAccountSynthBalances = loadFifteenMinuteAccountSynthBalances(
-        fifteenMinuteAccountSynthBalancesID,
-        account,
-      );
-    }
-
-    let dailySynthBalanceID = dailyAccountSynthBalancesID + '-' + name;
-    let fifteenMinuteSynthBalanceID = fifteenMinuteAccountSynthBalancesID + '-' + name;
-    log.error('dailySynthBalanceID and fifteenMinuteSynthBalanceID: {}, {}', [
-      dailySynthBalanceID,
-      fifteenMinuteSynthBalanceID,
-    ]);
-    let dailySynthBalance = SynthBalance.load(dailySynthBalanceID);
-    let fifteenMinuteSynthBalance = SynthBalance.load(fifteenMinuteSynthBalanceID);
+    let dailySynthBalanceID = `${dayID}-${account.toHex()}`;
+    let dailySynthBalance = DailySynthBalance.load(dailySynthBalanceID);
 
     if (dailySynthBalance == null) {
-      dailySynthBalance = loadSynthBalance(dailySynthBalanceID, name);
+      dailySynthBalance = loadDailySynthBalance(dailySynthBalanceID, account, name);
     }
+
     if (fifteenMinuteSynthBalance == null) {
-      fifteenMinuteSynthBalance = loadSynthBalance(fifteenMinuteSynthBalanceID, name);
+      fifteenMinuteSynthBalance = loadFifteenMinuteSynthBalance(fifteenMinuteSynthBalanceID, account, name);
     }
-
-    dailySynthBalance = updateSynthBalance(dailySynthBalance, entity.balanceOf, latestRate.rate);
-    fifteenMinuteSynthBalance = updateSynthBalance(fifteenMinuteSynthBalance, entity.balanceOf, latestRate.rate);
-
-    dailyAccountSynthBalances.save();
-    fifteenMinuteAccountSynthBalances.save();
-    dailySynthBalance.save();
-    fifteenMinuteSynthBalance.save();
+    updateDailySynthBalance(dailySynthBalance as DailySynthBalance, entity.balanceOf, latestRate.rate);
+    updateFifteenMinuteSynthBalance(
+      fifteenMinuteSynthBalance as FifteenMinuteSynthBalance,
+      entity.balanceOf,
+      latestRate.rate,
+    );
   }
 }
 
@@ -597,30 +575,40 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.save();
 }
 
-export function loadDailyAccountSynthBalances(id: string, account: Address): DailyAccountSynthBalances {
-  let newDailyAccountSynthBalances = new DailyAccountSynthBalances(id);
-  newDailyAccountSynthBalances.account = account.toHex();
-  return newDailyAccountSynthBalances;
+export function loadDailySynthBalance(id: string, account: Address, name: string): DailySynthBalance {
+  let newDailySynthBalance = new DailySynthBalance(id);
+  newDailySynthBalance.account = account;
+  newDailySynthBalance.synth = name;
+  newDailySynthBalance.balanceOf = BigInt.fromI32(0);
+  newDailySynthBalance.rate = BigInt.fromI32(0);
+  newDailySynthBalance.total = BigInt.fromI32(0);
+  return newDailySynthBalance;
 }
 
-export function loadFifteenMinuteAccountSynthBalances(id: string, account: Address): FifteenMinuteAccountSynthBalances {
-  let newFifteenMinuteAccountSynthBalances = new FifteenMinuteAccountSynthBalances(id);
-  newFifteenMinuteAccountSynthBalances.account = account.toHex();
-  return newFifteenMinuteAccountSynthBalances;
+export function loadFifteenMinuteSynthBalance(id: string, account: Address, name: string): FifteenMinuteSynthBalance {
+  let newFifteenMinuteSynthBalance = new FifteenMinuteSynthBalance(id);
+  newFifteenMinuteSynthBalance.account = account;
+  newFifteenMinuteSynthBalance.synth = name;
+  newFifteenMinuteSynthBalance.balanceOf = BigInt.fromI32(0);
+  newFifteenMinuteSynthBalance.rate = BigInt.fromI32(0);
+  newFifteenMinuteSynthBalance.total = BigInt.fromI32(0);
+  return newFifteenMinuteSynthBalance;
 }
 
-export function loadSynthBalance(id: string, name: string): SynthBalance {
-  let newSynthBalance = SynthBalance.new(id);
-  newSynthBalance.synth = name;
-  newSynthBalance.balanceOf = BigInt.fromI32(0);
-  newSynthBalance.rate = BigInt.fromI32(0);
-  newSynthBalance.total = BigInt.fromI32(0);
-  return newSynthBalance;
+export function updateDailySynthBalance(dailySynthBalance: DailySynthBalance, balanceOf: BigInt, rate: BigInt): void {
+  dailySynthBalance.balanceOf = balanceOf;
+  dailySynthBalance.rate = rate;
+  dailySynthBalance.total = rate.times(balanceOf);
+  dailySynthBalance.save();
 }
 
-export function updateSynthBalance(synthBalance: SynthBalance, balanceOf: BigInt, rate: BigInt): SynthBalance {
-  synthBalance.balanceOf = balanceOf;
-  synthBalance.rate = rate;
-  synthBalance.total = rate.times(balanceOf);
-  return synthBalance;
+export function updateFifteenMinuteSynthBalance(
+  fifteenMinuteSynthBalance: FifteenMinuteSynthBalance,
+  balanceOf: BigInt,
+  rate: BigInt,
+): void {
+  fifteenMinuteSynthBalance.balanceOf = balanceOf;
+  fifteenMinuteSynthBalance.rate = rate;
+  fifteenMinuteSynthBalance.total = rate.times(balanceOf);
+  fifteenMinuteSynthBalance.save();
 }
