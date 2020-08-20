@@ -445,8 +445,8 @@ dataSources:
         - event: FeesClaimed(address,uint256,uint256)
           handler: handleFeesClaimed
 
-  # Temporarily add rates contracts below until subgraph composition is added to 
-    - kind: ethereum/contract
+  # Temporarily add rates contracts below until subgraph composition is added to
+  - kind: ethereum/contract
     name: ExchangeRates_v231
     network: mainnet
     source:

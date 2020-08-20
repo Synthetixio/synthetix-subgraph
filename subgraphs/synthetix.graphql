@@ -70,26 +70,22 @@ type SynthHolder @entity {
   balanceOf: BigInt!
 }
 
-type SynthBalance @entity {
-  id: ID! # format `${timeBasedID}-${synth}`
+type DailySynthBalance @entity {
+  id: ID! # timestamp + account
+  account: Bytes!
   synth: String!
   balanceOf: BigInt!
   rate: BigInt!
   total: BigInt!
-  dailyBalances: DailyAccountSynthBalances
-  fifteenMinuteBalances: FifteenMinuteAccountSynthBalances
 }
 
-type DailyAccountSynthBalances @entity {
-  id: ID! # time based id
+type FifteenMinuteSynthBalance @entity {
+  id: ID! # timestamp + account
   account: Bytes!
-  balances: [SynthBalance] @derivedFrom(field: "dailyBalances")
-}
-
-type FifteenMinuteAccountSynthBalances @entity {
-  id: ID! # time based id
-  account: Bytes!
-  balances: [SynthBalance] @derivedFrom(field: "fifteenMinuteBalances")
+  synth: String!
+  balanceOf: BigInt!
+  rate: BigInt!
+  total: BigInt!
 }
 
 # Burned tracks this event from various Synth.sol instances
