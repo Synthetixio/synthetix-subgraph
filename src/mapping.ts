@@ -315,15 +315,15 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
   entity.timestamp = event.block.timestamp;
   entity.save();
 
-  log.error('account.toHex(): {}', [account.toHex()]);
-
-  if (account.toHex() !== '0x0') {
+  if (account.toHex() != '0x0000000000000000000000000000000000000000') {
+    log.error('user account.toHex(): {}', [account.toHex()]);
     let name = contract.name();
     let latestRate = LatestRate.load(name);
     if (latestRate == null) {
       log.error('there does not exist a latest rate for synth: {}', [name]);
       return;
     }
+    log.error('latest rate is: {}', [latestRate.rate.toString()]);
     let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
     let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
 
@@ -346,6 +346,8 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
       entity.balanceOf,
       latestRate.rate,
     );
+  } else {
+    log.error('should only match 0 address account.toHex(): {}', [account.toHex()]);
   }
 }
 

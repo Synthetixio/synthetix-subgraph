@@ -6,6 +6,13 @@ import { RatesUpdated, RateUpdate, AggregatorAnswer, LatestRate } from '../gener
 import { ByteArray, Bytes, BigInt } from '@graphprotocol/graph-ts';
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
+  let dollarID = 'Synth sUSD';
+  let dollarRate = LatestRate.load(dollarID);
+  if (dollarRate == null) {
+    dollarRate = new LatestRate(dollarID);
+    dollarRate.rate = BigInt.fromI32(1);
+    dollarRate.save();
+  }
   let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.currencyKeys = event.params.currencyKeys;
   entity.newRates = event.params.newRates;
