@@ -40,7 +40,7 @@ import {
   ActiveStaker,
 } from '../generated/schema';
 
-import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
+import { BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './common';
 
