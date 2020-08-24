@@ -38,7 +38,6 @@ import {
   ActiveStakers,
   DailyActiveStakers,
   ActiveStaker,
-  DailyActiveStaker,
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
@@ -429,7 +428,9 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackActiveStakers(event, false);
+  if (event.block.number > v200UpgradeBlock) {
+    trackActiveStakers(event, false);
+  }
 
   // track this issuer for reference
   trackIssuer(event.transaction.from);
@@ -491,7 +492,9 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackActiveStakers(event, true);
+  if (event.block.number > v200UpgradeBlock) {
+    trackActiveStakers(event, true);
+  }
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
@@ -544,32 +547,29 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
-  log.error('calling track active stakers with mint/burn, isBurn: {}', [isBurn.toString()]);
   let account = event.transaction.from;
   let timestamp = event.block.timestamp;
   let snxContract = event.transaction.to as Address;
-  let accountDebtBalance = BigInt.fromI32(0);
+  let hasIssued = false;
 
-  if (event.block.number > v2100UpgradeBlock) {
+  if (event.block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
-    accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
-    log.error('post v2100UpgradeBlock accountDebtBalance: {}', [accountDebtBalance.toString()]);
-    // Use bytes4
-  } else if (event.block.number > v101UpgradeBlock) {
-    let synthetix = Synthetix4.bind(snxContract);
-    let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
-    if (!accountDebt.reverted) {
-      log.error('post v101UpgradeBlock accountDebtBalance: {}', [accountDebt.value.toString()]);
-      accountDebtBalance = accountDebt.value;
-    } else {
-      log.error('this try_debtBalanceOf call has been reverted for account: {}, timestamp: {}', [
-        account.toHex(),
-        timestamp.toString(),
-      ]);
-      return;
+    let resolverTry = synthetix.try_resolver();
+    if (resolverTry.reverted) {
+      return; // see longer comment about this issue in trackSNXHolder method
     }
-  } else {
-    log.error('pre v101UpgradeBlock what to capture for this case??', []);
+    let resolverAddress = resolverTry.value;
+    let resolver = AddressResolver.bind(resolverAddress);
+    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
+    hasIssued = synthetixState.hasIssued(account);
+  } else if (event.block.number > v200UpgradeBlock) {
+    let synthetix = Synthetix32.bind(snxContract);
+    let stateTry = synthetix.try_synthetixState();
+    if (!stateTry.reverted) {
+      let synthetixStateContract = synthetix.synthetixState();
+      let synthetixState = SynthetixState.bind(synthetixStateContract);
+      hasIssued = synthetixState.hasIssued(account);
+    }
   }
 
   let dayID = timestamp.toI32() / 86400;
@@ -581,46 +581,20 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     activeStakers = loadActiveStakers();
   }
 
-  if (isBurn && activeStaker != null) {
-    if (accountDebtBalance === BigInt.fromI32(0)) {
-      activeStakers.count = activeStakers.count.minus(BigInt.fromI32(1));
-      activeStakers.save();
-    }
+  if (isBurn && !hasIssued) {
+    log.error('burned all synths for account and hash: {}, {}', [account.toHex(), event.transaction.hash.toHex()]);
+    activeStakers.count = activeStakers.count.minus(BigInt.fromI32(1));
+    activeStakers.save();
   } else if (!isBurn && activeStaker == null) {
     activeStaker = new ActiveStaker(account.toHex());
     activeStaker.save();
     activeStakers.count = activeStakers.count.plus(BigInt.fromI32(1));
     activeStakers.save();
-  } else {
-    if (activeStaker != null) {
-      log.error(
-        'this should never happen as the active staker does not exist but they are tryping to burn tokens: isBurn and activeStaker: {}, {}',
-        [isBurn.toString(), activeStaker.id.toString()],
-      );
-    } else {
-      log.error('this means the active staker exists and they are minting again so isBurn should be true: {}', [
-        isBurn.toString(),
-      ]);
-    }
   }
 
-  let dailyActiveStakerID = dayID.toString() + '-' + account.toHex();
-  let dailyActiveStaker = DailyActiveStaker.load(dailyActiveStakerID);
   let dailyActiveStakers = DailyActiveStakers.load(dayID.toString());
   if (dailyActiveStakers == null) {
-    dailyActiveStakers = loadDailyActiveStakers(dayID.toString());
-  }
-
-  if (isBurn && dailyActiveStaker != null) {
-    if (accountDebtBalance === BigInt.fromI32(0)) {
-      dailyActiveStakers.count = dailyActiveStakers.count.minus(BigInt.fromI32(1));
-      dailyActiveStakers.save();
-      store.remove('DailyActiveStaker', dailyActiveStakerID);
-    }
-  } else if (!isBurn && dailyActiveStaker == null) {
-    dailyActiveStaker = new DailyActiveStaker(dailyActiveStakerID);
-    dailyActiveStaker.save();
-    dailyActiveStakers.count = dailyActiveStakers.count.plus(BigInt.fromI32(1));
+    dailyActiveStakers = loadDailyActiveStakers(dayID.toString(), activeStakers.count);
     dailyActiveStakers.save();
   }
 }
@@ -631,8 +605,8 @@ function loadActiveStakers(): ActiveStakers {
   return newActiveStakers;
 }
 
-function loadDailyActiveStakers(id: string): DailyActiveStakers {
+function loadDailyActiveStakers(id: string, count: BigInt): DailyActiveStakers {
   let newDailyActiveStakers = new DailyActiveStakers(id);
-  newDailyActiveStakers.count = BigInt.fromI32(0);
+  newDailyActiveStakers.count = count;
   return newDailyActiveStakers;
 }

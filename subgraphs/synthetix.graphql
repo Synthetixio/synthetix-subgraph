@@ -117,7 +117,3 @@ type DailyActiveStakers @entity {
 type ActiveStaker @entity {
   id: ID!
 }
-
-type DailyActiveStaker @entity {
-  id: ID!
-}
