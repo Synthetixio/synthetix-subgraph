@@ -327,10 +327,10 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
     let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
     let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
 
-    let fifteenMinuteSynthBalanceID = `${fifteenMinuteID}-${account.toHex()}`;
+    let fifteenMinuteSynthBalanceID = fifteenMinuteID + '-' + account.toHex();
     let fifteenMinuteSynthBalance = FifteenMinuteSynthBalance.load(fifteenMinuteSynthBalanceID);
 
-    let dailySynthBalanceID = `${dayID}-${account.toHex()}`;
+    let dailySynthBalanceID = dayID + '-' + account.toHex();
     let dailySynthBalance = DailySynthBalance.load(dailySynthBalanceID);
 
     if (dailySynthBalance == null) {
