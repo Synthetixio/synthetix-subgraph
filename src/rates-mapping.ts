@@ -77,7 +77,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   let dollarRate = LatestRate.load(dollarID);
   if (dollarRate == null) {
     dollarRate = new LatestRate(dollarID);
-    dollarRate.rate = BigInt.fromI32(1000000000000000000);
+    dollarRate.rate = BigInt.fromI32(1000000000000000000 as i32);
     dollarRate.save();
   }
   let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
