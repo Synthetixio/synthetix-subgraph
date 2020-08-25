@@ -35,8 +35,8 @@ import {
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
-  TotalActiveStakers,
-  DailyActiveStakers,
+  TotalActiveStaker,
+  DailyActiveStaker,
   ActiveStaker,
 } from '../generated/schema';
 
@@ -556,6 +556,7 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     let synthetix = SNX.bind(snxContract);
     let resolverTry = synthetix.try_resolver();
     if (resolverTry.reverted) {
+      log.error('resolverTry reverted', []);
       return; // see longer comment about this issue in trackSNXHolder method
     }
     let resolverAddress = resolverTry.value;
@@ -565,16 +566,20 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   } else if (event.block.number > v200UpgradeBlock) {
     let synthetix = Synthetix32.bind(snxContract);
     let stateTry = synthetix.try_synthetixState();
-    if (!stateTry.reverted) {
-      let synthetixStateContract = synthetix.synthetixState();
-      let synthetixState = SynthetixState.bind(synthetixStateContract);
-      hasIssued = synthetixState.hasIssued(account);
+    if (stateTry.reverted) {
+      log.error('stateTry reverted', []);
+      return;
     }
+    let synthetixStateContract = synthetix.synthetixState();
+    let synthetixState = SynthetixState.bind(synthetixStateContract);
+    hasIssued = synthetixState.hasIssued(account);
   }
+
+  log.error('hasIssued, {}', [hasIssued.toString()]);
 
   let dayID = timestamp.toI32() / 86400;
 
-  let totalActiveStakers = TotalActiveStakers.load('1');
+  let totalActiveStakers = TotalActiveStaker.load('1');
   let activeStaker = ActiveStaker.load(account.toHex());
 
   if (totalActiveStakers == null) {
@@ -592,9 +597,11 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     activeStaker.save();
     totalActiveStakers.count = totalActiveStakers.count.plus(BigInt.fromI32(1));
     totalActiveStakers.save();
+  } else {
+    log.error('an already active staker is minting. nothing to do here', []);
   }
 
-  let dailyActiveStakers = DailyActiveStakers.load(dayID.toString());
+  let dailyActiveStakers = DailyActiveStaker.load(dayID.toString());
   if (dailyActiveStakers == null) {
     log.error('new daily active stakers starting point: {}', [totalActiveStakers.count.toString()]);
     dailyActiveStakers = loadDailyActiveStakers(dayID.toString(), totalActiveStakers.count);
@@ -602,14 +609,14 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   }
 }
 
-function loadTotalActiveStakers(): TotalActiveStakers {
-  let newTotalActiveStakers = new TotalActiveStakers('1');
+function loadTotalActiveStakers(): TotalActiveStaker {
+  let newTotalActiveStakers = new TotalActiveStaker('1');
   newTotalActiveStakers.count = BigInt.fromI32(0);
   return newTotalActiveStakers;
 }
 
-function loadDailyActiveStakers(id: string, count: BigInt): DailyActiveStakers {
-  let newDailyActiveStakers = new DailyActiveStakers(id);
+function loadDailyActiveStakers(id: string, count: BigInt): DailyActiveStaker {
+  let newDailyActiveStakers = new DailyActiveStaker(id);
   newDailyActiveStakers.count = count;
   return newDailyActiveStakers;
 }
