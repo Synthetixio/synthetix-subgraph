@@ -317,13 +317,13 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
 
   if (account.toHex() != '0x0000000000000000000000000000000000000000') {
     log.error('user account.toHex(): {}', [account.toHex()]);
-    let name = contract.name();
-    let latestRate = LatestRate.load(name);
+    let symbol = contract.symbol();
+    let latestRate = LatestRate.load(symbol);
     if (latestRate == null) {
-      log.error('there does not exist a latest rate for synth: {}', [name]);
+      log.error('there does not exist a latest rate for synth: {}', [symbol]);
       return;
     }
-    log.error('latest rate is: {}', [latestRate.rate.toString()]);
+    log.error('latest rate is for synth: {}, {}', [latestRate.rate.toString(), symbol.toString()]);
     let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
     let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
 
@@ -334,11 +334,11 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
     let dailySynthBalance = DailySynthBalance.load(dailySynthBalanceID);
 
     if (dailySynthBalance == null) {
-      dailySynthBalance = loadDailySynthBalance(dailySynthBalanceID, account, name);
+      dailySynthBalance = loadDailySynthBalance(dailySynthBalanceID, account, symbol);
     }
 
     if (fifteenMinuteSynthBalance == null) {
-      fifteenMinuteSynthBalance = loadFifteenMinuteSynthBalance(fifteenMinuteSynthBalanceID, account, name);
+      fifteenMinuteSynthBalance = loadFifteenMinuteSynthBalance(fifteenMinuteSynthBalanceID, account, symbol);
     }
     updateDailySynthBalance(dailySynthBalance as DailySynthBalance, entity.balanceOf, latestRate.rate);
     updateFifteenMinuteSynthBalance(
@@ -577,20 +577,20 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.save();
 }
 
-export function loadDailySynthBalance(id: string, account: Address, name: string): DailySynthBalance {
+export function loadDailySynthBalance(id: string, account: Address, symbol: string): DailySynthBalance {
   let newDailySynthBalance = new DailySynthBalance(id);
   newDailySynthBalance.account = account;
-  newDailySynthBalance.synth = name;
+  newDailySynthBalance.synth = symbol;
   newDailySynthBalance.balanceOf = BigInt.fromI32(0);
   newDailySynthBalance.rate = BigInt.fromI32(0);
   newDailySynthBalance.total = BigInt.fromI32(0);
   return newDailySynthBalance;
 }
 
-export function loadFifteenMinuteSynthBalance(id: string, account: Address, name: string): FifteenMinuteSynthBalance {
+export function loadFifteenMinuteSynthBalance(id: string, account: Address, symbol: string): FifteenMinuteSynthBalance {
   let newFifteenMinuteSynthBalance = new FifteenMinuteSynthBalance(id);
   newFifteenMinuteSynthBalance.account = account;
-  newFifteenMinuteSynthBalance.synth = name;
+  newFifteenMinuteSynthBalance.synth = symbol;
   newFifteenMinuteSynthBalance.balanceOf = BigInt.fromI32(0);
   newFifteenMinuteSynthBalance.rate = BigInt.fromI32(0);
   newFifteenMinuteSynthBalance.total = BigInt.fromI32(0);
