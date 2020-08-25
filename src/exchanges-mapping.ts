@@ -18,7 +18,7 @@ import {
   DailyExchanger,
   FifteenMinuteExchanger,
   ExchangeReclaim,
-  ExchangeRebate
+  ExchangeRebate,
 } from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
@@ -53,7 +53,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     return;
   }
 
-  let account = event.transaction.from
+  let account = event.transaction.from;
   let fromAmountInUSD = BigInt.fromI32(0);
   let toAmountInUSD = BigInt.fromI32(0);
   let feesInUSD = BigInt.fromI32(0);
@@ -124,10 +124,10 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.network = 'mainnet';
   entity.save();
 
-  let timestamp = event.block.timestamp.toI32()
+  let timestamp = event.block.timestamp.toI32();
 
-  let dayID = timestamp / 86400
-  let fifteenMinuteID = timestamp / 900
+  let dayID = timestamp / 86400;
+  let fifteenMinuteID = timestamp / 900;
 
   let total = Total.load('mainnet');
   let dailyTotal = DailyTotal.load(dayID.toString());
@@ -167,6 +167,10 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     fifteenMinuteExchanger.save();
   }
 
+  total.trades = total.trades.plus(BigInt.fromI32(1));
+  dailyTotal.trades = dailyTotal.trades.plus(BigInt.fromI32(1));
+  fifteenMinuteTotal.trades = fifteenMinuteTotal.trades.plus(BigInt.fromI32(1));
+
   total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
   dailyTotal.exchangers = dailyTotal.exchangers.plus(BigInt.fromI32(1));
   fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
@@ -174,7 +178,11 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   if (fromAmountInUSD != null && feesInUSD != null) {
     total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
     dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
-    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(fifteenMinuteTotal as FifteenMinuteTotal, fromAmountInUSD, feesInUSD);
+    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(
+      fifteenMinuteTotal as FifteenMinuteTotal,
+      fromAmountInUSD,
+      feesInUSD,
+    );
   }
   total.save();
   dailyTotal.save();
@@ -221,6 +229,7 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
 
 function loadTotal(): Total {
   let newTotal = new Total('mainnet');
+  newTotal.trades = BigInt.fromI32(0);
   newTotal.exchangers = BigInt.fromI32(0);
   newTotal.exchangeUSDTally = BigInt.fromI32(0);
   newTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
@@ -229,6 +238,7 @@ function loadTotal(): Total {
 
 function loadDailyTotal(id: string): DailyTotal {
   let newDailyTotal = new DailyTotal(id);
+  newDailyTotal.trades = BigInt.fromI32(0);
   newDailyTotal.exchangers = BigInt.fromI32(0);
   newDailyTotal.exchangeUSDTally = BigInt.fromI32(0);
   newDailyTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
@@ -237,27 +247,20 @@ function loadDailyTotal(id: string): DailyTotal {
 
 function loadFifteenMinuteTotal(id: string): FifteenMinuteTotal {
   let newFifteenMinuteTotal = new FifteenMinuteTotal(id);
+  newFifteenMinuteTotal.trades = BigInt.fromI32(0);
   newFifteenMinuteTotal.exchangers = BigInt.fromI32(0);
   newFifteenMinuteTotal.exchangeUSDTally = BigInt.fromI32(0);
   newFifteenMinuteTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
   return newFifteenMinuteTotal;
 }
 
-function addTotalFeesAndVolume(
-  total: Total,
-  fromAmountInUSD: BigInt,
-  feesInUSD: BigInt
-): Total {
+function addTotalFeesAndVolume(total: Total, fromAmountInUSD: BigInt, feesInUSD: BigInt): Total {
   total.exchangeUSDTally = total.exchangeUSDTally.plus(fromAmountInUSD);
   total.totalFeesGeneratedInUSD = total.totalFeesGeneratedInUSD.plus(feesInUSD);
   return total;
 }
 
-function addDailyTotalFeesAndVolume(
-  dailyTotal: DailyTotal,
-  fromAmountInUSD: BigInt,
-  feesInUSD: BigInt
-): DailyTotal {
+function addDailyTotalFeesAndVolume(dailyTotal: DailyTotal, fromAmountInUSD: BigInt, feesInUSD: BigInt): DailyTotal {
   dailyTotal.exchangeUSDTally = dailyTotal.exchangeUSDTally.plus(fromAmountInUSD);
   dailyTotal.totalFeesGeneratedInUSD = dailyTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
   return dailyTotal;
@@ -266,7 +269,7 @@ function addDailyTotalFeesAndVolume(
 function addFifteenMinuteTotalFeesAndVolume(
   fifteenMinuteTotal: FifteenMinuteTotal,
   fromAmountInUSD: BigInt,
-  feesInUSD: BigInt
+  feesInUSD: BigInt,
 ): FifteenMinuteTotal {
   fifteenMinuteTotal.exchangeUSDTally = fifteenMinuteTotal.exchangeUSDTally.plus(fromAmountInUSD);
   fifteenMinuteTotal.totalFeesGeneratedInUSD = fifteenMinuteTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
