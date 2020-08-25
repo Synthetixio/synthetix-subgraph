@@ -35,7 +35,7 @@ import {
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
-  ActiveStakers,
+  TotalActiveStakers,
   DailyActiveStakers,
   ActiveStaker,
 } from '../generated/schema';
@@ -574,35 +574,38 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
 
   let dayID = timestamp.toI32() / 86400;
 
-  let activeStakers = ActiveStakers.load('1');
+  let totalActiveStakers = TotalActiveStakers.load('1');
   let activeStaker = ActiveStaker.load(account.toHex());
 
-  if (activeStakers == null) {
-    activeStakers = loadActiveStakers();
+  if (totalActiveStakers == null) {
+    totalActiveStakers = loadTotalActiveStakers();
   }
+  log.error('how many stakers and is staker active before: {}, {} ', [totalActiveStakers.count.toString()]);
 
   if (isBurn && !hasIssued) {
     log.error('burned all synths for account and hash: {}, {}', [account.toHex(), event.transaction.hash.toHex()]);
-    activeStakers.count = activeStakers.count.minus(BigInt.fromI32(1));
-    activeStakers.save();
+    totalActiveStakers.count = totalActiveStakers.count.minus(BigInt.fromI32(1));
+    totalActiveStakers.save();
   } else if (!isBurn && activeStaker == null) {
+    log.error('new active stakers and increase count for num active', []);
     activeStaker = new ActiveStaker(account.toHex());
     activeStaker.save();
-    activeStakers.count = activeStakers.count.plus(BigInt.fromI32(1));
-    activeStakers.save();
+    totalActiveStakers.count = totalActiveStakers.count.plus(BigInt.fromI32(1));
+    totalActiveStakers.save();
   }
 
   let dailyActiveStakers = DailyActiveStakers.load(dayID.toString());
   if (dailyActiveStakers == null) {
-    dailyActiveStakers = loadDailyActiveStakers(dayID.toString(), activeStakers.count);
+    log.error('new daily active stakers starting point: {}', [totalActiveStakers.count.toString()]);
+    dailyActiveStakers = loadDailyActiveStakers(dayID.toString(), totalActiveStakers.count);
     dailyActiveStakers.save();
   }
 }
 
-function loadActiveStakers(): ActiveStakers {
-  let newActiveStakers = new ActiveStakers('1');
-  newActiveStakers.count = BigInt.fromI32(0);
-  return newActiveStakers;
+function loadTotalActiveStakers(): TotalActiveStakers {
+  let newTotalActiveStakers = new TotalActiveStakers('1');
+  newTotalActiveStakers.count = BigInt.fromI32(0);
+  return newTotalActiveStakers;
 }
 
 function loadDailyActiveStakers(id: string, count: BigInt): DailyActiveStakers {
