@@ -171,10 +171,6 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   dailyTotal.trades = dailyTotal.trades.plus(BigInt.fromI32(1));
   fifteenMinuteTotal.trades = fifteenMinuteTotal.trades.plus(BigInt.fromI32(1));
 
-  total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
-  dailyTotal.exchangers = dailyTotal.exchangers.plus(BigInt.fromI32(1));
-  fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
-
   if (fromAmountInUSD != null && feesInUSD != null) {
     total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
     dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
