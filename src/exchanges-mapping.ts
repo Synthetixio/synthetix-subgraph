@@ -146,8 +146,8 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   }
 
   let existingExchanger = Exchanger.load(account.toHex());
-  let existingDailyExchanger = DailyExchanger.load(account.toHex());
-  let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(account.toHex());
+  let existingDailyExchanger = DailyExchanger.load(dayID.toString() + '-' + account.toHex());
+  let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(fifteenMinuteID.toString() + '-' + account.toHex());
 
   if (existingExchanger == null) {
     total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
@@ -157,13 +157,13 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
 
   if (existingDailyExchanger == null) {
     dailyTotal.exchangers = dailyTotal.exchangers.plus(BigInt.fromI32(1));
-    let dailyExchanger = new DailyExchanger(account.toHex());
+    let dailyExchanger = new DailyExchanger(dayID.toString() + '-' + account.toHex());
     dailyExchanger.save();
   }
 
   if (existingFifteenMinuteExchanger == null) {
     fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
-    let fifteenMinuteExchanger = new FifteenMinuteExchanger(account.toHex());
+    let fifteenMinuteExchanger = new FifteenMinuteExchanger(fifteenMinuteID.toString() + '-' + account.toHex());
     fifteenMinuteExchanger.save();
   }
 
