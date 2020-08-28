@@ -104,20 +104,16 @@ type FeesClaimed @entity {
   timestamp: BigInt!
 }
 
-type ActiveStakers @entity {
+type TotalActiveStaker @entity {
   id: ID!
   count: BigInt!
 }
 
-type DailyActiveStakers @entity {
+type TotalDailyActiveStaker @entity {
   id: ID!
   count: BigInt!
 }
 
 type ActiveStaker @entity {
-  id: ID!
-}
-
-type DailyActiveStaker @entity {
   id: ID!
 }

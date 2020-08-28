@@ -35,10 +35,9 @@ import {
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
-  ActiveStakers,
-  DailyActiveStakers,
+  TotalActiveStaker,
+  TotalDailyActiveStaker,
   ActiveStaker,
-  DailyActiveStaker,
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
@@ -429,7 +428,9 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackActiveStakers(event, false);
+  if (event.block.number > v200UpgradeBlock) {
+    trackActiveStakers(event, false);
+  }
 
   // track this issuer for reference
   trackIssuer(event.transaction.from);
@@ -491,7 +492,9 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  trackActiveStakers(event, true);
+  if (event.block.number > v200UpgradeBlock) {
+    trackActiveStakers(event, true);
+  }
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
@@ -552,14 +555,13 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   if (event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
-    // Use bytes4
-  } else if (event.block.number > v101UpgradeBlock) {
+  } else if (event.block.number > v200UpgradeBlock) {
     let synthetix = Synthetix4.bind(snxContract);
     let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
     if (!accountDebt.reverted) {
       accountDebtBalance = accountDebt.value;
     } else {
-      log.debug('v101UpgradeBlock Skipping track active stakers for account: {}, timestamp: {}', [
+      log.error('reverted debt balance of in track active stakers for account: {}, timestamp: {}', [
         account.toHex(),
         timestamp.toString(),
       ]);
@@ -569,54 +571,51 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
 
   let dayID = timestamp.toI32() / 86400;
 
-  let activeStakers = ActiveStakers.load('1');
+  let totalActiveStaker = TotalActiveStaker.load('1');
   let activeStaker = ActiveStaker.load(account.toHex());
 
-  if (activeStakers == null) {
-    activeStakers = loadActiveStakers();
+  if (totalActiveStaker == null) {
+    totalActiveStaker = loadTotalActiveStaker();
   }
 
-  if (isBurn && activeStaker != null) {
-    if (accountDebtBalance === BigInt.fromI32(0)) {
-      activeStakers.count = activeStakers.count.minus(BigInt.fromI32(1));
-      activeStakers.save();
-    }
+  // You are burning and have been counted before as active and have no debt balance
+  // we reduce the count from the total and remove the active staker entity
+  if (isBurn && activeStaker != null && accountDebtBalance == BigInt.fromI32(0)) {
+    totalActiveStaker.count = totalActiveStaker.count.minus(BigInt.fromI32(1));
+    totalActiveStaker.save();
+    store.remove('activeStaker', account.toHex());
+    // else if you are minting and have not been accounted for as being active, add one
+    // and create a new active staker entity
   } else if (!isBurn && activeStaker == null) {
     activeStaker = new ActiveStaker(account.toHex());
     activeStaker.save();
-    activeStakers.count = activeStakers.count.plus(BigInt.fromI32(1));
-    activeStakers.save();
+    totalActiveStaker.count = totalActiveStaker.count.plus(BigInt.fromI32(1));
+    totalActiveStaker.save();
+  } else {
+    log.error('what happened in else clause - isBurn, debtBalanceOf, account, block: {}, {}, {}, {}', [
+      isBurn.toString(),
+      accountDebtBalance.toString(),
+      account.toHex(),
+      event.block.number.toString(),
+    ]);
   }
 
-  let dailyActiveStakerID = dayID.toString() + '-' + account.toHex();
-  let dailyActiveStaker = DailyActiveStaker.load(dailyActiveStakerID);
-  let dailyActiveStakers = DailyActiveStakers.load(dayID.toString());
-  if (dailyActiveStakers == null) {
-    dailyActiveStakers = loadDailyActiveStakers(dayID.toString());
-  }
-
-  if (isBurn && dailyActiveStaker != null) {
-    if (accountDebtBalance === BigInt.fromI32(0)) {
-      dailyActiveStakers.count = dailyActiveStakers.count.minus(BigInt.fromI32(1));
-      dailyActiveStakers.save();
-      store.remove('DailyActiveStaker', dailyActiveStakerID);
-    }
-  } else if (!isBurn && dailyActiveStaker == null) {
-    dailyActiveStaker = new DailyActiveStaker(dailyActiveStakerID);
-    dailyActiveStaker.save();
-    dailyActiveStakers.count = dailyActiveStakers.count.plus(BigInt.fromI32(1));
-    dailyActiveStakers.save();
+  // Once a day we stor the total number of active stakers in an entity that is easy to query for charts
+  let totalDailyActiveStaker = TotalDailyActiveStaker.load(dayID.toString());
+  if (totalDailyActiveStaker == null) {
+    totalDailyActiveStaker = loadTotalDailyActiveStaker(dayID.toString(), totalActiveStaker.count);
+    totalDailyActiveStaker.save();
   }
 }
 
-function loadActiveStakers(): ActiveStakers {
-  let newActiveStakers = new ActiveStakers('1');
-  newActiveStakers.count = BigInt.fromI32(0);
-  return newActiveStakers;
+function loadTotalActiveStaker(): TotalActiveStaker {
+  let newActiveStaker = new TotalActiveStaker('1');
+  newActiveStaker.count = BigInt.fromI32(0);
+  return newActiveStaker;
 }
 
-function loadDailyActiveStakers(id: string): DailyActiveStakers {
-  let newDailyActiveStakers = new DailyActiveStakers(id);
-  newDailyActiveStakers.count = BigInt.fromI32(0);
-  return newDailyActiveStakers;
+function loadTotalDailyActiveStaker(id: string, count: BigInt): TotalDailyActiveStaker {
+  let newTotalDailyActiveStaker = new TotalDailyActiveStaker(id);
+  newTotalDailyActiveStaker.count = count;
+  return newTotalDailyActiveStaker;
 }
