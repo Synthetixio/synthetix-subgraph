@@ -164,7 +164,7 @@ dataSources:
     name: AggregatorAUD
     network: mainnet
     source:
-      address: '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231' # AUD
+      address: '0x77F9710E7d0A19669A13c055F62cd80d313dF022' # AUD
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -179,11 +179,12 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorEUR
     network: mainnet
     source:
-      address: '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5' # EUR
+      address: '0xb49f677943BC038e9857d61E7d053CaA2C1734C1' # EUR
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -198,11 +199,12 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorCHF
     network: mainnet
     source:
-      address: '0x02d5c618dbc591544b19d0bf13543c0728a3c4ec' # CHF
+      address: '0x449d117117838fFA61263B61dA6301AA2a88B13A' # CHF
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -217,11 +219,12 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorGBP
     network: mainnet
     source:
-      address: '0x151445852b0cfdf6a4cc81440f2af99176e8ad08' # GBP
+      address: '0x5c0Ab2d9b5a7ed9f470386e82BB36A3613cDd4b5' # GBP
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -236,11 +239,12 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorJPY
     network: mainnet
     source:
-      address: '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6' # JPY
+      address: '0xBcE206caE7f0ec07b545EddE332A47C2F75bbeb3' # JPY
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -255,11 +259,12 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorXAG
     network: mainnet
     source:
-      address: '0x8946a183bfafa95becf57c5e08fe5b7654d2807b' # XAG
+      address: '0x379589227b15F1a12195D3f2d90bBc9F31f95235' # XAG
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -274,11 +279,12 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorXAU
     network: mainnet
     source:
-      address: '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935' # XAU
+      address: '0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6' # XAU
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -293,11 +299,12 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorFTSE
     network: mainnet
     source:
-      address: '0x16924ae9c2ac6cdbc9d6bb16fafcd38bed560936' # FTSE
+      address: '0xE23FA0e8dd05D6f66a6e8c98cab2d9AE82A7550c' # FTSE100
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -312,12 +319,455 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+
   - kind: ethereum/contract
     name: AggregatorN225
     network: mainnet
     source:
-      address: '0x3f6e09a4ec3811765f5b2ad15c0279910dbb2c04' # NIKKEI225
+      address: '0x5c4939a2ab3A2a9f93A518d81d4f8D0Bc6a68980' # NIKKEI225
       abi: Aggregator
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  # Chainlink Aggregators Phase 2 (crypto and indexes)
+  - kind: ethereum/contract
+    name: AggregatorSNX
+    network: mainnet
+    source:
+      address: '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699' # SNX
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorETH
+    network: mainnet
+    source:
+      address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419' # ETH
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorCOMP
+    network: mainnet
+    source:
+      address: '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5' # COMP
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorKNC
+    network: mainnet
+    source:
+      address: '0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc' # KNC
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorLEND
+    network: mainnet
+    source:
+      address: '0x4aB81192BB75474Cf203B56c36D6a13623270A67' # LEND
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorREN
+    network: mainnet
+    source:
+      address: '0x0f59666EDE214281e956cb3b2D0d69415AfF4A01' # REN
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorBTC
+    network: mainnet
+    source:
+      address: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c' # BTC
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorBNB
+    network: mainnet
+    source:
+      address: '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A' # BNB
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorTRX
+    network: mainnet
+    source:
+      address: '0xacD0D1A29759CC01E8D925371B72cb2b5610EA25' # TRX
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorXTZ
+    network: mainnet
+    source:
+      address: '0x5239a625dEb44bF3EeAc2CD5366ba24b8e9DB63F' # XTZ
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorXRP
+    network: mainnet
+    source:
+      address: '0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12' # XRP
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorLTC
+    network: mainnet
+    source:
+      address: '0x6AF09DF7563C363B5763b9102712EbeD3b9e859B' # LTC
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: Aggregator
+    network: mainnet
+    source:
+      address: '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c' # LINK
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorEOS
+    network: mainnet
+    source:
+      address: '0x10a43289895eAff840E8d45995BBa89f9115ECEe' # EOS
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorBCH
+    network: mainnet
+    source:
+      address: '0x9F0F69428F923D6c95B781F89E165C9b2df9789D' # BCH
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorETC
+    network: mainnet
+    source:
+      address: '0xaEA2808407B7319A31A383B6F8B60f04BCa23cE2' # ETC
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorDASH
+    network: mainnet
+    source:
+      address: '0xFb0cADFEa136E9E343cfb55B863a6Df8348ab912' # DASH
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorXMR
+    network: mainnet
+    source:
+      address: '0xFA66458Cce7Dd15D8650015c4fce4D278271618F' # XMR
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorADA
+    network: mainnet
+    source:
+      address: '0xAE48c91dF1fE419994FFDa27da09D5aC69c30f55' # ADA
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorCEX
+    network: mainnet
+    source:
+      address: '0x283D433435cFCAbf00263beEF6A362b7cc5ed9f2' # CEX
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorDEFI
+    network: mainnet
+    source:
+      address: '0xa8E875F94138B0C5b51d1e1d5dE35bbDdd28EA87' # DEFI
+      abi: Aggregator
+      startBlock: 10772000 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
