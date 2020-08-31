@@ -1,7 +1,7 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
 
-import { RatesUpdated, RateUpdate, AggregatorAnswer } from '../generated/schema';
+import { RatesUpdated, RateUpdate, AggregatorAnswer, FifteenMinuteSNXPrice, DailySNXPrice } from '../generated/schema';
 
 import { ByteArray, Bytes, BigInt } from '@graphprotocol/graph-ts';
 
@@ -27,6 +27,9 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
     rateEntity.synth = keys[i].toString();
     rateEntity.rate = rates[i];
     rateEntity.save();
+    if (keys[i].toString() == 'SNX') {
+      handleSNXPrices(event.block.timestamp, rateEntity.rate);
+    }
   }
 }
 
@@ -104,5 +107,58 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     rateEntity.synth = entity.synth;
     rateEntity.rate = entity.rate;
     rateEntity.save();
+    if (entity.synth.toString() == 'SNX') {
+      handleSNXPrices(entity.timestamp, entity.rate);
+    }
   }
+}
+
+function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
+  let dayID = timestamp.toI32() / 86400;
+  let fifteenMinuteID = timestamp.toI32() / 900;
+
+  let dailySNXPrice = DailySNXPrice.load(dayID.toString());
+  let fifteenMinuteSNXPrice = FifteenMinuteSNXPrice.load(fifteenMinuteID.toString());
+
+  if (dailySNXPrice == null) {
+    dailySNXPrice = loadDailySNXPrice(dayID.toString());
+  }
+
+  if (fifteenMinuteSNXPrice == null) {
+    fifteenMinuteSNXPrice = loadFifteenMinuteSNXPrice(fifteenMinuteID.toString());
+  }
+
+  dailySNXPrice.count = dailySNXPrice.count.plus(BigInt.fromI32(1));
+  dailySNXPrice.averagePrice = calculateAveragePrice(dailySNXPrice.averagePrice, rate, dailySNXPrice.count);
+
+  fifteenMinuteSNXPrice.count = fifteenMinuteSNXPrice.count.plus(BigInt.fromI32(1));
+  fifteenMinuteSNXPrice.averagePrice = calculateAveragePrice(
+    fifteenMinuteSNXPrice.averagePrice,
+    rate,
+    fifteenMinuteSNXPrice.count,
+  );
+
+  dailySNXPrice.save();
+  fifteenMinuteSNXPrice.save();
+}
+
+function loadDailySNXPrice(id: string): DailySNXPrice {
+  let newDailySNXPrice = new DailySNXPrice(id);
+  newDailySNXPrice.count = BigInt.fromI32(0);
+  newDailySNXPrice.averagePrice = BigInt.fromI32(0);
+  return newDailySNXPrice;
+}
+
+function loadFifteenMinuteSNXPrice(id: string): FifteenMinuteSNXPrice {
+  let newFifteenMinuteSNXPrice = new FifteenMinuteSNXPrice(id);
+  newFifteenMinuteSNXPrice.count = BigInt.fromI32(0);
+  newFifteenMinuteSNXPrice.averagePrice = BigInt.fromI32(0);
+  return newFifteenMinuteSNXPrice;
+}
+
+function calculateAveragePrice(oldAveragePrice: BigInt, newRate: BigInt, newCount: BigInt): BigInt {
+  return oldAveragePrice
+    .times(newCount.minus(BigInt.fromI32(1)))
+    .plus(newRate)
+    .div(newCount);
 }
