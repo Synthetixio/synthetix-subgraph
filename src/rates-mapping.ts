@@ -134,15 +134,13 @@ contracts.set(
   '0x734e494b4b454900000000000000000000000000000000000000000000000000',
 );
 
-function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes): void {
+function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt): void {
   let entity = new AggregatorAnswer(event.transaction.hash.toHex());
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
   entity.currencyKey = currencyKey;
   entity.synth = currencyKey.toString();
-  // now multiply by 1e10 to turn the 8 decimal int to a 18 decimal one
-  // Note: assumes 8 decimals
-  entity.rate = event.params.current.times(BigInt.fromI32(10).pow(10));
+  entity.rate = rate;
   entity.roundId = event.params.roundId;
   entity.aggregator = event.address;
   entity.save();
@@ -174,11 +172,14 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     // for each currency key using this aggregator
     for (let i = 0; i < currencyKeys.length; i++) {
       // create an answer entity
-      createRates(event, currencyKeys[i]);
+      createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
     }
   } else {
     // for pre-pollux, use a contract mapping to get the currency key
     let currencyKey = contracts.get(event.address.toHexString());
-    createRates(event, ByteArray.fromHexString(currencyKey) as Bytes);
+    // and calculate the rate from Chainlink's Aggregator directly by multiplying by 1e10 to
+    // turn the 8 decimal int to a 18 decimal one
+    let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
+    createRates(event, ByteArray.fromHexString(currencyKey) as Bytes, rate);
   }
 }
