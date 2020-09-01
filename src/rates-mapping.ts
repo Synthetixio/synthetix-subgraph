@@ -1,9 +1,60 @@
-import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates/ExchangeRates';
+import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates_v223/ExchangeRates';
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
+import { ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
 
 import { RatesUpdated, RateUpdate, AggregatorAnswer, FifteenMinuteSNXPrice, DailySNXPrice } from '../generated/schema';
 
-import { ByteArray, Bytes, BigInt } from '@graphprotocol/graph-ts';
+import { ByteArray, Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
+
+function loadDailySNXPrice(id: string): DailySNXPrice {
+  let newDailySNXPrice = new DailySNXPrice(id);
+  newDailySNXPrice.count = BigInt.fromI32(0);
+  newDailySNXPrice.averagePrice = BigInt.fromI32(0);
+  return newDailySNXPrice;
+}
+
+function loadFifteenMinuteSNXPrice(id: string): FifteenMinuteSNXPrice {
+  let newFifteenMinuteSNXPrice = new FifteenMinuteSNXPrice(id);
+  newFifteenMinuteSNXPrice.count = BigInt.fromI32(0);
+  newFifteenMinuteSNXPrice.averagePrice = BigInt.fromI32(0);
+  return newFifteenMinuteSNXPrice;
+}
+
+function calculateAveragePrice(oldAveragePrice: BigInt, newRate: BigInt, newCount: BigInt): BigInt {
+  return oldAveragePrice
+    .times(newCount.minus(BigInt.fromI32(1)))
+    .plus(newRate)
+    .div(newCount);
+}
+
+function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
+  let dayID = timestamp.toI32() / 86400;
+  let fifteenMinuteID = timestamp.toI32() / 900;
+
+  let dailySNXPrice = DailySNXPrice.load(dayID.toString());
+  let fifteenMinuteSNXPrice = FifteenMinuteSNXPrice.load(fifteenMinuteID.toString());
+
+  if (dailySNXPrice == null) {
+    dailySNXPrice = loadDailySNXPrice(dayID.toString());
+  }
+
+  if (fifteenMinuteSNXPrice == null) {
+    fifteenMinuteSNXPrice = loadFifteenMinuteSNXPrice(fifteenMinuteID.toString());
+  }
+
+  dailySNXPrice.count = dailySNXPrice.count.plus(BigInt.fromI32(1));
+  dailySNXPrice.averagePrice = calculateAveragePrice(dailySNXPrice.averagePrice, rate, dailySNXPrice.count);
+
+  fifteenMinuteSNXPrice.count = fifteenMinuteSNXPrice.count.plus(BigInt.fromI32(1));
+  fifteenMinuteSNXPrice.averagePrice = calculateAveragePrice(
+    fifteenMinuteSNXPrice.averagePrice,
+    rate,
+    fifteenMinuteSNXPrice.count,
+  );
+
+  dailySNXPrice.save();
+  fifteenMinuteSNXPrice.save();
+}
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -36,8 +87,6 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
 // ---------------------
 // Chainlink Aggregators
 // ---------------------
-
-// create a contract mapping to know which synth the aggregator corresponds to
 let contracts = new Map<string, string>();
 contracts.set(
   // sAUD
@@ -85,14 +134,14 @@ contracts.set(
   '0x734e494b4b454900000000000000000000000000000000000000000000000000',
 );
 
-export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
+function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes): void {
   let entity = new AggregatorAnswer(event.transaction.hash.toHex());
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
-  let currencyKey = contracts.get(event.address.toHexString());
-  entity.currencyKey = ByteArray.fromHexString(currencyKey) as Bytes;
-  entity.synth = entity.currencyKey.toString();
+  entity.currencyKey = currencyKey;
+  entity.synth = currencyKey.toString();
   // now multiply by 1e10 to turn the 8 decimal int to a 18 decimal one
+  // Note: assumes 8 decimals
   entity.rate = event.params.current.times(BigInt.fromI32(10).pow(10));
   entity.roundId = event.params.roundId;
   entity.aggregator = event.address;
@@ -103,62 +152,33 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
     rateEntity.block = entity.block;
     rateEntity.timestamp = entity.timestamp;
-    rateEntity.currencyKey = entity.currencyKey;
+    rateEntity.currencyKey = currencyKey;
     rateEntity.synth = entity.synth;
     rateEntity.rate = entity.rate;
     rateEntity.save();
-    if (entity.synth.toString() == 'SNX') {
+    if (entity.currencyKey.toString() == 'SNX') {
       handleSNXPrices(entity.timestamp, entity.rate);
     }
   }
 }
 
-function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
-  let dayID = timestamp.toI32() / 86400;
-  let fifteenMinuteID = timestamp.toI32() / 900;
+// create a contract mapping to know which synth the aggregator corresponds to
+export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
+  // From Pollux on, use the ExchangeRates to get
+  if (event.block.number > BigInt.fromI32(10773070)) {
+    // Note: hard coding the latest ExchangeRates for now
+    let exchangeRatesv227 = Address.fromHexString('0xbCc4ac49b8f57079df1029dD3146C8ECD805acd0');
+    let exrates = ExchangeRates.bind(exchangeRatesv227 as Address);
+    let currencyKeys = exrates.currenciesUsingAggregator(event.address);
 
-  let dailySNXPrice = DailySNXPrice.load(dayID.toString());
-  let fifteenMinuteSNXPrice = FifteenMinuteSNXPrice.load(fifteenMinuteID.toString());
-
-  if (dailySNXPrice == null) {
-    dailySNXPrice = loadDailySNXPrice(dayID.toString());
+    // for each currency key using this aggregator
+    for (let i = 0; i < currencyKeys.length; i++) {
+      // create an answer entity
+      createRates(event, currencyKeys[i]);
+    }
+  } else {
+    // for pre-pollux, use a contract mapping to get the currency key
+    let currencyKey = contracts.get(event.address.toHexString());
+    createRates(event, ByteArray.fromHexString(currencyKey) as Bytes);
   }
-
-  if (fifteenMinuteSNXPrice == null) {
-    fifteenMinuteSNXPrice = loadFifteenMinuteSNXPrice(fifteenMinuteID.toString());
-  }
-
-  dailySNXPrice.count = dailySNXPrice.count.plus(BigInt.fromI32(1));
-  dailySNXPrice.averagePrice = calculateAveragePrice(dailySNXPrice.averagePrice, rate, dailySNXPrice.count);
-
-  fifteenMinuteSNXPrice.count = fifteenMinuteSNXPrice.count.plus(BigInt.fromI32(1));
-  fifteenMinuteSNXPrice.averagePrice = calculateAveragePrice(
-    fifteenMinuteSNXPrice.averagePrice,
-    rate,
-    fifteenMinuteSNXPrice.count,
-  );
-
-  dailySNXPrice.save();
-  fifteenMinuteSNXPrice.save();
-}
-
-function loadDailySNXPrice(id: string): DailySNXPrice {
-  let newDailySNXPrice = new DailySNXPrice(id);
-  newDailySNXPrice.count = BigInt.fromI32(0);
-  newDailySNXPrice.averagePrice = BigInt.fromI32(0);
-  return newDailySNXPrice;
-}
-
-function loadFifteenMinuteSNXPrice(id: string): FifteenMinuteSNXPrice {
-  let newFifteenMinuteSNXPrice = new FifteenMinuteSNXPrice(id);
-  newFifteenMinuteSNXPrice.count = BigInt.fromI32(0);
-  newFifteenMinuteSNXPrice.averagePrice = BigInt.fromI32(0);
-  return newFifteenMinuteSNXPrice;
-}
-
-function calculateAveragePrice(oldAveragePrice: BigInt, newRate: BigInt, newCount: BigInt): BigInt {
-  return oldAveragePrice
-    .times(newCount.minus(BigInt.fromI32(1)))
-    .plus(newRate)
-    .div(newCount);
 }
