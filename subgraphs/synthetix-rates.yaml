@@ -140,7 +140,7 @@ dataSources:
           handler: handleRatesUpdated
 
   - kind: ethereum/contract
-    name: ExchangeRates
+    name: ExchangeRates_v223
     network: mainnet
     source:
       address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48' # ExchangeRates v2.23 (SIP-48)
@@ -155,16 +155,38 @@ dataSources:
         - RatesUpdated
       abis:
         - name: ExchangeRates
+          file: ../abis/ExchangeRates_v2.23.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+
+  - kind: ethereum/contract
+    name: ExchangeRates
+    network: mainnet
+    source:
+      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48' # ExchangeRates v2.27
+      abi: ExchangeRates
+      startBlock: 10773070 # Pollux release (v2.27) (Note: we don't need to listen to this anymore here but keeping for posterity)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
           file: ../abis/ExchangeRates.json
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
+
   # Chainlink Aggregators Phase 1 (forex and commodities)
   - kind: ethereum/contract
     name: AggregatorAUD
     network: mainnet
     source:
-      address: '0x77F9710E7d0A19669A13c055F62cd80d313dF022' # AUD
+      address: '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231' # AUD
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -184,7 +206,7 @@ dataSources:
     name: AggregatorEUR
     network: mainnet
     source:
-      address: '0xb49f677943BC038e9857d61E7d053CaA2C1734C1' # EUR
+      address: '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5' # EUR
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -204,7 +226,7 @@ dataSources:
     name: AggregatorCHF
     network: mainnet
     source:
-      address: '0x449d117117838fFA61263B61dA6301AA2a88B13A' # CHF
+      address: '0x02d5c618dbc591544b19d0bf13543c0728a3c4ec' # CHF
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -224,7 +246,7 @@ dataSources:
     name: AggregatorGBP
     network: mainnet
     source:
-      address: '0x5c0Ab2d9b5a7ed9f470386e82BB36A3613cDd4b5' # GBP
+      address: '0x151445852b0cfdf6a4cc81440f2af99176e8ad08' # GBP
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -244,7 +266,7 @@ dataSources:
     name: AggregatorJPY
     network: mainnet
     source:
-      address: '0xBcE206caE7f0ec07b545EddE332A47C2F75bbeb3' # JPY
+      address: '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6' # JPY
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -264,7 +286,7 @@ dataSources:
     name: AggregatorXAG
     network: mainnet
     source:
-      address: '0x379589227b15F1a12195D3f2d90bBc9F31f95235' # XAG
+      address: '0x8946a183bfafa95becf57c5e08fe5b7654d2807b' # XAG
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -284,7 +306,7 @@ dataSources:
     name: AggregatorXAU
     network: mainnet
     source:
-      address: '0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6' # XAU
+      address: '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935' # XAU
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -304,7 +326,7 @@ dataSources:
     name: AggregatorFTSE
     network: mainnet
     source:
-      address: '0xE23FA0e8dd05D6f66a6e8c98cab2d9AE82A7550c' # FTSE100
+      address: '0x16924ae9c2ac6cdbc9d6bb16fafcd38bed560936' # FTSE
       abi: Aggregator
     mapping:
       kind: ethereum/events
@@ -345,9 +367,9 @@ dataSources:
     name: AggregatorSNX
     network: mainnet
     source:
-      address: '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699' # SNX
+      address: '0xd3ce735cdc708d9607cfbc6c3429861625132cb4' # SNX
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -366,9 +388,9 @@ dataSources:
     name: AggregatorETH
     network: mainnet
     source:
-      address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419' # ETH
+      address: '0xf79d6afbb6da890132f9d7c355e3015f15f3406f' # ETH
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -387,9 +409,9 @@ dataSources:
     name: AggregatorCOMP
     network: mainnet
     source:
-      address: '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5' # COMP
+      address: '0x80eeb41e2a86d4ae9903a3860dd643dad2d1a853' # COMP
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -408,9 +430,9 @@ dataSources:
     name: AggregatorKNC
     network: mainnet
     source:
-      address: '0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc' # KNC
+      address: '0x45e9fee61185e213c37fc14d18e44ef9262e10db' # KNC
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -429,9 +451,9 @@ dataSources:
     name: AggregatorLEND
     network: mainnet
     source:
-      address: '0x4aB81192BB75474Cf203B56c36D6a13623270A67' # LEND
+      address: '0x2408935efe60f092b442a8755f7572edb9cf971e' # LEND
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -450,9 +472,9 @@ dataSources:
     name: AggregatorREN
     network: mainnet
     source:
-      address: '0x0f59666EDE214281e956cb3b2D0d69415AfF4A01' # REN
+      address: '0x353f61f39a17e56ca413f4559b8cd3b6a252ffc8' # REN
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -471,9 +493,9 @@ dataSources:
     name: AggregatorBTC
     network: mainnet
     source:
-      address: '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c' # BTC
+      address: '0xf5fff180082d6017036b771ba883025c654bc935' # BTC
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -492,9 +514,9 @@ dataSources:
     name: AggregatorBNB
     network: mainnet
     source:
-      address: '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A' # BNB
+      address: '0x0821f21f21c325ae39557ca83b6b4df525495d06' # BNB
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -513,9 +535,9 @@ dataSources:
     name: AggregatorTRX
     network: mainnet
     source:
-      address: '0xacD0D1A29759CC01E8D925371B72cb2b5610EA25' # TRX
+      address: '0x28e0fd8e05c14034cba95c6bf3394d1b106f7ed8' # TRX
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -534,9 +556,9 @@ dataSources:
     name: AggregatorXTZ
     network: mainnet
     source:
-      address: '0x5239a625dEb44bF3EeAc2CD5366ba24b8e9DB63F' # XTZ
+      address: '0x52d674c76e91c50a0190de77da1fad67d859a569' # XTZ
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -555,9 +577,9 @@ dataSources:
     name: AggregatorXRP
     network: mainnet
     source:
-      address: '0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12' # XRP
+      address: '0x570985649832b51786a181d57babe012be1c09a4' # XRP
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -576,9 +598,9 @@ dataSources:
     name: AggregatorLTC
     network: mainnet
     source:
-      address: '0x6AF09DF7563C363B5763b9102712EbeD3b9e859B' # LTC
+      address: '0xc6ee0d4943dc43bd462145aa6ac95e9c0c8b462f' # LTC
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -597,9 +619,9 @@ dataSources:
     name: Aggregator
     network: mainnet
     source:
-      address: '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c' # LINK
+      address: '0x32dbd3214ac75223e27e575c53944307914f7a90' # LINK
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -618,9 +640,9 @@ dataSources:
     name: AggregatorEOS
     network: mainnet
     source:
-      address: '0x10a43289895eAff840E8d45995BBa89f9115ECEe' # EOS
+      address: '0x740be5e8fe30bd2bf664822154b520eae0c565b0' # EOS
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -639,9 +661,9 @@ dataSources:
     name: AggregatorBCH
     network: mainnet
     source:
-      address: '0x9F0F69428F923D6c95B781F89E165C9b2df9789D' # BCH
+      address: '0x6a6527d91ddae0a259cc09dad311b3455cdc1fbd' # BCH
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -660,9 +682,9 @@ dataSources:
     name: AggregatorETC
     network: mainnet
     source:
-      address: '0xaEA2808407B7319A31A383B6F8B60f04BCa23cE2' # ETC
+      address: '0xe2c9aea66ed352c33f9c7d8e824b7cac206b0b72' # ETC
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -681,9 +703,9 @@ dataSources:
     name: AggregatorDASH
     network: mainnet
     source:
-      address: '0xFb0cADFEa136E9E343cfb55B863a6Df8348ab912' # DASH
+      address: '0xd9d35a82d4dd43be7cfc524ebf5cd00c92c48ebc' # DASH
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -702,9 +724,9 @@ dataSources:
     name: AggregatorXMR
     network: mainnet
     source:
-      address: '0xFA66458Cce7Dd15D8650015c4fce4D278271618F' # XMR
+      address: '0xd1e850d6afb6c27a3d66a223f6566f0426a6e13b' # XMR
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -723,9 +745,9 @@ dataSources:
     name: AggregatorADA
     network: mainnet
     source:
-      address: '0xAE48c91dF1fE419994FFDa27da09D5aC69c30f55' # ADA
+      address: '0xf11bf075f0b2b8d8442ab99c44362f1353d40b44' # ADA
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -744,9 +766,9 @@ dataSources:
     name: AggregatorCEX
     network: mainnet
     source:
-      address: '0x283D433435cFCAbf00263beEF6A362b7cc5ed9f2' # CEX
+      address: '0x46bb139f23b01fef37cb95ae56274804bc3b3e86' # CEX
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -765,9 +787,9 @@ dataSources:
     name: AggregatorDEFI
     network: mainnet
     source:
-      address: '0xa8E875F94138B0C5b51d1e1d5dE35bbDdd28EA87' # DEFI
+      address: '0x7ae7781c7f3a5182596d161e037e6db8e36328ef' # DEFI
       abi: Aggregator
-      startBlock: 10772000 # Pollux release (v2.27)
+      startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
