@@ -591,13 +591,6 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     activeStaker.save();
     totalActiveStaker.count = totalActiveStaker.count.plus(BigInt.fromI32(1));
     totalActiveStaker.save();
-  } else {
-    log.error('what happened in else clause - isBurn, debtBalanceOf, account, block: {}, {}, {}, {}', [
-      isBurn.toString(),
-      accountDebtBalance.toString(),
-      account.toHex(),
-      event.block.number.toString(),
-    ]);
   }
 
   // Once a day we stor the total number of active stakers in an entity that is easy to query for charts
