@@ -124,15 +124,8 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   entity.network = 'mainnet';
   entity.save();
 
-<<<<<<< HEAD
-  let timestamp = event.block.timestamp.toI32();
-
-  let dayID = timestamp / 86400;
-  let fifteenMinuteID = timestamp / 900;
-=======
   let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
   let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
->>>>>>> Add synth balances for daily and fifteen minute periods
 
   let total = Total.load('mainnet');
   let dailyTotal = DailyTotal.load(dayID);

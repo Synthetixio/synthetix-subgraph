@@ -1,5 +1,9 @@
 // The latest Synthetix and event invocations
-import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/Synthetix/Synthetix';
+import {
+  Synthetix as SNX,
+  Transfer as SNXTransferEvent,
+  ExchangeTracking as ExchangeTrackingEvent,
+} from '../generated/Synthetix/Synthetix';
 
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
 
@@ -35,9 +39,9 @@ import {
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
-  DailySynthBalance,
-  FifteenMinuteSynthBalance,
   LatestRate,
+  DailyExchangePartner,
+  ExchangePartner,
 } from '../generated/schema';
 
 // import { BigInt, Address, ethereum, Bytes, ByteArray, log } from '@graphprotocol/graph-ts';
@@ -305,50 +309,12 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
 }
 
 function trackSynthHolder(contract: Synth, source: string, account: Address, event: SynthTransferEvent): void {
-  // synth holder ID is the transaction and log index to ensure any mulitple synth transfers in one transaction
-  // causes multiple entities added
-  let entity = new SynthHolder(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.account = account;
-  entity.source = source;
+  let entity = new SynthHolder(account.toHex());
+  entity.synth = source;
   entity.balanceOf = contract.balanceOf(account);
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
   entity.save();
-
-  if (account.toHex() != '0x0000000000000000000000000000000000000000') {
-    log.error('user account.toHex(): {}', [account.toHex()]);
-    let symbol = contract.symbol();
-    let latestRate = LatestRate.load(symbol);
-    if (latestRate == null) {
-      log.error('there does not exist a latest rate for synth: {}', [symbol]);
-      return;
-    }
-    log.error('latest rate is for synth: {}, {}', [latestRate.rate.toString(), symbol.toString()]);
-    let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-    let fifteenMinuteID = getTimeID(event.block.timestamp.toI32(), 900);
-
-    let fifteenMinuteSynthBalanceID = fifteenMinuteID + '-' + account.toHex();
-    let fifteenMinuteSynthBalance = FifteenMinuteSynthBalance.load(fifteenMinuteSynthBalanceID);
-
-    let dailySynthBalanceID = dayID + '-' + account.toHex();
-    let dailySynthBalance = DailySynthBalance.load(dailySynthBalanceID);
-
-    if (dailySynthBalance == null) {
-      dailySynthBalance = loadDailySynthBalance(dailySynthBalanceID, account, symbol);
-    }
-
-    if (fifteenMinuteSynthBalance == null) {
-      fifteenMinuteSynthBalance = loadFifteenMinuteSynthBalance(fifteenMinuteSynthBalanceID, account, symbol);
-    }
-    updateDailySynthBalance(dailySynthBalance as DailySynthBalance, entity.balanceOf, latestRate.rate);
-    updateFifteenMinuteSynthBalance(
-      fifteenMinuteSynthBalance as FifteenMinuteSynthBalance,
-      entity.balanceOf,
-      latestRate.rate,
-    );
-  } else {
-    log.error('should only match 0 address account.toHex(): {}', [account.toHex()]);
-  }
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
@@ -577,40 +543,48 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.save();
 }
 
-export function loadDailySynthBalance(id: string, account: Address, symbol: string): DailySynthBalance {
-  let newDailySynthBalance = new DailySynthBalance(id);
-  newDailySynthBalance.account = account;
-  newDailySynthBalance.synth = symbol;
-  newDailySynthBalance.balanceOf = BigInt.fromI32(0);
-  newDailySynthBalance.rate = BigInt.fromI32(0);
-  newDailySynthBalance.total = BigInt.fromI32(0);
-  return newDailySynthBalance;
+function handleExchangeTracking(event: ExchangeTrackingEvent): void {
+  let exchangePartnerID = event.trackingCode.toString();
+  let exchangePartner = ExchangePartner.load(exchangePartnerID);
+  if (exchangePartner == null) {
+    exchangePartner = loadNewExchangePartner(exchangePartnerID);
+  }
+
+  let latestRate = LatestRate.load(event.toCurrencyKey.toString());
+  let usdVolume = latestRate * event.toAmount;
+  log.error('the usdVolume of: {}, calculated from latestRate of synth: {}, with rate: {}, from a toAmount of: {}', [
+    usdVolume.toString(),
+    latestRate.id,
+    latestRate.rate.toString(),
+    event.toAmount.toString(),
+  ]);
+
+  exchangePartner.usdVolume = exchangePartner.usdVolume.plus(BigInt.fromI32(usdVolume));
+  exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
+  exchangePartner.save();
+
+  let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
+  let dailyExchangePartnerID = dayID + exchangePartnerID;
+  let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
+  if (dailyExchangePartner == null) {
+    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID);
+  }
+
+  dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(BigInt.fromI32(usdVolume));
+  dailyExchangePartner.trades = dailyExchangePartner.trades.plus(BigInt.fromI32(1));
+  dailyExchangePartner.save();
 }
 
-export function loadFifteenMinuteSynthBalance(id: string, account: Address, symbol: string): FifteenMinuteSynthBalance {
-  let newFifteenMinuteSynthBalance = new FifteenMinuteSynthBalance(id);
-  newFifteenMinuteSynthBalance.account = account;
-  newFifteenMinuteSynthBalance.synth = symbol;
-  newFifteenMinuteSynthBalance.balanceOf = BigInt.fromI32(0);
-  newFifteenMinuteSynthBalance.rate = BigInt.fromI32(0);
-  newFifteenMinuteSynthBalance.total = BigInt.fromI32(0);
-  return newFifteenMinuteSynthBalance;
+function loadNewExchangePartner(id: string): ExchangePartner {
+  let newExchangePartner = new ExchangePartner(id);
+  newExchangePartner.usdVolume = BigInt.fromI32(0);
+  newExchangePartner.trades = BigInt.fromI32(0);
+  return newExchangePartner;
 }
 
-export function updateDailySynthBalance(dailySynthBalance: DailySynthBalance, balanceOf: BigInt, rate: BigInt): void {
-  dailySynthBalance.balanceOf = balanceOf;
-  dailySynthBalance.rate = rate;
-  dailySynthBalance.total = rate.times(balanceOf);
-  dailySynthBalance.save();
-}
-
-export function updateFifteenMinuteSynthBalance(
-  fifteenMinuteSynthBalance: FifteenMinuteSynthBalance,
-  balanceOf: BigInt,
-  rate: BigInt,
-): void {
-  fifteenMinuteSynthBalance.balanceOf = balanceOf;
-  fifteenMinuteSynthBalance.rate = rate;
-  fifteenMinuteSynthBalance.total = rate.times(balanceOf);
-  fifteenMinuteSynthBalance.save();
+function loadNewDailyExchangePartner(id: string): DailyExchangePartner {
+  let newDailyExchangePartner = new DailyExchangePartner(id);
+  newDailyExchangePartner.usdVolume = BigInt.fromI32(0);
+  newDailyExchangePartner.trades = BigInt.fromI32(0);
+  return newDailyExchangePartner;
 }

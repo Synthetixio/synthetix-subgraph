@@ -72,6 +72,16 @@ function addLatestRate(synth: string, rate: BigInt) {
   latestRate.save();
 }
 
+function addDollar(dollarID: string): void {
+  let dollarRate = LatestRate.load(dollarID);
+  if (dollarRate == null) {
+    dollarRate = new LatestRate(dollarID);
+    let oneDollar = BigInt.fromI32(1);
+    dollarRate.rate = oneDollar.pow(18);
+    dollarRate.save();
+  }
+}
+
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   addDollar('sUSD');
   addDollar('nUSD');
@@ -328,15 +338,5 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     // turn the 8 decimal int to a 18 decimal one
     let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
     createRates(event, ByteArray.fromHexString(currencyKey) as Bytes, rate);
-  }
-}
-
-function addDollar(dollarID: string): void {
-  let dollarRate = LatestRate.load(dollarID);
-  if (dollarRate == null) {
-    dollarRate = new LatestRate(dollarID);
-    let oneDollar = BigInt.fromI32(1);
-    dollarRate.rate = oneDollar.pow(18);
-    dollarRate.save();
   }
 }
