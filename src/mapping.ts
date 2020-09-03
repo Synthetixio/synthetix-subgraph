@@ -561,9 +561,10 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     if (!accountDebt.reverted) {
       accountDebtBalance = accountDebt.value;
     } else {
-      log.error('reverted debt balance of in track active stakers for account: {}, timestamp: {}', [
+      log.debug('reverted debt balance of in track active stakers for account: {}, timestamp: {}, hash: {}', [
         account.toHex(),
         timestamp.toString(),
+        event.transaction.hash.toHex(),
       ]);
       return;
     }
@@ -596,8 +597,7 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   // Once a day we stor the total number of active stakers in an entity that is easy to query for charts
   let totalDailyActiveStaker = TotalDailyActiveStaker.load(dayID.toString());
   if (totalDailyActiveStaker == null) {
-    totalDailyActiveStaker = loadTotalDailyActiveStaker(dayID.toString(), totalActiveStaker.count);
-    totalDailyActiveStaker.save();
+    updateTotalDailyActiveStaker(dayID.toString(), totalActiveStaker.count);
   }
 }
 
@@ -607,8 +607,8 @@ function loadTotalActiveStaker(): TotalActiveStaker {
   return newActiveStaker;
 }
 
-function loadTotalDailyActiveStaker(id: string, count: BigInt): TotalDailyActiveStaker {
+function updateTotalDailyActiveStaker(id: string, count: BigInt): void {
   let newTotalDailyActiveStaker = new TotalDailyActiveStaker(id);
   newTotalDailyActiveStaker.count = count;
-  return newTotalDailyActiveStaker;
+  newTotalDailyActiveStaker.save();
 }
