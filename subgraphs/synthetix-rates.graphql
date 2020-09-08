@@ -30,3 +30,17 @@ type AggregatorAnswer @entity {
   block: BigInt!
   timestamp: BigInt!
 }
+
+# The average price of SNX over a 15 minute period
+type FifteenMinuteSNXPrice @entity {
+  id: ID!
+  count: BigInt!
+  averagePrice: BigInt!
+}
+
+# The average price of SNX over a day
+type DailySNXPrice @entity {
+  id: ID!
+  count: BigInt!
+  averagePrice: BigInt!
+}
