@@ -309,7 +309,11 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
 }
 
 function trackSynthHolder(contract: Synth, source: string, account: Address, event: SynthTransferEvent): void {
-  let entity = new SynthHolder(account.toHex());
+  let entityID = account.toHex() + '-' + source;
+  let entity = SynthHolder.load(entityID);
+  if (entity == null) {
+    entity = new SynthHolder(entityID);
+  }
   entity.synth = source;
   entity.balanceOf = contract.balanceOf(account);
   entity.block = event.block.number;
