@@ -257,7 +257,7 @@ contractsToProxies.set(
 );
 
 function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt): void {
-  let entity = new AggregatorAnswer(event.transaction.hash.toHex());
+  let entity = new AggregatorAnswer(event.transaction.hash.toHex() + '-' + currencyKey.toString());
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
   entity.currencyKey = currencyKey;
@@ -284,20 +284,23 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
 
 // create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
-  // From Pollux on, use the ExchangeRates to get
+  // From Pollux on, use the ExchangeRates to get the currency keys that use this aggregator
   if (event.block.number > BigInt.fromI32(10773070)) {
     // Note: hard coding the latest ExchangeRates for now
     let exchangeRatesv227 = Address.fromHexString('0xbCc4ac49b8f57079df1029dD3146C8ECD805acd0');
 
     let exrates = ExchangeRates.bind(exchangeRatesv227 as Address);
     let currencyKeys = exrates.currenciesUsingAggregator(Address.fromHexString(
+      // for the aggregator, we need the proxy
       contractsToProxies.get(event.address.toHexString()),
     ) as Address);
 
     // for each currency key using this aggregator
     for (let i = 0; i < currencyKeys.length; i++) {
-      // create an answer entity
-      createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
+      // create an answer entity for the non-zero entries
+      if (currencyKeys[i].toString() != '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
+      }
     }
   } else {
     // for pre-pollux, use a contract mapping to get the currency key
