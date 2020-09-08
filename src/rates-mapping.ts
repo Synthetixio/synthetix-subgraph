@@ -63,7 +63,7 @@ function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
   fifteenMinuteSNXPrice.save();
 }
 
-function addLatestRate(synth: string, rate: BigInt) {
+function addLatestRate(synth: string, rate: BigInt): void {
   let latestRate = LatestRate.load(synth);
   if (latestRate == null) {
     latestRate = new LatestRate(synth);

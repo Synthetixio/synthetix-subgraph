@@ -103,6 +103,19 @@ type FeesClaimed @entity {
   timestamp: BigInt!
 }
 
+type DailyExchangePartner @entity {
+  id: ID! # the day timestamp + the tracking code of the partner
+  usdVolume: BigInt!
+  trades: BigInt!
+}
+
+type ExchangePartner @entity {
+  id: ID! # the tracking code of the partner
+  usdVolume: BigInt!
+  trades: BigInt!
+}
+
+# Temporarily add rates entities until the Graph adds composability between subgraphs
 # RatesUpdated tracks this event from the ExchangeRates.sol contract
 type RatesUpdated @entity {
   id: ID!
@@ -136,19 +149,21 @@ type AggregatorAnswer @entity {
   timestamp: BigInt!
 }
 
+# The average price of SNX over a 15 minute period
+type FifteenMinuteSNXPrice @entity {
+  id: ID!
+  count: BigInt!
+  averagePrice: BigInt!
+}
+
+# The average price of SNX over a day
+type DailySNXPrice @entity {
+  id: ID!
+  count: BigInt!
+  averagePrice: BigInt!
+}
+
 type LatestRate @entity {
   id: ID! # the name of the synth
   rate: BigInt!
-}
-
-type DailyExchangePartner @entity {
-  id: ID! # the day timestamp + the tracking code of the partner
-  usdVolume: BigInt!
-  trades: BigInt!
-}
-
-type ExchangePartner @entity {
-  id: ID! # the tracking code of the partner
-  usdVolume: BigInt!
-  trades: BigInt!
 }
