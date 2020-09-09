@@ -308,7 +308,7 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
 }
 
-function trackSynthHolder(contract: Synth, source: string, account: Address, event: SynthTransferEvent): void {
+function trackSynthHolder(contract: Synth, source: string, account: Address): void {
   let entityID = account.toHex() + '-' + source;
   let entity = SynthHolder.load(entityID);
   if (entity == null) {
@@ -316,8 +316,6 @@ function trackSynthHolder(contract: Synth, source: string, account: Address, eve
   }
   entity.synth = source;
   entity.balanceOf = contract.balanceOf(account);
-  entity.block = event.block.number;
-  entity.timestamp = event.block.timestamp;
   entity.save();
 }
 
@@ -339,8 +337,8 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
-  trackSynthHolder(contract, entity.source, event.params.from, event);
-  trackSynthHolder(contract, entity.source, event.params.to, event);
+  trackSynthHolder(contract, entity.source, event.params.from);
+  trackSynthHolder(contract, entity.source, event.params.to);
 }
 
 /**
@@ -555,7 +553,9 @@ function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   }
 
   let latestRate = LatestRate.load(event.toCurrencyKey.toString());
-  let usdVolume = latestRate * event.toAmount;
+
+  let formattedAmount = event.toAmount.div(BigInt.fromI32(10).pow(18));
+  let usdVolume = latestRate.rate.times(formattedAmount);
   log.error('the usdVolume of: {}, calculated from latestRate of synth: {}, with rate: {}, from a toAmount of: {}', [
     usdVolume.toString(),
     latestRate.id,
