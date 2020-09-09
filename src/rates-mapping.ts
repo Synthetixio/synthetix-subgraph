@@ -76,7 +76,7 @@ function addDollar(dollarID: string): void {
   let dollarRate = LatestRate.load(dollarID);
   if (dollarRate == null) {
     dollarRate = new LatestRate(dollarID);
-    let oneDollar = BigInt.fromI32(1);
+    let oneDollar = BigInt.fromI32(10);
     dollarRate.rate = oneDollar.pow(18);
     dollarRate.save();
   }
