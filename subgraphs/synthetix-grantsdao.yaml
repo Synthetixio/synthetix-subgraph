@@ -17,7 +17,12 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/grantsdao-mapping.ts
       entities:
-        - Test
+        - Account
+        - Member
+        - Proposal
+        - SystemInfo
+        - Vote
+        - Tribute
       abis:
         - name: GrantsDAO
           file: ../abis/GrantsDAO.json
