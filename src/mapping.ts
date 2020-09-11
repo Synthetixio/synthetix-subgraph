@@ -551,17 +551,20 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   if (exchangePartner == null) {
     exchangePartner = loadNewExchangePartner(exchangePartnerID);
   }
-
   let latestRate = LatestRate.load(event.params.toCurrencyKey.toString());
+  if (latestRate == null) {
+    log.error('no rate available for exchange volume partner: {}, trading synth: {}, with amount: {} in tx hash: {}', [
+      event.params.trackingCode.toString(),
+      event.params.toCurrencyKey.toString(),
+      event.params.toAmount.toString(),
+      event.transaction.hash.toHex(),
+    ]);
+    return;
+  }
 
-  let formattedAmount = event.params.toAmount.div(BigInt.fromI32(10).pow(18));
-  let usdVolume = latestRate.rate.times(formattedAmount);
-  log.error('the usdVolume of: {}, calculated from latestRate of synth: {}, with rate: {}, from a toAmount of: {}', [
-    usdVolume.toString(),
-    latestRate.id,
-    latestRate.rate.toString(),
-    event.params.toAmount.toString(),
-  ]);
+  let formattedAmount = event.params.toAmount.times(latestRate.rate).div(BigInt.fromI32(10).pow(18));
+
+  let usdVolume = formattedAmount.div(BigInt.fromI32(10).pow(18));
 
   exchangePartner.usdVolume = exchangePartner.usdVolume.plus(usdVolume);
   exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
