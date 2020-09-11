@@ -545,25 +545,25 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.save();
 }
 
-function handleExchangeTracking(event: ExchangeTrackingEvent): void {
-  let exchangePartnerID = event.trackingCode.toString();
+export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
+  let exchangePartnerID = event.params.trackingCode.toString();
   let exchangePartner = ExchangePartner.load(exchangePartnerID);
   if (exchangePartner == null) {
     exchangePartner = loadNewExchangePartner(exchangePartnerID);
   }
 
-  let latestRate = LatestRate.load(event.toCurrencyKey.toString());
+  let latestRate = LatestRate.load(event.params.toCurrencyKey.toString());
 
-  let formattedAmount = event.toAmount.div(BigInt.fromI32(10).pow(18));
+  let formattedAmount = event.params.toAmount.div(BigInt.fromI32(10).pow(18));
   let usdVolume = latestRate.rate.times(formattedAmount);
   log.error('the usdVolume of: {}, calculated from latestRate of synth: {}, with rate: {}, from a toAmount of: {}', [
     usdVolume.toString(),
     latestRate.id,
     latestRate.rate.toString(),
-    event.toAmount.toString(),
+    event.params.toAmount.toString(),
   ]);
 
-  exchangePartner.usdVolume = exchangePartner.usdVolume.plus(BigInt.fromI32(usdVolume));
+  exchangePartner.usdVolume = exchangePartner.usdVolume.plus(usdVolume);
   exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
   exchangePartner.save();
 
@@ -574,7 +574,7 @@ function handleExchangeTracking(event: ExchangeTrackingEvent): void {
     dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID);
   }
 
-  dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(BigInt.fromI32(usdVolume));
+  dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(usdVolume);
   dailyExchangePartner.trades = dailyExchangePartner.trades.plus(BigInt.fromI32(1));
   dailyExchangePartner.save();
 }
