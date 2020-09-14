@@ -60,7 +60,7 @@ type DebtSnapshot @entity {
 }
 
 type SynthHolder @entity {
-  id: ID! address of the holder and the synth
+  id: ID! # address of the holder + the synth
   source: String! # the synth's currencyKey
   balanceOf: BigInt!
 }
