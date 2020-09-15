@@ -19,6 +19,8 @@ import {
   FifteenMinuteExchanger,
   ExchangeReclaim,
   ExchangeRebate,
+  PostArchernarTotal,
+  PostArchernarExchanger,
 } from '../generated/schema';
 
 import { BigInt, Address } from '@graphprotocol/graph-ts';
@@ -129,12 +131,17 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   let dayID = timestamp / 86400;
   let fifteenMinuteID = timestamp / 900;
 
+  let postArchernarTotal = PostArchernarTotal.load('mainnet');
   let total = Total.load('mainnet');
   let dailyTotal = DailyTotal.load(dayID.toString());
   let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString());
 
   if (total == null) {
     total = loadTotal();
+  }
+
+  if (postArchernarTotal == null && v219 > event.block.number) {
+    postArchernarTotal = loadPostArchernarTotal();
   }
 
   if (dailyTotal == null) {
@@ -145,6 +152,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID.toString());
   }
 
+  let existingPostArchernarExchanger = PostArchernarExchanger.load(account.toHex());
   let existingExchanger = Exchanger.load(account.toHex());
   let existingDailyExchanger = DailyExchanger.load(dayID.toString() + '-' + account.toHex());
   let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(fifteenMinuteID.toString() + '-' + account.toHex());
@@ -153,6 +161,12 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
     let exchanger = new Exchanger(account.toHex());
     exchanger.save();
+  }
+
+  if (existingPostArchernarExchanger == null && v219 > event.block.number) {
+    postArchernarTotal.exchangers = postArchernarTotal.exchangers.plus(BigInt.fromI32(1));
+    let postArchernarExchanger = new PostArchernarExchanger(account.toHex());
+    postArchernarExchanger.save();
   }
 
   if (existingDailyExchanger == null) {
@@ -167,11 +181,22 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     fifteenMinuteExchanger.save();
   }
 
+  if (v219 > event.block.number) {
+    postArchernarTotal.trades = postArchernarTotal.trades.plus(BigInt.fromI32(1));
+  }
+
   total.trades = total.trades.plus(BigInt.fromI32(1));
   dailyTotal.trades = dailyTotal.trades.plus(BigInt.fromI32(1));
   fifteenMinuteTotal.trades = fifteenMinuteTotal.trades.plus(BigInt.fromI32(1));
 
   if (fromAmountInUSD != null && feesInUSD != null) {
+    if (v219 > event.block.number) {
+      postArchernarTotal = addPostArchernarTotalFeesAndVolume(
+        postArchernarTotal as PostArchernarTotal,
+        fromAmountInUSD,
+        feesInUSD,
+      );
+    }
     total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
     dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
     fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(
@@ -179,6 +204,9 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
       fromAmountInUSD,
       feesInUSD,
     );
+  }
+  if (v219 > event.block.number) {
+    postArchernarTotal.save();
   }
   total.save();
   dailyTotal.save();
@@ -232,6 +260,15 @@ function loadTotal(): Total {
   return newTotal;
 }
 
+function loadPostArchernarTotal(): PostArchernarTotal {
+  let newPostArchernarTotal = new PostArchernarTotal('mainnet');
+  newPostArchernarTotal.trades = BigInt.fromI32(0);
+  newPostArchernarTotal.exchangers = BigInt.fromI32(0);
+  newPostArchernarTotal.exchangeUSDTally = BigInt.fromI32(0);
+  newPostArchernarTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  return newPostArchernarTotal;
+}
+
 function loadDailyTotal(id: string): DailyTotal {
   let newDailyTotal = new DailyTotal(id);
   newDailyTotal.trades = BigInt.fromI32(0);
@@ -248,6 +285,16 @@ function loadFifteenMinuteTotal(id: string): FifteenMinuteTotal {
   newFifteenMinuteTotal.exchangeUSDTally = BigInt.fromI32(0);
   newFifteenMinuteTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
   return newFifteenMinuteTotal;
+}
+
+function addPostArchernarTotalFeesAndVolume(
+  postArchernarTotal: PostArchernarTotal,
+  fromAmountInUSD: BigInt,
+  feesInUSD: BigInt,
+): PostArchernarTotal {
+  postArchernarTotal.exchangeUSDTally = postArchernarTotal.exchangeUSDTally.plus(fromAmountInUSD);
+  postArchernarTotal.totalFeesGeneratedInUSD = postArchernarTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
+  return postArchernarTotal;
 }
 
 function addTotalFeesAndVolume(total: Total, fromAmountInUSD: BigInt, feesInUSD: BigInt): Total {
