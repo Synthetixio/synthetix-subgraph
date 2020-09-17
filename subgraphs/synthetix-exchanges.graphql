@@ -8,6 +8,14 @@ type Total @entity {
   totalFeesGeneratedInUSD: BigInt!
 }
 
+type PostArchernarTotal @entity {
+  id: ID!
+  trades: BigInt!
+  exchangers: BigInt!
+  exchangeUSDTally: BigInt!
+  totalFeesGeneratedInUSD: BigInt!
+}
+
 # Total synth exchanges per day
 type DailyTotal @entity {
   id: ID!
@@ -69,6 +77,11 @@ type ExchangeRebate @entity {
 
 # An individual Exchanger
 type Exchanger @entity {
+  id: ID!
+}
+
+# An individual Exchanger Post Archernar
+type PostArchernarExchanger @entity {
   id: ID!
 }
 
