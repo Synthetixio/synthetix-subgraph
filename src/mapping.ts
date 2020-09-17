@@ -300,15 +300,14 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
 }
 
-function trackSynthHolder(contract: Synth, source: string, account: Address, event: SynthTransferEvent): void {
-  // synth holder ID is the transaction and log index to ensure any mulitple synth transfers in one transaction
-  // causes multiple entities added
-  let entity = new SynthHolder(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.account = account;
-  entity.source = source;
+function trackSynthHolder(contract: Synth, source: string, account: Address): void {
+  let entityID = account.toHex() + '-' + source;
+  let entity = SynthHolder.load(entityID);
+  if (entity == null) {
+    entity = new SynthHolder(entityID);
+  }
+  entity.synth = source;
   entity.balanceOf = contract.balanceOf(account);
-  entity.block = event.block.number;
-  entity.timestamp = event.block.timestamp;
   entity.save();
 }
 
@@ -330,8 +329,8 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   entity.block = event.block.number;
   entity.save();
 
-  trackSynthHolder(contract, entity.source, event.params.from, event);
-  trackSynthHolder(contract, entity.source, event.params.to, event);
+  trackSynthHolder(contract, entity.source, event.params.from);
+  trackSynthHolder(contract, entity.source, event.params.to);
 }
 
 /**
