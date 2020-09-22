@@ -133,6 +133,9 @@ function trackSNXHolder(
   let snxHolder = new SNXHolder(holder);
   snxHolder.block = block.number;
   snxHolder.timestamp = block.timestamp;
+  if (snxHolder.claims == null) {
+    snxHolder.claims = BigInt.fromI32(0);
+  }
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
   if (block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
@@ -547,9 +550,6 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   // now update SNXHolder to increment the number of claims
   let snxHolder = SNXHolder.load(entity.account.toHexString());
   if (snxHolder != null) {
-    if (snxHolder.claims == null) {
-      snxHolder.claims = BigInt.fromI32(0);
-    }
     snxHolder.claims = snxHolder.claims.plus(BigInt.fromI32(1));
     snxHolder.save();
   }
