@@ -437,6 +437,17 @@ export function handleIssuedSynths(event: IssuedEvent): void {
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
+
+  // now update SNXHolder to increment the number of claims
+  let snxHolder = SNXHolder.load(entity.account.toHexString());
+  if (snxHolder != null) {
+    if (snxHolder.mints == null) {
+      snxHolder.mints = BigInt.fromI32(0);
+    }
+    snxHolder.mints = snxHolder.mints.plus(BigInt.fromI32(1));
+    snxHolder.save();
+  }
+
   // update Debt snapshot history
   trackDebtSnapshot(event);
 }

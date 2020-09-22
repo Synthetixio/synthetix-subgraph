@@ -46,6 +46,8 @@ type SNXHolder @entity {
   debtEntryAtIndex: BigInt
   # number of claims performed
   claims: BigInt
+  # number of mints performed
+  mints: BigInt
 }
 
 # A historical debt tracker
