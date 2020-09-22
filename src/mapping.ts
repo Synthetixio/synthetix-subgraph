@@ -543,6 +543,16 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.timestamp = event.block.timestamp;
 
   entity.save();
+
+  // now update SNXHolder to increment the number of claims
+  let snxHolder = SNXHolder.load(entity.account.toHexString());
+  if (snxHolder != null) {
+    if (snxHolder.claims == null) {
+      snxHolder.claims = BigInt.fromI32(0);
+    }
+    snxHolder.claims = snxHolder.claims.plus(BigInt.fromI32(1));
+    snxHolder.save();
+  }
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {

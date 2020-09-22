@@ -44,6 +44,8 @@ type SNXHolder @entity {
   transferable: BigInt
   initialDebtOwnership: BigInt
   debtEntryAtIndex: BigInt
+  # number of claims performed
+  claims: BigInt!
 }
 
 # A historical debt tracker
