@@ -2,7 +2,14 @@ import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates_v2
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
 import { ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
 
-import { RatesUpdated, RateUpdate, AggregatorAnswer, FifteenMinuteSNXPrice, DailySNXPrice } from '../generated/schema';
+import {
+  RatesUpdated,
+  RateUpdate,
+  AggregatorAnswer,
+  FifteenMinuteSNXPrice,
+  DailySNXPrice,
+  LatestRate,
+} from '../generated/schema';
 
 import { ByteArray, Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
 
@@ -57,6 +64,9 @@ function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
 }
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
+  addDollar('sUSD');
+  addDollar('nUSD');
+
   let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.currencyKeys = event.params.currencyKeys;
   entity.newRates = event.params.newRates;
@@ -81,6 +91,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
     if (keys[i].toString() == 'SNX') {
       handleSNXPrices(event.block.timestamp, rateEntity.rate);
     }
+    addLatestRate(rateEntity.synth, rateEntity.rate);
   }
 }
 
@@ -267,6 +278,8 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
   entity.aggregator = event.address;
   entity.save();
 
+  addLatestRate(entity.synth, entity.rate);
+
   // save aggregated event as rate update from v2.17.5 (Procyon)
   if (event.block.number > BigInt.fromI32(9123410)) {
     let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
@@ -309,5 +322,24 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     // turn the 8 decimal int to a 18 decimal one
     let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
     createRates(event, ByteArray.fromHexString(currencyKey) as Bytes, rate);
+  }
+}
+
+function addLatestRate(synth: string, rate: BigInt): void {
+  let latestRate = LatestRate.load(synth);
+  if (latestRate == null) {
+    latestRate = new LatestRate(synth);
+  }
+  latestRate.rate = rate;
+  latestRate.save();
+}
+
+function addDollar(dollarID: string): void {
+  let dollarRate = LatestRate.load(dollarID);
+  if (dollarRate == null) {
+    dollarRate = new LatestRate(dollarID);
+    let oneDollar = BigInt.fromI32(10);
+    dollarRate.rate = oneDollar.pow(18);
+    dollarRate.save();
   }
 }
