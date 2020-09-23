@@ -151,7 +151,15 @@ contractsToProxies.set(
   '0x77F9710E7d0A19669A13c055F62cd80d313dF022',
 );
 contractsToProxies.set(
+  '0x3A33c0eFD0EB8fd38a6E1904dF1E32f95F67616b', // AUD_3
+  '0x77F9710E7d0A19669A13c055F62cd80d313dF022',
+);
+contractsToProxies.set(
   '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5', // EUR
+  '0xb49f677943BC038e9857d61E7d053CaA2C1734C1',
+);
+contractsToProxies.set(
+  '0x8f71c9c583248A11CAcBbC8FD0D5dFa483D3b109', // EUR_3
   '0xb49f677943BC038e9857d61E7d053CaA2C1734C1',
 );
 contractsToProxies.set(
@@ -171,7 +179,15 @@ contractsToProxies.set(
   '0x379589227b15F1a12195D3f2d90bBc9F31f95235',
 );
 contractsToProxies.set(
+  '0xF320E19B2ED82F1B226b006cD43FE600FEA56615', // XAG_3
+  '0x379589227b15F1a12195D3f2d90bBc9F31f95235',
+);
+contractsToProxies.set(
   '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935', // XAU
+  '0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6',
+);
+contractsToProxies.set(
+  '0x06A7689149cf04DacFDE555d1e1EAD7dD7370316', // XAU_3
   '0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6',
 );
 contractsToProxies.set(
@@ -211,6 +227,10 @@ contractsToProxies.set(
   '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
 );
 contractsToProxies.set(
+  '0xF570deEffF684D964dc3E15E1F9414283E3f7419', // BTC_3
+  '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
+);
+contractsToProxies.set(
   '0x0821f21f21c325ae39557ca83b6b4df525495d06', // BNB
   '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A',
 );
@@ -232,6 +252,10 @@ contractsToProxies.set(
 );
 contractsToProxies.set(
   '0x32dbd3214ac75223e27e575c53944307914f7a90', // LINK
+  '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c',
+);
+contractsToProxies.set(
+  '0x8cDE021F0BfA5f82610e8cE46493cF66AC04Af53', // LINK_3
   '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c',
 );
 contractsToProxies.set(
