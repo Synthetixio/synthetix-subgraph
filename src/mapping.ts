@@ -133,6 +133,7 @@ function trackSNXHolder(
   let snxHolder = new SNXHolder(holder);
   snxHolder.block = block.number;
   snxHolder.timestamp = block.timestamp;
+
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
   if (block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
@@ -436,6 +437,17 @@ export function handleIssuedSynths(event: IssuedEvent): void {
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
+
+  // now update SNXHolder to increment the number of claims
+  let snxHolder = SNXHolder.load(entity.account.toHexString());
+  if (snxHolder != null) {
+    if (snxHolder.mints == null) {
+      snxHolder.mints = BigInt.fromI32(0);
+    }
+    snxHolder.mints = snxHolder.mints.plus(BigInt.fromI32(1));
+    snxHolder.save();
+  }
+
   // update Debt snapshot history
   trackDebtSnapshot(event);
 }
@@ -543,6 +555,16 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   entity.timestamp = event.block.timestamp;
 
   entity.save();
+
+  // now update SNXHolder to increment the number of claims
+  let snxHolder = SNXHolder.load(entity.account.toHexString());
+  if (snxHolder != null) {
+    if (snxHolder.claims == null) {
+      snxHolder.claims = BigInt.fromI32(0);
+    }
+    snxHolder.claims = snxHolder.claims.plus(BigInt.fromI32(1));
+    snxHolder.save();
+  }
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {

@@ -45,7 +45,7 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.18.0",
+    "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#ebeeba0009f026bacf940f25ee7b875fe7676032",
     "@graphprotocol/graph-ts": "0.18.1",
     "chalk": "2.4.2",
     "commander": "2.20.0",

@@ -432,6 +432,7 @@ dataSources:
       file: ../src/mapping.ts
       entities:
         - FeesClaimed
+        - SNXHolder
       abis:
         - name: FeePool
           file: ../abis/FeePool.json
