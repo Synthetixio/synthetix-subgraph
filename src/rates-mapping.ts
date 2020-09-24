@@ -81,17 +81,19 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   let rates = entity.newRates;
   // now save each individual update
   for (let i = 0; i < entity.currencyKeys.length; i++) {
-    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + keys[i].toString());
-    rateEntity.block = event.block.number;
-    rateEntity.timestamp = event.block.timestamp;
-    rateEntity.currencyKey = keys[i];
-    rateEntity.synth = keys[i].toString();
-    rateEntity.rate = rates[i];
-    rateEntity.save();
-    if (keys[i].toString() == 'SNX') {
-      handleSNXPrices(event.block.timestamp, rateEntity.rate);
+    if (keys[i].toString() != '') {
+      let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + keys[i].toString());
+      rateEntity.block = event.block.number;
+      rateEntity.timestamp = event.block.timestamp;
+      rateEntity.currencyKey = keys[i];
+      rateEntity.synth = keys[i].toString();
+      rateEntity.rate = rates[i];
+      rateEntity.save();
+      if (keys[i].toString() == 'SNX') {
+        handleSNXPrices(event.block.timestamp, rateEntity.rate);
+      }
+      addLatestRate(rateEntity.synth, rateEntity.rate);
     }
-    addLatestRate(rateEntity.synth, rateEntity.rate);
   }
 }
 
@@ -311,7 +313,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     // for each currency key using this aggregator
     for (let i = 0; i < currencyKeys.length; i++) {
       // create an answer entity for the non-zero entries
-      if (currencyKeys[i].toString() != '0x0000000000000000000000000000000000000000000000000000000000000000') {
+      if (currencyKeys[i].toString() != '') {
         createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
       }
     }
