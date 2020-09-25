@@ -12,7 +12,7 @@ import {
   LatestRate,
 } from '../generated/schema';
 
-import { ByteArray, Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
+import { ByteArray, Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -154,7 +154,7 @@ contractsToProxies.set(
   '0x77F9710E7d0A19669A13c055F62cd80d313dF022',
 );
 contractsToProxies.set(
-  '0x3A33c0eFD0EB8fd38a6E1904dF1E32f95F67616b', // AUD_3
+  '0x3a33c0efd0eb8fd38a6e1904df1e32f95f67616b', // AUD_3
   '0x77F9710E7d0A19669A13c055F62cd80d313dF022',
 );
 contractsToProxies.set(
@@ -162,7 +162,7 @@ contractsToProxies.set(
   '0xb49f677943BC038e9857d61E7d053CaA2C1734C1',
 );
 contractsToProxies.set(
-  '0x8f71c9c583248A11CAcBbC8FD0D5dFa483D3b109', // EUR_3
+  '0x8f71c9c583248a11cacbbc8fd0d5dfa483d3b109', // EUR_3
   '0xb49f677943BC038e9857d61E7d053CaA2C1734C1',
 );
 contractsToProxies.set(
@@ -182,7 +182,7 @@ contractsToProxies.set(
   '0x379589227b15F1a12195D3f2d90bBc9F31f95235',
 );
 contractsToProxies.set(
-  '0xF320E19B2ED82F1B226b006cD43FE600FEA56615', // XAG_3
+  '0xf320e19b2ed82f1b226b006cd43fe600fea56615', // XAG_3
   '0x379589227b15F1a12195D3f2d90bBc9F31f95235',
 );
 contractsToProxies.set(
@@ -190,7 +190,7 @@ contractsToProxies.set(
   '0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6',
 );
 contractsToProxies.set(
-  '0x06A7689149cf04DacFDE555d1e1EAD7dD7370316', // XAU_3
+  '0x06a7689149cf04dacfde555d1e1ead7dd7370316', // XAU_3
   '0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6',
 );
 contractsToProxies.set(
@@ -206,7 +206,7 @@ contractsToProxies.set(
   '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699',
 );
 contractsToProxies.set(
-  '0xC8DB8d5869510Bb1FCd3Bd7C7624c1b49c652ef8', // SNX_3
+  '0xc8db8d5869510bb1fcd3bd7c7624c1b49c652ef8', // SNX_3
   '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699',
 );
 contractsToProxies.set(
@@ -218,7 +218,7 @@ contractsToProxies.set(
   '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5',
 );
 contractsToProxies.set(
-  '0x150631a2e822d3ed7D46df9A270ce7134a16De89', // COMP_3
+  '0x150631a2e822d3ed7d46df9a270ce7134a16de89', // COMP_3
   '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5',
 );
 contractsToProxies.set(
@@ -226,7 +226,7 @@ contractsToProxies.set(
   '0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc',
 );
 contractsToProxies.set(
-  '0xa811Ff165b082c0507Ce9a5a660Fb3D7eEeCb88A', // KNC_3
+  '0xa811ff165b082c0507ce9a5a660fb3d7eeecb88a', // KNC_3
   '0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc',
 );
 contractsToProxies.set(
@@ -234,7 +234,7 @@ contractsToProxies.set(
   '0x4aB81192BB75474Cf203B56c36D6a13623270A67',
 );
 contractsToProxies.set(
-  '0x0227fb846b48e209d56D79b0A3109FdA561db821', // LEND_3
+  '0x0227fb846b48e209d56d79b0a3109fda561db821', // LEND_3
   '0x4aB81192BB75474Cf203B56c36D6a13623270A67',
 );
 contractsToProxies.set(
@@ -242,7 +242,7 @@ contractsToProxies.set(
   '0x0f59666EDE214281e956cb3b2D0d69415AfF4A01',
 );
 contractsToProxies.set(
-  '0xD286AF227B7b0695387E279B9956540818B1dc2a', // REN_3
+  '0xd286af227b7b0695387e279b9956540818b1dc2a', // REN_3
   '0x0f59666EDE214281e956cb3b2D0d69415AfF4A01',
 );
 contractsToProxies.set(
@@ -250,7 +250,7 @@ contractsToProxies.set(
   '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
 );
 contractsToProxies.set(
-  '0xF570deEffF684D964dc3E15E1F9414283E3f7419', // BTC_3
+  '0xf570deefff684d964dc3e15e1f9414283e3f7419', // BTC_3
   '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
 );
 contractsToProxies.set(
@@ -258,7 +258,7 @@ contractsToProxies.set(
   '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A',
 );
 contractsToProxies.set(
-  '0x90888CDDaD598570c6eDC443eee9aaDB63cDA3C4', // BNB_3
+  '0x90888cddad598570c6edc443eee9aadb63cda3c4', // BNB_3
   '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A',
 );
 contractsToProxies.set(
@@ -266,7 +266,7 @@ contractsToProxies.set(
   '0xacD0D1A29759CC01E8D925371B72cb2b5610EA25',
 );
 contractsToProxies.set(
-  '0x4D35fE9C85233a8E00aE2d3C0d912a45Bc781025', // TRX_3
+  '0x4d35fe9c85233a8e00ae2d3c0d912a45bc781025', // TRX_3
   '0xacD0D1A29759CC01E8D925371B72cb2b5610EA25',
 );
 contractsToProxies.set(
@@ -274,7 +274,7 @@ contractsToProxies.set(
   '0x5239a625dEb44bF3EeAc2CD5366ba24b8e9DB63F',
 );
 contractsToProxies.set(
-  '0x7391BB54a24719DA7DD81c2E5176cf954D7f7635', // XTZ_3
+  '0x7391bb54a24719da7dd81c2e5176cf954d7f7635', // XTZ_3
   '0x5239a625dEb44bF3EeAc2CD5366ba24b8e9DB63F',
 );
 contractsToProxies.set(
@@ -282,7 +282,7 @@ contractsToProxies.set(
   '0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12',
 );
 contractsToProxies.set(
-  '0x75Ed2f61837c3D9Ef1BF0af4DB84664DC6fe56bC', // XRP_3
+  '0x75ed2f61837c3d9ef1bf0af4db84664dc6fe56bc', // XRP_3
   '0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12',
 );
 contractsToProxies.set(
@@ -290,7 +290,7 @@ contractsToProxies.set(
   '0x6AF09DF7563C363B5763b9102712EbeD3b9e859B',
 );
 contractsToProxies.set(
-  '0x3F2d1Ff4930318B5a7c301E1bf7e703DcF6D83E3', // LTC_3
+  '0x3f2d1ff4930318b5a7c301e1bf7e703dcf6d83e3', // LTC_3
   '0x6AF09DF7563C363B5763b9102712EbeD3b9e859B',
 );
 contractsToProxies.set(
@@ -298,7 +298,7 @@ contractsToProxies.set(
   '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c',
 );
 contractsToProxies.set(
-  '0x8cDE021F0BfA5f82610e8cE46493cF66AC04Af53', // LINK_3
+  '0x8cde021f0bfa5f82610e8ce46493cf66ac04af53', // LINK_3
   '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c',
 );
 contractsToProxies.set(
@@ -306,7 +306,7 @@ contractsToProxies.set(
   '0x10a43289895eAff840E8d45995BBa89f9115ECEe',
 );
 contractsToProxies.set(
-  '0x7C9Ca5AdcBa43D968D9e0dDcA16293D66c07482D', // EOS_3
+  '0x7c9ca5adcba43d968d9e0ddca16293d66c07482d', // EOS_3
   '0x10a43289895eAff840E8d45995BBa89f9115ECEe',
 );
 contractsToProxies.set(
@@ -314,7 +314,7 @@ contractsToProxies.set(
   '0x9F0F69428F923D6c95B781F89E165C9b2df9789D',
 );
 contractsToProxies.set(
-  '0x744704c31a2E46AD60c7CDf0212933B4c4c2c9eC', // BCH_3
+  '0x744704c31a2e46ad60c7cdf0212933b4c4c2c9ec', // BCH_3
   '0x9F0F69428F923D6c95B781F89E165C9b2df9789D',
 );
 contractsToProxies.set(
@@ -322,7 +322,7 @@ contractsToProxies.set(
   '0xaEA2808407B7319A31A383B6F8B60f04BCa23cE2',
 );
 contractsToProxies.set(
-  '0x41306Eb5fC11A68C284c19Ba3B9510c0252E0a34', // ETC_3
+  '0x41306eb5fc11a68c284c19ba3b9510c0252e0a34', // ETC_3
   '0xaEA2808407B7319A31A383B6F8B60f04BCa23cE2',
 );
 contractsToProxies.set(
@@ -330,7 +330,7 @@ contractsToProxies.set(
   '0xFb0cADFEa136E9E343cfb55B863a6Df8348ab912',
 );
 contractsToProxies.set(
-  '0x1fB0b88eaF51420c14B67256Ab7DaE1de6e116cb', // DASH_3
+  '0x1fb0b88eaf51420c14b67256ab7dae1de6e116cb', // DASH_3
   '0xFb0cADFEa136E9E343cfb55B863a6Df8348ab912',
 );
 contractsToProxies.set(
@@ -338,7 +338,7 @@ contractsToProxies.set(
   '0xFA66458Cce7Dd15D8650015c4fce4D278271618F',
 );
 contractsToProxies.set(
-  '0x38cB8642A0FC558918fCed939450D689d0E5a7Be', // XMR_3
+  '0x38cb8642a0fc558918fced939450d689d0e5a7be', // XMR_3
   '0xFA66458Cce7Dd15D8650015c4fce4D278271618F',
 );
 contractsToProxies.set(
@@ -346,7 +346,7 @@ contractsToProxies.set(
   '0xAE48c91dF1fE419994FFDa27da09D5aC69c30f55',
 );
 contractsToProxies.set(
-  '0xf94800E6e36b0dc860F6f31e7cDf1086099E8c0E', // ADA_3
+  '0xf94800e6e36b0dc860f6f31e7cdf1086099e8c0e', // ADA_3
   '0xAE48c91dF1fE419994FFDa27da09D5aC69c30f55',
 );
 contractsToProxies.set(
@@ -447,13 +447,21 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
 // create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated_3(event: AnswerUpdatedEvent_3): void {
   // Note: hard coding the latest ExchangeRates for now
-  let exchangeRatesv227 = Address.fromHexString('0xbCc4ac49b8f57079df1029dD3146C8ECD805acd0');
+  let exchangeRatesv228: Address;
+  if (event.block.number > BigInt.fromI32(10923360)) {
+    exchangeRatesv228 = Address.fromHexString('0xdB2Ae36C2e9C00070e5bF752Be1FA2d477E98BDa') as Address;
+  } else {
+    exchangeRatesv228 = Address.fromHexString('0xbCc4ac49b8f57079df1029dD3146C8ECD805acd0') as Address;
+  }
 
-  let exrates = ExchangeRates.bind(exchangeRatesv227 as Address);
+  let exrates = ExchangeRates.bind(exchangeRatesv228 as Address);
+
   let currencyKeys = exrates.currenciesUsingAggregator(Address.fromHexString(
     // for the aggregator, we need the proxy
     contractsToProxies.get(event.address.toHexString()),
   ) as Address);
+
+  log.error('calling new handleAggregatorAnswerUpdated part 4', []);
 
   // for each currency key using this aggregator
   for (let i = 0; i < currencyKeys.length; i++) {

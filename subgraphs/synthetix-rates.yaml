@@ -896,8 +896,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -921,8 +919,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -946,8 +942,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -971,8 +965,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -996,8 +988,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1021,8 +1011,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1046,8 +1034,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1071,8 +1057,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1096,8 +1080,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1121,8 +1103,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1146,8 +1126,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1171,8 +1149,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1196,8 +1172,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1221,8 +1195,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1246,8 +1218,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1271,8 +1241,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1296,8 +1264,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1321,8 +1287,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1346,8 +1310,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1371,8 +1333,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1396,8 +1356,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
@@ -1421,8 +1379,6 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
         - name: AccessControlledAggregator
