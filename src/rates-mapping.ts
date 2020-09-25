@@ -1,5 +1,6 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates_v223/ExchangeRates';
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
+import { AnswerUpdated as AnswerUpdatedEvent_3 } from '../generated/AggregatorAUD_3/AccessControlledAggregator';
 import { ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
 
 import {
@@ -81,17 +82,19 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   let rates = entity.newRates;
   // now save each individual update
   for (let i = 0; i < entity.currencyKeys.length; i++) {
-    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + keys[i].toString());
-    rateEntity.block = event.block.number;
-    rateEntity.timestamp = event.block.timestamp;
-    rateEntity.currencyKey = keys[i];
-    rateEntity.synth = keys[i].toString();
-    rateEntity.rate = rates[i];
-    rateEntity.save();
-    if (keys[i].toString() == 'SNX') {
-      handleSNXPrices(event.block.timestamp, rateEntity.rate);
+    if (keys[i].toString() != '') {
+      let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + keys[i].toString());
+      rateEntity.block = event.block.number;
+      rateEntity.timestamp = event.block.timestamp;
+      rateEntity.currencyKey = keys[i];
+      rateEntity.synth = keys[i].toString();
+      rateEntity.rate = rates[i];
+      rateEntity.save();
+      if (keys[i].toString() == 'SNX') {
+        handleSNXPrices(event.block.timestamp, rateEntity.rate);
+      }
+      addLatestRate(rateEntity.synth, rateEntity.rate);
     }
-    addLatestRate(rateEntity.synth, rateEntity.rate);
   }
 }
 
@@ -383,6 +386,34 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
   }
 }
 
+function createRates_3(event: AnswerUpdatedEvent_3, currencyKey: Bytes, rate: BigInt): void {
+  let entity = new AggregatorAnswer(event.transaction.hash.toHex() + '-' + currencyKey.toString());
+  entity.block = event.block.number;
+  entity.timestamp = event.block.timestamp;
+  entity.currencyKey = currencyKey;
+  entity.synth = currencyKey.toString();
+  entity.rate = rate;
+  entity.roundId = event.params.roundId;
+  entity.aggregator = event.address;
+  entity.save();
+
+  addLatestRate(entity.synth, entity.rate);
+
+  // save aggregated event as rate update from v2.17.5 (Procyon)
+  if (event.block.number > BigInt.fromI32(9123410)) {
+    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
+    rateEntity.block = entity.block;
+    rateEntity.timestamp = entity.timestamp;
+    rateEntity.currencyKey = currencyKey;
+    rateEntity.synth = entity.synth;
+    rateEntity.rate = entity.rate;
+    rateEntity.save();
+    if (entity.currencyKey.toString() == 'SNX') {
+      handleSNXPrices(entity.timestamp, entity.rate);
+    }
+  }
+}
+
 // create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   // From Pollux on, use the ExchangeRates to get the currency keys that use this aggregator
@@ -399,7 +430,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     // for each currency key using this aggregator
     for (let i = 0; i < currencyKeys.length; i++) {
       // create an answer entity for the non-zero entries
-      if (currencyKeys[i].toString() != '0x0000000000000000000000000000000000000000000000000000000000000000') {
+      if (currencyKeys[i].toString() != '') {
         createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
       }
     }
@@ -410,6 +441,26 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     // turn the 8 decimal int to a 18 decimal one
     let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
     createRates(event, ByteArray.fromHexString(currencyKey) as Bytes, rate);
+  }
+}
+
+// create a contract mapping to know which synth the aggregator corresponds to
+export function handleAggregatorAnswerUpdated_3(event: AnswerUpdatedEvent_3): void {
+  // Note: hard coding the latest ExchangeRates for now
+  let exchangeRatesv227 = Address.fromHexString('0xbCc4ac49b8f57079df1029dD3146C8ECD805acd0');
+
+  let exrates = ExchangeRates.bind(exchangeRatesv227 as Address);
+  let currencyKeys = exrates.currenciesUsingAggregator(Address.fromHexString(
+    // for the aggregator, we need the proxy
+    contractsToProxies.get(event.address.toHexString()),
+  ) as Address);
+
+  // for each currency key using this aggregator
+  for (let i = 0; i < currencyKeys.length; i++) {
+    // create an answer entity for the non-zero entries
+    if (currencyKeys[i].toString() != '') {
+      createRates_3(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
+    }
   }
 }
 
