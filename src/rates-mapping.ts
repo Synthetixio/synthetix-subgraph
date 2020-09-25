@@ -203,6 +203,10 @@ contractsToProxies.set(
   '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699',
 );
 contractsToProxies.set(
+  '0xC8DB8d5869510Bb1FCd3Bd7C7624c1b49c652ef8', // SNX_3
+  '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699',
+);
+contractsToProxies.set(
   '0xf79d6afbb6da890132f9d7c355e3015f15f3406f', // ETH
   '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
 );
@@ -211,7 +215,15 @@ contractsToProxies.set(
   '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5',
 );
 contractsToProxies.set(
+  '0x150631a2e822d3ed7D46df9A270ce7134a16De89', // COMP_3
+  '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5',
+);
+contractsToProxies.set(
   '0x45e9fee61185e213c37fc14d18e44ef9262e10db', // KNC
+  '0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc',
+);
+contractsToProxies.set(
+  '0xa811Ff165b082c0507Ce9a5a660Fb3D7eEeCb88A', // KNC_3
   '0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc',
 );
 contractsToProxies.set(
@@ -219,7 +231,15 @@ contractsToProxies.set(
   '0x4aB81192BB75474Cf203B56c36D6a13623270A67',
 );
 contractsToProxies.set(
+  '0x0227fb846b48e209d56D79b0A3109FdA561db821', // LEND_3
+  '0x4aB81192BB75474Cf203B56c36D6a13623270A67',
+);
+contractsToProxies.set(
   '0x353f61f39a17e56ca413f4559b8cd3b6a252ffc8', // REN
+  '0x0f59666EDE214281e956cb3b2D0d69415AfF4A01',
+);
+contractsToProxies.set(
+  '0xD286AF227B7b0695387E279B9956540818B1dc2a', // REN_3
   '0x0f59666EDE214281e956cb3b2D0d69415AfF4A01',
 );
 contractsToProxies.set(
@@ -235,7 +255,15 @@ contractsToProxies.set(
   '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A',
 );
 contractsToProxies.set(
+  '0x90888CDDaD598570c6eDC443eee9aaDB63cDA3C4', // BNB_3
+  '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A',
+);
+contractsToProxies.set(
   '0x28e0fd8e05c14034cba95c6bf3394d1b106f7ed8', // TRX
+  '0xacD0D1A29759CC01E8D925371B72cb2b5610EA25',
+);
+contractsToProxies.set(
+  '0x4D35fE9C85233a8E00aE2d3C0d912a45Bc781025', // TRX_3
   '0xacD0D1A29759CC01E8D925371B72cb2b5610EA25',
 );
 contractsToProxies.set(
@@ -243,11 +271,23 @@ contractsToProxies.set(
   '0x5239a625dEb44bF3EeAc2CD5366ba24b8e9DB63F',
 );
 contractsToProxies.set(
+  '0x7391BB54a24719DA7DD81c2E5176cf954D7f7635', // XTZ_3
+  '0x5239a625dEb44bF3EeAc2CD5366ba24b8e9DB63F',
+);
+contractsToProxies.set(
   '0x570985649832b51786a181d57babe012be1c09a4', // XRP
   '0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12',
 );
 contractsToProxies.set(
+  '0x75Ed2f61837c3D9Ef1BF0af4DB84664DC6fe56bC', // XRP_3
+  '0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12',
+);
+contractsToProxies.set(
   '0xc6ee0d4943dc43bd462145aa6ac95e9c0c8b462f', // LTC
+  '0x6AF09DF7563C363B5763b9102712EbeD3b9e859B',
+);
+contractsToProxies.set(
+  '0x3F2d1Ff4930318B5a7c301E1bf7e703DcF6D83E3', // LTC_3
   '0x6AF09DF7563C363B5763b9102712EbeD3b9e859B',
 );
 contractsToProxies.set(
@@ -263,7 +303,15 @@ contractsToProxies.set(
   '0x10a43289895eAff840E8d45995BBa89f9115ECEe',
 );
 contractsToProxies.set(
+  '0x7C9Ca5AdcBa43D968D9e0dDcA16293D66c07482D', // EOS_3
+  '0x10a43289895eAff840E8d45995BBa89f9115ECEe',
+);
+contractsToProxies.set(
   '0x6a6527d91ddae0a259cc09dad311b3455cdc1fbd', // BCH
+  '0x9F0F69428F923D6c95B781F89E165C9b2df9789D',
+);
+contractsToProxies.set(
+  '0x744704c31a2E46AD60c7CDf0212933B4c4c2c9eC', // BCH_3
   '0x9F0F69428F923D6c95B781F89E165C9b2df9789D',
 );
 contractsToProxies.set(
@@ -271,7 +319,15 @@ contractsToProxies.set(
   '0xaEA2808407B7319A31A383B6F8B60f04BCa23cE2',
 );
 contractsToProxies.set(
+  '0x41306Eb5fC11A68C284c19Ba3B9510c0252E0a34', // ETC_3
+  '0xaEA2808407B7319A31A383B6F8B60f04BCa23cE2',
+);
+contractsToProxies.set(
   '0xd9d35a82d4dd43be7cfc524ebf5cd00c92c48ebc', // DASH
+  '0xFb0cADFEa136E9E343cfb55B863a6Df8348ab912',
+);
+contractsToProxies.set(
+  '0x1fB0b88eaF51420c14B67256Ab7DaE1de6e116cb', // DASH_3
   '0xFb0cADFEa136E9E343cfb55B863a6Df8348ab912',
 );
 contractsToProxies.set(
@@ -279,7 +335,15 @@ contractsToProxies.set(
   '0xFA66458Cce7Dd15D8650015c4fce4D278271618F',
 );
 contractsToProxies.set(
+  '0x38cB8642A0FC558918fCed939450D689d0E5a7Be', // XMR_3
+  '0xFA66458Cce7Dd15D8650015c4fce4D278271618F',
+);
+contractsToProxies.set(
   '0xf11bf075f0b2b8d8442ab99c44362f1353d40b44', // ADA
+  '0xAE48c91dF1fE419994FFDa27da09D5aC69c30f55',
+);
+contractsToProxies.set(
+  '0xf94800E6e36b0dc860F6f31e7cDf1086099E8c0E', // ADA_3
   '0xAE48c91dF1fE419994FFDa27da09D5aC69c30f55',
 );
 contractsToProxies.set(

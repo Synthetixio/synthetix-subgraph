@@ -868,8 +868,8 @@ dataSources:
     name: AggregatorXAU_3
     network: mainnet
     source:
-      address: '0x06A7689149cf04DacFDE555d1e1EAD7dD7370316' # XAU
-      abi: Aggregator
+      address: '0x06A7689149cf04DacFDE555d1e1EAD7dD7370316' # XAU_3
+      abi: AccessControlAggregator
       startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
@@ -883,6 +883,8 @@ dataSources:
           file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
@@ -891,8 +893,8 @@ dataSources:
     name: AggregatorXAG_3
     network: mainnet
     source:
-      address: '0xF320E19B2ED82F1B226b006cD43FE600FEA56615' # XAG
-      abi: Aggregator
+      address: '0xF320E19B2ED82F1B226b006cD43FE600FEA56615' # XAG_3
+      abi: AccessControlAggregator
       startBlock: 10773070 # Pollux release (v2.27)
     mapping:
       kind: ethereum/events
@@ -906,6 +908,8 @@ dataSources:
           file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
@@ -914,8 +918,8 @@ dataSources:
     name: AggregatorLINK_3
     network: mainnet
     source:
-      address: '0x8cDE021F0BfA5f82610e8cE46493cF66AC04Af53' # LINK
-      abi: Aggregator
+      address: '0x8cDE021F0BfA5f82610e8cE46493cF66AC04Af53' # LINK_3
+      abi: AccessControlAggregator
       startBlock: 10921231
     mapping:
       kind: ethereum/events
@@ -929,6 +933,8 @@ dataSources:
           file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
@@ -937,8 +943,8 @@ dataSources:
     name: AggregatorBTC_3
     network: mainnet
     source:
-      address: '0xF570deEffF684D964dc3E15E1F9414283E3f7419' # BTC
-      abi: Aggregator
+      address: '0xF570deEffF684D964dc3E15E1F9414283E3f7419' # BTC_3
+      abi: AccessControlAggregator
       startBlock: 10921231
     mapping:
       kind: ethereum/events
@@ -952,6 +958,8 @@ dataSources:
           file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
@@ -960,8 +968,8 @@ dataSources:
     name: AggregatorAUD_3
     network: mainnet
     source:
-      address: '0x3A33c0eFD0EB8fd38a6E1904dF1E32f95F67616b' # AUD
-      abi: Aggregator
+      address: '0x3A33c0eFD0EB8fd38a6E1904dF1E32f95F67616b' # AUD_3
+      abi: AccessControlAggregator
       startBlock: 10921231
     mapping:
       kind: ethereum/events
@@ -975,6 +983,8 @@ dataSources:
           file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
@@ -983,8 +993,8 @@ dataSources:
     name: AggregatorEUR_3
     network: mainnet
     source:
-      address: '0x8f71c9c583248A11CAcBbC8FD0D5dFa483D3b109' # EUR
-      abi: Aggregator
+      address: '0x8f71c9c583248A11CAcBbC8FD0D5dFa483D3b109' # EUR_3
+      abi: AccessControlAggregator
       startBlock: 10921231
     mapping:
       kind: ethereum/events
@@ -998,6 +1008,408 @@ dataSources:
           file: ../abis/Aggregator.json
         - name: ExchangeRates
           file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorBCH_3
+    network: mainnet
+    source:
+      address: '0x744704c31a2E46AD60c7CDf0212933B4c4c2c9eC' # BCH_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorEOS_3
+    network: mainnet
+    source:
+      address: '0x7C9Ca5AdcBa43D968D9e0dDcA16293D66c07482D' # EOS_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorBNB_3
+    network: mainnet
+    source:
+      address: '0x90888CDDaD598570c6eDC443eee9aaDB63cDA3C4' # BNB_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorADA_3
+    network: mainnet
+    source:
+      address: '0xf94800E6e36b0dc860F6f31e7cDf1086099E8c0E' # ADA_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorREN_3
+    network: mainnet
+    source:
+      address: '0xD286AF227B7b0695387E279B9956540818B1dc2a' # REN_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorLEND_3
+    network: mainnet
+    source:
+      address: '0x0227fb846b48e209d56D79b0A3109FdA561db821' # LEND_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorKNC_3
+    network: mainnet
+    source:
+      address: '0xa811Ff165b082c0507Ce9a5a660Fb3D7eEeCb88A' # KNC_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorSNX_3
+    network: mainnet
+    source:
+      address: '0xC8DB8d5869510Bb1FCd3Bd7C7624c1b49c652ef8' # SNX_3
+      abi: AccessControlAggregator
+      startBlock: 10950006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorDASH_3
+    network: mainnet
+    source:
+      address: '0x1fB0b88eaF51420c14B67256Ab7DaE1de6e116cb' # DASH_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorETC_3
+    network: mainnet
+    source:
+      address: '0x41306Eb5fC11A68C284c19Ba3B9510c0252E0a34' # ETC_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorLTC_3
+    network: mainnet
+    source:
+      address: '0x3F2d1Ff4930318B5a7c301E1bf7e703DcF6D83E3' # LTC_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorXMR_3
+    network: mainnet
+    source:
+      address: '0x38cB8642A0FC558918fCed939450D689d0E5a7Be' # XMR_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorXRP_3
+    network: mainnet
+    source:
+      address: '0x75Ed2f61837c3D9Ef1BF0af4DB84664DC6fe56bC' # XRP_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorTRX_3
+    network: mainnet
+    source:
+      address: '0x4D35fE9C85233a8E00aE2d3C0d912a45Bc781025' # TRX_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorXTZ_3
+    network: mainnet
+    source:
+      address: '0x7391BB54a24719DA7DD81c2E5176cf954D7f7635' # XTZ_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AggregatorCOMP_3
+    network: mainnet
+    source:
+      address: '0x150631a2e822d3ed7D46df9A270ce7134a16De89' # COMP_3
+      abi: AccessControlAggregator
+      startBlock: 10960006
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AccessControlledAggregator
+          file: ../abis/AccessControlledAggregator.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
