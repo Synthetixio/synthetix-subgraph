@@ -12,7 +12,7 @@ import {
   LatestRate,
 } from '../generated/schema';
 
-import { ByteArray, Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
+import { ByteArray, Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -447,21 +447,19 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
 // create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated_3(event: AnswerUpdatedEvent_3): void {
   // Note: hard coding the latest ExchangeRates for now
-  let exchangeRatesv228: Address;
+  let exchangeRates: Address;
   if (event.block.number > BigInt.fromI32(10923360)) {
-    exchangeRatesv228 = Address.fromHexString('0xdB2Ae36C2e9C00070e5bF752Be1FA2d477E98BDa') as Address;
+    exchangeRates = Address.fromHexString('0xdB2Ae36C2e9C00070e5bF752Be1FA2d477E98BDa') as Address;
   } else {
-    exchangeRatesv228 = Address.fromHexString('0xbCc4ac49b8f57079df1029dD3146C8ECD805acd0') as Address;
+    exchangeRates = Address.fromHexString('0xbCc4ac49b8f57079df1029dD3146C8ECD805acd0') as Address;
   }
 
-  let exrates = ExchangeRates.bind(exchangeRatesv228 as Address);
+  let exrates = ExchangeRates.bind(exchangeRates as Address);
 
   let currencyKeys = exrates.currenciesUsingAggregator(Address.fromHexString(
     // for the aggregator, we need the proxy
     contractsToProxies.get(event.address.toHexString()),
   ) as Address);
-
-  log.error('calling new handleAggregatorAnswerUpdated part 4', []);
 
   // for each currency key using this aggregator
   for (let i = 0; i < currencyKeys.length; i++) {
