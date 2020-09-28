@@ -32,7 +32,7 @@
     "build:grantsdao": "graph build subgraphs/synthetix-grantsdao.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
     "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
-    "deploy:rates": "npm run deploy -- synthetixio-team/synthetix-rates subgraphs/synthetix-rates.yaml",
+    "deploy:rates": "npm run deploy -- dvd-schwrtz/snxratestwo subgraphs/synthetix-rates.yaml",
     "deploy:depot": "npm run deploy -- synthetixio-team/synthetix-depot subgraphs/synthetix-depot.yaml",
     "deploy:exchanges": "npm run deploy -- synthetixio-team/synthetix-exchanges subgraphs/synthetix-exchanges.yaml",
     "deploy:loans": "npm run deploy -- synthetixio-team/synthetix-loans subgraphs/synthetix-loans.yaml",
