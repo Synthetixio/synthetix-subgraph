@@ -1,6 +1,6 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates_v223/ExchangeRates';
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
-import { AddressResolver } from '../generated/AggregatorAUD/AddressResolver';
+import { AddressResolver } from '../generated/AggregatorAUD_3/AddressResolver';
 import { ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
 
 import {
@@ -135,7 +135,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   if (event.block.number > BigInt.fromI32(10773070)) {
     // Note: hard coding the latest ReadProxyAddressResolver address
     let readProxyAdressResolver = '0x4E3b31eB0E5CB73641EE1E65E7dCEFe520bA3ef2';
-    let resolver = AddressResolver.bind(readProxyAdressResolver);
+    let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
     let exrates = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
 
     let currencyKeys = exrates.currenciesUsingAggregator(Address.fromHexString(
