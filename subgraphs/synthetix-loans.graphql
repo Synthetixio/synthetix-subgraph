@@ -1,24 +1,162 @@
 type Loan @entity {
+  " the loan id "
   id: ID!
+
+  " the account receiving the loan "
   account: Bytes!
+
+  " the type of collateral minted - sUSD or sETH "
+  collateralMinted: String!
+
+  " the amount of the loan "
   amount: BigInt!
+
+  " is the loan still open? "
   isOpen: Boolean!
+
+  " the timestamp the loan was created "
   createdAt: BigInt!
+
+  " the timestamp the loan was closed "
   closedAt: BigInt
+
+  " whether the loan has any partial liquidations "
+  hasPartialLiquidations: Boolean!
 }
 
 type LoanCreated @entity {
+  " the event tx hash plus event log index "
   id: ID!
+
+  " the loan id "
   loanId: BigInt!
+
+  " the account creating the loan "
   account: Bytes!
+
+  " the amount of the loan "
   amount: BigInt!
+
+  " the timestamp the loan was created "
   timestamp: BigInt!
+
+  " the type of collateral minted - sUSD or sETH "
+  collateralMinted: String!
 }
 
 type LoanClosed @entity {
+  " the event tx hash plus event log index "
   id: ID!
+
+  " the loan id "
   loanId: BigInt!
+
+  " the account that created the loan "
   account: Bytes!
+
+  " the total feesPaid over the life of the loan "
   feesPaid: BigInt!
+
+  " the timestamp the loan was closed "
+  timestamp: BigInt!
+}
+
+type LoanLiquidated @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the loan id "
+  loanId: BigInt!
+
+  " the account that created the loan "
+  account: Bytes!
+
+  " the account that liquidated the loan "
+  liquidator: Bytes!
+
+  " the timestamp the loan was liquidated "
+  timestamp: BigInt!
+}
+
+type LoadPartiallyLiquidated @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the loan id "
+  loanId: BigInt!
+
+  " the account that created the loan "
+  account: Bytes!
+
+  " the account that partially liquidated the loan "
+  liquidator: Bytes!
+
+  " the amount partially liquidated "
+  liquidatedAmount: BigInt!
+
+  " the amount partially liquidated plus the liquidation fee "
+  liquidatedCollateral: BigInt!
+
+  " the timestamp the loan was partially liquidated "
+  timestamp: BigInt!
+}
+
+type CollateralDeposited @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the amount of collateral deposited "
+  collateralAmount: BigInt!
+
+  " the total amount of collateral after the deposit is included "
+  collateralAfter: BigInt!
+
+  " the account that created the loan "
+  account: Bytes!
+
+  " the loan id "
+  loanId: BigInt!
+
+  " the timestamp collateral was deposited "
+  timestamp: BigInt!
+}
+
+type CollateralWithdrawn @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the amount of collateral withdrawn "
+  amountWithdrawn: BigInt!
+
+  " the total amount of collateral after the withdrawal is accounted for "
+  collateralAfter: BigInt!
+
+  " the account that created the loan "
+  account: Bytes!
+
+  " the loan id "
+  loanId: BigInt!
+
+  " the timestamp collateral was withdrawn "
+  timestamp: BigInt!
+}
+
+type LoanRepaid @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the amount of the loan that was repaid " # what is the measurement
+  repaidAmount: BigInt!
+
+  " the total amount of the loan after the repaid amount is accounted for "
+  newLoanAmount: BigInt!
+
+  " the account that created the loan "
+  account: Bytes!
+
+  " the loan id "
+  loanId: BigInt!
+
+  " the timestamp the loan was partially or fully repaid "
   timestamp: BigInt!
 }

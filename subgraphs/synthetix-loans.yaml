@@ -20,11 +20,82 @@ dataSources:
         - Loan
         - LoanCreated
         - LoanClosed
+        - LoanLiquidated
       abis:
         - name: EtherCollateral
           file: ../abis/EtherCollateral.json
       eventHandlers:
+        - event: LoanLiquidated
+          handler: handleLoanLiquidated(indexed address,uint256,address)
         - event: LoanCreated(indexed address,uint256,uint256)
-          handler: handleLoanCreated
+          handler: handleLoanCreatedEther
         - event: LoanClosed(indexed address,uint256,uint256)
           handler: handleLoanClosed
+
+  - kind: ethereum/contract
+    name: EtherCollateral_v2
+    network: mainnet
+    source:
+      address: '0x7133afF303539b0A4F60Ab9bd9656598BF49E272'
+      abi: EtherCollateral
+      startBlock: 10557968
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/loans-mapping.ts
+      entities:
+        - Loan
+        - LoanCreated
+        - LoanClosed
+        - LoanLiquidated
+      abis:
+        - name: EtherCollateral
+          file: ../abis/EtherCollateral.json
+      eventHandlers:
+        - event: LoanLiquidated
+          handler: handleLoanLiquidated(indexed address,uint256,address)
+        - event: LoanCreated(indexed address,uint256,uint256)
+          handler: handleLoanCreatedEther
+        - event: LoanClosed(indexed address,uint256,uint256)
+          handler: handleLoanClosed
+
+  - kind: ethereum/contract
+    name: EtherCollateralsUSD
+    network: mainnet
+    source:
+      address: '0xfED77055B40d63DCf17ab250FFD6948FBFF57B82'
+      abi: EtherCollateralsUSD
+      startBlock: 10923435
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/loans-mapping.ts
+      entities:
+        - Loan
+        - LoanCreated
+        - LoanClosed
+        - LoanLiquidated
+        - LoanPartiallyLiquidated
+        - CollateralDeposited
+        - CollateralWithdrawn
+        - LoanRepaid
+      abis:
+        - name: EtherCollateralsUSD
+          file: ../abis/EtherCollateralsUSD.json
+      eventHandlers:
+        - event: LoanCreated(indexed address,uint256,uint256)
+          handler: handleLoanCreatedsUSD
+        - event: LoanClosed(indexed address,uint256,uint256)
+          handler: handleLoanClosed
+        - event: LoanLiquidated
+          handler: handleLoanLiquidated(indexed address,uint256,address)
+        - event: LoanPartiallyLiquidated
+          handler: handleLoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
+        - event: CollateralDeposited
+          handler: handleCollateralDeposited(indexed address,uint256,uint256,uint256)
+        - event: CollateralWithdrawn
+          handler: handleCollateralWithdrawn(indexed address,uint256,uint256,uint256)
+        - event: LoanRepaid
+          handler: handleLoanRepaid(indexed address,uint256,uint256,uint256)
