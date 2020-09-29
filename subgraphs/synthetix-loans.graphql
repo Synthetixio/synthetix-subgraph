@@ -78,7 +78,7 @@ type LoanLiquidated @entity {
   timestamp: BigInt!
 }
 
-type LoadPartiallyLiquidated @entity {
+type LoanPartiallyLiquidated @entity {
   " the event tx hash plus event log index "
   id: ID!
 

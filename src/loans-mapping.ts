@@ -54,7 +54,7 @@ function addLoanEntity(event: LoanCreatedEvent): Loan {
   return loanEntity;
 }
 
-function addLoanCreatedEntity(event: LoanCreatedEvent): Loan {
+function addLoanCreatedEntity(event: LoanCreatedEvent): LoanCreated {
   let loanCreatedEntity = new LoanCreated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   loanCreatedEntity.account = event.params.account;
   loanCreatedEntity.amount = event.params.amount;
@@ -79,20 +79,20 @@ export function handleLoanClosed(event: LoanClosedEvent): void {
 }
 
 // NOTE no need to close the loan here as the LoanClosed event was emitted directly prior to this event
-export function handleLoanLiquidated(event: LoanLiquidatedEvent) {
+export function handleLoanLiquidated(event: LoanLiquidatedEvent): void {
   let loanLiquidatedEntity = new LoanLiquidated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  loanLiquidatedEntity.loanId = event.params.loadID;
+  loanLiquidatedEntity.loanId = event.params.loanID;
   loanLiquidatedEntity.account = event.params.account;
   loanLiquidatedEntity.liquidator = event.params.liquidator;
   loanLiquidatedEntity.timestamp = event.block.timestamp;
   loanLiquidatedEntity.save();
 }
 
-export function handleLoanPartiallyLiquidated(event: LoanPartiallyLiquidatedEvent) {
+export function handleLoanPartiallyLiquidated(event: LoanPartiallyLiquidatedEvent): void {
   let loanPartiallyLiquidatedEntity = new LoanPartiallyLiquidated(
     event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
   );
-  loanPartiallyLiquidatedEntity.loanId = event.params.loadID;
+  loanPartiallyLiquidatedEntity.loanId = event.params.loanID;
   loanPartiallyLiquidatedEntity.account = event.params.account;
   loanPartiallyLiquidatedEntity.liquidator = event.params.liquidator;
   loanPartiallyLiquidatedEntity.liquidatedAmount = event.params.liquidatedAmount;
@@ -113,35 +113,35 @@ export function handleLoanPartiallyLiquidated(event: LoanPartiallyLiquidatedEven
   loanEntity.save();
 }
 
-export function handleCollateralDeposited(event: CollateralDepositedEvent) {
+export function handleCollateralDeposited(event: CollateralDepositedEvent): void {
   let collateralDepositedEntity = new CollateralDeposited(
     event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
   );
   collateralDepositedEntity.collateralAmount = event.params.collateralAmount;
   collateralDepositedEntity.collateralAfter = event.params.collateralAfter;
-  collateralDepositedEntity.loanId = event.params.loadID;
+  collateralDepositedEntity.loanId = event.params.loanID;
   collateralDepositedEntity.account = event.params.account;
   collateralDepositedEntity.timestamp = event.block.timestamp;
   collateralDepositedEntity.save();
 }
 
-export function handleCollateralWithdrawn(event: CollateralWithdrawnEvent) {
+export function handleCollateralWithdrawn(event: CollateralWithdrawnEvent): void {
   let collateralWithdrawnEntity = new CollateralWithdrawn(
     event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
   );
   collateralWithdrawnEntity.amountWithdrawn = event.params.amountWithdrawn;
   collateralWithdrawnEntity.collateralAfter = event.params.collateralAfter;
-  collateralWithdrawnEntity.loanId = event.params.loadID;
+  collateralWithdrawnEntity.loanId = event.params.loanID;
   collateralWithdrawnEntity.account = event.params.account;
   collateralWithdrawnEntity.timestamp = event.block.timestamp;
   collateralWithdrawnEntity.save();
 }
 
-export function handleLoanRepaid(event: LoanRepaidEvent) {
+export function handleLoanRepaid(event: LoanRepaidEvent): void {
   let loanRepaid = new LoanRepaid(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   loanRepaid.repaidAmount = event.params.repaidAmount;
   loanRepaid.newLoanAmount = event.params.newLoanAmount;
-  loanRepaid.loanId = event.params.loadID;
+  loanRepaid.loanId = event.params.loanID;
   loanRepaid.account = event.params.account;
   loanRepaid.timestamp = event.block.timestamp;
   loanRepaid.save();
