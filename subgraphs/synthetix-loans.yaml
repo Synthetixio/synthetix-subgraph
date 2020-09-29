@@ -25,8 +25,8 @@ dataSources:
         - name: EtherCollateral
           file: ../abis/EtherCollateral.json
       eventHandlers:
-        - event: LoanLiquidated
-          handler: handleLoanLiquidated(indexed address,uint256,address)
+        - event: LoanLiquidated(indexed address,uint256,address)
+          handler: handleLoanLiquidated
         - event: LoanCreated(indexed address,uint256,uint256)
           handler: handleLoanCreatedEther
         - event: LoanClosed(indexed address,uint256,uint256)
@@ -53,8 +53,8 @@ dataSources:
         - name: EtherCollateral
           file: ../abis/EtherCollateral.json
       eventHandlers:
-        - event: LoanLiquidated
-          handler: handleLoanLiquidated(indexed address,uint256,address)
+        - event: LoanLiquidated(indexed address,uint256,address)
+          handler: handleLoanLiquidated
         - event: LoanCreated(indexed address,uint256,uint256)
           handler: handleLoanCreatedEther
         - event: LoanClosed(indexed address,uint256,uint256)
@@ -89,13 +89,13 @@ dataSources:
           handler: handleLoanCreatedsUSD
         - event: LoanClosed(indexed address,uint256,uint256)
           handler: handleLoanClosed
-        - event: LoanLiquidated
-          handler: handleLoanLiquidated(indexed address,uint256,address)
-        - event: LoanPartiallyLiquidated
-          handler: handleLoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
-        - event: CollateralDeposited
-          handler: handleCollateralDeposited(indexed address,uint256,uint256,uint256)
-        - event: CollateralWithdrawn
-          handler: handleCollateralWithdrawn(indexed address,uint256,uint256,uint256)
-        - event: LoanRepaid
-          handler: handleLoanRepaid(indexed address,uint256,uint256,uint256)
+        - event: LoanLiquidated(indexed address,uint256,address)
+          handler: handleLoanLiquidated
+        - event: LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
+          handler: handleLoanPartiallyLiquidated
+        - event: CollateralDeposited(indexed address,uint256,uint256,uint256)
+          handler: handleCollateralDeposited
+        - event: CollateralWithdrawn(indexed address,uint256,uint256,uint256)
+          handler: handleCollateralWithdrawn
+        - event: LoanRepaid(indexed address,uint256,uint256,uint256)
+          handler: handleLoanRepaid
