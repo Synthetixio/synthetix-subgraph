@@ -15,7 +15,7 @@ import {
 import { contractsToProxies, contracts } from './contracts';
 import { strToBytes } from './common';
 
-import { ByteArray, Bytes, BigInt, Address } from '@graphprotocol/graph-ts';
+import { ByteArray, Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -138,11 +138,20 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
     let exrates = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
 
-    let currencyKeys = exrates.currenciesUsingAggregator(Address.fromHexString(
+    let tryCurrencyKeys = exrates.try_currenciesUsingAggregator(Address.fromHexString(
       // for the aggregator, we need the proxy
       contractsToProxies.get(event.address.toHexString()),
     ) as Address);
 
+    if (tryCurrencyKeys.reverted) {
+      log.debug('currenciesUsingAggregator was reverted in tx hash: {}, from block: {}', [
+        event.transaction.hash.toHex(),
+        event.block.number.toString(),
+      ]);
+      return;
+    }
+
+    let currencyKeys = tryCurrencyKeys.value;
     // for each currency key using this aggregator
     for (let i = 0; i < currencyKeys.length; i++) {
       // create an answer entity for the non-zero entries
