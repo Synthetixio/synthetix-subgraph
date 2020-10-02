@@ -82,7 +82,7 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
       updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdRebate);
 
       let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-      let dailyExchangePartnerID = dayID + tempEntity.partner;
+      let dailyExchangePartnerID = dayID + '-' + tempEntity.partner;
       let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
 
       if (dailyExchangePartner == null) {
@@ -131,7 +131,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   exchangePartner.save();
 
   let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-  let dailyExchangePartnerID = dayID + exchangePartnerID;
+  let dailyExchangePartnerID = dayID + '-' + exchangePartnerID;
   let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
   if (dailyExchangePartner == null) {
     dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID);
