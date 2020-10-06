@@ -46,6 +46,7 @@ export function handleLoanCreatedsUSD(event: LoanCreatedEvent): void {
 
 function addLoanEntity(event: LoanCreatedEvent): Loan {
   let loanEntity = new Loan(event.params.loanID.toHex());
+  loanEntity.txHash = event.transaction.hash.toHex();
   loanEntity.account = event.params.account;
   loanEntity.amount = event.params.amount;
   loanEntity.hasPartialLiquidations = false;
