@@ -2,6 +2,9 @@ type Loan @entity {
   " the loan id "
   id: ID!
 
+  " the transaction hash of the loan "
+  txHash: String!
+
   " the account receiving the loan "
   account: Bytes!
 
