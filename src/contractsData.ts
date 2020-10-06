@@ -254,7 +254,7 @@ contractsToProxies.set(
   '0x283D433435cFCAbf00263beEF6A362b7cc5ed9f2',
 );
 contractsToProxies.set(
-  '0xBC66D51898dd2EFA3C214C87d4645C0478Ccbc95', // CEX_3
+  '0xbc66d51898dd2efa3c214c87d4645c0478ccbc95', // CEX_3
   '0x283D433435cFCAbf00263beEF6A362b7cc5ed9f2',
 );
 contractsToProxies.set(
@@ -262,6 +262,6 @@ contractsToProxies.set(
   '0xa8E875F94138B0C5b51d1e1d5dE35bbDdd28EA87',
 );
 contractsToProxies.set(
-  '0x25367741a23464b41B4aB978Bd8092d56a3590C0', // DEFI_3
+  '0x25367741a23464b41b4ab978bd8092d56a3590c0', // DEFI_3
   '0xa8E875F94138B0C5b51d1e1d5dE35bbDdd28EA87',
 );
