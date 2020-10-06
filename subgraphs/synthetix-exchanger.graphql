@@ -49,6 +49,9 @@ type DailyExchangePartner @entity {
 
   " Total number of trades from the volume partner for this day "
   trades: BigInt!
+
+  " Tracking code of the partner "
+  partner: String!
 }
 
 type ExchangePartner @entity {
