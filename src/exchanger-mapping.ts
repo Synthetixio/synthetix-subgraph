@@ -72,14 +72,14 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
     }
 
     let usdVolume = getUSDAmountFromAssetAmount(event.params.amount, latestRate.rate);
-    let usdRebate = getFeeUSDFromVolume(usdVolume, event.params.exchangeFeeRate);
+    let usdFees = getFeeUSDFromVolume(usdVolume, event.params.exchangeFeeRate);
 
     if (tempEntity.partner != null) {
       let exchangePartner = ExchangePartner.load(tempEntity.partner);
       if (exchangePartner == null) {
         exchangePartner = loadNewExchangePartner(tempEntity.partner);
       }
-      updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdRebate);
+      updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFees);
 
       let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
       let dailyExchangePartnerID = dayID + '-' + tempEntity.partner;
@@ -89,11 +89,11 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
         dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner);
       }
 
-      updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdRebate);
+      updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFees);
       resetTempEntity(txHash);
     } else {
       tempEntity.usdVolume = usdVolume;
-      tempEntity.usdRebate = usdRebate;
+      tempEntity.usdFees = usdFees;
       tempEntity.save();
     }
   }
@@ -112,7 +112,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
     return;
   }
 
-  if (tempEntity != null && (tempEntity.usdVolume == null || tempEntity.usdRebate == null)) {
+  if (tempEntity != null && (tempEntity.usdVolume == null || tempEntity.usdFees == null)) {
     log.error(
       'handleExchangeTracking tempEntity exists but the volume and/ or rebate is null for txhash: {}, partner: {}',
       [txHash, exchangePartnerID],
@@ -126,7 +126,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   }
 
   exchangePartner.usdVolume = exchangePartner.usdVolume.plus(tempEntity.usdVolume as BigDecimal);
-  exchangePartner.usdRebate = exchangePartner.usdRebate.plus(tempEntity.usdRebate as BigDecimal);
+  exchangePartner.usdFees = exchangePartner.usdFees.plus(tempEntity.usdFees as BigDecimal);
   exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
   exchangePartner.save();
 
@@ -138,7 +138,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   }
 
   dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(tempEntity.usdVolume as BigDecimal);
-  dailyExchangePartner.usdRebate = dailyExchangePartner.usdRebate.plus(tempEntity.usdRebate as BigDecimal);
+  dailyExchangePartner.usdFees = dailyExchangePartner.usdFees.plus(tempEntity.usdFees as BigDecimal);
   dailyExchangePartner.trades = dailyExchangePartner.trades.plus(BigInt.fromI32(1));
   dailyExchangePartner.save();
 
@@ -148,14 +148,14 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
 function loadNewExchangePartner(id: string): ExchangePartner {
   let newExchangePartner = new ExchangePartner(id);
   newExchangePartner.usdVolume = new BigDecimal(BigInt.fromI32(0));
-  newExchangePartner.usdRebate = new BigDecimal(BigInt.fromI32(0));
+  newExchangePartner.usdFees = new BigDecimal(BigInt.fromI32(0));
   newExchangePartner.trades = BigInt.fromI32(0);
   return newExchangePartner;
 }
 
-function updateExchangePartner(exchangePartner: ExchangePartner, usdVolume: BigDecimal, usdRebate: BigDecimal): void {
+function updateExchangePartner(exchangePartner: ExchangePartner, usdVolume: BigDecimal, usdFees: BigDecimal): void {
   exchangePartner.usdVolume = exchangePartner.usdVolume.plus(usdVolume);
-  exchangePartner.usdRebate = exchangePartner.usdRebate.plus(usdRebate);
+  exchangePartner.usdFees = exchangePartner.usdFees.plus(usdFees);
   exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
   exchangePartner.save();
 }
@@ -164,7 +164,7 @@ function loadNewDailyExchangePartner(id: string, partnerId: string): DailyExchan
   let newDailyExchangePartner = new DailyExchangePartner(id);
   newDailyExchangePartner.partner = partnerId;
   newDailyExchangePartner.usdVolume = new BigDecimal(BigInt.fromI32(0));
-  newDailyExchangePartner.usdRebate = new BigDecimal(BigInt.fromI32(0));
+  newDailyExchangePartner.usdFees = new BigDecimal(BigInt.fromI32(0));
   newDailyExchangePartner.trades = BigInt.fromI32(0);
   return newDailyExchangePartner;
 }
@@ -172,10 +172,10 @@ function loadNewDailyExchangePartner(id: string, partnerId: string): DailyExchan
 function updateDailyExchangePartner(
   dailyExchangePartner: DailyExchangePartner,
   usdVolume: BigDecimal,
-  usdRebate: BigDecimal,
+  usdFees: BigDecimal,
 ): void {
   dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(usdVolume);
-  dailyExchangePartner.usdRebate = dailyExchangePartner.usdRebate.plus(usdRebate);
+  dailyExchangePartner.usdFees = dailyExchangePartner.usdFees.plus(usdFees);
   dailyExchangePartner.trades = dailyExchangePartner.trades.plus(BigInt.fromI32(1));
   dailyExchangePartner.save();
 }
@@ -183,7 +183,7 @@ function updateDailyExchangePartner(
 function createTempEntity(id: string): TemporaryExchangePartnerTracker {
   let newTempEntity = new TemporaryExchangePartnerTracker(id);
   newTempEntity.usdVolume = new BigDecimal(BigInt.fromI32(0));
-  newTempEntity.usdRebate = new BigDecimal(BigInt.fromI32(0));
+  newTempEntity.usdFees = new BigDecimal(BigInt.fromI32(0));
   newTempEntity.partner = null;
   return newTempEntity;
 }
@@ -191,7 +191,7 @@ function createTempEntity(id: string): TemporaryExchangePartnerTracker {
 function resetTempEntity(txHash: string): void {
   let tempEntity = TemporaryExchangePartnerTracker.load(txHash);
   tempEntity.usdVolume = new BigDecimal(BigInt.fromI32(0));
-  tempEntity.usdRebate = new BigDecimal(BigInt.fromI32(0));
+  tempEntity.usdFees = new BigDecimal(BigInt.fromI32(0));
   tempEntity.partner = null;
   tempEntity.save();
 }

@@ -31,7 +31,7 @@ type TemporaryExchangePartnerTracker @entity {
   usdVolume: BigDecimal
 
   " Total rebates to the volume partner for this transaction hash "
-  usdRebate: BigDecimal
+  usdFees: BigDecimal
 
   " String format of the tracking code for a given partner "
   partner: String
@@ -45,7 +45,7 @@ type DailyExchangePartner @entity {
   usdVolume: BigDecimal!
 
   " Total rebates to the volume partner for this day "
-  usdRebate: BigDecimal!
+  usdFees: BigDecimal!
 
   " Total number of trades from the volume partner for this day "
   trades: BigInt!
@@ -62,7 +62,7 @@ type ExchangePartner @entity {
   usdVolume: BigDecimal!
 
   " Total rebates to the volume partner volume "
-  usdRebate: BigDecimal!
+  usdFees: BigDecimal!
 
   " Total number of trades from the volume partner "
   trades: BigInt!
