@@ -70,11 +70,23 @@ contractsToProxies.set(
   '0x449d117117838fFA61263B61dA6301AA2a88B13A',
 );
 contractsToProxies.set(
+  '0xdf005cad29aac8b1170960807f99b62aaed1bb0a', // CHF_3
+  '0x449d117117838fFA61263B61dA6301AA2a88B13A',
+);
+contractsToProxies.set(
   '0x151445852b0cfdf6a4cc81440f2af99176e8ad08', // GBP
   '0x5c0Ab2d9b5a7ed9f470386e82BB36A3613cDd4b5',
 );
 contractsToProxies.set(
+  '0x3a6e27b663593e34a7fb80ba9544d9e8babdf001', // GBP_3
+  '0x5c0Ab2d9b5a7ed9f470386e82BB36A3613cDd4b5',
+);
+contractsToProxies.set(
   '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6', // JPY
+  '0xBcE206caE7f0ec07b545EddE332A47C2F75bbeb3',
+);
+contractsToProxies.set(
+  '0x87cfea02c8322653a7335c6f72be19ce54ecbfb5', // JPY_3
   '0xBcE206caE7f0ec07b545EddE332A47C2F75bbeb3',
 );
 contractsToProxies.set(
@@ -98,7 +110,15 @@ contractsToProxies.set(
   '0xE23FA0e8dd05D6f66a6e8c98cab2d9AE82A7550c',
 );
 contractsToProxies.set(
+  '0xc95b41df94f3890122b2bcef9005afde17773db2', // FTSE
+  '0xE23FA0e8dd05D6f66a6e8c98cab2d9AE82A7550c',
+);
+contractsToProxies.set(
   '0x3f6e09a4ec3811765f5b2ad15c0279910dbb2c04', // NIKKEI225
+  '0x5c4939a2ab3A2a9f93A518d81d4f8D0Bc6a68980',
+);
+contractsToProxies.set(
+  '0x4fa0655c09e0b5b2f50f1bd861b2d9bc63ccbbcb', // NIKKEI225_3
   '0x5c4939a2ab3A2a9f93A518d81d4f8D0Bc6a68980',
 );
 contractsToProxies.set(
@@ -111,6 +131,10 @@ contractsToProxies.set(
 );
 contractsToProxies.set(
   '0xf79d6afbb6da890132f9d7c355e3015f15f3406f', // ETH
+  '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+);
+contractsToProxies.set(
+  '0x00c7a37b03690fb9f41b5c5af8131735c7275446', // ETH_3
   '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
 );
 contractsToProxies.set(
