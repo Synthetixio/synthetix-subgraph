@@ -86,7 +86,7 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
       let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
 
       if (dailyExchangePartner == null) {
-        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner);
+        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner, dayID);
       }
 
       updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFees);
@@ -134,7 +134,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   let dailyExchangePartnerID = dayID + '-' + exchangePartnerID;
   let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
   if (dailyExchangePartner == null) {
-    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID);
+    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, dayID);
   }
 
   dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(tempEntity.usdVolume as BigDecimal);
@@ -160,9 +160,10 @@ function updateExchangePartner(exchangePartner: ExchangePartner, usdVolume: BigD
   exchangePartner.save();
 }
 
-function loadNewDailyExchangePartner(id: string, partnerId: string): DailyExchangePartner {
+function loadNewDailyExchangePartner(id: string, partnerID: string, dayID: string): DailyExchangePartner {
   let newDailyExchangePartner = new DailyExchangePartner(id);
-  newDailyExchangePartner.partner = partnerId;
+  newDailyExchangePartner.partner = partnerID;
+  newDailyExchangePartner.dayID = dayID;
   newDailyExchangePartner.usdVolume = new BigDecimal(BigInt.fromI32(0));
   newDailyExchangePartner.usdFees = new BigDecimal(BigInt.fromI32(0));
   newDailyExchangePartner.trades = BigInt.fromI32(0);

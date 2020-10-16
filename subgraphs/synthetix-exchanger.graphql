@@ -52,6 +52,9 @@ type DailyExchangePartner @entity {
 
   " Tracking code of the partner "
   partner: String!
+
+  " a string id representing the day "
+  dayID: String!
 }
 
 type ExchangePartner @entity {
