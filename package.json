@@ -40,7 +40,7 @@
     "deploy:loans": "npm run deploy -- synthetixio-team/synthetix-loans subgraphs/synthetix-loans.yaml",
     "deploy:options": "npm run deploy -- synthetixio-team/synthetix-binary-options subgraphs/synthetix-binary-options.yaml",
     "deploy:orders": "npm run deploy -- synthetixio-team/synthetix-limit-orders subgraphs/synthetix-limit-orders.yaml",
-    "deploy:exchanger": "npm run deploy -- synthetixio-team/synthetix-exchanger subgraphs/synthetix-exchanger.yaml",
+    "deploy:exchanger": "npm run deploy -- dvd-schwrtz/exchanger subgraphs/synthetix-exchanger.yaml",
     "deploy:grantsdao": "npm run deploy -- synthetixio-team/synthetix-grantsdao subgraphs/synthetix-grantsdao.yaml",
     "deploy:liquidations": "npm run deploy -- synthetixio-team/synthetix-liquidations subgraphs/synthetix-liquidations.yaml",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",

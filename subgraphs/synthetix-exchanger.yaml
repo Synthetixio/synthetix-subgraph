@@ -55,7 +55,7 @@ dataSources:
           handler: handleExchangeEntryAppended
 
   - kind: ethereum/contract
-    name: Exchanger_v2
+    name: Exchanger_v3
     network: mainnet
     source:
       address: '0xc4942df0d3c561c71417BBA09d2DEA7a3CC676Fb'
