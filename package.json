@@ -10,7 +10,8 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "yaml:rates": "mustache subgraphs/synthetix-rates.json yaml.mustache > subgraphs/test.yaml",
+    "yaml:rates": "node create-yaml-json rates && mustache mustache/json/output/synthetix-rates.json mustache/yaml.mustache > subgraphs/synthetix-rates-test.yaml",
+    "yaml:exchanger": "node create-yaml-json exchanger && mustache mustache/json/output/synthetix-exchanger.json mustache/yaml.mustache > subgraphs/synthetix-exchanger-test.yaml",
     "codegen": "node prepare-abis && graph codegen",
     "codegen:snx": "npm run codegen -- subgraphs/synthetix.yaml",
     "codegen:rates": "npm run codegen -- subgraphs/synthetix-rates.yaml",
