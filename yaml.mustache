@@ -1,0 +1,36 @@
+{{#yaml}}
+specVersion: {{specVersion}}
+description: {{description}}
+repository: {{&repository}}
+schema:
+  file: {{&schemaFile}}
+dataSources:
+  {{#dataSources}}
+  - kind: {{&dataSourceKind}}
+    name: {{name}}
+    network: {{network}}
+    source:
+      address: {{&address}}
+      abi: {{abi}}
+      startBlock: {{startBlock}}
+    mapping:
+      kind: {{&mapping.kind}}
+      apiVersion: {{mapping.version}}
+      language: {{&mapping.language}}
+      file: {{&mapping.location}}
+      entities:
+        {{#entities}}
+        - {{.}}
+        {{/entities}}
+      abis:
+        {{#abis}}
+        - name: {{name}}
+          file: {{&path}}
+        {{/abis}}
+      eventHandlers:
+        {{#events}}
+        - event: {{event}}
+          handler: {{handler}}
+        {{/events}}
+    {{/dataSources}}
+  {{/yaml}}

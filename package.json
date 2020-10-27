@@ -10,6 +10,7 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "yaml:rates": "mustache subgraphs/synthetix-rates.json yaml.mustache > subgraphs/test.yaml",
     "codegen": "node prepare-abis && graph codegen",
     "codegen:snx": "npm run codegen -- subgraphs/synthetix.yaml",
     "codegen:rates": "npm run codegen -- subgraphs/synthetix-rates.yaml",
@@ -52,6 +53,7 @@
     "@graphprotocol/graph-ts": "0.18.1",
     "chalk": "2.4.2",
     "commander": "2.20.0",
+    "mustache": "4.0.1",
     "synthetix": "2.30.3-ovm"
   },
   "devDependencies": {

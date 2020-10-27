@@ -1,0 +1,39 @@
+{
+  "yaml": [
+    {
+      "description": "Synthetix Rates API",
+      "schemaFile": "./synthetix-rates.graphql",
+      "specVersion": "0.0.2",
+      "repository": "https://github.com/Synthetixio/synthetix-subgraph",
+      "dataSourceKind": "ethereum/contract",
+      "mapping": {
+        "kind": "ethereum/events",
+        "version": "0.0.4",
+        "language": "wasm/assemblyscript",
+        "location": "../src/rates-mapping.ts"
+      },
+      "dataSources": [
+        {
+          "name": "ExchangeRates_v231",
+          "network": "mainnet",
+          "startBlock": 7626469,
+          "address": "'0xba34e436C9383aa8FA1e3659D2807ae040592498'",
+          "abi": "ExchangeRates",
+          "entities": ["RatesUpdated"],
+          "abis": [
+            {
+              "name": "ExchangeRates",
+              "path": "../abis/ExchangeRates_bytes4.json"
+            }
+          ],
+          "events": [
+            {
+              "event": "RatesUpdated(bytes4[],uint256[])",
+              "handler": "handleRatesUpdated"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
