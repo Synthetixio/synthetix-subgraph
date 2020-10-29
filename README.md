@@ -23,15 +23,18 @@ For any of the four subgraphs: `snx`, `exchanges`, `rates`, `depot`, `loans` and
 2. [Optional] run the `npm run build:[subgraph]` task for the subgraph
 3. Deploy via `npm run deploy:[subgraph]`. Note: requires env variable of `$THEGRAPH_SNX_ACCESS_TOKEN` set in bash to work.
 
-## To deploy the rates or exchanger subgraphs locally at specific start blocks for testing purposes
+## To deploy the Rates or Exchanger subgraphs locally at specific start blocks for testing purposes
 
 1. Set the specific start blocks for the test subgraph:
 
-- Rates subgraph notes: go to `mustache/templates/rates/data-sources.js` and edit the `universalTestBlock` to a specific starting point or you can modify the `test` field in the `createStartBlock` method. Save but do not commit these changes.
+- To modify the start block for all contracts within a subgraph to be the same, simply change the UNIVERSAL_START_BLOCK in `package.json` from null to a number for the relevant subgraph and make sure to run that specific test command in step 2.
 
-- Exchanger: the exchanger contract shares the same rates yaml but with different starting blocks set for prod. you can edit the rates starting blocks used in the exchanger contracts by modifying the `mustache/templates/exchanger/rates-differences.js` file and you can also modify the exchanger specific starting blocks in the `mustache/templates/exchanger/data-sources.js` file. Similar to the rates subgraph you must edit the `universalTestBlock` to a specific starting point or you can modify the `test` field in the `createStartBlock` method. Save but do not commit these changes.
+- To modify individual contracts for the rates subgraph to have different start blocks from prod when testing: go to `mustache/templates/rates/data-sources.js` and modify the `testStartBlock` field for each contract in the `createStartBlock` method.
 
-2. Run the command `npm run codegen:rates:test` to use the starting blocks you changed above. Using npm run codegen:rates will just use the prod block from the `createStartBlock` method.
+- To modify individual contracts for the exchanger subgraph to have different start blocks from prod when testing: edit the rates contracts starting blocks used in the exchanger subgraph by modifying the `testStartBlock` in the `mustache/templates/exchanger/rates-differences.js` file. You can also modify the exchanger specific starting blocks in the `mustache/templates/exchanger/data-sources.js` file.
+
+2. Run the command `npm run codegen:rates:test` or `npm run codegen:exchanger:test` to activate the starting blocks you changed above. Using npm run codegen:rates will always use the prod block from the `createStartBlock` method.
+
 3. Continue from step 2 in the section `To run and deploy locally` above.
 
 ## To query these subgraphs

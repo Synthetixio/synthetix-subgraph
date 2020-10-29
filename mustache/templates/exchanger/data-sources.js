@@ -1,23 +1,18 @@
 const { createStartBlock } = require('../common');
 /**
- * DO NOT commit a change to any of the null values in this file.
- * You may change them for testing and syncing the Graph faster but
- * leave them as null in your commits
- */
-const universalTestBlock = null;
-
-/**
- * To modify the start blocks for test syncing you can simply use
- * the universal test block above or fill out each one individually
- * by changing the null value for test in createStartBlock
- * process.env.TEST_YAML is a safety check in createStartBlock in case
- * someone commits a non null value to prevent prod values from being overwritten
+ * To modify the start blocks for test syncing you can simply change
+ * UNIVERSAL_START_BLOCK from null to a number in the npm run codegen:exchanger:test
+ * command or fill out each one individually by changing the null value for
+ * testStartBlock for each contract in createStartBlock below.
+ *
+ * NOTE this only changes the exchanger specific contracts. The exchanger yaml also
+ * includes rates contracts. you can modify those start blocks in './rate-differences.js'
  */
 const StartBlocks = {
-  Exchanger: createStartBlock({ prod: 10557958, test: null, universalTestBlock }),
-  Exchanger_v2: createStartBlock({ prod: 10772592, test: null, universalTestBlock }),
-  Exchanger_v3: createStartBlock({ prod: 11012438, test: null, universalTestBlock }),
-  Synthetix: createStartBlock({ prod: 10782000, test: null, universalTestBlock }),
+  Exchanger: createStartBlock({ prodStartBlock: 10557958, testStartBlock: null }),
+  Exchanger_v2: createStartBlock({ prodStartBlock: 10772592, testStartBlock: null }),
+  Exchanger_v3: createStartBlock({ prodStartBlock: 11012438, testStartBlock: null }),
+  Synthetix: createStartBlock({ prodStartBlock: 10782000, testStartBlock: null }),
 };
 
 module.exports = [

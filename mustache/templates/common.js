@@ -1,5 +1,5 @@
-const createStartBlock = ({ prod, test, universalTestBlock }) =>
-  process.env.TEST_YAML ? universalTestBlock || test || prod : prod;
+const createStartBlock = ({ prodStartBlock, testStartBlock }) =>
+  process.env.TEST_YAML ? process.env.UNIVERSAL_START_BLOCK || testStartBlock || prodStartBlock : prodStartBlock;
 
 module.exports = {
   createStartBlock,

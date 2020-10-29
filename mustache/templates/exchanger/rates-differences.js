@@ -1,26 +1,19 @@
 const { createStartBlock } = require('../common');
 /**
- * DO NOT commit a change to any of the null values in this file.
- * You may change them for testing and syncing the Graph faster but
- * leave them as null in your commits
- */
-const universalTestBlock = null;
-
-/**
- * NOTE this file will overwrite the rates data for the exchanger yaml file
- * To modify the start blocks for test syncing you can simply use
- * the universal test block above or fill out each one individually
- * by changing the null value for test in createStartBlock
- * process.env.TEST_YAML is a safety check in createStartBlock in case
- * someone commits a non null value to prevent prod values from being overwritten
+ * To modify the start blocks for test syncing you can simply change
+ * UNIVERSAL_START_BLOCK from null to a number in the npm run codegen:exchanger:test
+ * command or fill out each one individually by changing the null value for
+ * testStartBlock for each contract in createStartBlock below.
+ *
+ * NOTE this file controls the startBlocks for rate specific contracts in the exchanger subgraph
  */
 const StartBlocks = {
-  BlockOne: createStartBlock({ prod: 10537958, test: null, universalTestBlock }),
-  BlockTwo: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  BlockThree: createStartBlock({ prod: 10873070, test: null, universalTestBlock }),
-  BlockFour: createStartBlock({ prod: 10921231, test: null, universalTestBlock }),
-  BlockFive: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  BlockSix: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
+  BlockOne: createStartBlock({ prodStartBlock: 10537958, testStartBlock: null }),
+  BlockTwo: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  BlockThree: createStartBlock({ prodStartBlock: 10873070, testStartBlock: null }),
+  BlockFour: createStartBlock({ prodStartBlock: 10921231, testStartBlock: null }),
+  BlockFive: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  BlockSix: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
 };
 
 module.exports = {

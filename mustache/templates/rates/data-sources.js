@@ -1,95 +1,84 @@
 const { createStartBlock } = require('../common');
 /**
- * DO NOT commit a change to any of the null values in this file.
- * You may change them for testing and syncing the Graph faster but
- * leave them as null in your commits
- */
-const universalTestBlock = null;
-
-/**
- * NOTE if you are working on the Exchanger subgraph changing these start
- * block values will not change the rates data as those are overwritten by
- * the mustache/templates/exchanger/rates-differences.js file where you
- * would make those changes for faster syncing during testing
- */
-
-/**
- * To modify the start blocks for test syncing you can simply use
- * the universal test block above or fill out each one individually
- * by changing the null value in "universalTestBlock || null"
- * process.env.TEST_YAML is a safety check in case someone commits a non
- * null value to prevent prod values from being overwritten
+ * To modify the start blocks for test syncing you can simply change
+ * UNIVERSAL_START_BLOCK from null to a number in the npm run codegen:exchanger:test
+ * command or fill out each one individually by changing the null value for
+ * testStartBlock for each contract in createStartBlock below.
+ *
+ * NOTE this file controls the startBlocks for rate specific contracts in the rates subgraph
+ * if you are looking to change the rates start blocks for the exchanger subgraph, please
+ * reference `mustache/templates/exchanger/rates-differences.js`
  */
 const StartBlocks = {
-  ExchangeRates_v231: createStartBlock({ prod: 7626469, test: null, universalTestBlock }),
-  ExchangeRates_v240: createStartBlock({ prod: 8075694, test: null, universalTestBlock }),
-  ExchangeRates_v272: createStartBlock({ prod: 8120141, test: null, universalTestBlock }),
-  ExchangeRates_v210: createStartBlock({ prod: 8622895, test: null, universalTestBlock }),
-  ExchangeRates_v213: createStartBlock({ prod: 8971442, test: null, universalTestBlock }),
-  ExchangeRates_v217: createStartBlock({ prod: 9123410, test: null, universalTestBlock }),
-  ExchangeRates_v219: createStartBlock({ prod: 9518289, test: null, universalTestBlock }),
-  ExchangeRates_v223: createStartBlock({ prod: 10364342, test: null, universalTestBlock }),
-  ExchangeRates: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorAUD: createStartBlock({ prod: 9085450, test: null, universalTestBlock }),
-  AggregatorEUR: createStartBlock({ prod: 9085417, test: null, universalTestBlock }),
-  AggregatorCHF: createStartBlock({ prod: 9085502, test: null, universalTestBlock }),
-  AggregatorGBP: createStartBlock({ prod: 9085494, test: null, universalTestBlock }),
-  AggregatorJPY: createStartBlock({ prod: 9085433, test: null, universalTestBlock }),
-  AggregatorXAG: createStartBlock({ prod: 9085563, test: null, universalTestBlock }),
-  AggregatorXAU: createStartBlock({ prod: 9085543, test: null, universalTestBlock }),
-  AggregatorFTSE: createStartBlock({ prod: 9755177, test: null, universalTestBlock }),
-  AggregatorN225: createStartBlock({ prod: 9755246, test: null, universalTestBlock }),
-  AggregatorSNX: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorETH: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorCOMP: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorKNC: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorLEND: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorREN: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorBTC: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorBNB: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorTRX: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorXTZ: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorXRP: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorLTC: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorLINK: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorEOS: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorBCH: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorETC: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorDASH: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorXMR: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorADA: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorCEX: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorDEFI: createStartBlock({ prod: 10773070, test: null, universalTestBlock }),
-  AggregatorXAU_3: createStartBlock({ prod: 10873070, test: null, universalTestBlock }),
-  AggregatorXAG_3: createStartBlock({ prod: 10873070, test: null, universalTestBlock }),
-  AggregatorLINK_3: createStartBlock({ prod: 10921231, test: null, universalTestBlock }),
-  AggregatorBTC_3: createStartBlock({ prod: 10921231, test: null, universalTestBlock }),
-  AggregatorAUD_3: createStartBlock({ prod: 10921231, test: null, universalTestBlock }),
-  AggregatorEUR_3: createStartBlock({ prod: 10921231, test: null, universalTestBlock }),
-  AggregatorBCH_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorEOS_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorBNB_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorADA_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorREN_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorLEND_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorKNC_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorSNX_3: createStartBlock({ prod: 10950006, test: null, universalTestBlock }),
-  AggregatorDASH_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorETC_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorLTC_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorXMR_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorXRP_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorTRX_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorXTZ_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorCOMP_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorDEFI_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorCEX_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorETH_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorCHF_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorJPY_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorGBP_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorFTSE_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
-  AggregatorNIKKEI_3: createStartBlock({ prod: 10960006, test: null, universalTestBlock }),
+  ExchangeRates_v231: createStartBlock({ prodStartBlock: 7626469, testStartBlock: null }),
+  ExchangeRates_v240: createStartBlock({ prodStartBlock: 8075694, testStartBlock: null }),
+  ExchangeRates_v272: createStartBlock({ prodStartBlock: 8120141, testStartBlock: null }),
+  ExchangeRates_v210: createStartBlock({ prodStartBlock: 8622895, testStartBlock: null }),
+  ExchangeRates_v213: createStartBlock({ prodStartBlock: 8971442, testStartBlock: null }),
+  ExchangeRates_v217: createStartBlock({ prodStartBlock: 9123410, testStartBlock: null }),
+  ExchangeRates_v219: createStartBlock({ prodStartBlock: 9518289, testStartBlock: null }),
+  ExchangeRates_v223: createStartBlock({ prodStartBlock: 10364342, testStartBlock: null }),
+  ExchangeRates: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorAUD: createStartBlock({ prodStartBlock: 9085450, testStartBlock: null }),
+  AggregatorEUR: createStartBlock({ prodStartBlock: 9085417, testStartBlock: null }),
+  AggregatorCHF: createStartBlock({ prodStartBlock: 9085502, testStartBlock: null }),
+  AggregatorGBP: createStartBlock({ prodStartBlock: 9085494, testStartBlock: null }),
+  AggregatorJPY: createStartBlock({ prodStartBlock: 9085433, testStartBlock: null }),
+  AggregatorXAG: createStartBlock({ prodStartBlock: 9085563, testStartBlock: null }),
+  AggregatorXAU: createStartBlock({ prodStartBlock: 9085543, testStartBlock: null }),
+  AggregatorFTSE: createStartBlock({ prodStartBlock: 9755177, testStartBlock: null }),
+  AggregatorN225: createStartBlock({ prodStartBlock: 9755246, testStartBlock: null }),
+  AggregatorSNX: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorETH: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorCOMP: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorKNC: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorLEND: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorREN: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorBTC: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorBNB: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorTRX: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorXTZ: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorXRP: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorLTC: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorLINK: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorEOS: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorBCH: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorETC: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorDASH: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorXMR: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorADA: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorCEX: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorDEFI: createStartBlock({ prodStartBlock: 10773070, testStartBlock: null }),
+  AggregatorXAU_3: createStartBlock({ prodStartBlock: 10873070, testStartBlock: null }),
+  AggregatorXAG_3: createStartBlock({ prodStartBlock: 10873070, testStartBlock: null }),
+  AggregatorLINK_3: createStartBlock({ prodStartBlock: 10921231, testStartBlock: null }),
+  AggregatorBTC_3: createStartBlock({ prodStartBlock: 10921231, testStartBlock: null }),
+  AggregatorAUD_3: createStartBlock({ prodStartBlock: 10921231, testStartBlock: null }),
+  AggregatorEUR_3: createStartBlock({ prodStartBlock: 10921231, testStartBlock: null }),
+  AggregatorBCH_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorEOS_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorBNB_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorADA_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorREN_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorLEND_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorKNC_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorSNX_3: createStartBlock({ prodStartBlock: 10950006, testStartBlock: null }),
+  AggregatorDASH_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorETC_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorLTC_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorXMR_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorXRP_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorTRX_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorXTZ_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorCOMP_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorDEFI_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorCEX_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorETH_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorCHF_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorJPY_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorGBP_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorFTSE_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
+  AggregatorNIKKEI_3: createStartBlock({ prodStartBlock: 10960006, testStartBlock: null }),
 };
 
 const commonRatesABI = 'ExchangeRates';
