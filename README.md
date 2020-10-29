@@ -23,6 +23,17 @@ For any of the four subgraphs: `snx`, `exchanges`, `rates`, `depot`, `loans` and
 2. [Optional] run the `npm run build:[subgraph]` task for the subgraph
 3. Deploy via `npm run deploy:[subgraph]`. Note: requires env variable of `$THEGRAPH_SNX_ACCESS_TOKEN` set in bash to work.
 
+## To deploy the rates or exchanger subgraphs locally at specific start blocks for testing purposes
+
+1. Set the specific start blocks for the test subgraph:
+
+- Rates subgraph notes: go to `mustache/templates/rates/data-sources.js` and edit the `universalTestBlock` to a specific starting point or you can modify the `test` field in the `createStartBlock` method. Save but do not commit these changes.
+
+- Exchanger: the exchanger contract shares the same rates yaml but with different starting blocks set for prod. you can edit the rates starting blocks used in the exchanger contracts by modifying the `mustache/templates/exchanger/rates-differences.js` file and you can also modify the exchanger specific starting blocks in the `mustache/templates/exchanger/data-sources.js` file. Similar to the rates subgraph you must edit the `universalTestBlock` to a specific starting point or you can modify the `test` field in the `createStartBlock` method. Save but do not commit these changes.
+
+2. Run the command `npm run codegen:rates:test` to use the starting blocks you changed above. Using npm run codegen:rates will just use the prod block from the `createStartBlock` method.
+3. Continue from step 2 in the section `To run and deploy locally` above.
+
 ## To query these subgraphs
 
 Please use our node & browser utility: [synthetix-data](https://github.com/Synthetixio/synthetix-data).
