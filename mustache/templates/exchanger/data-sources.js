@@ -1,19 +1,4 @@
-const { createStartBlock } = require('../common');
-/**
- * To modify the start blocks for test syncing you can simply change
- * UNIVERSAL_START_BLOCK from null to a number in the npm run codegen:exchanger:test
- * command or fill out each one individually by changing the null value for
- * testStartBlock for each contract in createStartBlock below.
- *
- * NOTE this only changes the exchanger specific contracts. The exchanger yaml also
- * includes rates contracts. you can modify those start blocks in './rate-differences.js'
- */
-const StartBlocks = {
-  Exchanger: createStartBlock({ prodStartBlock: 10557958, testStartBlock: null }),
-  Exchanger_v2: createStartBlock({ prodStartBlock: 10772592, testStartBlock: null }),
-  Exchanger_v3: createStartBlock({ prodStartBlock: 11012438, testStartBlock: null }),
-  Synthetix: createStartBlock({ prodStartBlock: 10782000, testStartBlock: null }),
-};
+const StartBlocks = require('./start_blocks');
 
 module.exports = [
   {
