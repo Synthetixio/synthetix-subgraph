@@ -13,8 +13,6 @@ import {
 
 import {
   Loan,
-  LoanCreated,
-  LoanClosed,
   LoanLiquidated,
   LoanPartiallyLiquidated,
   CollateralDeposited,
@@ -24,28 +22,8 @@ import {
 
 import { log } from '@graphprotocol/graph-ts';
 
-export function handleLoanCreatedEther(event: LoanCreatedEvent): void {
-  let loanEntity = addLoanEntity(event);
-  loanEntity.collateralMinted = 'sETH';
-  loanEntity.save();
-
-  let loanCreatedEntity = addLoanCreatedEntity(event);
-  loanCreatedEntity.collateralMinted = 'sETH';
-  loanCreatedEntity.save();
-}
-
-export function handleLoanCreatedsUSD(event: LoanCreatedEvent): void {
-  let loanEntity = addLoanEntity(event);
-  loanEntity.collateralMinted = 'sUSD';
-  loanEntity.save();
-
-  let loanCreatedEntity = addLoanCreatedEntity(event);
-  loanCreatedEntity.collateralMinted = 'sUSD';
-  loanCreatedEntity.save();
-}
-
-function addLoanEntity(event: LoanCreatedEvent): Loan {
-  let loanEntity = new Loan(event.params.loanID.toHex());
+function addLoanEntity(event: LoanCreatedEvent, collateralMinted: string): Loan {
+  let loanEntity = new Loan(event.params.loanID.toHex() + '-' + collateralMinted);
   loanEntity.txHash = event.transaction.hash.toHex();
   loanEntity.account = event.params.account;
   loanEntity.amount = event.params.amount;
@@ -55,28 +33,32 @@ function addLoanEntity(event: LoanCreatedEvent): Loan {
   return loanEntity;
 }
 
-function addLoanCreatedEntity(event: LoanCreatedEvent): LoanCreated {
-  let loanCreatedEntity = new LoanCreated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  loanCreatedEntity.account = event.params.account;
-  loanCreatedEntity.amount = event.params.amount;
-  loanCreatedEntity.loanId = event.params.loanID;
-  loanCreatedEntity.timestamp = event.block.timestamp;
-  return loanCreatedEntity;
+export function handleLoanCreatedEther(event: LoanCreatedEvent): void {
+  let loanEntity = addLoanEntity(event, 'sETH');
+  loanEntity.collateralMinted = 'sETH';
+  loanEntity.save();
 }
 
-export function handleLoanClosed(event: LoanClosedEvent): void {
-  let loanEntity = Loan.load(event.params.loanID.toHex());
-  let loanClosedEntity = new LoanClosed(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+export function handleLoanCreatedsUSD(event: LoanCreatedEvent): void {
+  let loanEntity = addLoanEntity(event, 'sUSD');
+  loanEntity.collateralMinted = 'sUSD';
+  loanEntity.save();
+}
+
+function closeLoan(event: LoanClosedEvent, collateralMinted: string): void {
+  let loanEntity = Loan.load(event.params.loanID.toHex() + '-' + collateralMinted);
 
   loanEntity.isOpen = false;
   loanEntity.closedAt = event.block.timestamp;
   loanEntity.save();
+}
 
-  loanClosedEntity.account = event.params.account;
-  loanClosedEntity.loanId = event.params.loanID;
-  loanClosedEntity.feesPaid = event.params.feesPaid;
-  loanClosedEntity.timestamp = event.block.timestamp;
-  loanClosedEntity.save();
+export function handleLoanClosedEther(event: LoanClosedEvent): void {
+  closeLoan(event, 'sETH');
+}
+
+export function handleLoanClosedsUSD(event: LoanClosedEvent): void {
+  closeLoan(event, 'sUSD');
 }
 
 // NOTE no need to close the loan here as the LoanClosed event was emitted directly prior to this event

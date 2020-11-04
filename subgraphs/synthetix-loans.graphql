@@ -27,43 +27,6 @@ type Loan @entity {
   hasPartialLiquidations: Boolean!
 }
 
-type LoanCreated @entity {
-  " the event tx hash plus event log index "
-  id: ID!
-
-  " the loan id "
-  loanId: BigInt!
-
-  " the account creating the loan "
-  account: Bytes!
-
-  " the amount of the loan "
-  amount: BigInt!
-
-  " the timestamp the loan was created "
-  timestamp: BigInt!
-
-  " the type of collateral minted - sUSD or sETH "
-  collateralMinted: String!
-}
-
-type LoanClosed @entity {
-  " the event tx hash plus event log index "
-  id: ID!
-
-  " the loan id "
-  loanId: BigInt!
-
-  " the account that created the loan "
-  account: Bytes!
-
-  " the total feesPaid over the life of the loan "
-  feesPaid: BigInt!
-
-  " the timestamp the loan was closed "
-  timestamp: BigInt!
-}
-
 type LoanLiquidated @entity {
   " the event tx hash plus event log index "
   id: ID!
