@@ -15,6 +15,10 @@ import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import {
+  AccountFlaggedForLiquidation as AccountFlaggedForLiquidationEvent,
+  Liquidations,
+} from '../generated/Liquidations/Liquidations';
+import {
   Synth,
   Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
@@ -38,6 +42,7 @@ import {
   TotalActiveStaker,
   TotalDailyActiveStaker,
   ActiveStaker,
+  AccountFlaggedForLiquidation,
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
@@ -632,4 +637,17 @@ function updateTotalDailyActiveStaker(id: string, count: BigInt): void {
   let newTotalDailyActiveStaker = new TotalDailyActiveStaker(id);
   newTotalDailyActiveStaker.count = count;
   newTotalDailyActiveStaker.save();
+}
+
+export function handleAccountFlaggedForLiquidation(event: AccountFlaggedForLiquidationEvent): void {
+  let liquidationsContract = Liquidations.bind(event.address);
+  let synthetix = Synthetix32.bind(liquidationsContract.synthetix());
+  let accountFlaggedForLiquidation = new AccountFlaggedForLiquidation(
+    event.params.deadline.toString() + '-' + event.params.account.toHex(),
+  );
+  accountFlaggedForLiquidation.account = event.params.account;
+  accountFlaggedForLiquidation.deadline = event.params.deadline;
+  accountFlaggedForLiquidation.collateralRatio = synthetix.collateralisationRatio(event.params.account);
+  accountFlaggedForLiquidation.liquidatableNonEscrowSNX = synthetix.balanceOf(event.params.account);
+  accountFlaggedForLiquidation.save();
 }

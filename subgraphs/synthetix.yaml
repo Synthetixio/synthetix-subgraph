@@ -445,3 +445,28 @@ dataSources:
       eventHandlers:
         - event: FeesClaimed(address,uint256,uint256)
           handler: handleFeesClaimed
+
+  # Handle Liquidations Flagged
+  - kind: ethereum/contract
+    name: Liquidations
+    network: mainnet
+    source:
+      address: '0x46338723022deF2c5151e83BE759796A988754a2' # Liquidations
+      abi: Liquidations
+      startBlock: 10772585
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - FeesClaimed
+        - SNXHolder
+      abis:
+        - name: Liquidations
+          file: ../abis/Liquidations.json
+        - name: Synthetix32
+          file: ../abis/Synthetix_bytes32.json
+      eventHandlers:
+        - event: event AccountFlaggedForLiquidation(indexed address,uint deadline)
+          handler: handleAccountFlaggedForLiquidation

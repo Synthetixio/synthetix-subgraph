@@ -116,3 +116,20 @@ type TotalDailyActiveStaker @entity {
 type ActiveStaker @entity {
   id: ID!
 }
+
+type AccountFlaggedForLiquidation @entity {
+  " the deadline plus the user account "
+  id: ID!
+
+  " the address of the staker "
+  account: Bytes!
+
+  " liqudation deadline "
+  deadline: BigInt!
+
+  " current collateral ratio "
+  collateralRatio: BigInt!
+
+  " snx that is liquidatable "
+  liquidatableNonEscrowSNX: BigInt!
+}
