@@ -465,6 +465,8 @@ dataSources:
       abis:
         - name: Liquidations
           file: ../abis/Liquidations.json
+        - name: FeePoolv217
+          file: ../abis/FeePool_v2.17.json
         - name: Synthetix32
           file: ../abis/Synthetix_bytes32.json
       eventHandlers:
