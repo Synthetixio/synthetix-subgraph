@@ -118,7 +118,7 @@ type ActiveStaker @entity {
 }
 
 type AccountFlaggedForLiquidation @entity {
-  " the deadline plus the user account "
+  " the deadline plus the staker address "
   id: ID!
 
   " the address of the staker "
@@ -132,4 +132,15 @@ type AccountFlaggedForLiquidation @entity {
 
   " snx that is liquidatable "
   liquidatableNonEscrowSNX: BigInt!
+}
+
+type AccountRemovedFromLiquidation @entity {
+  " the time at which the staker fixed their c-ratio plus the staker address "
+  id: ID!
+
+  " the address of the staker "
+  account: Bytes!
+
+  " the time at which the staker fixed their c-ratio "
+  time: BigInt!
 }

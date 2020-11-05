@@ -472,3 +472,5 @@ dataSources:
       eventHandlers:
         - event: AccountFlaggedForLiquidation(indexed address,uint256)
           handler: handleAccountFlaggedForLiquidation
+        - event: AccountRemovedFromLiquidation(indexed address,uint256)
+          handler: handleAccountRemovedFromLiquidation

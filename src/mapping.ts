@@ -16,6 +16,7 @@ import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 import {
   AccountFlaggedForLiquidation as AccountFlaggedForLiquidationEvent,
+  AccountRemovedFromLiquidation as AccountRemovedFromLiquidationEvent,
   Liquidations,
 } from '../generated/Liquidations/Liquidations';
 import {
@@ -43,6 +44,7 @@ import {
   TotalDailyActiveStaker,
   ActiveStaker,
   AccountFlaggedForLiquidation,
+  AccountRemovedFromLiquidation,
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
@@ -651,4 +653,13 @@ export function handleAccountFlaggedForLiquidation(event: AccountFlaggedForLiqui
   accountFlaggedForLiquidation.collateralRatio = synthetix.collateralisationRatio(event.params.account);
   accountFlaggedForLiquidation.liquidatableNonEscrowSNX = synthetix.balanceOf(event.params.account);
   accountFlaggedForLiquidation.save();
+}
+
+export function handleAccountRemovedFromLiquidation(event: AccountRemovedFromLiquidationEvent): void {
+  let accountRemovedFromLiquidation = new AccountRemovedFromLiquidation(
+    event.params.time.toString() + '-' + event.params.account.toHex(),
+  );
+  accountRemovedFromLiquidation.account = event.params.account;
+  accountRemovedFromLiquidation.time = event.params.time;
+  accountRemovedFromLiquidation.save();
 }
