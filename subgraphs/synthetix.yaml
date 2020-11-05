@@ -468,5 +468,5 @@ dataSources:
         - name: Synthetix32
           file: ../abis/Synthetix_bytes32.json
       eventHandlers:
-        - event: event AccountFlaggedForLiquidation(indexed address,uint deadline)
+        - event: AccountFlaggedForLiquidation(indexed address,uint256)
           handler: handleAccountFlaggedForLiquidation
