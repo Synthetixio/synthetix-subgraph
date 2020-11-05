@@ -640,10 +640,9 @@ function updateTotalDailyActiveStaker(id: string, count: BigInt): void {
 }
 
 export function handleAccountFlaggedForLiquidation(event: AccountFlaggedForLiquidationEvent): void {
-  // using the feePoolContract since the Liquidations contract has the same methods
-  // but the ABI is missing but available on this contract for some reason
-  let feePoolContract = FeePoolv217.bind(event.address);
-  let synthetix = Synthetix32.bind(feePoolContract.synthetix());
+  let liquidationsContract = Liquidations.bind(event.address);
+  let resolver = AddressResolver.bind(liquidationsContract.resolver());
+  let synthetix = Synthetix32.bind(resolver.getAddress(strToBytes('Synthetix', 32)));
   let accountFlaggedForLiquidation = new AccountFlaggedForLiquidation(
     event.params.deadline.toString() + '-' + event.params.account.toHex(),
   );
