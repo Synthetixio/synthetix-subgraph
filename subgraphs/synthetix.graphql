@@ -132,6 +132,9 @@ type AccountFlaggedForLiquidation @entity {
 
   " snx that is liquidatable "
   liquidatableNonEscrowSNX: BigInt!
+
+  " total collateral held by the staker including escrow amount "
+  collateral: BigInt!
 }
 
 type AccountRemovedFromLiquidation @entity {

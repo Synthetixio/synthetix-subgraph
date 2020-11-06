@@ -651,6 +651,7 @@ export function handleAccountFlaggedForLiquidation(event: AccountFlaggedForLiqui
   accountFlaggedForLiquidation.account = event.params.account;
   accountFlaggedForLiquidation.deadline = event.params.deadline;
   accountFlaggedForLiquidation.collateralRatio = synthetix.collateralisationRatio(event.params.account);
+  accountFlaggedForLiquidation.collateral = synthetix.collateral(event.params.account);
   accountFlaggedForLiquidation.liquidatableNonEscrowSNX = synthetix.balanceOf(event.params.account);
   accountFlaggedForLiquidation.save();
 }
