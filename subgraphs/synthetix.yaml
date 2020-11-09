@@ -48,6 +48,7 @@ dataSources:
       file: ../src/mapping.ts
       entities:
         - Transfer
+        - AccountLiquidated
       abis:
         - name: Synthetix
           file: ../abis/Synthetix.json
@@ -62,6 +63,8 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
+        - event: AccountLiquidated(indexed address,uint256,uint256,address)
+          handler: handleAccountLiquidated
 
   # Handle Proxy target updated events on current Proxy
   - kind: ethereum/contract

@@ -1,5 +1,5 @@
 // The latest Synthetix and event invocations
-import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/Synthetix/Synthetix';
+import { Synthetix as SNX, Transfer as SNXTransferEvent, AccountLiquidated } from '../generated/Synthetix/Synthetix';
 
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
 
@@ -28,6 +28,8 @@ import {
 import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
 import { FeePoolv217 } from '../generated/FeePool/FeePoolv217';
 
+import { AccountLiquidated as AccountLiquidatedEvent } from '../generated/Synthetix_viaNewProxy/Synthetix';
+
 import {
   Synthetix,
   Transfer,
@@ -45,6 +47,7 @@ import {
   ActiveStaker,
   AccountFlaggedForLiquidation,
   AccountRemovedFromLiquidation,
+  AccountLiquidated,
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
@@ -663,4 +666,16 @@ export function handleAccountRemovedFromLiquidation(event: AccountRemovedFromLiq
   accountRemovedFromLiquidation.account = event.params.account;
   accountRemovedFromLiquidation.time = event.params.time;
   accountRemovedFromLiquidation.save();
+}
+
+export function handleAccountLiquidated(event: AccountLiquidatedEvent): void {
+  let entity = new AccountLiquidated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+
+  entity.account = event.params.account;
+  entity.snxRedeemed = event.params.snxRedeemed;
+  entity.amountLiquidated = event.params.amountLiquidated;
+  entity.liquidator = event.params.liquidator;
+  entity.time = event.block.timestamp;
+
+  entity.save();
 }
