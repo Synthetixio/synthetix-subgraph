@@ -20,6 +20,7 @@
     "codegen:orders": "npm run codegen -- subgraphs/synthetix-limit-orders.yaml",
     "codegen:exchanger": "npm run codegen -- subgraphs/synthetix-exchanger.yaml",
     "codegen:grantsdao": "npm run codegen -- subgraphs/synthetix-grantsdao.yaml",
+    "codegen:liquidations": "npm run codegen -- subgraphs/synthetix-liquidations.yaml",
     "build": "graph build",
     "build:snx": "graph build subgraphs/synthetix.yaml",
     "build:rates": "graph build subgraphs/synthetix-rates.yaml",
@@ -30,6 +31,7 @@
     "build:orders": "graph build subgraphs/synthetix-limit-orders.yaml",
     "build:exchanger": "graph build subgraphs/synthetix-exchanger.yaml",
     "build:grantsdao": "graph build subgraphs/synthetix-grantsdao.yaml",
+    "build:liquidations": "graph build subgraphs/synthetix-liquidations.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
     "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
     "deploy:rates": "npm run deploy -- synthetixio-team/synthetix-rates subgraphs/synthetix-rates.yaml",
@@ -40,6 +42,7 @@
     "deploy:orders": "npm run deploy -- synthetixio-team/synthetix-limit-orders subgraphs/synthetix-limit-orders.yaml",
     "deploy:exchanger": "npm run deploy -- synthetixio-team/synthetix-exchanger subgraphs/synthetix-exchanger.yaml",
     "deploy:grantsdao": "npm run deploy -- synthetixio-team/synthetix-grantsdao subgraphs/synthetix-grantsdao.yaml",
+    "deploy:liquidations": "npm run deploy -- synthetixio-team/synthetix-liquidations subgraphs/synthetix-liquidations.yaml",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
     "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
