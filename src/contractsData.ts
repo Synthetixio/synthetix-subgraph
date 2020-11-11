@@ -289,3 +289,11 @@ contractsToProxies.set(
   '0x25367741a23464b41b4ab978bd8092d56a3590c0', // DEFI_3
   '0xa8E875F94138B0C5b51d1e1d5dE35bbDdd28EA87',
 );
+contractsToProxies.set(
+  '0xf0f201fdb77a5ecd065cdbd69850f3f6694b2bef', // OIL_3
+  '0xb70ba475F1a6b5396e46d9b2a5f7081080Dc9d09',
+);
+contractsToProxies.set(
+  '0xf2d87e37ea1e54c7aa913d2447a5f69f61c114cf', // AAVE_3
+  '0x547a514d5e3769680Ce22B2361c10Ea13619e8a9',
+);
