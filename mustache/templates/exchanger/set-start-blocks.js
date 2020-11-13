@@ -11,6 +11,10 @@ module.exports = {
     prod: 11012438,
     test: null,
   },
+  Exchanger_v4: {
+    prod: 11239644,
+    test: null,
+  },
   Synthetix: {
     prod: 10782000,
     test: null,
@@ -37,6 +41,14 @@ module.exports = {
   },
   RatesBlockSix: {
     prod: 10960006,
+    test: null,
+  },
+  RatesOIL_3: {
+    prod: 11198828,
+    test: null,
+  },
+  RatesAAVE_3: {
+    prod: 11179792,
     test: null,
   },
 };

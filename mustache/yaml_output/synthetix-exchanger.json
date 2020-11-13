@@ -98,6 +98,34 @@
           ]
         },
         {
+          "name": "Exchanger_v4",
+          "mappingFile": "../src/exchanger-mapping.ts",
+          "startBlock": 11239644,
+          "address": "'0x300F0f100389282b51F1Bc486D8c2ad22B6C4E42'",
+          "abi": "Exchanger",
+          "entities": [
+            "ExchangeEntrySettled",
+            "ExchangeEntryAppended",
+            "TemporaryExchangePartnerTracker"
+          ],
+          "abis": [
+            {
+              "name": "Exchanger",
+              "path": "../abis/Exchanger.json"
+            }
+          ],
+          "events": [
+            {
+              "event": "ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)",
+              "handler": "handleExchangeEntrySettled"
+            },
+            {
+              "event": "ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)",
+              "handler": "handleExchangeEntryAppended"
+            }
+          ]
+        },
+        {
           "name": "Synthetix",
           "mappingFile": "../src/exchanger-mapping.ts",
           "startBlock": 10782000,
@@ -2094,6 +2122,66 @@
           "mappingFile": "../src/rates-mapping.ts",
           "startBlock": 10960006,
           "address": "'0x4Fa0655c09E0b5B2F50F1bd861B2d9BC63ccBBCB'",
+          "abi": "Aggregator",
+          "entities": [
+            "AggregatorAnswer"
+          ],
+          "abis": [
+            {
+              "name": "Aggregator",
+              "path": "../abis/Aggregator.json"
+            },
+            {
+              "name": "ExchangeRates",
+              "path": "../abis/ExchangeRates.json"
+            },
+            {
+              "name": "AddressResolver",
+              "path": "../abis/AddressResolver.json"
+            }
+          ],
+          "events": [
+            {
+              "event": "AnswerUpdated(indexed int256,indexed uint256,uint256)",
+              "handler": "handleAggregatorAnswerUpdated"
+            }
+          ]
+        },
+        {
+          "name": "AggregatorOIL_3",
+          "mappingFile": "../src/rates-mapping.ts",
+          "startBlock": 11198828,
+          "address": "'0xF0f201FDB77a5eCd065CdbD69850F3f6694B2BEf'",
+          "abi": "Aggregator",
+          "entities": [
+            "AggregatorAnswer"
+          ],
+          "abis": [
+            {
+              "name": "Aggregator",
+              "path": "../abis/Aggregator.json"
+            },
+            {
+              "name": "ExchangeRates",
+              "path": "../abis/ExchangeRates.json"
+            },
+            {
+              "name": "AddressResolver",
+              "path": "../abis/AddressResolver.json"
+            }
+          ],
+          "events": [
+            {
+              "event": "AnswerUpdated(indexed int256,indexed uint256,uint256)",
+              "handler": "handleAggregatorAnswerUpdated"
+            }
+          ]
+        },
+        {
+          "name": "AggregatorAAVE_3",
+          "mappingFile": "../src/rates-mapping.ts",
+          "startBlock": 11179792,
+          "address": "'0xF2d87E37EA1e54c7Aa913d2447A5f69f61C114Cf'",
           "abi": "Aggregator",
           "entities": [
             "AggregatorAnswer"

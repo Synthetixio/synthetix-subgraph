@@ -453,6 +453,16 @@ module.exports = {
         startBlock: StartBlocks.AggregatorNIKKEI_3,
         address: "'0x4Fa0655c09E0b5B2F50F1bd861B2d9BC63ccBBCB'",
       }),
+      createAggregatorBlock({
+        name: 'AggregatorOIL_3',
+        startBlock: StartBlocks.AggregatorOIL_3,
+        address: "'0xF0f201FDB77a5eCd065CdbD69850F3f6694B2BEf'",
+      }),
+      createAggregatorBlock({
+        name: 'AggregatorAAVE_3',
+        startBlock: StartBlocks.AggregatorAAVE_3,
+        address: "'0xF2d87E37EA1e54c7Aa913d2447A5f69f61C114Cf'",
+      }),
     ];
   },
 };

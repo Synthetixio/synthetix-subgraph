@@ -23,13 +23,13 @@ For any of the four subgraphs: `snx`, `exchanges`, `rates`, `depot`, `loans` and
 2. [Optional] run the `npm run build:[subgraph]` task for the subgraph
 3. Deploy via `npm run deploy:[subgraph]`. Note: requires env variable of `$THEGRAPH_SNX_ACCESS_TOKEN` set in bash to work.
 
-## To deploy the Rates or Exchanger subgraphs at different start blocks (this is especially useful for faster testing)
+## To deploy test Rates or Exchanger subgraphs at different start blocks
 
-1. To use a single start block for all contracts within the rates or exchanger subgraph, simply change the UNIVERSAL_START_BLOCK in `package.json` from null to a number for the relevant subgraph command and make sure to run the `npm run codegen:[subgraph]:test` command and it will use a single block in the yaml.
+1. First, you have to udpate the `--env` flag to `test` in `yaml:rates` or `yaml:exchanger` in `package.json` and then it will pick up any changes you make to the test start blocks in `set-start-blocks` file in the relevant subgraph folder inside the `./mustache` folder. If you leave a test block as null it will use the prod block instead.
 
-2. To modify individual contracts for the rates or exchanger subgraphs in prod or testing (it is recommended not to change the prod config unless adding new contracts), please change the `modify_start_blocks_for_testing.js` or the `modify_start_blocks_for_prod.js` files. If you modify the test files you will need to run the `npm run codegen:[subgraph]:test` command for the yaml files to be udpated. The `npm run codegen:[subgraph]` command will pick up any changes to the prod config.
+IMPORTANT: if you just want to use a single start block for all contracts within the rates or exchanger subgraph, simply change the `--universal-test-block` flag in `yaml:rates` or `yaml:exchanger` in `package.json` from `null` to `<number>` and you don't need to make any changes to `set-start-blocks` in that case.
 
-3. Continue from step 2 in the section `To run and deploy locally` above.
+2. Continue from step 2 in the section `To run and deploy locally` above.
 
 ## To query these subgraphs
 

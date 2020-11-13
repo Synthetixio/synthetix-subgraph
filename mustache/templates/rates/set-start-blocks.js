@@ -346,4 +346,14 @@ module.exports = {
     test: null,
     exchanger: Exchanger.RatesBlockSix,
   },
+  AggregatorOIL_3: {
+    prod: 11198828,
+    test: null,
+    exchanger: Exchanger.RatesOIL_3,
+  },
+  AggregatorAAVE_3: {
+    prod: 11179792,
+    test: null,
+    exchanger: Exchanger.RatesAAVE_3,
+  },
 };
