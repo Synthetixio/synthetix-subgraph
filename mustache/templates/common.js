@@ -4,6 +4,8 @@ const createStartBlock = (blocks, env, universalTestBlock, useExchangerBlocks = 
       ? universalTestBlock
       : useExchangerBlocks && blocks.exchanger
       ? blocks.exchanger.test
+        ? blocks.exchanger.test
+        : blocks.exchanger.prod
       : blocks.test || blocks.prod;
   } else if (env === 'prod') {
     return useExchangerBlocks && blocks.exchanger && blocks.exchanger.prod ? blocks.exchanger.prod : blocks.prod;
