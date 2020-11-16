@@ -3,7 +3,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { gray } = require('chalk');
 const program = require('commander');
 
 /**
@@ -51,9 +50,9 @@ program
     indexData.yaml[0] = { ...indexData.yaml[0], ...specificIndexData };
     indexData.yaml[0].dataSources = dataSourcesData;
 
-    const targetFile = path.join(__dirname, 'mustache', 'yaml_output', `synthetix-${subgraph}.json`);
-    console.log(gray('Writing JSON file:', `synthetix-${subgraph}.json`));
-    fs.writeFileSync(targetFile, JSON.stringify(indexData, null, 2) + '\n');
+    // const targetFile = path.join(__dirname, 'mustache', 'yaml_output', `synthetix-${subgraph}.json`);
+    // fs.writeFileSync(targetFile, JSON.stringify(indexData, null, 2) + '\n');
+    return console.log(JSON.stringify(indexData, null, 2) + '\n');
   });
 
 program.parse(process.argv);

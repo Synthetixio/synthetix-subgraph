@@ -7,7 +7,7 @@ module.exports = {
     const commonRatesEntities = ['RatesUpdated'];
     const useExchangerBlocks = subgraph === 'exchanger';
 
-    const createRates4Block = ({ name, startBlock, address }) => ({
+    const createRatesBlock = ({ name, startBlock, address, bytes, abiPath = null }) => ({
       name,
       mappingFile: '../src/rates-mapping.ts',
       startBlock: createStartBlock(startBlock, env, universalTestBlock, useExchangerBlocks),
@@ -17,37 +17,22 @@ module.exports = {
       abis: [
         {
           name: 'ExchangeRates',
-          path: '../abis/ExchangeRates_bytes4.json',
+          path: abiPath != null ? abiPath : `../abis/ExchangeRates_bytes${bytes}.json`,
         },
       ],
       events: [
         {
-          event: 'RatesUpdated(bytes4[],uint256[])',
+          event: `RatesUpdated(bytes${bytes}[],uint256[])`,
           handler: 'handleRatesUpdated',
         },
       ],
     });
 
-    const createRates32Block = ({ name, startBlock, address }) => ({
-      name,
-      mappingFile: '../src/rates-mapping.ts',
-      startBlock: createStartBlock(startBlock, env, universalTestBlock, useExchangerBlocks),
-      address,
-      abi: commonRatesABI,
-      entities: commonRatesEntities,
-      abis: [
-        {
-          name: 'ExchangeRates',
-          path: '../abis/ExchangeRates_bytes32.json',
-        },
-      ],
-      events: [
-        {
-          event: 'RatesUpdated(bytes32[],uint256[])',
-          handler: 'handleRatesUpdated',
-        },
-      ],
-    });
+    const createRates4Block = ({ name, startBlock, address, abiPath }) =>
+      createRatesBlock({ name, startBlock, address, abiPath, bytes: 4 });
+
+    const createRates32Block = ({ name, startBlock, address, abiPath }) =>
+      createRatesBlock({ name, startBlock, address, abiPath, bytes: 32 });
 
     const createAggregatorBlock = ({ name, startBlock, address }) => ({
       name,
@@ -113,46 +98,18 @@ module.exports = {
         startBlock: StartBlocks.ExchangeRates_v219,
         address: "'0x9D7F70AF5DF5D5CC79780032d47a34615D1F1d77'",
       }),
-      {
+      createRates32Block({
         name: 'ExchangeRates_v223',
-        mappingFile: '../src/rates-mapping.ts',
-        startBlock: createStartBlock(StartBlocks.ExchangeRates_v223, env, universalTestBlock, useExchangerBlocks),
+        startBlock: StartBlocks.ExchangeRates_v223,
         address: "'0xba727c69636491ecdfE3E6F64cBE9428aD371e48'",
-        abi: commonRatesABI,
-        entities: commonRatesEntities,
-        abis: [
-          {
-            name: 'ExchangeRates',
-            path: '../abis/ExchangeRates_v2.23.json',
-          },
-        ],
-        events: [
-          {
-            event: 'RatesUpdated(bytes32[],uint256[])',
-            handler: 'handleRatesUpdated',
-          },
-        ],
-      },
-      {
+        abiPath: '../abis/ExchangeRates_v2.23.json',
+      }),
+      createRates32Block({
         name: 'ExchangeRates',
-        mappingFile: '../src/rates-mapping.ts',
-        startBlock: createStartBlock(StartBlocks.ExchangeRates, env, universalTestBlock, useExchangerBlocks),
+        startBlock: StartBlocks.ExchangeRates,
         address: "'0xba727c69636491ecdfE3E6F64cBE9428aD371e48'",
-        abi: commonRatesABI,
-        entities: commonRatesEntities,
-        abis: [
-          {
-            name: 'ExchangeRates',
-            path: '../abis/ExchangeRates.json',
-          },
-        ],
-        events: [
-          {
-            event: 'RatesUpdated(bytes32[],uint256[])',
-            handler: 'handleRatesUpdated',
-          },
-        ],
-      },
+        abiPath: '../abis/ExchangeRates.json',
+      }),
       createAggregatorBlock({
         name: 'AggregatorAUD',
         startBlock: StartBlocks.AggregatorAUD,
