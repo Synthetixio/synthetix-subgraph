@@ -110,7 +110,7 @@ contractsToProxies.set(
   '0xE23FA0e8dd05D6f66a6e8c98cab2d9AE82A7550c',
 );
 contractsToProxies.set(
-  '0xc95b41df94f3890122b2bcef9005afde17773db2', // FTSE
+  '0xc95b41df94f3890122b2bcef9005afde17773db2', // FTSE_3
   '0xE23FA0e8dd05D6f66a6e8c98cab2d9AE82A7550c',
 );
 contractsToProxies.set(

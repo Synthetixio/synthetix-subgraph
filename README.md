@@ -23,6 +23,14 @@ For any of the four subgraphs: `snx`, `exchanges`, `rates`, `depot`, `loans` and
 2. [Optional] run the `npm run build:[subgraph]` task for the subgraph
 3. Deploy via `npm run deploy:[subgraph]`. Note: requires env variable of `$THEGRAPH_SNX_ACCESS_TOKEN` set in bash to work.
 
+## To deploy test Rates or Exchanger subgraphs at different start blocks
+
+1. First, you have to udpate the `--env` flag to `test` in `yaml:rates` or `yaml:exchanger` in `package.json` and then it will pick up any changes you make to the test start blocks in `set-start-blocks` file in the relevant subgraph folder inside the `./mustache` folder. If you leave a test block as null it will use the prod block instead.
+
+IMPORTANT: if you just want to use a single start block for all contracts within the rates or exchanger subgraph, simply change the `--universal-test-block` flag in `yaml:rates` or `yaml:exchanger` in `package.json` from `null` to `<number>` and you don't need to make any changes to `set-start-blocks` in that case, it will pick up this number for every contract in the yaml file.
+
+2. Continue from step 2 in the section `To run and deploy locally` above.
+
 ## To query these subgraphs
 
 Please use our node & browser utility: [synthetix-data](https://github.com/Synthetixio/synthetix-data).

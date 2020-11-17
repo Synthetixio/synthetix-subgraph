@@ -10,15 +10,17 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "yaml:rates": "node ./create-yaml-file create-yaml --subgraph rates --env prod --universal-test-block null | mustache - mustache/yaml.mustache > subgraphs/synthetix-rates.yaml",
+    "yaml:exchanger": "node ./create-yaml-file create-yaml --subgraph exchanger --env prod --universal-test-block null | mustache - mustache/yaml.mustache > subgraphs/synthetix-exchanger.yaml",
     "codegen": "node prepare-abis && graph codegen",
     "codegen:snx": "npm run codegen -- subgraphs/synthetix.yaml",
-    "codegen:rates": "npm run codegen -- subgraphs/synthetix-rates.yaml",
+    "codegen:rates": "npm run yaml:rates && npm run codegen -- subgraphs/synthetix-rates.yaml",
     "codegen:depot": "npm run codegen -- subgraphs/synthetix-depot.yaml",
     "codegen:exchanges": "npm run codegen -- subgraphs/synthetix-exchanges.yaml",
     "codegen:loans": "npm run codegen -- subgraphs/synthetix-loans.yaml",
     "codegen:options": "npm run codegen -- subgraphs/synthetix-binary-options.yaml",
     "codegen:orders": "npm run codegen -- subgraphs/synthetix-limit-orders.yaml",
-    "codegen:exchanger": "npm run codegen -- subgraphs/synthetix-exchanger.yaml",
+    "codegen:exchanger": "npm run yaml:exchanger && npm run codegen -- subgraphs/synthetix-exchanger.yaml",
     "codegen:grantsdao": "npm run codegen -- subgraphs/synthetix-grantsdao.yaml",
     "codegen:liquidations": "npm run codegen -- subgraphs/synthetix-liquidations.yaml",
     "build": "graph build",
@@ -52,6 +54,7 @@
     "@graphprotocol/graph-ts": "0.18.1",
     "chalk": "2.4.2",
     "commander": "2.20.0",
+    "mustache": "4.0.1",
     "synthetix": "2.30.3-ovm"
   },
   "devDependencies": {

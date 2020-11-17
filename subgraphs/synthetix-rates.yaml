@@ -1,5 +1,5 @@
 specVersion: 0.0.2
-description: Synthetix API
+description: Synthetix Rates API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
   file: ./synthetix-rates.graphql
@@ -8,7 +8,7 @@ dataSources:
     name: ExchangeRates_v231
     network: mainnet
     source:
-      address: '0xba34e436C9383aa8FA1e3659D2807ae040592498' # ExchangeRates v2.3.1 (with inverse pricing)
+      address: '0xba34e436C9383aa8FA1e3659D2807ae040592498'
       abi: ExchangeRates
       startBlock: 7626469
     mapping:
@@ -24,12 +24,11 @@ dataSources:
       eventHandlers:
         - event: RatesUpdated(bytes4[],uint256[])
           handler: handleRatesUpdated
-
   - kind: ethereum/contract
     name: ExchangeRates_v240
     network: mainnet
     source:
-      address: '0x5cBB53Ca85A9E52B593Baf8ae90282C4B3dB0b25' # ExchangeRates v2.4.0 (with effectiveValue)
+      address: '0x5cBB53Ca85A9E52B593Baf8ae90282C4B3dB0b25'
       abi: ExchangeRates
       startBlock: 8075694
     mapping:
@@ -49,7 +48,7 @@ dataSources:
     name: ExchangeRates_v272
     network: mainnet
     source:
-      address: '0x70C629875daDBE702489a5E1E3bAaE60e38924fa' # ExchangeRates v2.7.2 (price lock)
+      address: '0x70C629875daDBE702489a5E1E3bAaE60e38924fa'
       abi: ExchangeRates
       startBlock: 8120141
     mapping:
@@ -69,7 +68,7 @@ dataSources:
     name: ExchangeRates_v210
     network: mainnet
     source:
-      address: '0x99a46c42689720d9118ff7af7ce80c2a92fc4f97' # ExchangeRates v2.10 (bytes32)
+      address: '0x99a46c42689720d9118ff7af7ce80c2a92fc4f97'
       abi: ExchangeRates
       startBlock: 8622895
     mapping:
@@ -89,7 +88,7 @@ dataSources:
     name: ExchangeRates_v213
     network: mainnet
     source:
-      address: '0x565C9EB432f4AE9633e50e1213AB4f23D8f31f54' # ExchangeRates v2.13 (audit & gas fixes)
+      address: '0x565C9EB432f4AE9633e50e1213AB4f23D8f31f54'
       abi: ExchangeRates
       startBlock: 8971442
     mapping:
@@ -109,7 +108,7 @@ dataSources:
     name: ExchangeRates_v217
     network: mainnet
     source:
-      address: '0xE95Ef4e7a04d2fB05cb625c62CA58da10112c605' # ExchangeRates v2.17 (aggregators)
+      address: '0xE95Ef4e7a04d2fB05cb625c62CA58da10112c605'
       abi: ExchangeRates
       startBlock: 9123410
     mapping:
@@ -125,12 +124,11 @@ dataSources:
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
-
   - kind: ethereum/contract
     name: ExchangeRates_v219
     network: mainnet
     source:
-      address: '0x9D7F70AF5DF5D5CC79780032d47a34615D1F1d77' # ExchangeRates v2.19 (address resolver)
+      address: '0x9D7F70AF5DF5D5CC79780032d47a34615D1F1d77'
       abi: ExchangeRates
       startBlock: 9518289
     mapping:
@@ -146,12 +144,11 @@ dataSources:
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
-
   - kind: ethereum/contract
     name: ExchangeRates_v223
     network: mainnet
     source:
-      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48' # ExchangeRates v2.23 (SIP-48)
+      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48'
       abi: ExchangeRates
       startBlock: 10364342
     mapping:
@@ -167,14 +164,13 @@ dataSources:
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
-
   - kind: ethereum/contract
     name: ExchangeRates
     network: mainnet
     source:
-      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48' # ExchangeRates v2.27
+      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48'
       abi: ExchangeRates
-      startBlock: 10773070 # Pollux release (v2.27) (Note: we don't need to listen to this anymore here but keeping for posterity)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -188,13 +184,11 @@ dataSources:
       eventHandlers:
         - event: RatesUpdated(bytes32[],uint256[])
           handler: handleRatesUpdated
-
-  # Chainlink Aggregators Phase 1 (forex and commodities)
   - kind: ethereum/contract
     name: AggregatorAUD
     network: mainnet
     source:
-      address: '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231' # AUD
+      address: '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231'
       abi: Aggregator
       startBlock: 9085450
     mapping:
@@ -214,12 +208,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorEUR
     network: mainnet
     source:
-      address: '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5' # EUR
+      address: '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5'
       abi: Aggregator
       startBlock: 9085417
     mapping:
@@ -239,12 +232,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorCHF
     network: mainnet
     source:
-      address: '0x02d5c618dbc591544b19d0bf13543c0728a3c4ec' # CHF
+      address: '0x02d5c618dbc591544b19d0bf13543c0728a3c4ec'
       abi: Aggregator
       startBlock: 9085502
     mapping:
@@ -264,12 +256,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorGBP
     network: mainnet
     source:
-      address: '0x151445852b0cfdf6a4cc81440f2af99176e8ad08' # GBP
+      address: '0x151445852b0cfdf6a4cc81440f2af99176e8ad08'
       abi: Aggregator
       startBlock: 9085494
     mapping:
@@ -289,12 +280,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorJPY
     network: mainnet
     source:
-      address: '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6' # JPY
+      address: '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6'
       abi: Aggregator
       startBlock: 9085433
     mapping:
@@ -314,12 +304,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXAG
     network: mainnet
     source:
-      address: '0x8946a183bfafa95becf57c5e08fe5b7654d2807b' # XAG
+      address: '0x8946a183bfafa95becf57c5e08fe5b7654d2807b'
       abi: Aggregator
       startBlock: 9085563
     mapping:
@@ -339,12 +328,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXAU
     network: mainnet
     source:
-      address: '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935' # XAU
+      address: '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935'
       abi: Aggregator
       startBlock: 9085543
     mapping:
@@ -364,12 +352,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorFTSE
     network: mainnet
     source:
-      address: '0x16924ae9c2ac6cdbc9d6bb16fafcd38bed560936' # FTSE
+      address: '0x16924ae9c2ac6cdbc9d6bb16fafcd38bed560936'
       abi: Aggregator
       startBlock: 9755177
     mapping:
@@ -389,12 +376,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorN225
     network: mainnet
     source:
-      address: '0x3f6e09a4ec3811765f5b2ad15c0279910dbb2c04' # NIKKEI225
+      address: '0x3f6e09a4ec3811765f5b2ad15c0279910dbb2c04'
       abi: Aggregator
       startBlock: 9755246
     mapping:
@@ -414,15 +400,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
-  # Chainlink Aggregators Phase 2 (crypto and indexes)
   - kind: ethereum/contract
     name: AggregatorSNX
     network: mainnet
     source:
-      address: '0xd3ce735cdc708d9607cfbc6c3429861625132cb4' # SNX
+      address: '0xd3ce735cdc708d9607cfbc6c3429861625132cb4'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -440,14 +424,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorETH
     network: mainnet
     source:
-      address: '0xf79d6afbb6da890132f9d7c355e3015f15f3406f' # ETH
+      address: '0xf79d6afbb6da890132f9d7c355e3015f15f3406f'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -465,14 +448,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorCOMP
     network: mainnet
     source:
-      address: '0x80eeb41e2a86d4ae9903a3860dd643dad2d1a853' # COMP
+      address: '0x80eeb41e2a86d4ae9903a3860dd643dad2d1a853'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -490,14 +472,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorKNC
     network: mainnet
     source:
-      address: '0x45e9fee61185e213c37fc14d18e44ef9262e10db' # KNC
+      address: '0x45e9fee61185e213c37fc14d18e44ef9262e10db'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -515,14 +496,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorLEND
     network: mainnet
     source:
-      address: '0x2408935efe60f092b442a8755f7572edb9cf971e' # LEND
+      address: '0x2408935efe60f092b442a8755f7572edb9cf971e'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -540,14 +520,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorREN
     network: mainnet
     source:
-      address: '0x353f61f39a17e56ca413f4559b8cd3b6a252ffc8' # REN
+      address: '0x353f61f39a17e56ca413f4559b8cd3b6a252ffc8'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -565,14 +544,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorBTC
     network: mainnet
     source:
-      address: '0xf5fff180082d6017036b771ba883025c654bc935' # BTC
+      address: '0xf5fff180082d6017036b771ba883025c654bc935'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -590,14 +568,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorBNB
     network: mainnet
     source:
-      address: '0x0821f21f21c325ae39557ca83b6b4df525495d06' # BNB
+      address: '0x0821f21f21c325ae39557ca83b6b4df525495d06'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -615,14 +592,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorTRX
     network: mainnet
     source:
-      address: '0x28e0fd8e05c14034cba95c6bf3394d1b106f7ed8' # TRX
+      address: '0x28e0fd8e05c14034cba95c6bf3394d1b106f7ed8'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -640,14 +616,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXTZ
     network: mainnet
     source:
-      address: '0x52d674c76e91c50a0190de77da1fad67d859a569' # XTZ
+      address: '0x52d674c76e91c50a0190de77da1fad67d859a569'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -665,14 +640,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXRP
     network: mainnet
     source:
-      address: '0x570985649832b51786a181d57babe012be1c09a4' # XRP
+      address: '0x570985649832b51786a181d57babe012be1c09a4'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -690,14 +664,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorLTC
     network: mainnet
     source:
-      address: '0xc6ee0d4943dc43bd462145aa6ac95e9c0c8b462f' # LTC
+      address: '0xc6ee0d4943dc43bd462145aa6ac95e9c0c8b462f'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -715,14 +688,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
-    name: Aggregator
+    name: AggregatorLINK
     network: mainnet
     source:
-      address: '0x32dbd3214ac75223e27e575c53944307914f7a90' # LINK
+      address: '0x32dbd3214ac75223e27e575c53944307914f7a90'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -740,14 +712,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorEOS
     network: mainnet
     source:
-      address: '0x740be5e8fe30bd2bf664822154b520eae0c565b0' # EOS
+      address: '0x740be5e8fe30bd2bf664822154b520eae0c565b0'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -765,14 +736,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorBCH
     network: mainnet
     source:
-      address: '0x6a6527d91ddae0a259cc09dad311b3455cdc1fbd' # BCH
+      address: '0x6a6527d91ddae0a259cc09dad311b3455cdc1fbd'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -790,14 +760,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorETC
     network: mainnet
     source:
-      address: '0xe2c9aea66ed352c33f9c7d8e824b7cac206b0b72' # ETC
+      address: '0xe2c9aea66ed352c33f9c7d8e824b7cac206b0b72'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -815,14 +784,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorDASH
     network: mainnet
     source:
-      address: '0xd9d35a82d4dd43be7cfc524ebf5cd00c92c48ebc' # DASH
+      address: '0xd9d35a82d4dd43be7cfc524ebf5cd00c92c48ebc'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -840,14 +808,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXMR
     network: mainnet
     source:
-      address: '0xd1e850d6afb6c27a3d66a223f6566f0426a6e13b' # XMR
+      address: '0xd1e850d6afb6c27a3d66a223f6566f0426a6e13b'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -865,14 +832,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorADA
     network: mainnet
     source:
-      address: '0xf11bf075f0b2b8d8442ab99c44362f1353d40b44' # ADA
+      address: '0xf11bf075f0b2b8d8442ab99c44362f1353d40b44'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -890,14 +856,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorCEX
     network: mainnet
     source:
-      address: '0x46bb139f23b01fef37cb95ae56274804bc3b3e86' # CEX
+      address: '0x46bb139f23b01fef37cb95ae56274804bc3b3e86'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -915,14 +880,13 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorDEFI
     network: mainnet
     source:
-      address: '0x7ae7781c7f3a5182596d161e037e6db8e36328ef' # DEFI
+      address: '0x7ae7781c7f3a5182596d161e037e6db8e36328ef'
       abi: Aggregator
-      startBlock: 10773070 # Pollux release (v2.27)
+      startBlock: 10773070
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -940,12 +904,11 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXAU_3
     network: mainnet
     source:
-      address: '0x06A7689149cf04DacFDE555d1e1EAD7dD7370316' # XAU_3
+      address: '0x06A7689149cf04DacFDE555d1e1EAD7dD7370316'
       abi: Aggregator
       startBlock: 10873070
     mapping:
@@ -956,21 +919,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXAG_3
     network: mainnet
     source:
-      address: '0xF320E19B2ED82F1B226b006cD43FE600FEA56615' # XAG_3
+      address: '0xF320E19B2ED82F1B226b006cD43FE600FEA56615'
       abi: Aggregator
       startBlock: 10873070
     mapping:
@@ -981,21 +943,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorLINK_3
     network: mainnet
     source:
-      address: '0x8cDE021F0BfA5f82610e8cE46493cF66AC04Af53' # LINK_3
+      address: '0x8cDE021F0BfA5f82610e8cE46493cF66AC04Af53'
       abi: Aggregator
       startBlock: 10921231
     mapping:
@@ -1006,21 +967,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorBTC_3
     network: mainnet
     source:
-      address: '0xF570deEffF684D964dc3E15E1F9414283E3f7419' # BTC_3
+      address: '0xF570deEffF684D964dc3E15E1F9414283E3f7419'
       abi: Aggregator
       startBlock: 10921231
     mapping:
@@ -1031,21 +991,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorAUD_3
     network: mainnet
     source:
-      address: '0x3A33c0eFD0EB8fd38a6E1904dF1E32f95F67616b' # AUD_3
+      address: '0x3A33c0eFD0EB8fd38a6E1904dF1E32f95F67616b'
       abi: Aggregator
       startBlock: 10921231
     mapping:
@@ -1056,21 +1015,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorEUR_3
     network: mainnet
     source:
-      address: '0x8f71c9c583248A11CAcBbC8FD0D5dFa483D3b109' # EUR_3
+      address: '0x8f71c9c583248A11CAcBbC8FD0D5dFa483D3b109'
       abi: Aggregator
       startBlock: 10921231
     mapping:
@@ -1081,21 +1039,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorBCH_3
     network: mainnet
     source:
-      address: '0x744704c31a2E46AD60c7CDf0212933B4c4c2c9eC' # BCH_3
+      address: '0x744704c31a2E46AD60c7CDf0212933B4c4c2c9eC'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1106,21 +1063,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorEOS_3
     network: mainnet
     source:
-      address: '0x7C9Ca5AdcBa43D968D9e0dDcA16293D66c07482D' # EOS_3
+      address: '0x7C9Ca5AdcBa43D968D9e0dDcA16293D66c07482D'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1131,21 +1087,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorBNB_3
     network: mainnet
     source:
-      address: '0x90888CDDaD598570c6eDC443eee9aaDB63cDA3C4' # BNB_3
+      address: '0x90888CDDaD598570c6eDC443eee9aaDB63cDA3C4'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1156,21 +1111,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorADA_3
     network: mainnet
     source:
-      address: '0xf94800E6e36b0dc860F6f31e7cDf1086099E8c0E' # ADA_3
+      address: '0xf94800E6e36b0dc860F6f31e7cDf1086099E8c0E'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1181,21 +1135,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorREN_3
     network: mainnet
     source:
-      address: '0xD286AF227B7b0695387E279B9956540818B1dc2a' # REN_3
+      address: '0xD286AF227B7b0695387E279B9956540818B1dc2a'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1206,21 +1159,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorLEND_3
     network: mainnet
     source:
-      address: '0x0227fb846b48e209d56D79b0A3109FdA561db821' # LEND_3
+      address: '0x0227fb846b48e209d56D79b0A3109FdA561db821'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1231,21 +1183,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorKNC_3
     network: mainnet
     source:
-      address: '0xa811Ff165b082c0507Ce9a5a660Fb3D7eEeCb88A' # KNC_3
+      address: '0xa811Ff165b082c0507Ce9a5a660Fb3D7eEeCb88A'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1256,21 +1207,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorSNX_3
     network: mainnet
     source:
-      address: '0xC8DB8d5869510Bb1FCd3Bd7C7624c1b49c652ef8' # SNX_3
+      address: '0xC8DB8d5869510Bb1FCd3Bd7C7624c1b49c652ef8'
       abi: Aggregator
       startBlock: 10950006
     mapping:
@@ -1281,21 +1231,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorDASH_3
     network: mainnet
     source:
-      address: '0x1fB0b88eaF51420c14B67256Ab7DaE1de6e116cb' # DASH_3
+      address: '0x1fB0b88eaF51420c14B67256Ab7DaE1de6e116cb'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1306,21 +1255,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorETC_3
     network: mainnet
     source:
-      address: '0x41306Eb5fC11A68C284c19Ba3B9510c0252E0a34' # ETC_3
+      address: '0x41306Eb5fC11A68C284c19Ba3B9510c0252E0a34'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1331,21 +1279,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorLTC_3
     network: mainnet
     source:
-      address: '0x3F2d1Ff4930318B5a7c301E1bf7e703DcF6D83E3' # LTC_3
+      address: '0x3F2d1Ff4930318B5a7c301E1bf7e703DcF6D83E3'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1356,21 +1303,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXMR_3
     network: mainnet
     source:
-      address: '0x38cB8642A0FC558918fCed939450D689d0E5a7Be' # XMR_3
+      address: '0x38cB8642A0FC558918fCed939450D689d0E5a7Be'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1381,21 +1327,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXRP_3
     network: mainnet
     source:
-      address: '0x75Ed2f61837c3D9Ef1BF0af4DB84664DC6fe56bC' # XRP_3
+      address: '0x75Ed2f61837c3D9Ef1BF0af4DB84664DC6fe56bC'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1406,21 +1351,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorTRX_3
     network: mainnet
     source:
-      address: '0x4D35fE9C85233a8E00aE2d3C0d912a45Bc781025' # TRX_3
+      address: '0x4D35fE9C85233a8E00aE2d3C0d912a45Bc781025'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1431,21 +1375,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorXTZ_3
     network: mainnet
     source:
-      address: '0x7391BB54a24719DA7DD81c2E5176cf954D7f7635' # XTZ_3
+      address: '0x7391BB54a24719DA7DD81c2E5176cf954D7f7635'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1456,21 +1399,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorCOMP_3
     network: mainnet
     source:
-      address: '0x150631a2e822d3ed7D46df9A270ce7134a16De89' # COMP_3
+      address: '0x150631a2e822d3ed7D46df9A270ce7134a16De89'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1481,21 +1423,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorDEFI_3
     network: mainnet
     source:
-      address: '0x25367741a23464b41B4aB978Bd8092d56a3590C0' # DEFI_3
+      address: '0x25367741a23464b41B4aB978Bd8092d56a3590C0'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1506,21 +1447,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorCEX_3
     network: mainnet
     source:
-      address: '0xBC66D51898dd2EFA3C214C87d4645C0478Ccbc95' # CEX_3
+      address: '0xBC66D51898dd2EFA3C214C87d4645C0478Ccbc95'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1531,21 +1471,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorETH_3
     network: mainnet
     source:
-      address: '0x00c7A37B03690fb9f41b5C5AF8131735C7275446' # ETH_3
+      address: '0x00c7A37B03690fb9f41b5C5AF8131735C7275446'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1556,21 +1495,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorCHF_3
     network: mainnet
     source:
-      address: '0xdf005CaD29AAC8b1170960807f99B62aaeD1bb0a' # CHF_3
+      address: '0xdf005CaD29AAC8b1170960807f99B62aaeD1bb0a'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1581,21 +1519,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorJPY_3
     network: mainnet
     source:
-      address: '0x87CFEA02C8322653a7335C6f72Be19ce54ECbFb5' # JPY_3
+      address: '0x87CFEA02C8322653a7335C6f72Be19ce54ECbFb5'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1606,21 +1543,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorGBP_3
     network: mainnet
     source:
-      address: '0x3a6e27b663593E34a7FB80bA9544d9E8BAbdF001' # GBP_3
+      address: '0x3a6e27b663593E34a7FB80bA9544d9E8BAbdF001'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1631,21 +1567,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorFTSE_3
     network: mainnet
     source:
-      address: '0xc95B41df94F3890122B2bcEf9005AFDe17773dB2' # FTSE_3
+      address: '0xc95B41df94F3890122B2bcEf9005AFDe17773dB2'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1656,21 +1591,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorNIKKEI_3
     network: mainnet
     source:
-      address: '0x4Fa0655c09E0b5B2F50F1bd861B2d9BC63ccBBCB' # NIKKEI_3
+      address: '0x4Fa0655c09E0b5B2F50F1bd861B2d9BC63ccBBCB'
       abi: Aggregator
       startBlock: 10960006
     mapping:
@@ -1681,21 +1615,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorOIL_3
     network: mainnet
     source:
-      address: '0xF0f201FDB77a5eCd065CdbD69850F3f6694B2BEf' # OIL_3
+      address: '0xF0f201FDB77a5eCd065CdbD69850F3f6694B2BEf'
       abi: Aggregator
       startBlock: 11198828
     mapping:
@@ -1706,21 +1639,20 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
-
   - kind: ethereum/contract
     name: AggregatorAAVE_3
     network: mainnet
     source:
-      address: '0xF2d87E37EA1e54c7Aa913d2447A5f69f61C114Cf' # AAVE_3
+      address: '0xF2d87E37EA1e54c7Aa913d2447A5f69f61C114Cf'
       abi: Aggregator
       startBlock: 11179792
     mapping:
@@ -1731,10 +1663,10 @@ dataSources:
       entities:
         - AggregatorAnswer
       abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
         - name: Aggregator
           file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
         - name: AddressResolver
           file: ../abis/AddressResolver.json
       eventHandlers:
