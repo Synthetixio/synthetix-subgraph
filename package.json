@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "yaml:rates": "node ./create-yaml-file create-yaml --subgraph rates --env prod --universal-test-block null | mustache - mustache/yaml.mustache > subgraphs/synthetix-rates.yaml",
     "yaml:exchanger": "node ./create-yaml-file create-yaml --subgraph exchanger --env prod --universal-test-block null | mustache - mustache/yaml.mustache > subgraphs/synthetix-exchanger.yaml",
+    "yaml:synth-transfers": "node ./create-yaml-file create-yaml --subgraph synth-transfers --env prod --universal-test-block null --etherscan $ETHERSCAN_API_KEY | mustache - mustache/yaml.mustache > subgraphs/synthetix-synth-transfers.yaml",
     "codegen": "node prepare-abis && graph codegen",
     "codegen:snx": "npm run codegen -- subgraphs/synthetix.yaml",
     "codegen:rates": "npm run yaml:rates && npm run codegen -- subgraphs/synthetix-rates.yaml",

@@ -1,0 +1,173 @@
+- kind: ethereum/contract
+  name: SynthiETH
+  network: mainnet
+  source:
+    address: '0xA9859874e1743A32409f75bB11549892138BBA1E' # (new ERC20 iETH Proxy)
+    abi: Synth
+    startBlock: 8623214
+  mapping:
+    kind: ethereum/events
+    apiVersion: 0.0.4
+    language: wasm/assemblyscript
+    file: ../src/mapping.ts
+    entities:
+      - Transfer
+      - SynthHolder
+    abis:
+      - name: Synth
+        file: ../abis/Synth.json
+    eventHandlers:
+      - event: Transfer(indexed address,indexed address,uint256)
+        handler: handleTransferSynth
+
+# Handle Transfer on previous ProxyiETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
+# This is to be able to track potential iETH holders
+- kind: ethereum/contract
+  name: SynthiETH_viaOldProxy
+  network: mainnet
+  source:
+    address: '0x9B7E40031f7d4f6AB6e5D36bBF2Fea3bCCcc75a5' # (old iETH Proxy)
+    abi: Synth
+    startBlock: 7680400
+  mapping:
+    kind: ethereum/events
+    apiVersion: 0.0.4
+    language: wasm/assemblyscript
+    file: ../src/mapping.ts
+    entities:
+      - Transfer
+      - SynthHolder
+    abis:
+      - name: Synth
+        file: ../abis/Synth.json
+    eventHandlers:
+      - event: Transfer(indexed address,indexed address,uint256)
+        handler: handleTransferSynth
+
+- kind: ethereum/contract
+  name: SynthsUSD
+  network: mainnet
+  source:
+    address: '0x57Ab1E02fEE23774580C119740129eAC7081e9D3' # ProxysUSD (old Proxy, will be decomissioned soon)
+    abi: Synth
+    startBlock: 5751012 # creation
+  mapping:
+    kind: ethereum/events
+    apiVersion: 0.0.4
+    language: wasm/assemblyscript
+    file: ../src/mapping.ts
+    entities:
+      - Transfer
+    abis:
+      - name: Synth
+        file: ../abis/Synth.json
+    eventHandlers:
+      - event: Transfer(indexed address,indexed address,uint256)
+        handler:
+          handleTransferSynth
+          # Handle Transfer on upcoming ProxysUSD Integration proxy
+- kind: ethereum/contract
+  name: SynthsUSD_viaNewProxy
+  network: mainnet
+  source:
+    address: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51' # ProxyERC20sUSD (new ERC20 Proxy)
+    abi: Synth
+    startBlock: 8621971 # creation of this proxy
+  mapping:
+    kind: ethereum/events
+    apiVersion: 0.0.4
+    language: wasm/assemblyscript
+    file: ../src/mapping.ts
+    entities:
+      - Transfer
+    abis:
+      - name: Synth
+        file: ../abis/Synth.json
+    eventHandlers:
+      - event: Transfer(indexed address,indexed address,uint256)
+        handler: handleTransferSynth
+  # Handle Transfer, Issued, Burned on previous ProxysETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
+  - kind: ethereum/contract
+    name: SynthsETH_viaOldProxy
+    network: mainnet
+    source:
+      address: '0xaCf5C0101cbBe8476E87c652E0bEF33684Cc94D6' # (old sETH Proxy)
+      abi: Synth
+      startBlock: 7626522
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ../abis/Synth.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth
+
+  # Handle Transfer, Issued, Burned on current ProxysETH
+  - kind: ethereum/contract
+    name: SynthsETH
+    network: mainnet
+    source:
+      address: '0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb' # ProxysETH (new ERC20 Proxy)
+      abi: Synth
+      startBlock: 8533639
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ../abis/Synth.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth
+    # Handle Transfer, Issued, Burned on previous ProxysBTC (since decommissioned and upgraded to ProxyERC20 in July 2019)
+  - kind: ethereum/contract
+    name: SynthsBTC_viaOldProxy
+    network: mainnet
+    source:
+      address: '0x9073Ee83b6CE96C444547DdCAf777b9352163581' # old ProxysBTC
+      abi: Synth
+      startBlock: 7264883 # creation of this proxy
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ../abis/Synth.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth
+
+  - kind: ethereum/contract
+    name: SynthsBTC
+    network: mainnet
+    source:
+      address: '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6' # ProxysBTC
+      abi: Synth
+      startBlock: 8623122 # creation of this proxy
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/mapping.ts
+      entities:
+        - Transfer
+      abis:
+        - name: Synth
+          file: ../abis/Synth.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSynth

@@ -2,6 +2,7 @@ import { BigDecimal, BigInt, Bytes, ByteArray } from '@graphprotocol/graph-ts';
 
 // import { Synthetix32 as SNX } from '../generated/Synthetix/Synthetix32';
 
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
 

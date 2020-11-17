@@ -17,7 +17,7 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
+        - SNXTransfer
       abis:
         - name: Synthetix
           file: ../abis/Synthetix.json
@@ -47,7 +47,7 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
+        - SNXTransfer
       abis:
         - name: Synthetix
           file: ../abis/Synthetix.json
@@ -107,7 +107,7 @@ dataSources:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
 
-  #  Handle Transfer on current, but deprecated, ProxysUSD
+  #  Handle Issuing and Burning on current, but deprecated, ProxysUSD
   - kind: ethereum/contract
     name: SynthsUSD
     network: mainnet
@@ -121,7 +121,6 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
         - Issued
         - Burned
       abis:
@@ -138,14 +137,12 @@ dataSources:
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
-  # Handle Transfer on upcoming ProxysUSD Integration proxy
+  # Handle Issuing and Burning on upcoming ProxysUSD Integration proxy
   - kind: ethereum/contract
     name: SynthsUSD_viaNewProxy
     network: mainnet
@@ -159,7 +156,6 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
         - Issued
         - Burned
       abis:
@@ -176,14 +172,12 @@ dataSources:
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
-  # Handle Transfer, Issued, Burned on previous ProxysETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
+  # Handle Issued, Burned on previous ProxysETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
   - kind: ethereum/contract
     name: SynthsETH_viaOldProxy
     network: mainnet
@@ -197,7 +191,6 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
         - Issued
         - Burned
       abis:
@@ -214,14 +207,12 @@ dataSources:
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
-  # Handle Transfer, Issued, Burned on current ProxysETH
+  # Handle Issued, Burned on current ProxysETH
   - kind: ethereum/contract
     name: SynthsETH
     network: mainnet
@@ -235,7 +226,6 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
         - Issued
         - Burned
       abis:
@@ -252,14 +242,12 @@ dataSources:
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
 
-    # Handle Transfer, Issued, Burned on previous ProxysBTC (since decommissioned and upgraded to ProxyERC20 in July 2019)
+    # Handle Issued, Burned on previous ProxysBTC (since decommissioned and upgraded to ProxyERC20 in July 2019)
   - kind: ethereum/contract
     name: SynthsBTC_viaOldProxy
     network: mainnet
@@ -273,7 +261,6 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
         - Issued
         - Burned
       abis:
@@ -290,8 +277,6 @@ dataSources:
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
@@ -310,7 +295,6 @@ dataSources:
       language: wasm/assemblyscript
       file: ../src/mapping.ts
       entities:
-        - Transfer
         - Issued
         - Burned
       abis:
@@ -327,58 +311,10 @@ dataSources:
         - name: SynthetixState
           file: ../abis/SynthetixState.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
           handler: handleBurnedSynths
-
-  # Handle Transfer on previous ProxyiETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
-  # This is to be able to track potential iETH holders
-  - kind: ethereum/contract
-    name: SynthiETH_viaOldProxy
-    network: mainnet
-    source:
-      address: '0x9B7E40031f7d4f6AB6e5D36bBF2Fea3bCCcc75a5' # (old iETH Proxy)
-      abi: Synth
-      startBlock: 7680400
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/mapping.ts
-      entities:
-        - Transfer
-        - SynthHolder
-      abis:
-        - name: Synth
-          file: ../abis/Synth.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
-
-  - kind: ethereum/contract
-    name: SynthiETH
-    network: mainnet
-    source:
-      address: '0xA9859874e1743A32409f75bB11549892138BBA1E' # (new ERC20 iETH Proxy)
-      abi: Synth
-      startBlock: 8623214
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/mapping.ts
-      entities:
-        - Transfer
-        - SynthHolder
-      abis:
-        - name: Synth
-          file: ../abis/Synth.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
 
   # Handle RewardEscrow Transfers (determine who has collected fees)
   - kind: ethereum/contract

@@ -15,25 +15,19 @@ import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 import { TargetUpdated as TargetUpdatedEvent } from '../generated/ProxySynthetix/Proxy';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
 
-import {
-  Synth,
-  Transfer as SynthTransferEvent,
-  Issued as IssuedEvent,
-  Burned as BurnedEvent,
-} from '../generated/SynthsUSD/Synth';
+import { Synth, Issued as IssuedEvent, Burned as BurnedEvent } from '../generated/SynthsUSD/Synth';
 import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
 import { FeePoolv217 } from '../generated/FeePool/FeePoolv217';
 
 import {
   Synthetix,
-  Transfer,
+  SNXTransfer,
   Issued,
   Burned,
   Issuer,
   ContractUpdated,
   SNXHolder,
   DebtSnapshot,
-  SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
   TotalActiveStaker,
@@ -289,7 +283,7 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 }
 
 export function handleTransferSNX(event: SNXTransferEvent): void {
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let entity = new SNXTransfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'SNX';
   entity.from = event.params.from;
   entity.to = event.params.to;
@@ -300,39 +294,6 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
 
   trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
   trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
-}
-
-function trackSynthHolder(contract: Synth, source: string, account: Address): void {
-  let entityID = account.toHex() + '-' + source;
-  let entity = SynthHolder.load(entityID);
-  if (entity == null) {
-    entity = new SynthHolder(entityID);
-  }
-  entity.synth = source;
-  entity.balanceOf = contract.balanceOf(account);
-  entity.save();
-}
-
-export function handleTransferSynth(event: SynthTransferEvent): void {
-  let contract = Synth.bind(event.address);
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'sUSD';
-  if (event.block.number > v200UpgradeBlock) {
-    // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
-    let currencyKeyTry = contract.try_currencyKey();
-    if (!currencyKeyTry.reverted) {
-      entity.source = currencyKeyTry.value.toString();
-    }
-  }
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = event.params.value;
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.save();
-
-  trackSynthHolder(contract, entity.source, event.params.from);
-  trackSynthHolder(contract, entity.source, event.params.to);
 }
 
 /**

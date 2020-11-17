@@ -1,0 +1,17 @@
+type SynthHolder @entity {
+  id: ID! # address of the holder + the synth
+  synth: String! # the synth's currencyKey
+  balanceOf: BigInt!
+  account: Bytes! # address
+}
+
+# SynthTransfer tracks this event from the Synthetix.sol contract
+type SynthTransfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
+  timestamp: BigInt!
+  block: BigInt!
+  source: String!
+}

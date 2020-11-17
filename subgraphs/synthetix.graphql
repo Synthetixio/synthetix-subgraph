@@ -5,8 +5,8 @@ type Synthetix @entity {
   snxHolders: BigInt!
 }
 
-# Transfer tracks this event from the Synthetix.sol contract and various Synth.sol contracts
-type Transfer @entity {
+# SNXTransfer tracks this event from the Synthetix.sol contract
+type SNXTransfer @entity {
   id: ID!
   from: Bytes! # address
   to: Bytes! # address
@@ -61,12 +61,6 @@ type DebtSnapshot @entity {
   # the following will be null before multicurrency (v2) release
   collateral: BigInt
   debtBalanceOf: BigInt
-}
-
-type SynthHolder @entity {
-  id: ID! # address of the holder + the synth
-  synth: String! # the synth's currencyKey
-  balanceOf: BigInt!
 }
 
 # Burned tracks this event from various Synth.sol instances
