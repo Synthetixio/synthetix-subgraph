@@ -45,6 +45,10 @@ program
     let dataSourcesData;
 
     if (subgraph === 'synth-transfers') {
+      // when autogenerating yaml files we use the last commit hash for a release as the timestamp
+      // to get the starting block for a contract but just in case the contract was deployed earlier
+      // we are adding a buffer of starting blocks to capture any edge cases
+      const START_BLOCK_BUFFER = 1000;
       const startBlockData = {};
       const versions = getVersions({ network: 'mainnet', useOvm: false, byContract: false });
       for (const version in versions) {
@@ -56,7 +60,7 @@ program
         }
         // Wait 0.5s then resolve to throttle api calls
         await new Promise(resolve => setTimeout(() => resolve(), 500));
-        const startBlock = Number(res.data.result);
+        const startBlock = Number(res.data.result) - START_BLOCK_BUFFER;
         Object.entries(contracts).forEach(([name, { address }]) => {
           if (name.startsWith('Proxy') && !['ProxyFeePool', 'ProxySynthetix'].includes(name)) {
             startBlockData[`${name}_${tag}`] = {
