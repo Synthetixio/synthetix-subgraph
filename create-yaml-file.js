@@ -7,7 +7,7 @@ const program = require('commander');
 const { getVersions } = require('synthetix');
 const axios = require('axios');
 
-const createEtherscanLink = (timestamp, token) =>
+const createEtherscanBlockTimeLink = (timestamp, token) =>
   `https://api.etherscan.io/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${token}`;
 
 /**
@@ -50,7 +50,7 @@ program
       for (const version in versions) {
         const { tag, date, contracts } = versions[version];
         const formattedTime = new Date(date).getTime() / 1000;
-        const res = await axios.get(createEtherscanLink(formattedTime, apiKeyEtherscan));
+        const res = await axios.get(createEtherscanBlockTimeLink(formattedTime, apiKeyEtherscan));
         if (res.status !== 200) {
           throw new Error(`api error for date: ${date}`);
         }
