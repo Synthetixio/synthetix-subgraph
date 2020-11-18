@@ -4,7 +4,7 @@ import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Sy
 
 import { SynthHolder, SynthTransfer, SynthBalance } from '../generated/schema';
 
-import { ZERO_ADDRESS } from '../common';
+import { ZERO_ADDRESS } from './common';
 
 // Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
 // https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a

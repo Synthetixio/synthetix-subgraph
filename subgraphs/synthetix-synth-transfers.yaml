@@ -15,7 +15,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -37,7 +37,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -59,7 +59,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -81,7 +81,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -103,7 +103,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -125,7 +125,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -147,7 +147,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -169,7 +169,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -191,7 +191,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -213,7 +213,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -235,7 +235,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -257,7 +257,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -279,7 +279,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -301,7 +301,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -323,7 +323,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -345,7 +345,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -367,7 +367,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -389,7 +389,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -411,7 +411,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -433,7 +433,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -455,7 +455,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -477,7 +477,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -499,7 +499,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -521,7 +521,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -543,7 +543,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -565,7 +565,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -587,7 +587,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -609,7 +609,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -631,7 +631,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -653,7 +653,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -675,7 +675,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -697,7 +697,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -719,7 +719,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -741,7 +741,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -763,7 +763,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -785,7 +785,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -807,7 +807,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -829,7 +829,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -851,7 +851,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -873,7 +873,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -895,7 +895,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -917,7 +917,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -939,7 +939,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -961,7 +961,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -983,7 +983,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1005,7 +1005,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1027,7 +1027,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1049,7 +1049,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1071,7 +1071,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1093,7 +1093,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1115,7 +1115,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1137,7 +1137,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1159,7 +1159,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1181,7 +1181,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1203,7 +1203,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1225,7 +1225,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1247,7 +1247,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1269,7 +1269,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1291,7 +1291,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1313,7 +1313,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1335,7 +1335,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1357,7 +1357,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1379,7 +1379,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1401,7 +1401,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1423,7 +1423,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1445,7 +1445,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1467,7 +1467,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1489,7 +1489,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1511,7 +1511,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1533,7 +1533,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1555,7 +1555,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1577,7 +1577,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1599,7 +1599,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1621,7 +1621,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1643,7 +1643,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1665,7 +1665,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1687,7 +1687,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1709,7 +1709,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder
@@ -1731,7 +1731,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/synth-transfers-mapping.ts
       entities:
         - SynthTransfer
         - SynthHolder

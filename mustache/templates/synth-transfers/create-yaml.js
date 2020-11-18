@@ -6,7 +6,7 @@ module.exports = {
     Object.entries(StartBlocks).map(([name, { prod, test, address }]) => ({
       startBlock: createStartBlock({ prod, test }, env, universalTestBlock),
       name,
-      mappingFile: '../src/rates-mapping.ts',
+      mappingFile: '../src/synth-transfers-mapping.ts',
       address,
       abi: 'Synth',
       entities: ['SynthTransfer', 'SynthHolder', 'SynthBalance'],
