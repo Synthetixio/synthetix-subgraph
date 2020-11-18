@@ -1,0 +1,397 @@
+{
+  "ProxysAUD_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0xED4699f180a14B5974c26f494483F9c327Fd381a'"
+  },
+  "ProxysBRL_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x5D609C25adAafd856021F92296C66dB602A0fcE8'"
+  },
+  "ProxysBTC_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x9073Ee83b6CE96C444547DdCAf777b9352163581'"
+  },
+  "ProxysCAD_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x0Bc209fB72390AF12bD6Fd775355ea0856864B31'"
+  },
+  "ProxysCHF_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x28AF5a2f0cC12F2f19dd946608c945456b52b3F6'"
+  },
+  "ProxysCNY_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x60feeeD05004476518281D43185fB7F52d9722c0'"
+  },
+  "ProxysEUR_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x3EB064766109D150e4362222df80638BcE00e037'"
+  },
+  "ProxysGBP_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x0C8A7D55ef593A2cAd34894c1523162eE2ffB9aC'"
+  },
+  "ProxysINR_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x74C80bB51Da1EAc2d40074c647CbD0ab6920063f'"
+  },
+  "ProxysJPY_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x559E848A1b6a7AfC69Ee27F8d20280A42628b2cf'"
+  },
+  "ProxysKRW_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0xdCE506b196B0dF677d07e718f872CAc9Bc368A33'"
+  },
+  "ProxysNZD_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x26C0cb14470803120321b70aE85405ac298e5A42'"
+  },
+  "ProxysPLN_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0xD9553f0fDa012224141AeCc1ECa0e29868fF7FE8'"
+  },
+  "ProxysRUB_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0xDcB5821fcFDAB5553307b8f99591fC9DaA3C4be3'"
+  },
+  "ProxysSGD_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x632dB1c25C03dCAc8d23Ff2c9A4cEa34cbEffa1B'"
+  },
+  "ProxysUSD_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x57Ab1E02fEE23774580C119740129eAC7081e9D3'"
+  },
+  "ProxysXAG_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x6e5709515C767c907e43a03388cc816Bd65e797C'"
+  },
+  "ProxysXAU_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0xe05D803fa0c5832Fa2262465290abB25d6C2bFA3'"
+  },
+  "ProxyXDR_v2.0-19": {
+    "prod": 7350497,
+    "test": null,
+    "address": "'0x62492F15cF60c5847d3053e482cAde8C5c29af88'"
+  },
+  "ProxysETH_v2.1.11": {
+    "prod": 7626744,
+    "test": null,
+    "address": "'0xaCf5C0101cbBe8476E87c652E0bEF33684Cc94D6'"
+  },
+  "ProxysBNB_v2.1.11": {
+    "prod": 7626744,
+    "test": null,
+    "address": "'0x013AE307648f529aa72c5767A334DDd37aaB43c3'"
+  },
+  "ProxyiBTC_v2.1.11": {
+    "prod": 7626744,
+    "test": null,
+    "address": "'0x2B143041a6F8BE9dCC66E9110178a264A223A3bd'"
+  },
+  "ProxyiETH_v2.1.11": {
+    "prod": 7626744,
+    "test": null,
+    "address": "'0xD4fb1706Ae549FEBeC06bb7175b08010DD1B0C2e'"
+  },
+  "ProxyiBNB_v2.1.11": {
+    "prod": 7626744,
+    "test": null,
+    "address": "'0x7c8F07Ac5b0a2876ee582a661d53dE2D0BbAd96F'"
+  },
+  "ProxysMKR_v2.6.5": {
+    "prod": 8075867,
+    "test": null,
+    "address": "'0xe88A4976CB7D8898D39E3f317421D625403ecb8C'"
+  },
+  "ProxysTRX_v2.6.5": {
+    "prod": 8075867,
+    "test": null,
+    "address": "'0x0944d2C41FEF3088467287e208E5bBB622A0c09C'"
+  },
+  "ProxysXTZ_v2.6.5": {
+    "prod": 8075867,
+    "test": null,
+    "address": "'0xF45B14ddaBF0F0e275E215b94dD24Ae013a27F12'"
+  },
+  "ProxyiMKR_v2.7.2": {
+    "prod": 8177979,
+    "test": null,
+    "address": "'0xEAf60dA0199bE2f62005225248705De774582328'"
+  },
+  "ProxyiTRX_v2.7.2": {
+    "prod": 8177979,
+    "test": null,
+    "address": "'0xCd8D927f2CB03d2eFB7f96CeB66Ec4976843E012'"
+  },
+  "ProxyiXTZ_v2.7.2": {
+    "prod": 8177979,
+    "test": null,
+    "address": "'0xc2992b2C22238F296c2f429ee2f7AfB462Ed1750'"
+  },
+  "ProxyERC20_v2.8.0": {
+    "prod": 8307950,
+    "test": null,
+    "address": "'0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'"
+  },
+  "ProxysCEX_v2.8.6": {
+    "prod": 8383161,
+    "test": null,
+    "address": "'0xb91B114a24a1c16834F1217cC3B9eE117b6c817A'"
+  },
+  "ProxyiCEX_v2.8.6": {
+    "prod": 8383161,
+    "test": null,
+    "address": "'0xAE7F21C0dFe5481ca77d538b5609938a51850942'"
+  },
+  "ProxysETH_v2.9.1": {
+    "prod": 8539810,
+    "test": null,
+    "address": "'0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb'"
+  },
+  "ProxysUSD_v2.10.2": {
+    "prod": 8622000,
+    "test": null,
+    "address": "'0x57Ab1ec28D129707052df4dF418D58a2D46d5f51'"
+  },
+  "ProxysAUD_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xF48e200EAF9906362BB1442fca31e0835773b8B4'"
+  },
+  "ProxysBTC_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6'"
+  },
+  "ProxysCHF_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x0F83287FF768D1c1e17a42F44d644D7F22e8ee1d'"
+  },
+  "ProxysEUR_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xD71eCFF9342A5Ced620049e616c5035F1dB98620'"
+  },
+  "ProxysGBP_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x97fe22E7341a0Cd8Db6F6C021A24Dc8f4DAD855F'"
+  },
+  "ProxysJPY_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xF6b1C627e95BFc3c1b4c9B825a032Ff0fBf3e07d'"
+  },
+  "ProxysXAG_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x6A22e5e94388464181578Aa7A6B869e00fE27846'"
+  },
+  "ProxysXAU_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x261EfCdD24CeA98652B9700800a13DfBca4103fF'"
+  },
+  "ProxyXDR_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xb3f67dE9a919476a4c0fE821d67bf5C4637D8429'"
+  },
+  "ProxysETH_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb'"
+  },
+  "ProxysBNB_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x617aeCB6137B5108D1E7D4918e3725C8cEbdB848'"
+  },
+  "ProxyiBTC_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xD6014EA05BDe904448B743833dDF07c3C7837481'"
+  },
+  "ProxyiETH_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xA9859874e1743A32409f75bB11549892138BBA1E'"
+  },
+  "ProxyiBNB_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xAFD870F32CE54EfdBF677466B612bf8ad164454B'"
+  },
+  "ProxysMKR_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x4140919DE11fCe58E654cC6038017Af97f810De1'"
+  },
+  "ProxysTRX_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xf2E08356588EC5cd9E437552Da87C0076b4970B0'"
+  },
+  "ProxysXTZ_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x2e59005c5c0f0a4D77CcA82653d48b46322EE5Cd'"
+  },
+  "ProxyiMKR_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x0794D09be5395f69534ff8151D72613077148b29'"
+  },
+  "ProxyiTRX_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xC5807183a9661A533CB08CbC297594a0B864dc12'"
+  },
+  "ProxyiXTZ_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x8deef89058090ac5655A99EEB451a4f9183D1678'"
+  },
+  "ProxysCEX_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0xeABACD844A196D7Faf3CE596edeBF9900341B420'"
+  },
+  "ProxyiCEX_v2.10.5": {
+    "prod": 8623574,
+    "test": null,
+    "address": "'0x336213e1DDFC69f4701Fc3F86F4ef4A160c1159d'"
+  },
+  "ProxysXRP_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0xa2B0fDe6D710e201d0d608e924A484d1A5fEd57c'"
+  },
+  "ProxysLTC_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0xC14103C2141E842e228FBaC594579e798616ce7A'"
+  },
+  "ProxysLINK_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0xbBC455cb4F1B9e4bFC4B73970d360c8f032EfEE6'"
+  },
+  "ProxysDEFI_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0xe1aFe1Fd76Fd88f78cBf599ea1846231B8bA3B6B'"
+  },
+  "ProxyiXRP_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0x27269b3e45A4D3E79A3D6BFeE0C8fB13d0D711A6'"
+  },
+  "ProxyiLINK_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0x2d7aC061fc3db53c39fe1607fB8cec1B2C162B01'"
+  },
+  "ProxyiLTC_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0x79da1431150C9b82D2E5dfc1C68B33216846851e'"
+  },
+  "ProxyiDEFI_v2.12.2": {
+    "prod": 8893205,
+    "test": null,
+    "address": "'0x14d10003807AC60d07BB0ba82cAeaC8d2087c157'"
+  },
+  "ProxysEOS_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x88C8Cf3A212c0369698D13FE98Fcb76620389841'"
+  },
+  "ProxysBCH_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x36a2422a863D5B950882190Ff5433E513413343a'"
+  },
+  "ProxysETC_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x22602469d704BfFb0936c7A7cfcD18f7aA269375'"
+  },
+  "ProxysDASH_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0xfE33ae95A9f0DA8A845aF33516EDc240DCD711d6'"
+  },
+  "ProxysXMR_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x5299d6F7472DCc137D7f3C4BcfBBB514BaBF341A'"
+  },
+  "ProxysADA_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0xe36E2D3c7c34281FA3bC737950a68571736880A1'"
+  },
+  "ProxysFTSE_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x23348160D7f5aca21195dF2b70f28Fce2B0be9fC'"
+  },
+  "ProxysNIKKEI_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x757de3ac6B830a931eF178C6634c5C551773155c'"
+  },
+  "ProxyiEOS_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0xF4EebDD0704021eF2a6Bbe993fdf93030Cd784b4'"
+  },
+  "ProxyiBCH_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0xf6E9b246319ea30e8C2fA2d1540AAEBF6f9E1B89'"
+  },
+  "ProxyiETC_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0xd50c1746D835d2770dDA3703B69187bFfeB14126'"
+  },
+  "ProxyiDASH_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0xCB98f42221b2C251A4E74A1609722eE09f0cc08E'"
+  },
+  "ProxyiXMR_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x4AdF728E2Df4945082cDD6053869f51278fae196'"
+  },
+  "ProxyiADA_v2.21.6": {
+    "prod": 9791797,
+    "test": null,
+    "address": "'0x8A8079c7149B8A1611e5C5d978DCA3bE16545F83'"
+  }
+}

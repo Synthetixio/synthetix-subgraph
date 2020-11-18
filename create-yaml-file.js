@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 'use strict';
 
-const { getVersions } = require('synthetix');
+const fs = require('fs');
 const path = require('path');
 const program = require('commander');
+const { getVersions } = require('synthetix');
+const axios = require('axios');
+
+const createEtherscanLink = (timestamp, token) =>
+  `https://api.etherscan.io/api?module=block&action=getblocknobytime&timestamp=${timestamp}&closest=before&apikey=${token}`;
 
 /**
  * This file is used to generate the yaml files for rates and exchanger subgraphs and
@@ -29,22 +34,42 @@ program
     null,
   )
   .option(
-    '-a, --etherscan <value>',
+    '-a, --api-key-etherscan <value>',
     'API key for etherscan needed for getting the block a contract was deployed on',
-    null,
+    '',
   )
-  .action(async ({ subgraph, env, universalTestBlock }) => {
+  .action(async ({ subgraph, env, universalTestBlock, apiKeyEtherscan }) => {
     const baseIndexPath = path.join(__dirname, 'mustache', 'templates', 'base', 'index.js');
     const specificIndexPath = path.join(__dirname, 'mustache', 'templates', subgraph, 'index.js');
     const dataSourcesPath = path.join(__dirname, 'mustache', 'templates', subgraph, 'create-yaml.js');
     let dataSourcesData;
 
     if (subgraph === 'synth-transfers') {
-      // steps
-      // step 1 - call get versions and get the contract addresses
-      // step 2 - call etherscan and get the contract deployed blocks (throttle requests 4 per second - API limit is 5 per second)
-      // step 3 - save the set-start-blocks files to disk
-      // step 4 - call the create-yaml function which will use the set-start-blocks file
+      const startBlockData = {};
+      const versions = getVersions({ network: 'mainnet', useOvm: false, byContract: false });
+      for (const version in versions) {
+        const { tag, date, contracts } = versions[version];
+        const formattedTime = new Date(date).getTime() / 1000;
+        const res = await axios.get(createEtherscanLink(formattedTime, apiKeyEtherscan));
+        if (res.status !== 200) {
+          throw new Error(`api error for date: ${date}`);
+        }
+        // Wait 0.5s then resolve to throttle api calls
+        await new Promise(resolve => setTimeout(() => resolve(), 500));
+        const startBlock = Number(res.data.result);
+        Object.entries(contracts).forEach(([name, { address }]) => {
+          if (name.startsWith('Proxy') && !['ProxyFeePool', 'ProxySynthetix'].includes(name)) {
+            startBlockData[`${name}_${tag}`] = {
+              prod: startBlock,
+              test: null,
+              address: `'${address}'`,
+            };
+          }
+        });
+      }
+      const targetFile = path.join(__dirname, 'mustache', 'templates', subgraph, 'set-start-blocks.json');
+      fs.writeFileSync(targetFile, JSON.stringify(startBlockData, null, 2) + '\n');
+      dataSourcesData = require(dataSourcesPath).createYaml(env, universalTestBlock);
     } else if (subgraph === 'exchanger') {
       const ratesDataSourcesPath = path.join(__dirname, 'mustache', 'templates', 'rates', 'create-yaml.js');
       const ratesDataSourcesData = require(ratesDataSourcesPath);
@@ -65,9 +90,3 @@ program
   });
 
 program.parse(process.argv);
-
-const getVersions = () => {
-  const versions = getVersions({ network: 'mainnet', useOvm: false, byContract: true });
-  console.log('versions', versions);
-  return versions;
-};

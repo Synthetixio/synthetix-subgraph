@@ -1,8 +1,23 @@
 type SynthHolder @entity {
-  id: ID! # address of the holder + the synth
-  synth: String! # the synth's currencyKey
+  " address of the synth holder "
+  id: ID!
+
+  " the synth balances held by the account "
+  synthBalances: [SynthBalance!] @derivedFrom(field: "synthHolder")
+}
+
+type SynthBalance @entity {
+  " address of the holder + the synth "
+  id: ID!
+
+  " SynthHolder the SynthBalance is related to"
+  synthHolder: SynthHolder!
+
+  " the name of the synth "
+  synth: String!
+
+  " balance of the synth "
   balanceOf: BigInt!
-  account: Bytes! # address
 }
 
 # SynthTransfer tracks this event from the Synthetix.sol contract

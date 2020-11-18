@@ -2,7 +2,7 @@ import { Address, BigInt } from '@graphprotocol/graph-ts';
 
 import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
 
-import { SynthHolder, SynthTransfer } from '../generated/schema';
+import { SynthHolder, SynthTransfer, SynthBalance } from '../generated/schema';
 
 import { ZERO_ADDRESS } from '../common';
 
@@ -37,13 +37,15 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
 }
 
 function trackSynthHolder(contract: Synth, source: string, account: Address): void {
-  let entityID = account.toHex() + '-' + source;
-  let entity = SynthHolder.load(entityID);
-  if (entity == null) {
-    entity = new SynthHolder(entityID);
+  let synthHolderID = account.toHex();
+  let synthHolder = SynthHolder.load(synthHolderID);
+  if (synthHolder == null) {
+    synthHolder = new SynthHolder(synthHolderID);
+    synthHolder.save();
   }
-  entity.synth = source;
-  entity.account = account;
-  entity.balanceOf = contract.balanceOf(account);
-  entity.save();
+  let synthBalance = SynthBalance.load(synthHolderID + '-' + source);
+  synthBalance.synthHolder = synthHolderID;
+  synthBalance.balanceOf = contract.balanceOf(account);
+  synthBalance.synth = source;
+  synthBalance.save();
 }
