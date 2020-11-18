@@ -25,12 +25,12 @@ For any of the four subgraphs: `snx`, `exchanges`, `rates`, `depot`, `loans` and
 
 ## To deploy test Rates or Exchanger subgraphs at different start blocks
 
-1a. In `yaml:<subgrpah>`, you have to udpate the `--env` flag to `test` in `package.json` and then simply change the `--universal-test-block` flag from `null` to `<number>`; all the contracts will be set to start at that single block automatically. This is the best way to test a subgraph quickly with a recent block number.
+1a. In `yaml:<subgraph>` command in `package json`, udpate the `--env` flag to `test` and then change the `--universal-test-block` flag from `null` to `<number>`; all the contracts will be set to start at that single block automatically when running the `codegen:<subgraph>` command.
 
-1b. If you only want some of the contracts to be different you have to do the following:
+1b. If you only want some of the contracts to be different from prod values you have to do the following:
 
-- for `yaml:exchanger` or `yaml:rates` you have to udpate the `--env` flag to `test` and then change any of the `test` blocks from `null` to `<number>` in `mustache/[subgraph]/set-start-blocks`. Any test blocks left as null will use the prod block instead.
-- for `yaml:synth-transfers` you cannot do that at this time.
+- for `yaml:exchanger` or `yaml:rates` commands in `package.json`, udpate the `--env` flag to `test` and then change any of the `test` blocks from `null` to `<number>` in `mustache/[subgraph]/set-start-blocks`. Any test blocks left as null will use the prod block instead.
+- for `yaml:synth-transfers` you cannot change individual starting blocks at this time. You either use a single start block for all contracts as described above in `1a` or just use the prod values.
 
 2. Continue from step 2 in the section `To run and deploy locally` above.
 
