@@ -1,10 +1,10 @@
-import { Address, BigInt } from '@graphprotocol/graph-ts';
+import { Address, BigInt, store } from '@graphprotocol/graph-ts';
 
 import { Synth, Transfer as SynthTransferEvent } from '../generated/SynthsUSD/Synth';
 
 import { SynthHolder, SynthTransfer, SynthBalance } from '../generated/schema';
 
-import { ZERO_ADDRESS } from './common';
+import { ZERO_ADDRESS, ZERO } from './common';
 
 // Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
 // https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
@@ -43,9 +43,18 @@ function trackSynthHolder(contract: Synth, source: string, account: Address): vo
     synthHolder = new SynthHolder(synthHolderID);
     synthHolder.save();
   }
-  let synthBalance = SynthBalance.load(synthHolderID + '-' + source);
-  synthBalance.synthHolder = synthHolderID;
-  synthBalance.balanceOf = contract.balanceOf(account);
-  synthBalance.synth = source;
-  synthBalance.save();
+  let synthBalanceID = synthHolderID + '-' + source;
+  let synthBalance = SynthBalance.load(synthBalanceID);
+  let balanceOf = contract.balanceOf(account);
+  if (balanceOf == ZERO && synthBalance != null) {
+    store.remove('SynthBalance', synthBalanceID);
+  } else if (balanceOf != ZERO) {
+    if (synthBalance == null) {
+      synthBalance = new SynthBalance(synthBalanceID);
+    }
+    synthBalance.synthHolder = synthHolderID;
+    synthBalance.balanceOf = contract.balanceOf(account);
+    synthBalance.synth = source;
+    synthBalance.save();
+  }
 }
