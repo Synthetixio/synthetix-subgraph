@@ -101,6 +101,30 @@ dataSources:
         - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
+    name: Exchanger_v5
+    network: mainnet
+    source:
+      address: '0xd3970a9D35d2Be3aaf62D2b5B2be3Ee303aC4228'
+      abi: Exchanger
+      startBlock: 11247235
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanger-mapping.ts
+      entities:
+        - ExchangeEntrySettled
+        - ExchangeEntryAppended
+        - TemporaryExchangePartnerTracker
+      abis:
+        - name: Exchanger
+          file: ../abis/Exchanger.json
+      eventHandlers:
+        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntrySettled
+        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntryAppended
+  - kind: ethereum/contract
     name: Synthetix
     network: mainnet
     source:

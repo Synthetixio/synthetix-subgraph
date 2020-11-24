@@ -49,6 +49,11 @@ module.exports = {
         address: "'0x300F0f100389282b51F1Bc486D8c2ad22B6C4E42'",
         startBlock: StartBlocks.Exchanger_v4,
       }),
+      createExchangerBlock({
+        name: 'Exchanger_v5',
+        address: "'0xd3970a9D35d2Be3aaf62D2b5B2be3Ee303aC4228'",
+        startBlock: StartBlocks.Exchanger_v5,
+      }),
       {
         name: 'Synthetix',
         mappingFile: '../src/exchanger-mapping.ts',
