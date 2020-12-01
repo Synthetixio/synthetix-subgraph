@@ -297,3 +297,19 @@ contractsToProxies.set(
   '0xf2d87e37ea1e54c7aa913d2447a5f69f61c114cf', // AAVE_3
   '0x547a514d5e3769680Ce22B2361c10Ea13619e8a9',
 );
+contractsToProxies.set(
+  '0x5b0e9ff11aae806067787d380967900551919c0d', // UNI_3
+  '0x553303d460EE0afB37EdFf9bE42922D8FF63220e',
+);
+contractsToProxies.set(
+  '0xaec0d77fdd6a2a34ec3eaf915260496ae27f9d25', // YFI_3
+  '0xA027702dbb89fbd58938e4324ac03B58d812b0E1',
+);
+contractsToProxies.set(
+  '0x2b89ec8b7d018ca574e844edff24c17c6bb3e3a1', // FIL_3
+  '0x1A31D42149e82Eb99777f903C08A2E41A00085d3',
+);
+contractsToProxies.set(
+  '0x8640798469204dbbad5842f8688b152c510f7777', // DOT_3
+  '0x1C07AFb8E2B827c5A4739C6d59Ae3A5035f28734',
+);

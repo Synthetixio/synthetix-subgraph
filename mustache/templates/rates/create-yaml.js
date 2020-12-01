@@ -420,6 +420,26 @@ module.exports = {
         startBlock: StartBlocks.AggregatorAAVE_3,
         address: "'0xF2d87E37EA1e54c7Aa913d2447A5f69f61C114Cf'",
       }),
+      createAggregatorBlock({
+        name: 'AggregatorUNI_3',
+        startBlock: StartBlocks.AggregatorUNI_3,
+        address: "'0x5B0e9Ff11aae806067787d380967900551919c0D'",
+      }),
+      createAggregatorBlock({
+        name: 'AggregatorDOT_3',
+        startBlock: StartBlocks.AggregatorDOT_3,
+        address: "'0x8640798469204DBbAd5842f8688B152c510F7777'",
+      }),
+      createAggregatorBlock({
+        name: 'AggregatorFIL_3',
+        startBlock: StartBlocks.AggregatorFIL_3,
+        address: "'0x2B89EC8B7d018CA574E844EdFF24c17c6BB3E3a1'",
+      }),
+      createAggregatorBlock({
+        name: 'AggregatorYFI_3',
+        startBlock: StartBlocks.AggregatorYFI_3,
+        address: "'0xAec0D77fdD6a2a34EC3eaF915260496Ae27f9D25'",
+      }),
     ];
   },
 };

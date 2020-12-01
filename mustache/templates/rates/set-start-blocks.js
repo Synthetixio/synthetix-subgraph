@@ -364,4 +364,24 @@ module.exports = {
     test: null,
     exchanger: Exchanger.RatesAAVE_3,
   },
+  AggregatorDOT_3: {
+    prod: 11322483,
+    test: null,
+    exchanger: Exchanger.RatesDOT_3,
+  },
+  AggregatorUNI_3: {
+    prod: 11322507,
+    test: null,
+    exchanger: Exchanger.RatesUNI_3,
+  },
+  AggregatorFIL_3: {
+    prod: 11322375,
+    test: null,
+    exchanger: Exchanger.RatesFIL_3,
+  },
+  AggregatorYFI_3: {
+    prod: 11322433,
+    test: null,
+    exchanger: Exchanger.RatesYFI_3,
+  },
 };

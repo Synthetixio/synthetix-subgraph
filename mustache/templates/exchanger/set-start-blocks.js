@@ -55,4 +55,20 @@ module.exports = {
     prod: 11179792,
     test: null,
   },
+  RatesDOT_3: {
+    prod: 11322483,
+    test: null,
+  },
+  RatesUNI_3: {
+    prod: 11322507,
+    test: null,
+  },
+  RatesFIL_3: {
+    prod: 11322375,
+    test: null,
+  },
+  RatesYFI_3: {
+    prod: 11322433,
+    test: null,
+  },
 };
