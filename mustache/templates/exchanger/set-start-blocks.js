@@ -19,6 +19,10 @@ module.exports = {
     prod: 11247235,
     test: null,
   },
+  Exchanger_v6: {
+    prod: 11363405,
+    test: null,
+  },
   Synthetix: {
     prod: 10782000,
     test: null,
