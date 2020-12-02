@@ -4,10 +4,13 @@ import {
 } from '../generated/FuturesMarketManager/FuturesMarketManager';
 import {
   PositionLiquidated as PositionLiquidatedEvent,
+  OrderSubmitted as OrderSubmittedEvent,
+  OrderConfirmed as OrderConfirmedEvent,
+  OrderCancelled as OrderCancelledEvent,
   FuturesMarket,
 } from '../generated/templates/FuturesMarket/FuturesMarket';
-import { Market, Liquidation } from '../generated/schema';
-import { store, Address } from '@graphprotocol/graph-ts';
+import { Market, Liquidation, Order } from '../generated/schema';
+import { store } from '@graphprotocol/graph-ts';
 import { FuturesMarket as FuturesMarketContract } from '../generated/templates';
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
@@ -38,4 +41,31 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   entity.timestamp = event.block.timestamp;
 
   entity.save();
+}
+
+export function handleOrderSubmitted(event: OrderSubmittedEvent): void {
+  let futuresMarketEntity = Market.load(event.address.toHex());
+  let entity = new Order(event.address.toHex() + '-' + event.params.id.toString());
+  entity.account = event.params.account;
+  entity.margin = event.params.margin;
+  entity.leverage = event.params.leverage;
+  entity.status = 'pending';
+  entity.fee = event.params.fee;
+  entity.roundId = event.params.roundId;
+  entity.currency = futuresMarketEntity.asset;
+  entity.market = event.address;
+  entity.timestamp = event.block.timestamp;
+
+  entity.save();
+}
+
+export function handleOrderConfirmed(event: OrderConfirmedEvent): void {
+  let entity = Order.load(event.address.toHex() + '-' + event.params.id.toString());
+  entity.status = 'confirmed';
+  entity.save();
+}
+
+export function HandleOrderCancelledEvent(event: OrderCancelledEvent): void {
+  let entity = Order.load(event.address.toHex() + '-' + event.params.id.toString());
+  store.remove('Order', entity.id);
 }

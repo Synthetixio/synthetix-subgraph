@@ -41,9 +41,16 @@ templates:
       file: ../src/futures-mapping.ts
       entities:
         - Liquidation
+        - Order
       abis:
         - name: FuturesMarket
           file: ../abis/FuturesMarket.json
       eventHandlers:
         - event: PositionLiquidated(indexed address,indexed address,int256,uint256)
           handler: handlePositionLiquidated
+        - event: OrderSubmitted(indexed uint256,indexed address,int256,uint256,uint256,indexed uint256)
+          handler: handleOrderSubmitted
+        - event: OrderConfirmed(indexed uint256,indexed address,int256,int256,uint256,uint256)
+          handler: handleOrderConfirmed
+        - event: OrderCancelled(indexed uint256,indexed address)
+          handler: handleOrderCancelled

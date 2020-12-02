@@ -14,3 +14,16 @@ type Liquidation @entity {
   timestamp: BigInt!
   currency: Bytes!
 }
+
+type Order @entity {
+  id: ID!
+  account: Bytes!
+  margin: BigInt!
+  leverage: BigInt!
+  status: String!
+  fee: BigInt!
+  roundId: BigInt!
+  currency: Bytes!
+  market: Bytes!
+  timestamp: BigInt!
+}
