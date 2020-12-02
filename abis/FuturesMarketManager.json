@@ -2,13 +2,18 @@
   {
     "inputs": [
       {
+        "internalType": "address payable",
+        "name": "_proxy",
+        "type": "address"
+      },
+      {
         "internalType": "address",
         "name": "_owner",
         "type": "address"
       },
       {
-        "internalType": "contract EternalStorage",
-        "name": "_eternalStorage",
+        "internalType": "address",
+        "name": "_resolver",
         "type": "address"
       }
     ],
@@ -21,27 +26,21 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "market",
+        "type": "address"
+      },
+      {
         "indexed": true,
-        "internalType": "address",
-        "name": "authoriser",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "bytes32",
-        "name": "action",
+        "name": "asset",
         "type": "bytes32"
       }
     ],
-    "name": "Approval",
+    "name": "MarketAdded",
     "type": "event",
-    "signature": "0x36a9e0c1da9cdc6d8f4bd4cb261f9ad6a45eb1641a557ead7530fbeff9a26336"
+    "signature": "0x908f8e9f0a0d9367639eed5a8f85df28353adcde390225801841a0c96a0107ec"
   },
   {
     "anonymous": false,
@@ -49,13 +48,19 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "newEternalStorage",
+        "name": "market",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "asset",
+        "type": "bytes32"
       }
     ],
-    "name": "EternalStorageUpdated",
+    "name": "MarketRemoved",
     "type": "event",
-    "signature": "0xe3ebe3d58e84fbd094152babb730cf99a14b47f65ed04f35a3bd6356f8161a17"
+    "signature": "0x9f42756b57509e6fd6420d67fa82856a7a585dcbe1b94d92e3dea10e3aa3b469"
   },
   {
     "anonymous": false,
@@ -95,107 +100,31 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "authoriser",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "address",
-        "name": "delegate",
+        "name": "proxyAddress",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "action",
-        "type": "bytes32"
       }
     ],
-    "name": "WithdrawApproval",
+    "name": "ProxyUpdated",
     "type": "event",
-    "signature": "0x7e8dc09322ac82342d9dbfd49eb6497fa7ab69ac444f3763a9b8e16530342f41"
+    "signature": "0xfc80377ca9c49cc11ae6982f390a42db976d5530af7c43889264b13fbbd7c57e"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "APPROVE_ALL",
+    "name": "MAX_ADDRESSES_FROM_RESOLVER",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "uint256",
         "name": "",
-        "type": "bytes32"
+        "type": "uint256"
       }
     ],
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x9cbc2ebe"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "BURN_FOR_ADDRESS",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xe32b3f52"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "CLAIM_FOR_ADDRESS",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xc5e17ab0"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "EXCHANGE_FOR_ADDRESS",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xd8eeb7c1"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "ISSUE_FOR_ADDRESS",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x2c70aecf"
+    "signature": "0xe3235c91"
   },
   {
     "constant": false,
@@ -211,224 +140,78 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "marketsToAdd",
+        "type": "address[]"
       }
     ],
-    "name": "approveAllDelegatePowers",
+    "name": "addMarkets",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xbc87acbf"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "approveBurnOnBehalf",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x9c79ce35"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "approveClaimOnBehalf",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x4180e5b5"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "approveExchangeOnBehalf",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x447fbc63"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "approveIssueOnBehalf",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x9f61d336"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "authoriser",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "approvedAll",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xb42e0f15"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "authoriser",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "canBurnFor",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x7d3f0ba2"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "authoriser",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "canClaimFor",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x21f4ae57"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "authoriser",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "canExchangeFor",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xfaf431bb"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "authoriser",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
-      }
-    ],
-    "name": "canIssueFor",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x04872617"
+    "signature": "0xda40385d"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "eternalStorage",
+    "name": "allMarkets",
     "outputs": [
       {
-        "internalType": "contract EternalStorage",
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x375a7cba"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "burnSUSD",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x6f9a0ca6"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getResolverAddressesRequired",
+    "outputs": [
+      {
+        "internalType": "bytes32[24]",
+        "name": "addressesRequired",
+        "type": "bytes32[24]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xab49848c"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "integrationProxy",
+    "outputs": [
+      {
+        "internalType": "contract Proxy",
         "name": "",
         "type": "address"
       }
@@ -436,7 +219,137 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x98ff9c54"
+    "signature": "0x9cbdaeb6"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "contract AddressResolver",
+        "name": "_resolver",
+        "type": "address"
+      }
+    ],
+    "name": "isResolverCached",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x631e1444"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "issueSUSD",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xa7b5833f"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "marketForAsset",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xafbb1217"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageSize",
+        "type": "uint256"
+      }
+    ],
+    "name": "markets",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xfe11edc9"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "assets",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "marketsForAssets",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x0a347f1a"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "messageSender",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xd67bdd25"
   },
   {
     "constant": false,
@@ -473,6 +386,22 @@
   {
     "constant": true,
     "inputs": [],
+    "name": "numMarkets",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x26e04f9d"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "owner",
     "outputs": [
       {
@@ -487,99 +416,174 @@
     "signature": "0x8da5cb5b"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "proxy",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "delegate",
+        "internalType": "contract Proxy",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "removeAllDelegatePowers",
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xec556889"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "marketsToRemove",
+        "type": "address[]"
+      }
+    ],
+    "name": "removeMarkets",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x6f95200b"
+    "signature": "0xbfef7bdf"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "assetsToRemove",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "removeMarketsByAsset",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x575ceb4b"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "resolver",
+    "outputs": [
+      {
+        "internalType": "contract AddressResolver",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x04f3bcec"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "resolverAddressesRequired",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xc6c9d828"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_integrationProxy",
+        "type": "address"
+      }
+    ],
+    "name": "setIntegrationProxy",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x131b0ae7"
   },
   {
     "constant": false,
     "inputs": [
       {
         "internalType": "address",
-        "name": "delegate",
+        "name": "sender",
         "type": "address"
       }
     ],
-    "name": "removeBurnOnBehalf",
+    "name": "setMessageSender",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x59cec3d6"
+    "signature": "0xbc67f832"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
-        "name": "delegate",
+        "internalType": "address payable",
+        "name": "_proxy",
         "type": "address"
       }
     ],
-    "name": "removeClaimOnBehalf",
+    "name": "setProxy",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x6c8bc9fe"
+    "signature": "0x97107d6d"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
-        "name": "delegate",
+        "internalType": "contract AddressResolver",
+        "name": "_resolver",
         "type": "address"
       }
     ],
-    "name": "removeExchangeOnBehalf",
+    "name": "setResolverAndSyncCache",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0xb9156efa"
+    "signature": "0x3be99e6f"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "totalDebt",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "delegate",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "debt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isInvalid",
+        "type": "bool"
       }
     ],
-    "name": "removeIssueOnBehalf",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function",
-    "signature": "0x431ce540"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "contract EternalStorage",
-        "name": "_eternalStorage",
-        "type": "address"
-      }
-    ],
-    "name": "setEternalStorage",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xb5bb5619"
+    "signature": "0xfc7b9c18"
   }
 ]

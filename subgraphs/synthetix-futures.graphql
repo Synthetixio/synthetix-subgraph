@@ -1,0 +1,16 @@
+type Market @entity {
+  id: ID!
+  asset: Bytes!
+  timestamp: BigInt!
+}
+
+type Liquidation @entity {
+  id: ID!
+  account: Bytes!
+  liquidator: Bytes!
+  market: Bytes!
+  size: BigInt!
+  price: BigInt!
+  timestamp: BigInt!
+  currency: Bytes!
+}
