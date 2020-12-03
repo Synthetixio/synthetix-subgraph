@@ -65,7 +65,7 @@ export function handleOrderConfirmed(event: OrderConfirmedEvent): void {
   entity.save();
 }
 
-export function HandleOrderCancelledEvent(event: OrderCancelledEvent): void {
+export function handleOrderCancelled(event: OrderCancelledEvent): void {
   let entity = Order.load(event.address.toHex() + '-' + event.params.id.toString());
   store.remove('Order', entity.id);
 }
