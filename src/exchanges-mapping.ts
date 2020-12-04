@@ -140,7 +140,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     total = loadTotal();
   }
 
-  if (postArchernarTotal == null && v219 > event.block.number) {
+  if (postArchernarTotal == null && v219 < event.block.number) {
     postArchernarTotal = loadPostArchernarTotal();
   }
 
@@ -163,7 +163,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     exchanger.save();
   }
 
-  if (existingPostArchernarExchanger == null && v219 > event.block.number) {
+  if (existingPostArchernarExchanger == null && v219 < event.block.number) {
     postArchernarTotal.exchangers = postArchernarTotal.exchangers.plus(BigInt.fromI32(1));
     let postArchernarExchanger = new PostArchernarExchanger(account.toHex());
     postArchernarExchanger.save();
@@ -181,7 +181,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     fifteenMinuteExchanger.save();
   }
 
-  if (v219 > event.block.number) {
+  if (v219 < event.block.number) {
     postArchernarTotal.trades = postArchernarTotal.trades.plus(BigInt.fromI32(1));
   }
 
@@ -190,7 +190,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   fifteenMinuteTotal.trades = fifteenMinuteTotal.trades.plus(BigInt.fromI32(1));
 
   if (fromAmountInUSD != null && feesInUSD != null) {
-    if (v219 > event.block.number) {
+    if (v219 < event.block.number) {
       postArchernarTotal = addPostArchernarTotalFeesAndVolume(
         postArchernarTotal as PostArchernarTotal,
         fromAmountInUSD,
@@ -205,7 +205,7 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
       feesInUSD,
     );
   }
-  if (v219 > event.block.number) {
+  if (v219 < event.block.number) {
     postArchernarTotal.save();
   }
   total.save();
