@@ -1,0 +1,51 @@
+module.exports = [
+  {
+    prod: 10557958,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger',
+    address: "'0x439502C922ADA61FE49329248B7A8ecb31C0b329'",
+  },
+  {
+    prod: 10772592,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger_v2',
+    address: "'0x1d53a13D78766C0Db6eF73eC0ae1138eA2b6f5D4'",
+  },
+  {
+    prod: 11012438,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger_v3',
+    address: "'0xc4942df0d3c561c71417BBA09d2DEA7a3CC676Fb'",
+  },
+  {
+    prod: 11239644,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger_v4',
+    address: "'0x300F0f100389282b51F1Bc486D8c2ad22B6C4E42'",
+  },
+  {
+    prod: 11247235,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger_v5',
+    address: "'0xd3970a9D35d2Be3aaf62D2b5B2be3Ee303aC4228'",
+  },
+  {
+    prod: 11363405,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger_v6',
+    address: "'0x93b434b2e21d0F4E3ed1e9efa3Aa254A6D863B2A'",
+  },
+  {
+    prod: 10782000,
+    test: null,
+    type: 'synthetix',
+    name: 'Synthetix',
+    address: "'0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'",
+  },
+];

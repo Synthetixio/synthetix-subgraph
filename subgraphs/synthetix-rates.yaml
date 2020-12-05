@@ -1673,12 +1673,12 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: AggregatorUNI_3
+    name: AggregatorDOT_3
     network: mainnet
     source:
-      address: '0x5B0e9Ff11aae806067787d380967900551919c0D'
+      address: '0x8640798469204DBbAd5842f8688B152c510F7777'
       abi: Aggregator
-      startBlock: 11322507
+      startBlock: 11322483
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -1697,12 +1697,12 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: AggregatorDOT_3
+    name: AggregatorUNI_3
     network: mainnet
     source:
-      address: '0x8640798469204DBbAd5842f8688B152c510F7777'
+      address: '0x5B0e9Ff11aae806067787d380967900551919c0D'
       abi: Aggregator
-      startBlock: 11322483
+      startBlock: 11322507
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

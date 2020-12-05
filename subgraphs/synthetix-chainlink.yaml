@@ -1,367 +1,21 @@
 specVersion: 0.0.2
-description: Synthetix Exchanger API
+description: Chainlink Rates API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
-  file: ./synthetix-exchanger.graphql
+  file: ./chainlink.graphql
 dataSources:
-  - kind: ethereum/contract
-    name: Exchanger
-    network: mainnet
-    source:
-      address: '0x439502C922ADA61FE49329248B7A8ecb31C0b329'
-      abi: Exchanger
-      startBlock: 10557958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/exchanger-mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-        - TemporaryExchangePartnerTracker
-      abis:
-        - name: Exchanger
-          file: ../abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-  - kind: ethereum/contract
-    name: Exchanger_v2
-    network: mainnet
-    source:
-      address: '0x1d53a13D78766C0Db6eF73eC0ae1138eA2b6f5D4'
-      abi: Exchanger
-      startBlock: 10772592
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/exchanger-mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-        - TemporaryExchangePartnerTracker
-      abis:
-        - name: Exchanger
-          file: ../abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-  - kind: ethereum/contract
-    name: Exchanger_v3
-    network: mainnet
-    source:
-      address: '0xc4942df0d3c561c71417BBA09d2DEA7a3CC676Fb'
-      abi: Exchanger
-      startBlock: 11012438
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/exchanger-mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-        - TemporaryExchangePartnerTracker
-      abis:
-        - name: Exchanger
-          file: ../abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-  - kind: ethereum/contract
-    name: Exchanger_v4
-    network: mainnet
-    source:
-      address: '0x300F0f100389282b51F1Bc486D8c2ad22B6C4E42'
-      abi: Exchanger
-      startBlock: 11239644
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/exchanger-mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-        - TemporaryExchangePartnerTracker
-      abis:
-        - name: Exchanger
-          file: ../abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-  - kind: ethereum/contract
-    name: Exchanger_v5
-    network: mainnet
-    source:
-      address: '0xd3970a9D35d2Be3aaf62D2b5B2be3Ee303aC4228'
-      abi: Exchanger
-      startBlock: 11247235
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/exchanger-mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-        - TemporaryExchangePartnerTracker
-      abis:
-        - name: Exchanger
-          file: ../abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-  - kind: ethereum/contract
-    name: Exchanger_v6
-    network: mainnet
-    source:
-      address: '0x93b434b2e21d0F4E3ed1e9efa3Aa254A6D863B2A'
-      abi: Exchanger
-      startBlock: 11363405
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/exchanger-mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-        - TemporaryExchangePartnerTracker
-      abis:
-        - name: Exchanger
-          file: ../abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-  - kind: ethereum/contract
-    name: Synthetix
-    network: mainnet
-    source:
-      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'
-      abi: Synthetix
-      startBlock: 10782000
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/exchanger-mapping.ts
-      entities:
-        - DailyExchangePartner
-        - ExchangePartner
-        - TemporaryExchangePartnerTracker
-      abis:
-        - name: Synthetix
-          file: ../abis/Synthetix.json
-      eventHandlers:
-        - event: ExchangeTracking(indexed bytes32,bytes32,uint256)
-          handler: handleExchangeTracking
-  - kind: ethereum/contract
-    name: ExchangeRates_v231
-    network: mainnet
-    source:
-      address: '0xba34e436C9383aa8FA1e3659D2807ae040592498'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_bytes4.json
-      eventHandlers:
-        - event: RatesUpdated(bytes4[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates_v240
-    network: mainnet
-    source:
-      address: '0x5cBB53Ca85A9E52B593Baf8ae90282C4B3dB0b25'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_bytes4.json
-      eventHandlers:
-        - event: RatesUpdated(bytes4[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates_v272
-    network: mainnet
-    source:
-      address: '0x70C629875daDBE702489a5E1E3bAaE60e38924fa'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_bytes4.json
-      eventHandlers:
-        - event: RatesUpdated(bytes4[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates_v210
-    network: mainnet
-    source:
-      address: '0x99a46c42689720d9118ff7af7ce80c2a92fc4f97'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_bytes32.json
-      eventHandlers:
-        - event: RatesUpdated(bytes32[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates_v213
-    network: mainnet
-    source:
-      address: '0x565C9EB432f4AE9633e50e1213AB4f23D8f31f54'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_bytes32.json
-      eventHandlers:
-        - event: RatesUpdated(bytes32[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates_v217
-    network: mainnet
-    source:
-      address: '0xE95Ef4e7a04d2fB05cb625c62CA58da10112c605'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_bytes32.json
-      eventHandlers:
-        - event: RatesUpdated(bytes32[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates_v219
-    network: mainnet
-    source:
-      address: '0x9D7F70AF5DF5D5CC79780032d47a34615D1F1d77'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_bytes32.json
-      eventHandlers:
-        - event: RatesUpdated(bytes32[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates_v223
-    network: mainnet
-    source:
-      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48'
-      abi: ExchangeRates
-      startBlock: 10537958
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates_v2.23.json
-      eventHandlers:
-        - event: RatesUpdated(bytes32[],uint256[])
-          handler: handleRatesUpdated
-  - kind: ethereum/contract
-    name: ExchangeRates
-    network: mainnet
-    source:
-      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48'
-      abi: ExchangeRates
-      startBlock: 10773070
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - RatesUpdated
-      abis:
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
-      eventHandlers:
-        - event: RatesUpdated(bytes32[],uint256[])
-          handler: handleRatesUpdated
   - kind: ethereum/contract
     name: AggregatorAUD
     network: mainnet
     source:
       address: '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9085450
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -380,12 +34,12 @@ dataSources:
     source:
       address: '0x25fa978ea1a7dc9bdc33a2959b9053eae57169b5'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9085417
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -404,12 +58,12 @@ dataSources:
     source:
       address: '0x02d5c618dbc591544b19d0bf13543c0728a3c4ec'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9085502
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -428,12 +82,12 @@ dataSources:
     source:
       address: '0x151445852b0cfdf6a4cc81440f2af99176e8ad08'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9085494
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -452,12 +106,12 @@ dataSources:
     source:
       address: '0xe1407bfaa6b5965bad1c9f38316a3b655a09d8a6'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9085433
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -476,12 +130,12 @@ dataSources:
     source:
       address: '0x8946a183bfafa95becf57c5e08fe5b7654d2807b'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9085563
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -500,12 +154,12 @@ dataSources:
     source:
       address: '0xafce0c7b7fe3425adb3871eae5c0ec6d93e01935'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9085543
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -524,12 +178,12 @@ dataSources:
     source:
       address: '0x16924ae9c2ac6cdbc9d6bb16fafcd38bed560936'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9755177
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -548,12 +202,12 @@ dataSources:
     source:
       address: '0x3f6e09a4ec3811765f5b2ad15c0279910dbb2c04'
       abi: Aggregator
-      startBlock: 10537958
+      startBlock: 9755246
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -577,7 +231,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -601,7 +255,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -625,7 +279,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -649,7 +303,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -673,7 +327,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -697,7 +351,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -721,7 +375,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -745,7 +399,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -769,7 +423,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -793,7 +447,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -817,7 +471,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -841,7 +495,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -865,7 +519,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -889,7 +543,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -913,7 +567,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -937,7 +591,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -961,7 +615,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -985,7 +639,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1009,7 +663,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1033,7 +687,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1057,7 +711,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1081,7 +735,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1105,7 +759,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1129,7 +783,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1153,7 +807,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1177,7 +831,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1201,7 +855,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1225,7 +879,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1249,7 +903,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1273,7 +927,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1297,7 +951,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1321,7 +975,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1345,7 +999,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1369,7 +1023,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1393,7 +1047,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1417,7 +1071,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1441,7 +1095,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1465,7 +1119,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1489,7 +1143,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1513,7 +1167,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1537,7 +1191,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1561,7 +1215,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1585,7 +1239,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1609,7 +1263,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1633,7 +1287,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1657,7 +1311,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1681,7 +1335,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1705,7 +1359,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1729,7 +1383,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1753,7 +1407,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1777,7 +1431,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1801,7 +1455,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1825,7 +1479,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1849,7 +1503,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1873,7 +1527,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1897,7 +1551,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
@@ -1921,7 +1575,7 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
+      file: ../src/chainlink-mapping.ts
       entities:
         - AggregatorAnswer
       abis:
