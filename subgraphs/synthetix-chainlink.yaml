@@ -2,7 +2,7 @@ specVersion: 0.0.2
 description: Chainlink Rates API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
-  file: ./chainlink.graphql
+  file: ./synthetix-chainlink.graphql
 dataSources:
   - kind: ethereum/contract
     name: AggregatorAUD

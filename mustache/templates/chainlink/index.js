@@ -1,4 +1,4 @@
 module.exports = {
   description: 'Chainlink Rates API',
-  schemaFile: './chainlink.graphql',
+  schemaFile: './synthetix-chainlink.graphql',
 };
