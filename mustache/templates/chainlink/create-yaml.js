@@ -1,8 +1,9 @@
 const Contracts = require('../rates/contracts');
+const ChainlinkSpecificContracts = require('./contracts');
 const { createStartBlock } = require('../common');
 
-// TODO - did we have any Synthetix aggregators that were not provided by
-// Chainlink. If so, we need to add their names here to filter them out.
+// TODO - If Synthetix ran any aggregators that were not provided by
+// Chainlink we need to add their names here to filter them out.
 const SYNTHETIX_AGGREGATOR_NAMES = [];
 
 module.exports = {
@@ -35,11 +36,16 @@ module.exports = {
         },
       ],
     });
-    return Contracts.filter(({ type }) => type === 'aggregator').map(({ name, prod, test, address }) => {
-      if (!SYNTHETIX_AGGREGATOR_NAMES.includes(name)) {
-        const startBlocks = { prod, test };
-        return createAggregatorBlock({ name, startBlocks, address });
-      }
-    });
+
+    // note that the filter here will have to be changed and this section updated
+    // as chainlink adds new contract types
+    return [...Contracts, ...ChainlinkSpecificContracts]
+      .filter(({ type }) => type === 'aggregator')
+      .map(({ name, prod, test, address }) => {
+        if (!SYNTHETIX_AGGREGATOR_NAMES.includes(name)) {
+          const startBlocks = { prod, test };
+          return createAggregatorBlock({ name, startBlocks, address });
+        }
+      });
   },
 };
