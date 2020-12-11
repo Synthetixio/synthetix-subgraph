@@ -92,6 +92,7 @@ type ContractUpdated @entity {
 type RewardEscrowHolder @entity {
   id: ID!
   balanceOf: BigInt!
+  vestedBalanceOf: BigInt!
 }
 
 type FeesClaimed @entity {
