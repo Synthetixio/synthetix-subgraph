@@ -648,4 +648,11 @@ module.exports = [
     name: 'AggregatorYFI_3',
     address: "'0xAec0D77fdD6a2a34EC3eaF915260496Ae27f9D25'",
   },
+  {
+    prod: 11317828,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorOIL_3_1',
+    address: "'0x2747254824f1731e016352e3267735fd9a6331C0'",
+  },
 ];
