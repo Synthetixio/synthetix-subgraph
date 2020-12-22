@@ -368,6 +368,7 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   let entity = new RewardEscrowHolder(event.params.beneficiary.toHex());
   let contract = RewardEscrow.bind(event.address);
   entity.balanceOf = contract.balanceOf(event.params.beneficiary);
+  entity.vestedBalanceOf = contract.totalVestedAccountBalance(event.params.beneficiary);
   entity.save();
   // now track the SNX holder as this action can impact their collateral
   let synthetixAddress = contract.synthetix();
