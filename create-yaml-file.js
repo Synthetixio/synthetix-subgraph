@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
 const program = require('commander');
 
@@ -16,7 +15,7 @@ program
   .description('Creates yaml files using the mustache templating engine')
   .option(
     '-s, --subgraph <value>',
-    'the subgraph for which you are creating the yaml file. Currently only "exchanger" and "rates" are supported',
+    'the subgraph for which you are creating the yaml file. Currently only "chainlink", "exchanger" and "rates" are supported',
   )
   .option(
     '-e, --env <value>',
@@ -50,8 +49,6 @@ program
     indexData.yaml[0] = { ...indexData.yaml[0], ...specificIndexData };
     indexData.yaml[0].dataSources = dataSourcesData;
 
-    // const targetFile = path.join(__dirname, 'mustache', 'yaml_output', `synthetix-${subgraph}.json`);
-    // fs.writeFileSync(targetFile, JSON.stringify(indexData, null, 2) + '\n');
     return console.log(JSON.stringify(indexData, null, 2) + '\n');
   });
 
