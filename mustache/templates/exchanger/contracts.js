@@ -42,6 +42,13 @@ module.exports = [
     address: "'0x93b434b2e21d0F4E3ed1e9efa3Aa254A6D863B2A'",
   },
   {
+    prod: 11513107,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger_v7',
+    address: "'0x0bfDc04B38251394542586969E2356d0D731f7DE'",
+  },
+  {
     prod: 10782000,
     test: null,
     type: 'synthetix',

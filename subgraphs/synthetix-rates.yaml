@@ -1792,3 +1792,23 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_2_35_2
+    network: mainnet
+    source:
+      address: '0xd69b189020EF614796578AfE4d10378c5e7e1138'
+      abi: ExchangeRates
+      startBlock: 11513101
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated

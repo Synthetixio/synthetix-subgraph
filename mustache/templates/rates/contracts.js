@@ -655,4 +655,12 @@ module.exports = [
     name: 'AggregatorOIL_3_1',
     address: "'0x2747254824f1731e016352e3267735fd9a6331C0'",
   },
+  {
+    prod: 11513101,
+    test: null,
+    type: 'bytes32',
+    name: 'ExchangeRates_2_35_2',
+    abiPath: '../abis/ExchangeRates.json',
+    address: "'0xd69b189020EF614796578AfE4d10378c5e7e1138'",
+  },
 ];
