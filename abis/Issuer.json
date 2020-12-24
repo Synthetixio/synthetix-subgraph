@@ -22,42 +22,20 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "DebtCacheSynchronised",
-    "type": "event",
-    "signature": "0x6eddff7d81afa874124321780c7eeb5b2af804fa8e16ef689f9f042a8f63e1fc"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+        "internalType": "bytes32",
+        "name": "name",
+        "type": "bytes32"
+      },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "cachedDebt",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
       }
     ],
-    "name": "DebtCacheUpdated",
+    "name": "CacheUpdated",
     "type": "event",
-    "signature": "0x294a7c394e53042c7d754779562747d93b41db019dd4b970dd9b531db71be599"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bool",
-        "name": "isInvalid",
-        "type": "bool"
-      }
-    ],
-    "name": "DebtCacheValidityChanged",
-    "type": "event",
-    "signature": "0x8eebec690c34bbf0fe0d5b93e442beaf16bdaf99052569581de2dcb3e31a53a7"
+    "signature": "0x88a93678a3692f6789d9546fc621bf7234b101ddb7d4fe479455112831b8aa68"
   },
   {
     "anonymous": false,
@@ -150,22 +128,6 @@
     "signature": "0x614d08f8"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "MAX_ADDRESSES_FROM_RESOLVER",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xe3235c91"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "acceptOwnership",
@@ -190,6 +152,22 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0x849cf588"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "contract ISynth[]",
+        "name": "synthsToAdd",
+        "type": "address[]"
+      }
+    ],
+    "name": "addSynths",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x47a9b6db"
   },
   {
     "constant": true,
@@ -346,64 +324,6 @@
     "signature": "0x2b3f41aa"
   },
   {
-    "constant": false,
-    "inputs": [],
-    "name": "cacheSNXIssuedDebt",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x172058f7"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "currencyKeys",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "cachedSNXIssuedDebtForCurrencies",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "snxIssuedDebts",
-        "type": "uint256[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x49e4c7b7"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "cachedSNXIssuedDebtInfo",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "cachedDebt",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "isInvalid",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x364fb765"
-  },
-  {
     "constant": true,
     "inputs": [
       {
@@ -498,54 +418,6 @@
   },
   {
     "constant": true,
-    "inputs": [],
-    "name": "currentSNXIssuedDebt",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "snxIssuedDebt",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "anyRateIsInvalid",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x21428aa0"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "currencyKeys",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "currentSNXIssuedDebtForCurrencies",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "snxIssuedDebts",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "bool",
-        "name": "anyRateIsInvalid",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x3973a2bb"
-  },
-  {
-    "constant": true,
     "inputs": [
       {
         "internalType": "address",
@@ -573,61 +445,29 @@
   },
   {
     "constant": true,
-    "inputs": [],
-    "name": "debtCacheIsStale",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xbe843515"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "debtSnapshotStaleTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xaf5355d8"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getResolverAddressesRequired",
-    "outputs": [
-      {
-        "internalType": "bytes32[24]",
-        "name": "addressesRequired",
-        "type": "bytes32[24]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xab49848c"
-  },
-  {
-    "constant": true,
     "inputs": [
       {
-        "internalType": "contract AddressResolver",
-        "name": "_resolver",
-        "type": "address"
+        "internalType": "bytes32[]",
+        "name": "currencyKeys",
+        "type": "bytes32[]"
       }
     ],
+    "name": "getSynths",
+    "outputs": [
+      {
+        "internalType": "contract ISynth[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x3b6afe40"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "isResolverCached",
     "outputs": [
       {
@@ -639,7 +479,7 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0x631e1444"
+    "signature": "0x2af64bd3"
   },
   {
     "constant": true,
@@ -888,19 +728,13 @@
   },
   {
     "constant": false,
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "currencyKey",
-        "type": "bytes32"
-      }
-    ],
-    "name": "purgeDebtCacheForSynth",
+    "inputs": [],
+    "name": "rebuildCache",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x7d74e85d"
+    "signature": "0x74185360"
   },
   {
     "constant": true,
@@ -951,6 +785,22 @@
     "signature": "0x0b887dae"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "currencyKeys",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "removeSynths",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x7168d2c2"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "resolver",
@@ -968,41 +818,19 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "name": "resolverAddressesRequired",
     "outputs": [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
+        "internalType": "bytes32[]",
+        "name": "addresses",
+        "type": "bytes32[]"
       }
     ],
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xc6c9d828"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "contract AddressResolver",
-        "name": "_resolver",
-        "type": "address"
-      }
-    ],
-    "name": "setResolverAndSyncCache",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x3be99e6f"
+    "signature": "0x899ffef4"
   },
   {
     "constant": true,
@@ -1106,42 +934,5 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x6bed0415"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "currencyKeys",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "updateSNXIssuedDebtForCurrencies",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xfe1d77e7"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bytes32[2]",
-        "name": "currencyKeys",
-        "type": "bytes32[2]"
-      },
-      {
-        "internalType": "uint256[2]",
-        "name": "currencyRates",
-        "type": "uint256[2]"
-      }
-    ],
-    "name": "updateSNXIssuedDebtOnExchange",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x9e342f71"
   }
 ]
