@@ -1,0 +1,161 @@
+type Short @entity {
+  " the short id "
+  id: ID!
+
+  " contract level info for the short position "
+  contractData: ShortContract!
+
+  " the transaction hash of the short "
+  txHash: String!
+
+  " the account that created the short "
+  account: Bytes!
+
+  " the type of collateral locked - sUSD, ETH, renBTC "
+  collateralLocked: Bytes!
+
+  " the amount of collateral locked in the short "
+  collateralLockedAmount: BigInt!
+
+  " the denomination of the loan repayment - sETH, sBTC "
+  synthBorrowed: Bytes!
+
+  " the amount owed denominated in the loan repayment synth "
+  synthBorrowedAmount: BigInt!
+
+  " is the short still open? "
+  isOpen: Boolean!
+
+  " the timestamp the short was created "
+  createdAt: BigInt!
+
+  " the timestamp the short was closed "
+  closedAt: BigInt
+
+  " liquidations that have been made on the short "
+  liquidations: [ShortLiquidation] @derivedFrom(field: "short")
+
+  " collateral deposits and withdrawals that have been made on the short "
+  collateralChanges: [ShortCollateralChange] @derivedFrom(field: "short")
+
+  " loan changes that have been made on the short - increasing or decreasing the short position "
+  loanChanges: [ShortLoanChange] @derivedFrom(field: "short")
+}
+
+type ShortCollateralChange @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " denotes if the event was a deposit (true) or withdrawal (false)"
+  isDeposit: Boolean!
+
+  " the amount of collateral deposited or withdrawn "
+  amount: BigInt!
+
+  " the total amount of collateral after the deposit or withdrawal is included "
+  collateralAfter: BigInt!
+
+  " the respective short "
+  short: Short!
+
+  " the timestamp collateral was deposited or withdrawn "
+  timestamp: BigInt!
+}
+
+type ShortLoanChange @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the denomination of the loan repayment - sETH, sBTC "
+  synthBorrowed: String!
+
+  " denotes if the event was a repayment (true) or an increase of the loan (false)"
+  isRepayment: Boolean!
+
+  " the amount of loan repaid or increased "
+  amount: BigInt!
+
+  " the total amount of loan due after the repayment or increase is included "
+  loanAfter: BigInt!
+
+  " the account that owns the short "
+  account: Bytes!
+
+  " the respective short "
+  short: Short!
+
+  " the timestamp of the loan repayment or increase "
+  timestamp: BigInt!
+}
+
+type ShortLiquidation @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the account that created the loan "
+  account: Bytes!
+
+  " the account that liquidated the loan "
+  liquidator: Bytes!
+
+  " determines if the "
+  isClosed: Boolean!
+
+  " the amount of the loan that was burned "
+  liquidatedAmount: BigInt!
+
+  " the amount of the collateral that was taken away from the short owner "
+  liquidatedCollateral: BigInt!
+
+  " the respective short "
+  short: Short!
+
+  " the timestamp of the loan liquidation event "
+  timestamp: BigInt!
+}
+
+type ShortContract @entity {
+  " the address of the shorting contract "
+  id: ID!
+
+  " a list of shorts attached to each contract "
+  shorts: [Short] @derivedFrom(field: "contractData")
+
+  " a list of changes to contract level data "
+  contractUpdates: [ShortContractUpdate] @derivedFrom(field: "contractData")
+
+  " the min c-ratio for borrowers below which they can be liquidated "
+  minCratio: BigInt!
+
+  " the minimum collateral required to open a position "
+  minCollateral: BigInt!
+
+  " the fee for issuing a short "
+  issueFeeRate: BigInt!
+
+  " the max number of loans per account "
+  maxLoansPerAccount: Int!
+
+  " Time in seconds that a user must wait between interacting with a loan. Provides front running and flash loan protection. "
+  interactionDelay: Int!
+
+  " the manager is a contract that ties the shorting contract in with the rest of the Synthetix protocol "
+  manager: Bytes!
+
+  " a boolean that prevents new loans on the contract when false "
+  canOpenLoans: Boolean!
+}
+
+type ShortContractUpdate @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the field that was changed "
+  field: String!
+
+  " the new value of the field in string format "
+  value: String!
+
+  " the respective short contract "
+  contractData: ShortContract!
+}
