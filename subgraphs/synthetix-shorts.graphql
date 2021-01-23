@@ -66,9 +66,6 @@ type ShortLoanChange @entity {
   " the event tx hash plus event log index "
   id: ID!
 
-  " the denomination of the loan repayment - sETH, sBTC "
-  synthBorrowed: String!
-
   " denotes if the event was a repayment (true) or an increase of the loan (false)"
   isRepayment: Boolean!
 
@@ -77,9 +74,6 @@ type ShortLoanChange @entity {
 
   " the total amount of loan due after the repayment or increase is included "
   loanAfter: BigInt!
-
-  " the account that owns the short "
-  account: Bytes!
 
   " the respective short "
   short: Short!
@@ -91,9 +85,6 @@ type ShortLoanChange @entity {
 type ShortLiquidation @entity {
   " the event tx hash plus event log index "
   id: ID!
-
-  " the account that created the loan "
-  account: Bytes!
 
   " the account that liquidated the loan "
   liquidator: Bytes!
@@ -158,4 +149,7 @@ type ShortContractUpdate @entity {
 
   " the respective short contract "
   contractData: ShortContract!
+
+  " the timestamp of the contract update event "
+  timestamp: BigInt!
 }

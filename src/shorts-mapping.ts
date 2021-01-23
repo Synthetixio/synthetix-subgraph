@@ -17,9 +17,16 @@ import {
   CanOpenLoansUpdated as CanOpenLoansUpdatedEvent,
 } from '../generated/CollateralShort/CollateralShort';
 
-import { Short, ShortLiquidation, ShortCollateralChange, ShortLoanChange, ShortContract } from '../generated/schema';
+import {
+  Short,
+  ShortLiquidation,
+  ShortCollateralChange,
+  ShortLoanChange,
+  ShortContract,
+  ShortContractUpdate,
+} from '../generated/schema';
 
-import { BigInt, ByteArray, log, ethereum } from '@graphprotocol/graph-ts';
+import { BigInt, ByteArray, log } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './common';
 
@@ -102,6 +109,70 @@ function handleDepositOrWithdrawal(
   shortCollateralChangeEntity.save();
 }
 
+function saveLoanChangeEntity(
+  txHash: string,
+  logIndex: string,
+  isRepayment: boolean,
+  amount: BigInt,
+  amountAfter: BigInt,
+  timestamp: BigInt,
+  shortEntity: ShadowRoot,
+): void {
+  let shortLoanChangeEntity = new ShortLoanChange(txHash + '-' + logIndex);
+  shortLoanChangeEntity.isRepayment = isRepayment;
+  shortLoanChangeEntity.amount = amount;
+  shortLoanChangeEntity.loanAfter = amountAfter;
+  shortLoanChangeEntity.timestamp = timestamp;
+  shortLoanChangeEntity.short = shortEntity;
+  shortLoanChangeEntity.save();
+}
+
+function handleLiquidations(
+  txHash: string,
+  logIndex: string,
+  loanId: string,
+  isClosed: boolean,
+  liquidatedAmount: BigInt,
+  liquidatedCollateral: BigInt,
+  liquidator: ByteArray,
+  timestamp: BigInt,
+): void {
+  let shortEntity = Short.load(loanId);
+  if (shortEntity == null) {
+    return log.error('trying to liquidate a loan that does not exist with id: {} from txHash: {}', [loanId, txHash]);
+  }
+  if (isClosed) {
+    shortEntity.isClosed = true;
+  }
+  shortEntity.collateralLockedAmount = shortEntity.collateralLockedAmount.minus(liquidatedCollateral);
+  shortEntity.synthBorrowedAmount = shortEntity.synthBorrowedAmount.minus(liquidatedAmount);
+  shortEntity.save();
+  let shortLiquidationEntity = new ShortLiquidation(txHash + '-' + logIndex);
+  shortLiquidationEntity.liquidator = liquidator;
+  shortLiquidationEntity.isClosed = isClosed;
+  shortLiquidationEntity.liquidatedAmount = liquidatedAmount;
+  shortLiquidationEntity.liquidatedCollateral = liquidatedCollateral;
+  shortLiquidationEntity.timestamp = timestamp;
+  shortLiquidationEntity.short = shortEntity;
+  shortLiquidationEntity.save();
+}
+
+function saveContractLevelUpdate(
+  txHash: string,
+  logIndex: string,
+  field: string,
+  value: string,
+  timestamp: BigInt,
+  shortContract: ShortContract,
+) {
+  let shortContractUpdateEntity = new ShortContractUpdate(txHash + '-' + logIndex);
+  shortContractUpdateEntity.field = field;
+  shortContractUpdateEntity.value = value;
+  shortContractUpdateEntity.timestamp = timestamp;
+  shortContractUpdateEntity.contractData = shortContract;
+  shortContractUpdateEntity.save();
+}
+
 export function handleShortLoanCreatedsUSD(event: LoanCreatedEvent): void {
   return createShort(event, strToBytes('sUSD', 32));
 }
@@ -143,25 +214,223 @@ export function handleShortCollateralWithdrawnsUSD(event: CollateralWithdrawnEve
   );
 }
 
-// - event: LoanRepaymentMade(indexed address,indexed address,uint256,uint256,uint256)
-// handler: handleShortLoanRepaymentMadesUSD
-// - event: LoanDrawnDown(indexed address,uint256,unit256)
-// handler: handleShortLoanDrawnDownsUSD
-// - event: LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
-// handler: handleLoanPartiallyLiquidatedsUSD
-// - event: LoanClosedByLiquidation(indexed address,uint256,address,uint256,uint256)
-// handler: handleLoanClosedByLiquidationsUSD
-// - event: MinCratioRatioUpdated(uint256)
-// handler: handleMinCratioRatioUpdatedsUSD
-// - event: MinCollateralUpdated(uint256)
-// handler: handleMinCollateralUpdatedsUSD
-// - event: IssueFeeRateUpdated(uint256)
-// handler: handleIssueFeeRateUpdatedsUSD
-// - event: MaxLoansPerAccountUpdated(uint256)
-// handler: handleMaxLoansPerAccountUpdatedsUSD
-// - event: InteractionDelayUpdated(uint256)
-// handler: handleInteractionDelayUpdatedsUSD
-// - event: ManagerUpdated(address)
-// handler: handleManagerUpdatedsUSD
-// - event: CanOpenLoansUpdated(bool)
-// handler: handleCanOpenLoansUpdatedsUSD
+export function handleShortLoanRepaymentMadesUSD(event: LoanRepaymentMadeEvent) {
+  let shortEntity = Short.load(event.params.id.toString());
+  if (shortEntity == null) {
+    return log.error('trying to repay on a loan that does not exist with id: {} from txHash: {}', [
+      event.params.id.toString(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  let newTotal = shortEntity.synthBorrowedAmount.minus(event.params.amountRepaid);
+  if (event.params.amountAfter.notEqual(newTotal)) {
+    log.error(
+      'for short loan replayment there is a math error where amountAfter: {} does not equal current synthBorrowedAmount: {} minus new repayment: {}, which totals to: {}',
+      [
+        event.params.amountAfter.toString(),
+        shortEntity.synthBorrowedAmount.toString(),
+        event.params.amountRepaid.toString(),
+        newTotal.toString(),
+      ],
+    );
+  }
+  shortEntity.synthBorrowedAmount = event.params.amountAfter;
+  shortEntity.save();
+  saveLoanChangeEntity(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    true,
+    event.params.amountRepaid,
+    event.params.amountAfter,
+    event.block.timestamp,
+    shortEntity,
+  );
+}
+
+// NOTE the drawn down event should pass the amount after like the repayment event
+export function handleShortLoanDrawnDownsUSD(event: LoanDrawnDownEvent) {
+  let shortEntity = Short.load(event.params.id.toString());
+  if (shortEntity == null) {
+    return log.error('trying to increase a loan that does not exist with id: {} from txHash: {}', [
+      event.params.id.toString(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortEntity.synthBorrowedAmount = shortEntity.synthBorrowedAmount.plus(event.params.amount);
+  shortEntity.save();
+  saveLoanChangeEntity(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    false,
+    event.params.amount,
+    shortEntity.synthBorrowedAmount,
+    event.block.timestamp,
+    shortEntity,
+  );
+}
+
+export function handleLoanPartiallyLiquidatedsUSD(event: LoanPartiallyLiquidatedEvent) {
+  handleLiquidations(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    event.params.id.toString(),
+    false,
+    event.params.amountLiquidated,
+    event.params.collateralLiquidated,
+    event.params.liquidator,
+    event.params.timestamp,
+  );
+}
+
+export function handleLoanClosedByLiquidationsUSD(event: LoanClosedByLiquidationEvent) {
+  handleLiquidations(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    event.params.id.toString(),
+    true,
+    event.params.amountLiquidated,
+    event.params.collateralLiquidated,
+    event.params.liquidator,
+    event.params.timestamp,
+  );
+}
+
+export function handleMinCratioRatioUpdatedsUSD(event: MinCratioRatioUpdatedEvent): void {
+  let shortContractEntity = ShortContract.load(event.address.toHex());
+  if (shortContractEntity == null) {
+    return log.error('trying to update minCratio on a contract: {} that does not exist in txHash: {}', [
+      event.address.toHex(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortContractEntity.minCratio = event.params.minCratio;
+  shortContractEntity.save();
+  saveContractLevelUpdate(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    'minCratio',
+    event.params.minCratio.toString(),
+    event.block.timestamp,
+    shortContractEntity,
+  );
+}
+
+export function handleMinCollateralUpdatedsUSD(event: MinCollateralUpdatedEvent): void {
+  let shortContractEntity = ShortContract.load(event.address.toHex());
+  if (shortContractEntity == null) {
+    return log.error('trying to update minCollateral on a contract: {} that does not exist in txHash: {}', [
+      event.address.toHex(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortContractEntity.minCollateral = event.params.minCollateral;
+  shortContractEntity.save();
+  saveContractLevelUpdate(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    'minCollateral',
+    event.params.minCollateral.toString(),
+    event.block.timestamp,
+    shortContractEntity,
+  );
+}
+
+export function handleIssueFeeRateUpdatedsUSD(event: IssueFeeRateUpdatedEvent): void {
+  let shortContractEntity = ShortContract.load(event.address.toHex());
+  if (shortContractEntity == null) {
+    return log.error('trying to update issueFeeRate on a contract: {} that does not exist in txHash: {}', [
+      event.address.toHex(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortContractEntity.issueFeeRate = event.params.issueFeeRate;
+  shortContractEntity.save();
+  saveContractLevelUpdate(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    'issueFeeRate',
+    event.params.issueFeeRate.toString(),
+    event.block.timestamp,
+    shortContractEntity,
+  );
+}
+
+export function handleMaxLoansPerAccountUpdatedsUSD(event: MaxLoansPerAccountUpdatedEvent): void {
+  let shortContractEntity = ShortContract.load(event.address.toHex());
+  if (shortContractEntity == null) {
+    return log.error('trying to update maxLoansPerAccount on a contract: {} that does not exist in txHash: {}', [
+      event.address.toHex(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortContractEntity.maxLoansPerAccount = event.params.maxLoansPerAccount;
+  shortContractEntity.save();
+  saveContractLevelUpdate(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    'maxLoansPerAccount',
+    event.params.maxLoansPerAccount.toString(),
+    event.block.timestamp,
+    shortContractEntity,
+  );
+}
+
+export function handleInteractionDelayUpdatedsUSD(event: InteractionDelayUpdatedEvent): void {
+  let shortContractEntity = ShortContract.load(event.address.toHex());
+  if (shortContractEntity == null) {
+    return log.error('trying to update interactionDelay on a contract: {} that does not exist in txHash: {}', [
+      event.address.toHex(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortContractEntity.interactionDelay = event.params.interactionDelay;
+  shortContractEntity.save();
+  saveContractLevelUpdate(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    'interactionDelay',
+    event.params.interactionDelay.toString(),
+    event.block.timestamp,
+    shortContractEntity,
+  );
+}
+
+export function handleManagerUpdatedsUSD(event: ManagerUpdatedEvent): void {
+  let shortContractEntity = ShortContract.load(event.address.toHex());
+  if (shortContractEntity == null) {
+    return log.error('trying to update manager on a contract: {} that does not exist in txHash: {}', [
+      event.address.toHex(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortContractEntity.manager = event.params.manager;
+  shortContractEntity.save();
+  saveContractLevelUpdate(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    'manager',
+    event.params.manager.toHex(),
+    event.block.timestamp,
+    shortContractEntity,
+  );
+}
+
+export function handleCanOpenLoansUpdatedsUSD(event: CanOpenLoansUpdatedEvent): void {
+  let shortContractEntity = ShortContract.load(event.address.toHex());
+  if (shortContractEntity == null) {
+    return log.error('trying to update canOpenLoans on a contract: {} that does not exist in txHash: {}', [
+      event.address.toHex(),
+      event.transaction.hash.toHex(),
+    ]);
+  }
+  shortContractEntity.canOpenLoans = event.params.canOpenLoans;
+  shortContractEntity.save();
+  saveContractLevelUpdate(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    'canOpenLoans',
+    event.params.canOpenLoans.toString(),
+    event.block.timestamp,
+    shortContractEntity,
+  );
+}
