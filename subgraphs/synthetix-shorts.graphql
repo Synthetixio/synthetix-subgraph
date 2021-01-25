@@ -33,13 +33,13 @@ type Short @entity {
   closedAt: BigInt
 
   " liquidations that have been made on the short "
-  liquidations: [ShortLiquidation] @derivedFrom(field: "short")
+  liquidations: [ShortLiquidation!] @derivedFrom(field: "short")
 
   " collateral deposits and withdrawals that have been made on the short "
-  collateralChanges: [ShortCollateralChange] @derivedFrom(field: "short")
+  collateralChanges: [ShortCollateralChange!] @derivedFrom(field: "short")
 
   " loan changes that have been made on the short - increasing or decreasing the short position "
-  loanChanges: [ShortLoanChange] @derivedFrom(field: "short")
+  loanChanges: [ShortLoanChange!] @derivedFrom(field: "short")
 }
 
 type ShortCollateralChange @entity {
@@ -110,10 +110,10 @@ type ShortContract @entity {
   id: ID!
 
   " a list of shorts attached to each contract "
-  shorts: [Short] @derivedFrom(field: "contractData")
+  shorts: [Short!] @derivedFrom(field: "contractData")
 
   " a list of changes to contract level data "
-  contractUpdates: [ShortContractUpdate] @derivedFrom(field: "contractData")
+  contractUpdates: [ShortContractUpdate!] @derivedFrom(field: "contractData")
 
   " the min c-ratio for borrowers below which they can be liquidated "
   minCratio: BigInt!
@@ -125,10 +125,10 @@ type ShortContract @entity {
   issueFeeRate: BigInt!
 
   " the max number of loans per account "
-  maxLoansPerAccount: Int!
+  maxLoansPerAccount: BigInt!
 
   " Time in seconds that a user must wait between interacting with a loan. Provides front running and flash loan protection. "
-  interactionDelay: Int!
+  interactionDelay: BigInt!
 
   " the manager is a contract that ties the shorting contract in with the rest of the Synthetix protocol "
   manager: Bytes!
