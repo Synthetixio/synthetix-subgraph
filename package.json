@@ -25,6 +25,7 @@
     "codegen:exchanger": "npm run yaml:exchanger && npm run codegen -- subgraphs/synthetix-exchanger.yaml",
     "codegen:grantsdao": "npm run codegen -- subgraphs/synthetix-grantsdao.yaml",
     "codegen:liquidations": "npm run codegen -- subgraphs/synthetix-liquidations.yaml",
+    "codegen:ovm": "npm run codegen -- subgraphs/synthetix-ovm.yaml",
     "build": "graph build",
     "build:snx": "graph build subgraphs/synthetix.yaml",
     "build:chainlink": "graph build subgraphs/synthetix-chainlink.yaml",
@@ -37,6 +38,7 @@
     "build:exchanger": "graph build subgraphs/synthetix-exchanger.yaml",
     "build:grantsdao": "graph build subgraphs/synthetix-grantsdao.yaml",
     "build:liquidations": "graph build subgraphs/synthetix-liquidations.yaml",
+    "build:ovm": "graph build subgraphs/synthetix-ovm.yaml",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
     "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
     "deploy:chainlink": "npm run deploy -- synthetixio-team/synthetix-chainlink subgraphs/synthetix-chainlink.yaml",
@@ -49,6 +51,7 @@
     "deploy:exchanger": "npm run deploy -- synthetixio-team/synthetix-exchanger subgraphs/synthetix-exchanger.yaml",
     "deploy:grantsdao": "npm run deploy -- synthetixio-team/synthetix-grantsdao subgraphs/synthetix-grantsdao.yaml",
     "deploy:liquidations": "npm run deploy -- synthetixio-team/synthetix-liquidations subgraphs/synthetix-liquidations.yaml",
+    "deploy:ovm": "npm run deploy -- synthetixio-team/synthetix-ovm subgraphs/synthetix-ovm.yaml",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
     "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
@@ -59,7 +62,7 @@
     "chalk": "2.4.2",
     "commander": "2.20.0",
     "mustache": "4.0.1",
-    "synthetix": "2.35.2"
+    "synthetix": "2.37.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "2.28.0",
