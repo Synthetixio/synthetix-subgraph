@@ -35,11 +35,11 @@ dataSources:
           handler: handleShortCollateralWithdrawnsUSD
         - event: LoanRepaymentMade(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleShortLoanRepaymentMadesUSD
-        - event: LoanDrawnDown(indexed address,uint256,unit256)
+        - event: LoanDrawnDown(indexed address,uint256,uint256)
           handler: handleShortLoanDrawnDownsUSD
         - event: LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
           handler: handleLoanPartiallyLiquidatedsUSD
-        - event: LoanClosedByLiquidation(indexed address,uint256,address,uint256,uint256)
+        - event: LoanClosedByLiquidation(indexed address,uint256,indexed address,uint256,uint256)
           handler: handleLoanClosedByLiquidationsUSD
         - event: MinCratioRatioUpdated(uint256)
           handler: handleMinCratioRatioUpdatedsUSD
