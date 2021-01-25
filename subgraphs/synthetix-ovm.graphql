@@ -1,0 +1,19 @@
+type Issued @entity {
+  id: ID!
+  account: Bytes!
+  value: BigInt!
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+type Burned @entity {
+  id: ID!
+  account: Bytes!
+  value: BigInt!
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
