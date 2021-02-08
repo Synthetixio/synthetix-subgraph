@@ -663,4 +663,11 @@ module.exports = [
     abiPath: '../abis/ExchangeRates.json',
     address: "'0xd69b189020EF614796578AfE4d10378c5e7e1138'",
   },
+  {
+    prod: 11791363,
+    test: null,
+    type: 'aggregator',
+    name: 'Tesla_3',
+    address: "'0x21CBd7098bf18F293fbF5451Be2Fc968EAA1e072'",
+  },
 ];
