@@ -1,0 +1,71 @@
+specVersion: 0.0.2
+description: Synthetix Collateral ETH Loans API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix-collateral-eth-loans.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: CollateralEth
+    network: mainnet
+    source:
+      address: '0x5c8344bcdC38F1aB5EB5C1d4a35DdEeA522B5DfA'
+      abi: CollateralEth
+      startBlock: 11656241
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/collateral-eth-loans-mapping.ts
+      entities:
+        - CacheUpdated
+        - CanOpenLoansUpdated
+        - CollateralDeposited
+        - CollateralWithdrawn
+        - InteractionDelayUpdated
+        - IssueFeeRateUpdated
+        - LoanClosed
+        - LoanClosedByLiquidation
+        - LoanCreated
+        - LoanDrawnDown
+        - LoanPartiallyLiquidated
+        - LoanRepaymentMade
+        - ManagerUpdated
+        - MaxLoansPerAccountUpdated
+        - MinCollateralUpdated
+        - MinCratioRatioUpdated
+        - OwnerChanged
+        - OwnerNominated
+      abis:
+        - name: CollateralEth
+          file: ../abis/CollateralEth.json
+      eventHandlers:
+        - event: LoanCreated(indexed address,uint256,uint256,uint256,bytes32,uint256)
+          handler: handleLoanCreated
+        # - event: LoanClosed(indexed address,uint256)
+        #   handler: handleEthLoanClosedsUSD
+        # - event: CollateralDeposited(indexed address,uint256,uint256,uint256)
+        #   handler: handleEthCollateralDepositedsUSD
+        # - event: CollateralWithdrawn(indexed address,uint256,uint256,uint256)
+        #   handler: handleEthCollateralWithdrawnsUSD
+        # - event: LoanRepaymentMade(indexed address,indexed address,uint256,uint256,uint256)
+        #   handler: handleEthLoanRepaymentMadesUSD
+        # - event: LoanDrawnDown(indexed address,uint256,uint256)
+        #   handler: handleEthLoanDrawnDownsUSD
+        # - event: LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
+        #   handler: handleLoanPartiallyLiquidatedsUSD
+        # - event: LoanClosedByLiquidation(indexed address,uint256,indexed address,uint256,uint256)
+        #   handler: handleLoanClosedByLiquidationsUSD
+        # - event: MinCratioRatioUpdated(uint256)
+        #   handler: handleMinCratioRatioUpdatedsUSD
+        # - event: MinCollateralUpdated(uint256)
+        #   handler: handleMinCollateralUpdatedsUSD
+        # - event: IssueFeeRateUpdated(uint256)
+        #   handler: handleIssueFeeRateUpdatedsUSD
+        # - event: MaxLoansPerAccountUpdated(uint256)
+        #   handler: handleMaxLoansPerAccountUpdatedsUSD
+        # - event: InteractionDelayUpdated(uint256)
+        #   handler: handleInteractionDelayUpdatedsUSD
+        # - event: ManagerUpdated(address)
+        #   handler: handleManagerUpdatedsUSD
+        # - event: CanOpenLoansUpdated(bool)
+        #   handler: handleCanOpenLoansUpdatedsUSD

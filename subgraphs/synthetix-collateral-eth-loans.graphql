@@ -1,0 +1,7 @@
+type EthLoan @entity {
+  " the eth loan id "
+  id: ID!
+
+  " the transaction hash of the eth loan "
+  txHash: String!
+}

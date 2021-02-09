@@ -1,0 +1,7 @@
+type Erc20Loan @entity {
+  " the erc20 loan id "
+  id: ID!
+
+  " the transaction hash of the erc20 loan "
+  txHash: String!
+}
