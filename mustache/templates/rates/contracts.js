@@ -732,7 +732,7 @@ module.exports = [
     proxyAddress: "'0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699'",
   },
   {
-    prod: 11752461,
+    prod: 11752524,
     test: null,
     type: 'aggregator',
     name: 'AggregatorCOMP_4',
@@ -740,7 +740,7 @@ module.exports = [
     proxyAddress: "'0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5'",
   },
   {
-    prod: 11752461,
+    prod: 11752749,
     test: null,
     type: 'aggregator',
     name: 'AggregatorBNB_4',
