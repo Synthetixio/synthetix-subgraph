@@ -73,7 +73,7 @@ module.exports = {
     let contractsToProxiesContent = `${readOnlyComment}export let contractsToProxies = new Map<string, string>();${newLine}`;
     Contracts.forEach(({ address, proxyAddress, name }) => {
       if (proxyAddress != null) {
-        contractsToProxiesContent += `contractsToProxies.set(${newLine}${doubleSpace}${address},${space}//${space}${name}${newLine}${doubleSpace}${proxyAddress}${newLine});${newLine}`;
+        contractsToProxiesContent += `contractsToProxies.set(${newLine}${doubleSpace}${address.toLowerCase()},${space}//${space}${name}${newLine}${doubleSpace}${proxyAddress}${newLine});${newLine}`;
       }
     });
     contractsToProxiesContent += readOnlyComment;

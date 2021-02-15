@@ -1866,7 +1866,7 @@ dataSources:
     source:
       address: '0x9D6acD34D481512586844fD65328BD358d306752'
       abi: Aggregator
-      startBlock: 11752461
+      startBlock: 11752524
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -1890,7 +1890,7 @@ dataSources:
     source:
       address: '0x32dCB582EcD6193937BD33168e19173Cfe10a140'
       abi: Aggregator
-      startBlock: 11752461
+      startBlock: 11752749
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

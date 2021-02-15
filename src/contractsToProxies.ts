@@ -121,167 +121,167 @@ contractsToProxies.set(
   '0xa8E875F94138B0C5b51d1e1d5dE35bbDdd28EA87'
 );
 contractsToProxies.set(
-  '0x06A7689149cf04DacFDE555d1e1EAD7dD7370316', // AggregatorXAU_3
+  '0x06a7689149cf04dacfde555d1e1ead7dd7370316', // AggregatorXAU_3
   '0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6'
 );
 contractsToProxies.set(
-  '0xF320E19B2ED82F1B226b006cD43FE600FEA56615', // AggregatorXAG_3
+  '0xf320e19b2ed82f1b226b006cd43fe600fea56615', // AggregatorXAG_3
   '0x379589227b15F1a12195D3f2d90bBc9F31f95235'
 );
 contractsToProxies.set(
-  '0x8cDE021F0BfA5f82610e8cE46493cF66AC04Af53', // AggregatorLINK_3
+  '0x8cde021f0bfa5f82610e8ce46493cf66ac04af53', // AggregatorLINK_3
   '0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c'
 );
 contractsToProxies.set(
-  '0xF570deEffF684D964dc3E15E1F9414283E3f7419', // AggregatorBTC_3
+  '0xf570deefff684d964dc3e15e1f9414283e3f7419', // AggregatorBTC_3
   '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c'
 );
 contractsToProxies.set(
-  '0x3A33c0eFD0EB8fd38a6E1904dF1E32f95F67616b', // AggregatorAUD_3
+  '0x3a33c0efd0eb8fd38a6e1904df1e32f95f67616b', // AggregatorAUD_3
   '0x77F9710E7d0A19669A13c055F62cd80d313dF022'
 );
 contractsToProxies.set(
-  '0x8f71c9c583248A11CAcBbC8FD0D5dFa483D3b109', // AggregatorEUR_3
+  '0x8f71c9c583248a11cacbbc8fd0d5dfa483d3b109', // AggregatorEUR_3
   '0xb49f677943BC038e9857d61E7d053CaA2C1734C1'
 );
 contractsToProxies.set(
-  '0x744704c31a2E46AD60c7CDf0212933B4c4c2c9eC', // AggregatorBCH_3
+  '0x744704c31a2e46ad60c7cdf0212933b4c4c2c9ec', // AggregatorBCH_3
   '0x9F0F69428F923D6c95B781F89E165C9b2df9789D'
 );
 contractsToProxies.set(
-  '0x7C9Ca5AdcBa43D968D9e0dDcA16293D66c07482D', // AggregatorEOS_3
+  '0x7c9ca5adcba43d968d9e0ddca16293d66c07482d', // AggregatorEOS_3
   '0x10a43289895eAff840E8d45995BBa89f9115ECEe'
 );
 contractsToProxies.set(
-  '0x90888CDDaD598570c6eDC443eee9aaDB63cDA3C4', // AggregatorBNB_3
+  '0x90888cddad598570c6edc443eee9aadb63cda3c4', // AggregatorBNB_3
   '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A'
 );
 contractsToProxies.set(
-  '0xf94800E6e36b0dc860F6f31e7cDf1086099E8c0E', // AggregatorADA_3
+  '0xf94800e6e36b0dc860f6f31e7cdf1086099e8c0e', // AggregatorADA_3
   '0xAE48c91dF1fE419994FFDa27da09D5aC69c30f55'
 );
 contractsToProxies.set(
-  '0xD286AF227B7b0695387E279B9956540818B1dc2a', // AggregatorREN_3
+  '0xd286af227b7b0695387e279b9956540818b1dc2a', // AggregatorREN_3
   '0x0f59666EDE214281e956cb3b2D0d69415AfF4A01'
 );
 contractsToProxies.set(
-  '0x0227fb846b48e209d56D79b0A3109FdA561db821', // AggregatorLEND_3
+  '0x0227fb846b48e209d56d79b0a3109fda561db821', // AggregatorLEND_3
   '0x4aB81192BB75474Cf203B56c36D6a13623270A67'
 );
 contractsToProxies.set(
-  '0xa811Ff165b082c0507Ce9a5a660Fb3D7eEeCb88A', // AggregatorKNC_3
+  '0xa811ff165b082c0507ce9a5a660fb3d7eeecb88a', // AggregatorKNC_3
   '0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc'
 );
 contractsToProxies.set(
-  '0xC8DB8d5869510Bb1FCd3Bd7C7624c1b49c652ef8', // AggregatorSNX_3
+  '0xc8db8d5869510bb1fcd3bd7c7624c1b49c652ef8', // AggregatorSNX_3
   '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699'
 );
 contractsToProxies.set(
-  '0x1fB0b88eaF51420c14B67256Ab7DaE1de6e116cb', // AggregatorDASH_3
+  '0x1fb0b88eaf51420c14b67256ab7dae1de6e116cb', // AggregatorDASH_3
   '0xFb0cADFEa136E9E343cfb55B863a6Df8348ab912'
 );
 contractsToProxies.set(
-  '0x41306Eb5fC11A68C284c19Ba3B9510c0252E0a34', // AggregatorETC_3
+  '0x41306eb5fc11a68c284c19ba3b9510c0252e0a34', // AggregatorETC_3
   '0xaEA2808407B7319A31A383B6F8B60f04BCa23cE2'
 );
 contractsToProxies.set(
-  '0x3F2d1Ff4930318B5a7c301E1bf7e703DcF6D83E3', // AggregatorLTC_3
+  '0x3f2d1ff4930318b5a7c301e1bf7e703dcf6d83e3', // AggregatorLTC_3
   '0x6AF09DF7563C363B5763b9102712EbeD3b9e859B'
 );
 contractsToProxies.set(
-  '0x38cB8642A0FC558918fCed939450D689d0E5a7Be', // AggregatorXMR_3
+  '0x38cb8642a0fc558918fced939450d689d0e5a7be', // AggregatorXMR_3
   '0xFA66458Cce7Dd15D8650015c4fce4D278271618F'
 );
 contractsToProxies.set(
-  '0x75Ed2f61837c3D9Ef1BF0af4DB84664DC6fe56bC', // AggregatorXRP_3
+  '0x75ed2f61837c3d9ef1bf0af4db84664dc6fe56bc', // AggregatorXRP_3
   '0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12'
 );
 contractsToProxies.set(
-  '0x4D35fE9C85233a8E00aE2d3C0d912a45Bc781025', // AggregatorTRX_3
+  '0x4d35fe9c85233a8e00ae2d3c0d912a45bc781025', // AggregatorTRX_3
   '0xacD0D1A29759CC01E8D925371B72cb2b5610EA25'
 );
 contractsToProxies.set(
-  '0x7391BB54a24719DA7DD81c2E5176cf954D7f7635', // AggregatorXTZ_3
+  '0x7391bb54a24719da7dd81c2e5176cf954d7f7635', // AggregatorXTZ_3
   '0x5239a625dEb44bF3EeAc2CD5366ba24b8e9DB63F'
 );
 contractsToProxies.set(
-  '0x150631a2e822d3ed7D46df9A270ce7134a16De89', // AggregatorCOMP_3
+  '0x150631a2e822d3ed7d46df9a270ce7134a16de89', // AggregatorCOMP_3
   '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5'
 );
 contractsToProxies.set(
-  '0x25367741a23464b41B4aB978Bd8092d56a3590C0', // AggregatorDEFI_3
+  '0x25367741a23464b41b4ab978bd8092d56a3590c0', // AggregatorDEFI_3
   '0xa8E875F94138B0C5b51d1e1d5dE35bbDdd28EA87'
 );
 contractsToProxies.set(
-  '0xBC66D51898dd2EFA3C214C87d4645C0478Ccbc95', // AggregatorCEX_3
+  '0xbc66d51898dd2efa3c214c87d4645c0478ccbc95', // AggregatorCEX_3
   '0x283D433435cFCAbf00263beEF6A362b7cc5ed9f2'
 );
 contractsToProxies.set(
-  '0x00c7A37B03690fb9f41b5C5AF8131735C7275446', // AggregatorETH_3
+  '0x00c7a37b03690fb9f41b5c5af8131735c7275446', // AggregatorETH_3
   '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
 );
 contractsToProxies.set(
-  '0xdf005CaD29AAC8b1170960807f99B62aaeD1bb0a', // AggregatorCHF_3
+  '0xdf005cad29aac8b1170960807f99b62aaed1bb0a', // AggregatorCHF_3
   '0x449d117117838fFA61263B61dA6301AA2a88B13A'
 );
 contractsToProxies.set(
-  '0x87CFEA02C8322653a7335C6f72Be19ce54ECbFb5', // AggregatorJPY_3
+  '0x87cfea02c8322653a7335c6f72be19ce54ecbfb5', // AggregatorJPY_3
   '0xBcE206caE7f0ec07b545EddE332A47C2F75bbeb3'
 );
 contractsToProxies.set(
-  '0x3a6e27b663593E34a7FB80bA9544d9E8BAbdF001', // AggregatorGBP_3
+  '0x3a6e27b663593e34a7fb80ba9544d9e8babdf001', // AggregatorGBP_3
   '0x5c0Ab2d9b5a7ed9f470386e82BB36A3613cDd4b5'
 );
 contractsToProxies.set(
-  '0xc95B41df94F3890122B2bcEf9005AFDe17773dB2', // AggregatorFTSE_3
+  '0xc95b41df94f3890122b2bcef9005afde17773db2', // AggregatorFTSE_3
   '0xE23FA0e8dd05D6f66a6e8c98cab2d9AE82A7550c'
 );
 contractsToProxies.set(
-  '0x4Fa0655c09E0b5B2F50F1bd861B2d9BC63ccBBCB', // AggregatorNIKKEI_3
+  '0x4fa0655c09e0b5b2f50f1bd861b2d9bc63ccbbcb', // AggregatorNIKKEI_3
   '0x5c4939a2ab3A2a9f93A518d81d4f8D0Bc6a68980'
 );
 contractsToProxies.set(
-  '0xF0f201FDB77a5eCd065CdbD69850F3f6694B2BEf', // AggregatorOIL_3
+  '0xf0f201fdb77a5ecd065cdbd69850f3f6694b2bef', // AggregatorOIL_3
   '0xb70ba475F1a6b5396e46d9b2a5f7081080Dc9d09'
 );
 contractsToProxies.set(
-  '0xF2d87E37EA1e54c7Aa913d2447A5f69f61C114Cf', // AggregatorAAVE_3
+  '0xf2d87e37ea1e54c7aa913d2447a5f69f61c114cf', // AggregatorAAVE_3
   '0x547a514d5e3769680Ce22B2361c10Ea13619e8a9'
 );
 contractsToProxies.set(
-  '0x8640798469204DBbAd5842f8688B152c510F7777', // AggregatorDOT_3
+  '0x8640798469204dbbad5842f8688b152c510f7777', // AggregatorDOT_3
   '0x1C07AFb8E2B827c5A4739C6d59Ae3A5035f28734'
 );
 contractsToProxies.set(
-  '0x5B0e9Ff11aae806067787d380967900551919c0D', // AggregatorUNI_3
+  '0x5b0e9ff11aae806067787d380967900551919c0d', // AggregatorUNI_3
   '0x553303d460EE0afB37EdFf9bE42922D8FF63220e'
 );
 contractsToProxies.set(
-  '0x2B89EC8B7d018CA574E844EdFF24c17c6BB3E3a1', // AggregatorFIL_3
+  '0x2b89ec8b7d018ca574e844edff24c17c6bb3e3a1', // AggregatorFIL_3
   '0x1A31D42149e82Eb99777f903C08A2E41A00085d3'
 );
 contractsToProxies.set(
-  '0xAec0D77fdD6a2a34EC3eaF915260496Ae27f9D25', // AggregatorYFI_3
+  '0xaec0d77fdd6a2a34ec3eaf915260496ae27f9d25', // AggregatorYFI_3
   '0xA027702dbb89fbd58938e4324ac03B58d812b0E1'
 );
 contractsToProxies.set(
-  '0x2747254824f1731e016352e3267735fd9a6331C0', // AggregatorOIL_3_1
+  '0x2747254824f1731e016352e3267735fd9a6331c0', // AggregatorOIL_3_1
   '0xf3584F4dd3b467e73C2339EfD008665a70A4185c'
 );
 contractsToProxies.set(
-  '0x21CBd7098bf18F293fbF5451Be2Fc968EAA1e072', // AggregatorTesla_3
+  '0x21cbd7098bf18f293fbf5451be2fc968eaa1e072', // AggregatorTesla_3
   '0x1ceDaaB50936881B3e449e47e40A2cDAF5576A4a'
 );
 contractsToProxies.set(
-  '0xBAFe3CB0E563E914806A99D547bdBF2Cfcf5fDF6', // AggregatorSNX_4
+  '0xbafe3cb0e563e914806a99d547bdbf2cfcf5fdf6', // AggregatorSNX_4
   '0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699'
 );
 contractsToProxies.set(
-  '0x9D6acD34D481512586844fD65328BD358d306752', // AggregatorCOMP_4
+  '0x9d6acd34d481512586844fd65328bd358d306752', // AggregatorCOMP_4
   '0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5'
 );
 contractsToProxies.set(
-  '0x32dCB582EcD6193937BD33168e19173Cfe10a140', // AggregatorBNB_4
+  '0x32dcb582ecd6193937bd33168e19173cfe10a140', // AggregatorBNB_4
   '0x14e613AC84a31f709eadbdF89C6CC390fDc9540A'
 );
 // this is a read only file generated by manual inputs to file mustache/templates/rates/contracts.js.
