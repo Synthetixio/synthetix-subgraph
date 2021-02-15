@@ -12,7 +12,8 @@ import {
   LatestRate,
 } from '../generated/schema';
 
-import { contractsToProxies, contracts } from './contractsData';
+import { contracts } from './contractsData';
+import { contractsToProxies } from './contractsToProxies';
 import { strToBytes } from './common';
 
 import { ByteArray, Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
