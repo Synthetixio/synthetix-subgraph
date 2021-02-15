@@ -317,3 +317,7 @@ contractsToProxies.set(
   '0x2747254824f1731e016352e3267735fd9a6331c0', // OIL_3_1
   '0xf3584F4dd3b467e73C2339EfD008665a70A4185c',
 );
+contractsToProxies.set(
+  '0x21cbd7098bf18f293fbf5451be2fc968eaa1e072', // TESLA_3
+  '0x1ceDaaB50936881B3e449e47e40A2cDAF5576A4a',
+);
