@@ -69,6 +69,7 @@ function createShort(event: LoanCreatedEvent, collateralLocked: Bytes): void {
   shortEntity.synthBorrowedAmount = event.params.amount;
   shortEntity.isOpen = true;
   shortEntity.createdAt = event.block.timestamp;
+  shortEntity.createdAtBlock = event.block.number;
   shortEntity.save();
 }
 
@@ -80,6 +81,7 @@ function handleDepositOrWithdrawal(
   collateralAfter: BigInt,
   isDeposit: boolean,
   timestamp: BigInt,
+  blockNumber: BigInt,
 ): void {
   let shortEntity = Short.load(id);
   if (shortEntity == null) {
@@ -115,6 +117,7 @@ function handleDepositOrWithdrawal(
   shortCollateralChangeEntity.collateralAfter = collateralAfter;
   shortCollateralChangeEntity.timestamp = timestamp;
   shortCollateralChangeEntity.short = shortEntity.id;
+  shortCollateralChangeEntity.blockNumber = blockNumber;
   shortCollateralChangeEntity.save();
 }
 
@@ -125,6 +128,7 @@ function saveLoanChangeEntity(
   amount: BigInt,
   amountAfter: BigInt,
   timestamp: BigInt,
+  blockNumber: BigInt,
   shortEntity: Short,
 ): void {
   let shortLoanChangeEntity = new ShortLoanChange(txHash + '-' + logIndex);
@@ -132,6 +136,7 @@ function saveLoanChangeEntity(
   shortLoanChangeEntity.amount = amount;
   shortLoanChangeEntity.loanAfter = amountAfter;
   shortLoanChangeEntity.timestamp = timestamp;
+  shortLoanChangeEntity.blockNumber = blockNumber;
   shortLoanChangeEntity.short = shortEntity.id;
   shortLoanChangeEntity.save();
 }
@@ -145,6 +150,7 @@ function handleLiquidations(
   liquidatedCollateral: BigInt,
   liquidator: Bytes,
   timestamp: BigInt,
+  blockNumber: BigInt,
 ): void {
   let shortEntity = Short.load(loanId);
   if (shortEntity == null) {
@@ -163,6 +169,7 @@ function handleLiquidations(
   shortLiquidationEntity.liquidatedAmount = liquidatedAmount;
   shortLiquidationEntity.liquidatedCollateral = liquidatedCollateral;
   shortLiquidationEntity.timestamp = timestamp;
+  shortLiquidationEntity.blockNumber = blockNumber;
   shortLiquidationEntity.short = shortEntity.id;
   shortLiquidationEntity.save();
 }
@@ -173,12 +180,14 @@ function saveContractLevelUpdate(
   field: string,
   value: string,
   timestamp: BigInt,
+  blockNumber: BigInt,
   shortContract: ShortContract,
 ): void {
   let shortContractUpdateEntity = new ShortContractUpdate(txHash + '-' + logIndex);
   shortContractUpdateEntity.field = field;
   shortContractUpdateEntity.value = value;
   shortContractUpdateEntity.timestamp = timestamp;
+  shortContractUpdateEntity.blockNumber = blockNumber;
   shortContractUpdateEntity.contractData = shortContract.id;
   shortContractUpdateEntity.save();
 }
@@ -210,6 +219,7 @@ export function handleShortCollateralDepositedsUSD(event: CollateralDepositedEve
     event.params.collateralAfter,
     true,
     event.block.timestamp,
+    event.block.number,
   );
 }
 
@@ -222,6 +232,7 @@ export function handleShortCollateralWithdrawnsUSD(event: CollateralWithdrawnEve
     event.params.collateralAfter,
     false,
     event.block.timestamp,
+    event.block.number,
   );
 }
 
@@ -255,6 +266,7 @@ export function handleShortLoanRepaymentMadesUSD(event: LoanRepaymentMadeEvent):
     event.params.amountRepaid,
     event.params.amountAfter,
     event.block.timestamp,
+    event.block.number,
     shortEntity as Short,
   );
 }
@@ -278,6 +290,7 @@ export function handleShortLoanDrawnDownsUSD(event: LoanDrawnDownEvent): void {
     event.params.amount,
     shortEntity.synthBorrowedAmount,
     event.block.timestamp,
+    event.block.number,
     shortEntity as Short,
   );
 }
@@ -292,6 +305,7 @@ export function handleLoanPartiallyLiquidatedsUSD(event: LoanPartiallyLiquidated
     event.params.collateralLiquidated,
     event.params.liquidator,
     event.block.timestamp,
+    event.block.number,
   );
 }
 
@@ -305,6 +319,7 @@ export function handleLoanClosedByLiquidationsUSD(event: LoanClosedByLiquidation
     event.params.collateralLiquidated,
     event.params.liquidator,
     event.block.timestamp,
+    event.block.number,
   );
 }
 
@@ -318,6 +333,7 @@ export function handleMinCratioRatioUpdatedsUSD(event: MinCratioRatioUpdatedEven
     'minCratio',
     event.params.minCratio.toString(),
     event.block.timestamp,
+    event.block.number,
     shortContractEntity as ShortContract,
   );
 }
@@ -332,6 +348,7 @@ export function handleMinCollateralUpdatedsUSD(event: MinCollateralUpdatedEvent)
     'minCollateral',
     event.params.minCollateral.toString(),
     event.block.timestamp,
+    event.block.number,
     shortContractEntity as ShortContract,
   );
 }
@@ -346,6 +363,7 @@ export function handleIssueFeeRateUpdatedsUSD(event: IssueFeeRateUpdatedEvent): 
     'issueFeeRate',
     event.params.issueFeeRate.toString(),
     event.block.timestamp,
+    event.block.number,
     shortContractEntity as ShortContract,
   );
 }
@@ -360,6 +378,7 @@ export function handleMaxLoansPerAccountUpdatedsUSD(event: MaxLoansPerAccountUpd
     'maxLoansPerAccount',
     event.params.maxLoansPerAccount.toString(),
     event.block.timestamp,
+    event.block.number,
     shortContractEntity as ShortContract,
   );
 }
@@ -374,6 +393,7 @@ export function handleInteractionDelayUpdatedsUSD(event: InteractionDelayUpdated
     'interactionDelay',
     event.params.interactionDelay.toString(),
     event.block.timestamp,
+    event.block.number,
     shortContractEntity as ShortContract,
   );
 }
@@ -388,6 +408,7 @@ export function handleManagerUpdatedsUSD(event: ManagerUpdatedEvent): void {
     'manager',
     event.params.manager.toHex(),
     event.block.timestamp,
+    event.block.number,
     shortContractEntity as ShortContract,
   );
 }
@@ -402,6 +423,7 @@ export function handleCanOpenLoansUpdatedsUSD(event: CanOpenLoansUpdatedEvent): 
     'canOpenLoans',
     event.params.canOpenLoans ? 'true' : 'false',
     event.block.timestamp,
+    event.block.number,
     shortContractEntity as ShortContract,
   );
 }

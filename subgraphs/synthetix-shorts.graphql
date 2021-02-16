@@ -26,6 +26,9 @@ type Short @entity {
   " is the short still open? "
   isOpen: Boolean!
 
+  " the block the short was created at "
+  createdAtBlock: BigInt!
+
   " the timestamp the short was created "
   createdAt: BigInt!
 
@@ -60,6 +63,9 @@ type ShortCollateralChange @entity {
 
   " the timestamp collateral was deposited or withdrawn "
   timestamp: BigInt!
+
+  " the block the collateral was changed "
+  blockNumber: BigInt!
 }
 
 type ShortLoanChange @entity {
@@ -80,6 +86,9 @@ type ShortLoanChange @entity {
 
   " the timestamp of the loan repayment or increase "
   timestamp: BigInt!
+
+  " the block the short loan was changed "
+  blockNumber: BigInt!
 }
 
 type ShortLiquidation @entity {
@@ -103,6 +112,9 @@ type ShortLiquidation @entity {
 
   " the timestamp of the loan liquidation event "
   timestamp: BigInt!
+
+  " the block of the liquidation event "
+  blockNumber: BigInt!
 }
 
 type ShortContract @entity {
@@ -152,4 +164,7 @@ type ShortContractUpdate @entity {
 
   " the timestamp of the contract update event "
   timestamp: BigInt!
+
+  " the block the short contract was udpated at "
+  blockNumber: BigInt!
 }
