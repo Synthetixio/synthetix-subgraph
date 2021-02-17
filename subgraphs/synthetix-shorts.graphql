@@ -23,6 +23,9 @@ type Short @entity {
   " the amount owed denominated in the loan repayment synth "
   synthBorrowedAmount: BigInt!
 
+  " the timestamp the accrued interest was most recently updated "
+  accruedInterestLastUpdateTimestamp: BigInt!
+
   " is the short still open? "
   isOpen: Boolean!
 

@@ -69,6 +69,7 @@ function createShort(event: LoanCreatedEvent, collateralLocked: Bytes): void {
   shortEntity.synthBorrowedAmount = event.params.amount;
   shortEntity.isOpen = true;
   shortEntity.createdAt = event.block.timestamp;
+  shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
   shortEntity.createdAtBlock = event.block.number;
   shortEntity.save();
 }
@@ -110,6 +111,7 @@ function handleDepositOrWithdrawal(
     );
   }
   shortEntity.collateralLockedAmount = collateralAfter;
+  shortEntity.accruedInterestLastUpdateTimestamp = timestamp;
   shortEntity.save();
   let shortCollateralChangeEntity = new ShortCollateralChange(txHash + '-' + logIndex);
   shortCollateralChangeEntity.isDeposit = isDeposit;
@@ -160,6 +162,7 @@ function handleLiquidations(
   if (isClosed) {
     shortEntity.isOpen = false;
   }
+  shortEntity.accruedInterestLastUpdateTimestamp = timestamp;
   shortEntity.collateralLockedAmount = shortEntity.collateralLockedAmount.minus(liquidatedCollateral);
   shortEntity.synthBorrowedAmount = shortEntity.synthBorrowedAmount.minus(liquidatedAmount);
   shortEntity.save();
@@ -207,6 +210,9 @@ export function handleShortLoanClosedsUSD(event: LoanClosedEvent): void {
   }
   shortEntity.isOpen = false;
   shortEntity.closedAt = event.block.timestamp;
+  shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
+  shortEntity.synthBorrowedAmount = BigInt.fromI32(0);
+  shortEntity.collateralLockedAmount = BigInt.fromI32(0);
   shortEntity.save();
 }
 
@@ -257,6 +263,7 @@ export function handleShortLoanRepaymentMadesUSD(event: LoanRepaymentMadeEvent):
       ],
     );
   }
+  shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
   shortEntity.synthBorrowedAmount = event.params.amountAfter;
   shortEntity.save();
   saveLoanChangeEntity(
@@ -282,6 +289,7 @@ export function handleShortLoanDrawnDownsUSD(event: LoanDrawnDownEvent): void {
     return;
   }
   shortEntity.synthBorrowedAmount = shortEntity.synthBorrowedAmount.plus(event.params.amount);
+  shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
   shortEntity.save();
   saveLoanChangeEntity(
     event.transaction.hash.toHex(),
