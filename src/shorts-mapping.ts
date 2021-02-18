@@ -58,7 +58,6 @@ function loadContractData(contractAddress: Address): ShortContract {
 function createShort(event: LoanCreatedEvent, collateralLocked: Bytes): void {
   let contractData: ShortContract = addContractData(event.address);
 
-  // TODO consider adding issueFeeRate or maybe leave it off since it is on the contract data
   let shortEntity = new Short(event.params.id.toString());
   shortEntity.contractData = contractData.id;
   shortEntity.txHash = event.transaction.hash.toHex();
@@ -72,6 +71,16 @@ function createShort(event: LoanCreatedEvent, collateralLocked: Bytes): void {
   shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
   shortEntity.createdAtBlock = event.block.number;
   shortEntity.save();
+  saveLoanChangeEntity(
+    event.transaction.hash.toHex(),
+    event.logIndex.toString(),
+    false,
+    event.params.amount,
+    shortEntity.synthBorrowedAmount,
+    event.block.timestamp,
+    event.block.number,
+    shortEntity as Short,
+  );
 }
 
 function handleDepositOrWithdrawal(

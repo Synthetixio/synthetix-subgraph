@@ -45,7 +45,7 @@ type Short @entity {
   collateralChanges: [ShortCollateralChange!] @derivedFrom(field: "short")
 
   " loan changes that have been made on the short - increasing or decreasing the short position "
-  loanChanges: [ShortLoanChange!] @derivedFrom(field: "short")
+  loanChanges: [ShortLoanChange!]! @derivedFrom(field: "short")
 }
 
 type ShortCollateralChange @entity {
