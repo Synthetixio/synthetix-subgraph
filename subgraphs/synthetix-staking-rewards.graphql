@@ -1,0 +1,27 @@
+type Staked @entity {
+  " the tx hash plus the event log id "
+  id: ID!
+
+  " the account of the staker "
+  account: Bytes!
+
+  " the amount staked "
+  amount: BigInt!
+
+  " the staking rewards contract "
+  contract: Bytes!
+}
+
+type RewardPaid @entity {
+  " the tx hash plus the event log id "
+  id: ID!
+
+  " the account paid "
+  account: Bytes!
+
+  " the amount paid "
+  amount: BigInt!
+
+  " the staking rewards contract "
+  contract: Bytes!
+}

@@ -1,0 +1,74 @@
+specVersion: 0.0.2
+description: Synthetix Staking Rewards API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix-staking-rewards.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: iBTCStakingRewards_2
+    network: mainnet
+    source:
+      address: '0xE5Ea1DDA3299C0b133a93A47eF9F5536C6892AcE'
+      abi: StakingRewards
+      startBlock: 10520284
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/staking-rewards-mapping.ts
+      entities:
+        - Loan
+      abis:
+        - name: StakingRewards
+          file: ../abis/StakingRewards.json
+      eventHandlers:
+        - event: Staked(indexed address,uint256)
+          handler: handleStaked
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardPaid
+
+  - kind: ethereum/contract
+    name: iETHStakingRewards_5
+    network: mainnet
+    source:
+      address: '0x3fdbBBd81b0962FDf486d74f94a68c70bA87C6C7'
+      abi: StakingRewards
+      startBlock: 11311695
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/staking-rewards-mapping.ts
+      entities:
+        - Loan
+      abis:
+        - name: StakingRewards
+          file: ../abis/StakingRewards.json
+      eventHandlers:
+        - event: Staked(indexed address,uint256)
+          handler: handleStaked
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardPaid
+
+  - kind: ethereum/contract
+    name: iETHStakingRewards_6
+    network: mainnet
+    source:
+      address: '0x6d4F135aF7DFCd4BDF6dCb9D7911F5d243872a52'
+      abi: StakingRewards
+      startBlock: 11584931
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/staking-rewards-mapping.ts
+      entities:
+        - Loan
+      abis:
+        - name: StakingRewards
+          file: ../abis/StakingRewards.json
+      eventHandlers:
+        - event: Staked(indexed address,uint256)
+          handler: handleStaked
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardPaid
