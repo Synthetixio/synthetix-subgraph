@@ -747,4 +747,12 @@ module.exports = [
     address: "'0x32dCB582EcD6193937BD33168e19173Cfe10a140'",
     proxyAddress: "'0x14e613AC84a31f709eadbdF89C6CC390fDc9540A'",
   },
+  {
+    prod: 11662661,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorLINK_4',
+    address: "'0xf4eBc177fbBd15874c08cccbc3Dd383ee1A24a9d'",
+    proxyAddress: "'0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c'",
+  },
 ];
