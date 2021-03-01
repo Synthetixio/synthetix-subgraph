@@ -29,6 +29,7 @@ import { exchangesToIgnore } from './exchangesToIgnore';
 
 import { sUSD32, sUSD4, strToBytes } from './common';
 
+// TODO find out if block numbers are the same and if they are different we'll want to change
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
 let exchangeRatesAsBytes = strToBytes('ExchangeRates', 32);
@@ -221,6 +222,7 @@ export function handleSynthExchange32(event: SynthExchangeEvent): void {
   handleSynthExchange(event, true);
 }
 
+// TODO make sure not being called in L2 code
 export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
   let entity = new ExchangeReclaim(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
