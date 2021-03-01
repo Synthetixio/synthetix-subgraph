@@ -2080,7 +2080,7 @@ dataSources:
     name: AggregatorXAG_4
     network: mainnet
     source:
-      address: '0x01A1F73b1f4726EB6EB189FFA5CBB91AF8E14025'
+      address: '0xdEb43523E2857b7ec29D078c77b73709D958c62F'
       abi: Aggregator
       startBlock: 11922485
     mapping:

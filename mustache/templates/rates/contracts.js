@@ -808,7 +808,7 @@ module.exports = [
     test: null,
     type: 'aggregator',
     name: 'AggregatorXAG_4',
-    address: "'0x01A1F73b1f4726EB6EB189FFA5CBB91AF8E14025'",
+    address: "'0xdEb43523E2857b7ec29D078c77b73709D958c62F'",
     proxyAddress: "'0x379589227b15F1a12195D3f2d90bBc9F31f95235'",
   },
   {

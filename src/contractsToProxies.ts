@@ -313,7 +313,7 @@ contractsToProxies.set(
   '0x77F9710E7d0A19669A13c055F62cd80d313dF022'
 );
 contractsToProxies.set(
-  '0x01a1f73b1f4726eb6eb189ffa5cbb91af8e14025', // AggregatorXAG_4
+  '0xdeb43523e2857b7ec29d078c77b73709d958c62f', // AggregatorXAG_4
   '0x379589227b15F1a12195D3f2d90bBc9F31f95235'
 );
 contractsToProxies.set(
