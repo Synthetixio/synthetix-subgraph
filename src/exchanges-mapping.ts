@@ -27,7 +27,7 @@ import { BigInt, Address } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
-import { sUSD32, sUSD4, strToBytes } from './common';
+import { sUSD32, strToBytes } from './common';
 
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -50,7 +50,7 @@ function getExchangeRates(address: Address): ExchangeRates {
   return null;
 }
 
-function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): void {
+export function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): void {
   if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) >= 0) {
     return;
   }
@@ -60,53 +60,26 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   let toAmountInUSD = BigInt.fromI32(0);
   let feesInUSD = BigInt.fromI32(0);
 
-  if (event.block.number > v219) {
-    let exRates = getExchangeRates(event.address);
+  let exRates = getExchangeRates(event.address);
 
-    if (exRates != null) {
-      let effectiveValueTryFrom = exRates.try_effectiveValue(
-        event.params.fromCurrencyKey,
-        event.params.fromAmount,
-        sUSD32,
-      );
+  if (exRates != null) {
+    let effectiveValueTryFrom = exRates.try_effectiveValue(
+      event.params.fromCurrencyKey,
+      event.params.fromAmount,
+      sUSD32,
+    );
 
-      if (!effectiveValueTryFrom.reverted) {
-        fromAmountInUSD = effectiveValueTryFrom.value;
-      }
-
-      let effectiveValueTryTo = exRates.try_effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD32);
-
-      if (!effectiveValueTryTo.reverted) {
-        toAmountInUSD = effectiveValueTryTo.value;
-      }
+    if (!effectiveValueTryFrom.reverted) {
+      fromAmountInUSD = effectiveValueTryFrom.value;
     }
-  } else {
-    if (useBytes32) {
-      let synthetix = Synthetix32.bind(event.address);
 
-      let effectiveValueTry = synthetix.try_effectiveValue(
-        event.params.fromCurrencyKey,
-        event.params.fromAmount,
-        sUSD32,
-      );
-      if (!effectiveValueTry.reverted) {
-        fromAmountInUSD = effectiveValueTry.value;
-        toAmountInUSD = synthetix.effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD32);
-      }
-    } else {
-      let synthetix = Synthetix4.bind(event.address);
+    let effectiveValueTryTo = exRates.try_effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD32);
 
-      let effectiveValueTry = synthetix.try_effectiveValue(
-        event.params.fromCurrencyKey,
-        event.params.fromAmount,
-        sUSD4,
-      );
-      if (!effectiveValueTry.reverted) {
-        fromAmountInUSD = effectiveValueTry.value;
-        toAmountInUSD = synthetix.effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD4);
-      }
+    if (!effectiveValueTryTo.reverted) {
+      toAmountInUSD = effectiveValueTryTo.value;
     }
   }
+
   feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -211,14 +184,6 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   total.save();
   dailyTotal.save();
   fifteenMinuteTotal.save();
-}
-
-export function handleSynthExchange4(event: SynthExchangeEvent): void {
-  handleSynthExchange(event, false);
-}
-
-export function handleSynthExchange32(event: SynthExchangeEvent): void {
-  handleSynthExchange(event, true);
 }
 
 export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {

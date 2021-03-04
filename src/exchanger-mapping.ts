@@ -14,7 +14,7 @@ import {
   TemporaryExchangePartnerTracker,
 } from '../generated/schema';
 
-import { getTimeID } from './common';
+import { getTimeID } from './helpers';
 
 import { BigInt, log, BigDecimal } from '@graphprotocol/graph-ts';
 
@@ -54,6 +54,7 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
 
   entity.save();
 
+  // SynthExchange event for the tracking of volume program
   if (event.block.number > partnerProgramStart) {
     let synth = event.params.src.toString();
     let latestRate = LatestRate.load(synth);
@@ -72,6 +73,9 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
     }
 
     let usdVolume = getUSDAmountFromAssetAmount(event.params.amount, latestRate.rate);
+    // SystemsSettings through address resolver
+    // getter on exchanger contract
+    // feeRateForExchange - bind to Exchanger
     let usdFees = getFeeUSDFromVolume(usdVolume, event.params.exchangeFeeRate);
 
     if (tempEntity.partner != null) {

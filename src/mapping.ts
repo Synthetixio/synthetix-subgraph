@@ -1,13 +1,9 @@
 // The latest Synthetix and event invocations
 import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/Synthetix/Synthetix';
 
-import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
-
-import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
-
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
-import { sUSD32, sUSD4 } from './common';
+import { sUSD32 } from './helpers';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
@@ -22,7 +18,6 @@ import {
   Burned as BurnedEvent,
 } from '../generated/SynthsUSD/Synth';
 import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
-import { FeePoolv217 } from '../generated/FeePool/FeePoolv217';
 
 import {
   Synthetix,
@@ -30,7 +25,6 @@ import {
   Issued,
   Burned,
   Issuer,
-  ContractUpdated,
   SNXHolder,
   DebtSnapshot,
   SynthHolder,
@@ -41,41 +35,24 @@ import {
   ActiveStaker,
 } from '../generated/schema';
 
-import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
+import { store, BigInt, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts';
 
-import { strToBytes } from './common';
+import { strToBytes } from './helpers';
 
-import { log } from '@graphprotocol/graph-ts';
+import { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking } from './exchanger-mapping';
+export { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking };
+
+import { handleRatesUpdated, handleAggregatorAnswerUpdated } from './rates-mapping';
+export { handleRatesUpdated, handleAggregatorAnswerUpdated };
+
+import { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange } from './exchanges-mapping';
+export { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange };
 
 let contracts = new Map<string, string>();
+
+// TODO update these hardcoded contracts
 contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
 contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
-
-let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
-
-// [reference only] Synthetix v2.10.x (bytes4 to bytes32) at txn
-// https://etherscan.io/tx/0x612cf929f305af603e165f4cb7602e5fbeed3d2e2ac1162ac61087688a5990b6
-let v2100UpgradeBlock = BigInt.fromI32(8622911);
-
-// Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
-// https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
-let v200UpgradeBlock = BigInt.fromI32(6841188); // Dec 7, 2018
-
-// Havven v1.0.1 release at txn
-// https://etherscan.io/tx/0x7d5e4d92c702d4863ed71d5c1348e9dec028afd8d165e673d4b6aea75c8b9e2c
-let v101UpgradeBlock = BigInt.fromI32(5873222); // June 29, 2018 (nUSDa.1)
-
-// [reference only] Havven v1.0.0 release at txn
-// https://etherscan.io/tx/0x1c3b873d0ce0dfafff428fc019bc9f630ac51031fc6021e57fb24c65143d328a
-// let v100UpgradeBlock = BigInt.fromI32(5762355); // June 10, 2018 (nUSDa)
-
-// [reference only] ProxySynthetix creation
-// https://etherscan.io/tx/0xa733e675705a8af67f4f82df796be763d4f389a45216a89bf5d09f7e7d1aec11
-// let proxySynthetixBlock = BigInt.fromI32(5750875); //  June 8, 2018
-
-// [reference only] Havven v0.1.0 (0xf244176246168f24e3187f7288edbca29267739b)
-// https://etherscan.io/tx/0x7770e66f2be4f32caa929fe671a5fc4fd134227812f2ef80612395c8f3dade50
-// let initialHavvenBlock = BigInt.fromI32(5238336); // Mar 11, 2018 (eUSD)
 
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
@@ -135,38 +112,31 @@ function trackSNXHolder(
   snxHolder.block = block.number;
   snxHolder.timestamp = block.timestamp;
 
-  // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
-  if (block.number > v219UpgradeBlock) {
-    let synthetix = SNX.bind(snxContract);
-    snxHolder.balanceOf = synthetix.balanceOf(account);
-    snxHolder.collateral = synthetix.collateral(account);
+  let synthetix = SNX.bind(snxContract);
+  snxHolder.balanceOf = synthetix.balanceOf(account);
+  snxHolder.collateral = synthetix.collateral(account);
 
-    // Check transferable because it will be null when rates are stale
-    let transferableTry = synthetix.try_transferableSynthetix(account);
-    if (!transferableTry.reverted) {
-      snxHolder.transferable = transferableTry.value;
-    }
-    let resolverTry = synthetix.try_resolver();
-    if (resolverTry.reverted) {
-      // This happened when an old SNX token was reconnected to the old proxy temporarily to recover 25k SNX
-      // from the old grantsDAO:
-      // https://etherscan.io/tx/0x1f862d93373e6d5dbf2438f478c05eac67b2949664bf1b3e6a5b6d5adf92fb3c
-      // https://etherscan.io/tx/0x84b4e312188890d744f6912f1e5d3387e2bf314a335a4418980a938e36b3ef34
-      // In this case, the old Synthetix did not have a resolver property, so let's ignore
-      log.debug('Skipping SNX holder tracking: No resolver property from SNX holder from hash: {}, block: {}', [
-        txn.hash.toHex(),
-        block.number.toString(),
-      ]);
-      return;
-    }
-    let resolverAddress = resolverTry.value;
-    let resolver = AddressResolver.bind(resolverAddress);
-    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
-    let issuanceData = synthetixState.issuanceData(account);
-    snxHolder.initialDebtOwnership = issuanceData.value0;
+  // Check transferable because it will be null when rates are stale
+  let transferableTry = synthetix.try_transferableSynthetix(account);
+  if (!transferableTry.reverted) {
+    snxHolder.transferable = transferableTry.value;
+  }
+  let resolverTry = synthetix.try_resolver();
+  if (resolverTry.reverted) {
+    log.debug('Skipping SNX holder tracking: No resolver property from SNX holder from hash: {}, block: {}', [
+      txn.hash.toHex(),
+      block.number.toString(),
+    ]);
+    return;
+  }
+  let resolverAddress = resolverTry.value;
+  let resolver = AddressResolver.bind(resolverAddress);
+  let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
+  let issuanceData = synthetixState.issuanceData(account);
+  snxHolder.initialDebtOwnership = issuanceData.value0;
 
-    // Note: due to limitations with how The Graph deals with chain reorgs, we need to try_debtLedger
-    /*
+  // Note: due to limitations with how The Graph deals with chain reorgs, we need to try_debtLedger
+  /*
         From Jannis at The Graph:
         graph-node currently makes contract calls by block number (that used to be the only way
         to do it and we haven't switched to calling by block hash yet). If there is a reorg,
@@ -186,46 +156,9 @@ function trackSNXHolder(
         - Block 0xb is processed. The handler now makes the try_debtLedger call against 100 -> 0xb and the correct data is being returned
     */
 
-    let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
-    if (!debtLedgerTry.reverted) {
-      snxHolder.debtEntryAtIndex = debtLedgerTry.value;
-    }
-  } else if (block.number > v200UpgradeBlock) {
-    // Synthetix32 or Synthetix4
-    let synthetix = Synthetix32.bind(snxContract);
-    // Track all the staking information relevant to this SNX Holder
-    snxHolder.balanceOf = synthetix.balanceOf(account);
-    snxHolder.collateral = synthetix.collateral(account);
-    // Note: Below we try_transferableSynthetix as it uses debtBalanceOf, which eventually calls ExchangeRates.abs
-    // It's slower to use try but this protects against instances when Transfers were enabled
-    // yet ExchangeRates were stale and throwing errors when calling effectiveValue.
-    // E.g. https://etherscan.io/tx/0x5368339311aafeb9f92c5b5d84faa4864c2c3878681a402bbf0aabff60bafa08
-    let transferableTry = synthetix.try_transferableSynthetix(account);
-    if (!transferableTry.reverted) {
-      snxHolder.transferable = transferableTry.value;
-    }
-    let stateTry = synthetix.try_synthetixState();
-    if (!stateTry.reverted) {
-      let synthetixStateContract = synthetix.synthetixState();
-      let synthetixState = SynthetixState.bind(synthetixStateContract);
-      let issuanceData = synthetixState.issuanceData(account);
-      snxHolder.initialDebtOwnership = issuanceData.value0;
-      let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
-      if (!debtLedgerTry.reverted) {
-        snxHolder.debtEntryAtIndex = debtLedgerTry.value;
-      }
-    }
-  } else if (block.number > v101UpgradeBlock) {
-    // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
-    let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
-    snxHolder.balanceOf = synthetix.balanceOf(account);
-    let collateralTry = synthetix.try_collateral(account);
-    if (!collateralTry.reverted) {
-      snxHolder.collateral = collateralTry.value;
-    }
-  } else {
-    let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
-    snxHolder.balanceOf = synthetix.balanceOf(account);
+  let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+  if (!debtLedgerTry.reverted) {
+    snxHolder.debtEntryAtIndex = debtLedgerTry.value;
   }
 
   if (
@@ -260,30 +193,10 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.timestamp = event.block.timestamp;
   entity.account = account;
 
-  // Use bytes32
-  if (event.block.number > v2100UpgradeBlock) {
-    let synthetix = SNX.bind(snxContract);
-    entity.balanceOf = synthetix.balanceOf(account);
-    entity.collateral = synthetix.collateral(account);
-    entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
-    // Use bytes4
-  } else if (event.block.number > v101UpgradeBlock) {
-    let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
-    let balanceOfTry = synthetix.try_balanceOf(account);
-    if (!balanceOfTry.reverted) {
-      entity.balanceOf = balanceOfTry.value;
-    }
-    let collateralTry = synthetix.try_collateral(account);
-    if (!collateralTry.reverted) {
-      entity.collateral = collateralTry.value;
-    }
-    let debtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD4);
-    if (!debtBalanceOfTry.reverted) {
-      entity.debtBalanceOf = debtBalanceOfTry.value;
-    }
-  } else {
-    return;
-  }
+  let synthetix = SNX.bind(snxContract);
+  entity.balanceOf = synthetix.balanceOf(account);
+  entity.collateral = synthetix.collateral(account);
+  entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
 
   entity.save();
 }
@@ -317,12 +230,9 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'sUSD';
-  if (event.block.number > v200UpgradeBlock) {
-    // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
-    let currencyKeyTry = contract.try_currencyKey();
-    if (!currencyKeyTry.reverted) {
-      entity.source = currencyKeyTry.value.toString();
-    }
+  let currencyKeyTry = contract.try_currencyKey();
+  if (!currencyKeyTry.reverted) {
+    entity.source = currencyKeyTry.value.toString();
   }
   entity.from = event.params.from;
   entity.to = event.params.to;
@@ -334,30 +244,6 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   trackSynthHolder(contract, entity.source, event.params.from);
   trackSynthHolder(contract, entity.source, event.params.to);
 }
-
-/**
- * Track when underlying contracts change
- */
-function contractUpdate(source: string, target: Address, block: ethereum.Block, hash: Bytes): void {
-  let entity = new ContractUpdated(hash.toHex());
-  entity.source = source;
-  entity.target = target;
-  entity.block = block.number;
-  entity.timestamp = block.timestamp;
-  entity.save();
-}
-
-export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
-  contractUpdate('Synthetix', event.params.newTarget, event.block, event.transaction.hash);
-}
-
-// export function handleSetExchangeRates(call: SetExchangeRatesCall): void {
-//   contractUpdate('ExchangeRates', call.inputs._exchangeRates, call.block, call.transaction.hash);
-// }
-
-// export function handleSetFeePool(call: SetFeePoolCall): void {
-//   contractUpdate('FeePool', call.inputs._feePool, call.block, call.transaction.hash);
-// }
 
 /**
  * Handle reward vest events so that we know which addresses have rewards, and
@@ -430,9 +316,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  if (event.block.number > v200UpgradeBlock) {
-    trackActiveStakers(event, false);
-  }
+  trackActiveStakers(event, false);
 
   // track this issuer for reference
   trackIssuer(event.transaction.from);
@@ -505,9 +389,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  if (event.block.number > v200UpgradeBlock) {
-    trackActiveStakers(event, true);
-  }
+  trackActiveStakers(event, true);
 
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
@@ -520,38 +402,7 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 
   entity.account = event.params.account;
   entity.rewards = event.params.snxRewards;
-  if (event.block.number > v219UpgradeBlock) {
-    // post Achernar, we had no XDRs, so use the value as sUSD
-    entity.value = event.params.sUSDAmount;
-  } else {
-    // pre Achernar, we had XDRs, so we need to figure out their effective value,
-    // and for that we need to get to synthetix, which in pre-Achernar was exposed
-    // as a public synthetix property on FeePool
-    let feePool = FeePoolv217.bind(event.address);
-
-    if (event.block.number > v2100UpgradeBlock) {
-      // use bytes32
-      let synthetix = Synthetix32.bind(feePool.synthetix());
-      // Note: the event param is called "sUSDAmount" because we are using the latest ABI to handle events
-      // from both newer and older invocations. Since the event signature of FeesClaimed hasn't changed between versions,
-      // we can reuse it, but accept that the variable naming uses the latest ABI
-      let tryEffectiveValue = synthetix.try_effectiveValue(
-        strToBytes('XDR', 32),
-        event.params.sUSDAmount,
-        strToBytes('sUSD', 32),
-      );
-
-      if (!tryEffectiveValue.reverted) {
-        entity.value = tryEffectiveValue.value;
-      } else {
-        entity.value = BigInt.fromI32(0); // Note: not sure why this might be happening. Need to investigat
-      }
-    } else {
-      // use bytes4
-      let synthetix = Synthetix4.bind(feePool.synthetix());
-      entity.value = synthetix.effectiveValue(strToBytes('XDR', 4), event.params.sUSDAmount, strToBytes('sUSD', 4));
-    }
-  }
+  entity.value = event.params.sUSDAmount;
 
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
@@ -575,23 +426,8 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   let snxContract = event.transaction.to as Address;
   let accountDebtBalance = BigInt.fromI32(0);
 
-  if (event.block.number > v2100UpgradeBlock) {
-    let synthetix = SNX.bind(snxContract);
-    accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
-  } else if (event.block.number > v200UpgradeBlock) {
-    let synthetix = Synthetix4.bind(snxContract);
-    let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
-    if (!accountDebt.reverted) {
-      accountDebtBalance = accountDebt.value;
-    } else {
-      log.debug('reverted debt balance of in track active stakers for account: {}, timestamp: {}, hash: {}', [
-        account.toHex(),
-        timestamp.toString(),
-        event.transaction.hash.toHex(),
-      ]);
-      return;
-    }
-  }
+  let synthetix = SNX.bind(snxContract);
+  accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
 
   let dayID = timestamp.toI32() / 86400;
 

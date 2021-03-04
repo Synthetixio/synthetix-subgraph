@@ -12,11 +12,10 @@ import {
   LatestRate,
 } from '../generated/schema';
 
-import { contracts } from './contractsData';
 import { contractsToProxies } from './contractsToProxies';
-import { strToBytes } from './common';
+import { strToBytes } from './helpers';
 
-import { ByteArray, Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
+import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -132,41 +131,31 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
 
 // create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
-  // From Pollux on, use the ExchangeRates to get the currency keys that use this aggregator
-  if (event.block.number > BigInt.fromI32(10773070)) {
-    // Note: hard coding the latest ReadProxyAddressResolver address
-    let readProxyAdressResolver = '0x4E3b31eB0E5CB73641EE1E65E7dCEFe520bA3ef2';
-    let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
-    let exrates = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
+  // Note: hard coding the latest ReadProxyAddressResolver address
+  let readProxyAdressResolver = '0x4E3b31eB0E5CB73641EE1E65E7dCEFe520bA3ef2';
+  let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
+  let exrates = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
 
-    let tryCurrencyKeys = exrates.try_currenciesUsingAggregator(Address.fromHexString(
-      // for the aggregator, we need the proxy
-      contractsToProxies.get(event.address.toHexString()),
-    ) as Address);
+  let tryCurrencyKeys = exrates.try_currenciesUsingAggregator(Address.fromHexString(
+    // for the aggregator, we need the proxy
+    contractsToProxies.get(event.address.toHexString()),
+  ) as Address);
 
-    if (tryCurrencyKeys.reverted) {
-      log.debug('currenciesUsingAggregator was reverted in tx hash: {}, from block: {}', [
-        event.transaction.hash.toHex(),
-        event.block.number.toString(),
-      ]);
-      return;
+  if (tryCurrencyKeys.reverted) {
+    log.debug('currenciesUsingAggregator was reverted in tx hash: {}, from block: {}', [
+      event.transaction.hash.toHex(),
+      event.block.number.toString(),
+    ]);
+    return;
+  }
+
+  let currencyKeys = tryCurrencyKeys.value;
+  // for each currency key using this aggregator
+  for (let i = 0; i < currencyKeys.length; i++) {
+    // create an answer entity for the non-zero entries
+    if (currencyKeys[i].toString() != '') {
+      createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
     }
-
-    let currencyKeys = tryCurrencyKeys.value;
-    // for each currency key using this aggregator
-    for (let i = 0; i < currencyKeys.length; i++) {
-      // create an answer entity for the non-zero entries
-      if (currencyKeys[i].toString() != '') {
-        createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
-      }
-    }
-  } else {
-    // for pre-pollux, use a contract mapping to get the currency key
-    let currencyKey = contracts.get(event.address.toHexString());
-    // and calculate the rate from Chainlink's Aggregator directly by multiplying by 1e10 to
-    // turn the 8 decimal int to a 18 decimal one
-    let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
-    createRates(event, ByteArray.fromHexString(currencyKey) as Bytes, rate);
   }
 }
 
