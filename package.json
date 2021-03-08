@@ -39,7 +39,7 @@
     "build:grantsdao": "graph build subgraphs/synthetix-grantsdao.yaml",
     "build:liquidations": "graph build subgraphs/synthetix-liquidations.yaml",
     "build:ovm": "graph build subgraphs/synthetix-ovm.yaml",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN_DAVID",
     "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
     "deploy:chainlink": "npm run deploy -- synthetixio-team/synthetix-chainlink subgraphs/synthetix-chainlink.yaml",
     "deploy:rates": "npm run deploy -- synthetixio-team/synthetix-rates subgraphs/synthetix-rates.yaml",
@@ -51,7 +51,7 @@
     "deploy:exchanger": "npm run deploy -- synthetixio-team/synthetix-exchanger subgraphs/synthetix-exchanger.yaml",
     "deploy:grantsdao": "npm run deploy -- synthetixio-team/synthetix-grantsdao subgraphs/synthetix-grantsdao.yaml",
     "deploy:liquidations": "npm run deploy -- synthetixio-team/synthetix-liquidations subgraphs/synthetix-liquidations.yaml",
-    "deploy:ovm": "npm run deploy -- synthetixio-team/synthetix-ovm subgraphs/synthetix-ovm.yaml",
+    "deploy:ovm": "npm run deploy -- dvd-schwrtz/synthetix subgraphs/synthetix-ovm.yaml",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
     "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
