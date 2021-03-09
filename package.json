@@ -64,7 +64,7 @@
     "deploy:shorts": "npm run deploy -- vbstreetz/synthetix-shorts subgraphs/synthetix-shorts.yaml",
     "deploy:collateral-erc20-loans": "npm run deploy -- vbstreetz/collateral-erc20-loans subgraphs/synthetix-collateral-erc20-loans.yaml",
     "deploy:collateral-eth-loans": "npm run deploy -- vbstreetz/collateral-eth-loans subgraphs/synthetix-collateral-eth-loans.yaml",
-    "deploy:shorts:kovan": "npm run deploy -- vbstreetz/synthetix-shorts subgraphs/synthetix-shorts-kovan.yaml",
+    "deploy:shorts:kovan": "npm run deploy -- vbstreetz/synthetix-shorts-kovan subgraphs/synthetix-shorts-kovan.yaml",
     "deploy:collateral-erc20-loans:kovan": "npm run deploy -- vbstreetz/collateral-erc20-loans-kovan subgraphs/synthetix-collateral-erc20-loans-kovan.yaml",
     "deploy:collateral-eth-loans:kovan": "npm run deploy -- vbstreetz/collateral-eth-loans-kovan subgraphs/synthetix-collateral-eth-loans-kovan.yaml",
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
@@ -76,6 +76,7 @@
     "@graphprotocol/graph-ts": "0.18.1",
     "chalk": "2.4.2",
     "commander": "2.20.0",
+    "env-cmd": "^10.1.0",
     "mustache": "4.0.1",
     "synthetix": "2.37.0"
   },
