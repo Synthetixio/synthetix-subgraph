@@ -5,9 +5,7 @@ import {
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/Synthetix/Synthetix';
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
-import { ExchangeRates } from '../generated/Synthetix/ExchangeRates';
-import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
-import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
+import { Exchanger as ExchangerContract } from '../generated/Synthetix/Exchanger';
 
 import {
   Total,
@@ -19,69 +17,51 @@ import {
   FifteenMinuteExchanger,
   ExchangeReclaim,
   ExchangeRebate,
-  PostArchernarTotal,
-  PostArchernarExchanger,
 } from '../generated/schema';
 
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, Address, log } from '@graphprotocol/graph-ts';
 
-import { exchangesToIgnore } from './exchangesToIgnore';
+import { strToBytes, getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './helpers';
 
-import { sUSD32, strToBytes } from './common';
+let exchangerAsBytes = strToBytes('Exchanger', 32);
 
-let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
-
-let exchangeRatesAsBytes = strToBytes('ExchangeRates', 32);
-
-function getExchangeRates(address: Address): ExchangeRates {
+function getExchanger(address: Address): ExchangerContract {
   let synthetix = Synthetix.bind(address);
 
   let resolverTry = synthetix.try_resolver();
 
   if (!resolverTry.reverted) {
     let resolver = AddressResolver.bind(resolverTry.value);
-    let exRatesAddressTry = resolver.try_getAddress(exchangeRatesAsBytes);
+    let exRatesAddressTry = resolver.try_getAddress(exchangerAsBytes);
 
     if (!exRatesAddressTry.reverted) {
-      return ExchangeRates.bind(exRatesAddressTry.value);
+      return ExchangerContract.bind(exRatesAddressTry.value);
     }
   }
 
   return null;
 }
 
-export function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): void {
-  if (exchangesToIgnore.indexOf(event.transaction.hash.toHex()) >= 0) {
+export function handleSynthExchange(event: SynthExchangeEvent): void {
+  let txHash = event.transaction.hash.toHex();
+  let latestRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
+  let exchanger = getExchanger(event.address);
+
+  if (exchanger == null || latestRate == null) {
+    log.error('handleSynthExchange has an issue in tx hash: {}', [txHash]);
     return;
   }
 
   let account = event.transaction.from;
-  let fromAmountInUSD = BigInt.fromI32(0);
-  let toAmountInUSD = BigInt.fromI32(0);
-  let feesInUSD = BigInt.fromI32(0);
+  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.amount, latestRate)
 
-  let exRates = getExchangeRates(event.address);
-
-  if (exRates != null) {
-    let effectiveValueTryFrom = exRates.try_effectiveValue(
-      event.params.fromCurrencyKey,
-      event.params.fromAmount,
-      sUSD32,
-    );
-
-    if (!effectiveValueTryFrom.reverted) {
-      fromAmountInUSD = effectiveValueTryFrom.value;
-    }
-
-    let effectiveValueTryTo = exRates.try_effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD32);
-
-    if (!effectiveValueTryTo.reverted) {
-      toAmountInUSD = effectiveValueTryTo.value;
-    }
-  }
-
-  feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
-
+  let feeRateForExchange = exchanger.feeRateForExchange(
+    event.params.fromCurrencyKey,
+    event.params.toCurrencyKey
+  );
+  let feesInUSD = fromAmountInUSD.times(feeRateForExchange.div(etherUnits));
+  let toAmountInUSD = fromAmountInUSD.minus(feesInUSD);
+  
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.from = account;
@@ -104,17 +84,12 @@ export function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boole
   let dayID = timestamp / 86400;
   let fifteenMinuteID = timestamp / 900;
 
-  let postArchernarTotal = PostArchernarTotal.load('mainnet');
   let total = Total.load('mainnet');
   let dailyTotal = DailyTotal.load(dayID.toString());
   let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString());
 
   if (total == null) {
     total = loadTotal();
-  }
-
-  if (postArchernarTotal == null && v219 < event.block.number) {
-    postArchernarTotal = loadPostArchernarTotal();
   }
 
   if (dailyTotal == null) {
@@ -125,7 +100,6 @@ export function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boole
     fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID.toString());
   }
 
-  let existingPostArchernarExchanger = PostArchernarExchanger.load(account.toHex());
   let existingExchanger = Exchanger.load(account.toHex());
   let existingDailyExchanger = DailyExchanger.load(dayID.toString() + '-' + account.toHex());
   let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(fifteenMinuteID.toString() + '-' + account.toHex());
@@ -134,12 +108,6 @@ export function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boole
     total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
     let exchanger = new Exchanger(account.toHex());
     exchanger.save();
-  }
-
-  if (existingPostArchernarExchanger == null && v219 < event.block.number) {
-    postArchernarTotal.exchangers = postArchernarTotal.exchangers.plus(BigInt.fromI32(1));
-    let postArchernarExchanger = new PostArchernarExchanger(account.toHex());
-    postArchernarExchanger.save();
   }
 
   if (existingDailyExchanger == null) {
@@ -154,22 +122,11 @@ export function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boole
     fifteenMinuteExchanger.save();
   }
 
-  if (v219 < event.block.number) {
-    postArchernarTotal.trades = postArchernarTotal.trades.plus(BigInt.fromI32(1));
-  }
-
   total.trades = total.trades.plus(BigInt.fromI32(1));
   dailyTotal.trades = dailyTotal.trades.plus(BigInt.fromI32(1));
   fifteenMinuteTotal.trades = fifteenMinuteTotal.trades.plus(BigInt.fromI32(1));
 
   if (fromAmountInUSD != null && feesInUSD != null) {
-    if (v219 < event.block.number) {
-      postArchernarTotal = addPostArchernarTotalFeesAndVolume(
-        postArchernarTotal as PostArchernarTotal,
-        fromAmountInUSD,
-        feesInUSD,
-      );
-    }
     total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
     dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
     fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(
@@ -178,41 +135,46 @@ export function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boole
       feesInUSD,
     );
   }
-  if (v219 < event.block.number) {
-    postArchernarTotal.save();
-  }
   total.save();
   dailyTotal.save();
   fifteenMinuteTotal.save();
 }
 
 export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
-  let entity = new ExchangeReclaim(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let txHash = event.transaction.hash.toHex();
+  let entity = new ExchangeReclaim(txHash + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.amount = event.params.amount;
   entity.currencyKey = event.params.currencyKey;
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  let exRates = getExchangeRates(event.address);
-  if (exRates != null) {
-    entity.amountInUSD = exRates.effectiveValue(event.params.currencyKey, event.params.amount, sUSD32);
+  let latestRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
+
+  if (latestRate == null) {
+    log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);
+    return;
   }
+  entity.amountInUSD = getUSDAmountFromAssetAmount(event.params.amount, latestRate);
   entity.save();
 }
 
 export function handleExchangeRebate(event: ExchangeRebateEvent): void {
-  let entity = new ExchangeRebate(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let txHash = event.transaction.hash.toHex();
+  let entity = new ExchangeRebate(txHash + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.amount = event.params.amount;
   entity.currencyKey = event.params.currencyKey;
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  let exRates = getExchangeRates(event.address);
-  if (exRates != null) {
-    entity.amountInUSD = exRates.effectiveValue(event.params.currencyKey, event.params.amount, sUSD32);
+  let latestRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
+
+  if (latestRate == null) {
+    log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);
+    return;
   }
+  entity.amountInUSD = getUSDAmountFromAssetAmount(event.params.amount, latestRate);
   entity.save();
 }
 
@@ -223,15 +185,6 @@ function loadTotal(): Total {
   newTotal.exchangeUSDTally = BigInt.fromI32(0);
   newTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
   return newTotal;
-}
-
-function loadPostArchernarTotal(): PostArchernarTotal {
-  let newPostArchernarTotal = new PostArchernarTotal('mainnet');
-  newPostArchernarTotal.trades = BigInt.fromI32(0);
-  newPostArchernarTotal.exchangers = BigInt.fromI32(0);
-  newPostArchernarTotal.exchangeUSDTally = BigInt.fromI32(0);
-  newPostArchernarTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
-  return newPostArchernarTotal;
 }
 
 function loadDailyTotal(id: string): DailyTotal {
@@ -252,23 +205,13 @@ function loadFifteenMinuteTotal(id: string): FifteenMinuteTotal {
   return newFifteenMinuteTotal;
 }
 
-function addPostArchernarTotalFeesAndVolume(
-  postArchernarTotal: PostArchernarTotal,
-  fromAmountInUSD: BigInt,
-  feesInUSD: BigInt,
-): PostArchernarTotal {
-  postArchernarTotal.exchangeUSDTally = postArchernarTotal.exchangeUSDTally.plus(fromAmountInUSD);
-  postArchernarTotal.totalFeesGeneratedInUSD = postArchernarTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
-  return postArchernarTotal;
-}
-
-function addTotalFeesAndVolume(total: Total, fromAmountInUSD: BigInt, feesInUSD: BigInt): Total {
+function addTotalFeesAndVolume(total: Total, fromAmountInUSD: BigDecimal, feesInUSD: BigDecimal): Total {
   total.exchangeUSDTally = total.exchangeUSDTally.plus(fromAmountInUSD);
   total.totalFeesGeneratedInUSD = total.totalFeesGeneratedInUSD.plus(feesInUSD);
   return total;
 }
 
-function addDailyTotalFeesAndVolume(dailyTotal: DailyTotal, fromAmountInUSD: BigInt, feesInUSD: BigInt): DailyTotal {
+function addDailyTotalFeesAndVolume(dailyTotal: DailyTotal, fromAmountInUSD: BigDecimal, feesInUSD: BigDecimal): DailyTotal {
   dailyTotal.exchangeUSDTally = dailyTotal.exchangeUSDTally.plus(fromAmountInUSD);
   dailyTotal.totalFeesGeneratedInUSD = dailyTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
   return dailyTotal;
@@ -276,8 +219,8 @@ function addDailyTotalFeesAndVolume(dailyTotal: DailyTotal, fromAmountInUSD: Big
 
 function addFifteenMinuteTotalFeesAndVolume(
   fifteenMinuteTotal: FifteenMinuteTotal,
-  fromAmountInUSD: BigInt,
-  feesInUSD: BigInt,
+  fromAmountInUSD: BigDecimal,
+  feesInUSD: BigDecimal,
 ): FifteenMinuteTotal {
   fifteenMinuteTotal.exchangeUSDTally = fifteenMinuteTotal.exchangeUSDTally.plus(fromAmountInUSD);
   fifteenMinuteTotal.totalFeesGeneratedInUSD = fifteenMinuteTotal.totalFeesGeneratedInUSD.plus(feesInUSD);

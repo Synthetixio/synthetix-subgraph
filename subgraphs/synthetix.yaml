@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Synthetix
-    network: mainnet
+    network: optimism
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
       abi: Synthetix
@@ -31,7 +31,7 @@ dataSources:
   #  Handle Transfer on current, but deprecated, ProxysUSD
   - kind: ethereum/contract
     name: SynthsUSD
-    network: mainnet
+    network: optimism
     source:
       address: '0x57Ab1E02fEE23774580C119740129eAC7081e9D3' # ProxysUSD (old Proxy, will be decomissioned soon)
       abi: Synth
@@ -69,7 +69,7 @@ dataSources:
   # Handle Transfer on upcoming ProxysUSD Integration proxy
   - kind: ethereum/contract
     name: SynthsUSD_viaNewProxy
-    network: mainnet
+    network: optimism
     source:
       address: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51' # ProxyERC20sUSD (new ERC20 Proxy)
       abi: Synth
@@ -107,7 +107,7 @@ dataSources:
   # Handle Transfer, Issued, Burned on previous ProxysETH (since decommissioned and upgraded to ProxyERC20 in July 2019)
   - kind: ethereum/contract
     name: SynthsETH_viaOldProxy
-    network: mainnet
+    network: optimism
     source:
       address: '0xaCf5C0101cbBe8476E87c652E0bEF33684Cc94D6' # (old sETH Proxy)
       abi: Synth
@@ -145,7 +145,7 @@ dataSources:
   # Handle Transfer, Issued, Burned on current ProxysETH
   - kind: ethereum/contract
     name: SynthsETH
-    network: mainnet
+    network: optimism
     source:
       address: '0x5e74C9036fb86BD7eCdcb084a0673EFc32eA31cb' # ProxysETH (new ERC20 Proxy)
       abi: Synth
@@ -183,7 +183,7 @@ dataSources:
     # Handle Transfer, Issued, Burned on previous ProxysBTC (since decommissioned and upgraded to ProxyERC20 in July 2019)
   - kind: ethereum/contract
     name: SynthsBTC_viaOldProxy
-    network: mainnet
+    network: optimism
     source:
       address: '0x9073Ee83b6CE96C444547DdCAf777b9352163581' # old ProxysBTC
       abi: Synth
@@ -220,7 +220,7 @@ dataSources:
 
   - kind: ethereum/contract
     name: SynthsBTC
-    network: mainnet
+    network: optimism
     source:
       address: '0xfE18be6b3Bd88A2D2A7f928d00292E7a9963CfC6' # ProxysBTC
       abi: Synth
@@ -259,7 +259,7 @@ dataSources:
   # This is to be able to track potential iETH holders
   - kind: ethereum/contract
     name: SynthiETH_viaOldProxy
-    network: mainnet
+    network: optimism
     source:
       address: '0x9B7E40031f7d4f6AB6e5D36bBF2Fea3bCCcc75a5' # (old iETH Proxy)
       abi: Synth
@@ -281,7 +281,7 @@ dataSources:
 
   - kind: ethereum/contract
     name: SynthiETH
-    network: mainnet
+    network: optimism
     source:
       address: '0xA9859874e1743A32409f75bB11549892138BBA1E' # (new ERC20 iETH Proxy)
       abi: Synth
@@ -304,7 +304,7 @@ dataSources:
   # Handle RewardEscrow Transfers (determine who has collected fees)
   - kind: ethereum/contract
     name: RewardEscrow
-    network: mainnet
+    network: optimism
     source:
       address: '0xb671F2210B1F6621A2607EA63E6B2DC3e2464d1F' # RewardEscrow
       abi: RewardEscrow
@@ -341,7 +341,7 @@ dataSources:
   # Handle FeePool FeesClaimed
   - kind: ethereum/contract
     name: FeePool
-    network: mainnet
+    network: optimism
     source:
       address: '0xb440DD674e1243644791a4AdfE3A2AbB0A92d309' # ProxyFeePool
       abi: FeePool
@@ -370,7 +370,7 @@ dataSources:
   # Handle FeePool FeesClaimed
   - kind: ethereum/contract
     name: FeePool_2
-    network: mainnet
+    network: optimism
     source:
       address: '0x28d8458C76C7029257BAA10F86E9dA7481C513fb' # ProxyFeePool
       abi: FeePool
@@ -397,7 +397,7 @@ dataSources:
           handler: handleFeesClaimed
     - kind: ethereum/contract
     name: Exchanger
-    network: mainnet
+    network: optimism
     source:
       address: '0x439502C922ADA61FE49329248B7A8ecb31C0b329'
       abi: Exchanger
@@ -421,7 +421,7 @@ dataSources:
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
     name: Exchanger_v2
-    network: mainnet
+    network: optimism
     source:
       address: '0x1d53a13D78766C0Db6eF73eC0ae1138eA2b6f5D4'
       abi: Exchanger
@@ -445,7 +445,7 @@ dataSources:
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
     name: Exchanger_v3
-    network: mainnet
+    network: optimism
     source:
       address: '0xc4942df0d3c561c71417BBA09d2DEA7a3CC676Fb'
       abi: Exchanger
@@ -469,7 +469,7 @@ dataSources:
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
     name: Exchanger_v4
-    network: mainnet
+    network: optimism
     source:
       address: '0x300F0f100389282b51F1Bc486D8c2ad22B6C4E42'
       abi: Exchanger
@@ -493,7 +493,7 @@ dataSources:
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
     name: Exchanger_v5
-    network: mainnet
+    network: optimism
     source:
       address: '0xd3970a9D35d2Be3aaf62D2b5B2be3Ee303aC4228'
       abi: Exchanger
@@ -517,7 +517,7 @@ dataSources:
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
     name: Exchanger_v6
-    network: mainnet
+    network: optimism
     source:
       address: '0x93b434b2e21d0F4E3ed1e9efa3Aa254A6D863B2A'
       abi: Exchanger
@@ -541,7 +541,7 @@ dataSources:
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
     name: Exchanger_v7
-    network: mainnet
+    network: optimism
     source:
       address: '0x0bfDc04B38251394542586969E2356d0D731f7DE'
       abi: Exchanger
@@ -565,7 +565,7 @@ dataSources:
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
     name: Synthetix
-    network: mainnet
+    network: optimism
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'
       abi: Synthetix
@@ -587,7 +587,7 @@ dataSources:
           handler: handleExchangeTracking
     - kind: ethereum/contract
     name: Synthetix
-    network: mainnet
+    network: optimism
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F' # new ProxySynthetix (ERC20)
       abi: Synthetix
@@ -621,7 +621,7 @@ dataSources:
           handler: handleExchangeRebate
     - kind: ethereum/contract
     name: AggregatorXRP_4
-    network: mainnet
+    network: optimism
     source:
       address: '0x4d839a486EC0B1C9b0D9e9D397993Ba5B150cB34'
       abi: Aggregator
@@ -645,7 +645,7 @@ dataSources:
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
     name: AggregatorBCH_4
-    network: mainnet
+    network: optimism
     source:
       address: '0xd054be48Ae13A89a82744373f647A755dF7CaE17'
       abi: Aggregator
@@ -669,7 +669,7 @@ dataSources:
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
     name: AggregatorEOS_4
-    network: mainnet
+    network: optimism
     source:
       address: '0xea7C55976844396f3bD4C89F66988b8b5Be5E96a'
       abi: Aggregator

@@ -14,7 +14,7 @@ import {
   TemporaryExchangePartnerTracker,
 } from '../generated/schema';
 
-import { getTimeID } from './helpers';
+import { getTimeID, etherUnits, getUSDAmountFromAssetAmount } from './helpers';
 
 import { BigInt, log, BigDecimal } from '@graphprotocol/graph-ts';
 
@@ -22,7 +22,6 @@ import { BigInt, log, BigDecimal } from '@graphprotocol/graph-ts';
 import { handleRatesUpdated, handleAggregatorAnswerUpdated } from './rates-mapping';
 export { handleRatesUpdated, handleAggregatorAnswerUpdated };
 
-let etherUnits = new BigDecimal(BigInt.fromI32(10).pow(18));
 let partnerProgramStart = BigInt.fromI32(10782000);
 
 export function handleExchangeEntrySettled(event: ExchangeEntrySettledEvent): void {
@@ -199,14 +198,6 @@ function resetTempEntity(txHash: string): void {
   tempEntity.usdFees = new BigDecimal(BigInt.fromI32(0));
   tempEntity.partner = null;
   tempEntity.save();
-}
-
-function getUSDAmountFromAssetAmount(amount: BigInt, rate: BigInt): BigDecimal {
-  let decimalAmount = new BigDecimal(amount);
-  let formattedDecimalAmount = decimalAmount.div(etherUnits);
-  let decimalRate = new BigDecimal(rate);
-  let formattedDecimalRate = decimalRate.div(etherUnits);
-  return formattedDecimalRate.times(formattedDecimalAmount);
 }
 
 function getFeeUSDFromVolume(volume: BigDecimal, feeRate: BigInt): BigDecimal {
