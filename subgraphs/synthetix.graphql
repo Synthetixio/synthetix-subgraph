@@ -284,20 +284,6 @@ type ExchangeEntryAppended @entity {
   roundIdForDest: BigInt!
 }
 
-type TemporaryExchangePartnerTracker @entity {
-  " Transaction hash of the Exchange event "
-  id: ID!
-
-  " Total transaction volume in USD across all ExchangeEntryAppended events in a single tx hash "
-  usdVolume: BigDecimal
-
-  " Total fees from this transaction hash "
-  usdFees: BigDecimal
-
-  " String format of the tracking code for a given partner "
-  partner: String
-}
-
 type DailyExchangePartner @entity {
   " Day timestamp + tracking code of the partner "
   id: ID!

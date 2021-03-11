@@ -583,7 +583,7 @@ dataSources:
         - name: Synthetix
           file: ../abis/Synthetix.json
       eventHandlers:
-        - event: ExchangeTracking(indexed bytes32,bytes32,uint256)
+        - event: ExchangeTracking(indexed bytes32,bytes32,uint256,uint256)
           handler: handleExchangeTracking
     - kind: ethereum/contract
     name: Synthetix
