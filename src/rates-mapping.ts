@@ -12,10 +12,17 @@ import {
   LatestRate,
 } from '../generated/schema';
 
-import { contractsToProxies } from './contractsToProxies';
 import { strToBytes } from './helpers';
 
 import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
+
+let contractsToProxies = new Map<string, string>();
+
+// TODO add new chainlink feeds here and put in a different file when the list gets bigger
+// contractsToProxies.set(
+//   '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231', // AggregatorAUD
+//   '0x77F9710E7d0A19669A13c055F62cd80d313dF022'
+// );
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);

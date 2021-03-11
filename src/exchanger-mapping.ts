@@ -18,12 +18,6 @@ import { getTimeID, etherUnits, getUSDAmountFromAssetAmount } from './helpers';
 
 import { BigInt, log, BigDecimal } from '@graphprotocol/graph-ts';
 
-// NOTE importing and exporting methods helps to keep the files modular
-import { handleRatesUpdated, handleAggregatorAnswerUpdated } from './rates-mapping';
-export { handleRatesUpdated, handleAggregatorAnswerUpdated };
-
-let partnerProgramStart = BigInt.fromI32(10782000);
-
 export function handleExchangeEntrySettled(event: ExchangeEntrySettledEvent): void {
   let entity = new ExchangeEntrySettled(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.from = event.params.from;
@@ -53,52 +47,49 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
 
   entity.save();
 
-  // SynthExchange event for the tracking of volume program
-  if (event.block.number > partnerProgramStart) {
-    let synth = event.params.src.toString();
-    let latestRate = LatestRate.load(synth);
-    if (latestRate == null) {
-      log.error(
-        'handleExchangeEntryAppended rate missing for volume partner trade with synth: {}, and amount: {} in tx hash: {}',
-        [synth, event.params.amount.toString(), txHash],
-      );
-      return;
+  let synth = event.params.src.toString();
+  let latestRate = LatestRate.load(synth);
+  if (latestRate == null) {
+    log.error(
+      'handleExchangeEntryAppended rate missing for volume partner trade with synth: {}, and amount: {} in tx hash: {}',
+      [synth, event.params.amount.toString(), txHash],
+    );
+    return;
+  }
+
+  let tempEntity = TemporaryExchangePartnerTracker.load(txHash);
+
+  if (tempEntity == null) {
+    tempEntity = createTempEntity(txHash);
+  }
+
+  let usdVolume = getUSDAmountFromAssetAmount(event.params.amount, latestRate.rate);
+  // SystemsSettings through address resolver
+  // getter on exchanger contract
+  // feeRateForExchange - bind to Exchanger
+  let usdFees = getFeeUSDFromVolume(usdVolume, event.params.exchangeFeeRate);
+
+  if (tempEntity.partner != null) {
+    let exchangePartner = ExchangePartner.load(tempEntity.partner);
+    if (exchangePartner == null) {
+      exchangePartner = loadNewExchangePartner(tempEntity.partner);
+    }
+    updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFees);
+
+    let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
+    let dailyExchangePartnerID = dayID + '-' + tempEntity.partner;
+    let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
+
+    if (dailyExchangePartner == null) {
+      dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner, dayID);
     }
 
-    let tempEntity = TemporaryExchangePartnerTracker.load(txHash);
-
-    if (tempEntity == null) {
-      tempEntity = createTempEntity(txHash);
-    }
-
-    let usdVolume = getUSDAmountFromAssetAmount(event.params.amount, latestRate.rate);
-    // SystemsSettings through address resolver
-    // getter on exchanger contract
-    // feeRateForExchange - bind to Exchanger
-    let usdFees = getFeeUSDFromVolume(usdVolume, event.params.exchangeFeeRate);
-
-    if (tempEntity.partner != null) {
-      let exchangePartner = ExchangePartner.load(tempEntity.partner);
-      if (exchangePartner == null) {
-        exchangePartner = loadNewExchangePartner(tempEntity.partner);
-      }
-      updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFees);
-
-      let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-      let dailyExchangePartnerID = dayID + '-' + tempEntity.partner;
-      let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
-
-      if (dailyExchangePartner == null) {
-        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner, dayID);
-      }
-
-      updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFees);
-      resetTempEntity(txHash);
-    } else {
-      tempEntity.usdVolume = usdVolume;
-      tempEntity.usdFees = usdFees;
-      tempEntity.save();
-    }
+    updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFees);
+    resetTempEntity(txHash);
+  } else {
+    tempEntity.usdVolume = usdVolume;
+    tempEntity.usdFees = usdFees;
+    tempEntity.save();
   }
 }
 
