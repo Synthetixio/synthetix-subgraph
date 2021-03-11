@@ -1,0 +1,38 @@
+specVersion: 0.0.2
+description: Synthetix Delegate Approvals API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix-delegate-approvals.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: DelegateApprovals
+    network: kovan
+    source:
+      address: '0xB8CFB40B4c66533cD8f760c1b15cc228452bB03E'
+      abi: DelegateApprovals
+      startBlock: 17640888
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - WithdrawApproval
+        - EternalStorageUpdated
+        - OwnerNominated
+        - OwnerChanged
+      abis:
+        - name: DelegateApprovals
+          file: ../abis/DelegateApprovals.json
+      eventHandlers:
+        - event: Approval(indexed address,address,bytes32)
+          handler: handleApproval
+        - event: WithdrawApproval(indexed address,address,bytes32)
+          handler: handleWithdrawApproval
+        - event: EternalStorageUpdated(address)
+          handler: handleEternalStorageUpdated
+        - event: OwnerNominated(address)
+          handler: handleOwnerNominated
+        - event: OwnerChanged(address,address)
+          handler: handleOwnerChanged
+      file: ../src/delegate-approvals.ts

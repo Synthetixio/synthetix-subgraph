@@ -1,0 +1,7 @@
+type DelegateApproval @entity {
+  id: ID!
+  authoriser: Bytes! # address
+  delegate: Bytes! # address
+  action: Bytes!
+  withdrawn: Boolean!
+}

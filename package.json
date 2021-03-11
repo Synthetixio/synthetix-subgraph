@@ -67,6 +67,15 @@
     "deploy:shorts:kovan": "npm run deploy -- vbstreetz/synthetix-shorts-kovan subgraphs/synthetix-shorts-kovan.yaml",
     "deploy:collateral-erc20-loans:kovan": "npm run deploy -- vbstreetz/collateral-erc20-loans-kovan subgraphs/synthetix-collateral-erc20-loans-kovan.yaml",
     "deploy:collateral-eth-loans:kovan": "npm run deploy -- vbstreetz/collateral-eth-loans-kovan subgraphs/synthetix-collateral-eth-loans-kovan.yaml",
+
+    "codegen:delegate-approvals": "npm run codegen -- subgraphs/synthetix-delegate-approvals.yaml",
+    "codegen:delegate-approvals:kovan": "npm run codegen -- subgraphs/synthetix-delegate-approvals-kovan.yaml",
+    "build:delegate-approvals": "graph build subgraphs/synthetix-delegate-approvals.yaml",
+    "build:delegate-approvals:kovan": "graph build subgraphs/synthetix-delegate-approvals-kovan.yaml",
+    "deploy:delegate-approvals": "npm run deploy -- vbstreetz/delegate-approvals subgraphs/synthetix-delegate-approvals.yaml",
+    "deploy:delegate-approvals:kovan": "npm run deploy -- vbstreetz/delegate-approvals-kovan subgraphs/synthetix-delegate-approvals-kovan.yaml",
+
+
     "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
     "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
