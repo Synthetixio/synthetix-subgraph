@@ -10,7 +10,7 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix
-      startBlock: 5750875 # Creation of this proxy
+      startBlock: 5873222 # Creation of this proxy
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -70,7 +70,7 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Proxy
-      startBlock: 5750875 # Creation of this proxy
+      startBlock: 5873222 # Creation of this proxy
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
