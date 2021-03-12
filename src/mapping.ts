@@ -61,9 +61,9 @@ let v2100UpgradeBlock = BigInt.fromI32(8622911);
 // https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
 let v200UpgradeBlock = BigInt.fromI32(6841188); // Dec 7, 2018
 
-// Havven v1.0.1 release at txn
+// [reference only] Havven v1.0.1 release at txn
 // https://etherscan.io/tx/0x7d5e4d92c702d4863ed71d5c1348e9dec028afd8d165e673d4b6aea75c8b9e2c
-let v101UpgradeBlock = BigInt.fromI32(5873222); // June 29, 2018 (nUSDa.1)
+// let v101UpgradeBlock = BigInt.fromI32(5873222); // June 29, 2018 (nUSDa.1)
 
 // [reference only] Havven v1.0.0 release at txn
 // https://etherscan.io/tx/0x1c3b873d0ce0dfafff428fc019bc9f630ac51031fc6021e57fb24c65143d328a
@@ -215,7 +215,7 @@ function trackSNXHolder(
         snxHolder.debtEntryAtIndex = debtLedgerTry.value;
       }
     }
-  } else if (block.number > v101UpgradeBlock) {
+  } else {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     snxHolder.balanceOf = synthetix.balanceOf(account);
@@ -223,9 +223,6 @@ function trackSNXHolder(
     if (!collateralTry.reverted) {
       snxHolder.collateral = collateralTry.value;
     }
-  } else {
-    let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
-    snxHolder.balanceOf = synthetix.balanceOf(account);
   }
 
   if (
@@ -267,7 +264,7 @@ function trackDebtSnapshot(event: ethereum.Event): void {
     entity.collateral = synthetix.collateral(account);
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
     // Use bytes4
-  } else if (event.block.number > v101UpgradeBlock) {
+  } else {
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     let balanceOfTry = synthetix.try_balanceOf(account);
     if (!balanceOfTry.reverted) {
@@ -281,8 +278,6 @@ function trackDebtSnapshot(event: ethereum.Event): void {
     if (!debtBalanceOfTry.reverted) {
       entity.debtBalanceOf = debtBalanceOfTry.value;
     }
-  } else {
-    return;
   }
 
   entity.save();
