@@ -1003,4 +1003,12 @@ module.exports = [
     address: "'0x40c0bC7BFB90a29426121ba133A9352B84c5f2cF'",
     proxyAddress: "'0x5c4939a2ab3A2a9f93A518d81d4f8D0Bc6a68980'",
   },
+  {
+    prod: 12019180,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorLINK_5',
+    address: "'0xbd11BC57fC140614190CABC1B4c316aba220BAe4'",
+    proxyAddress: "'0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c'",
+  },
 ];

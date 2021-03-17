@@ -2866,3 +2866,27 @@ dataSources:
       eventHandlers:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
+  - kind: ethereum/contract
+    name: AggregatorLINK_5
+    network: mainnet
+    source:
+      address: '0xbd11BC57fC140614190CABC1B4c316aba220BAe4'
+      abi: Aggregator
+      startBlock: 12019180
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
