@@ -14,15 +14,10 @@ import {
 
 import { strToBytes } from './helpers';
 
+import { readProxyAdressResolver, contractsToProxies } from './hardcoded-contracts'
+
 import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
 
-let contractsToProxies = new Map<string, string>();
-
-// TODO add new chainlink feeds here and put in a different file when the list gets bigger
-// contractsToProxies.set(
-//   '0x05cf62c4ba0ccea3da680f9a8744ac51116d6231', // AggregatorAUD
-//   '0x77F9710E7d0A19669A13c055F62cd80d313dF022'
-// );
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -138,8 +133,6 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
 
 // create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
-  // Note: hard coding the latest ReadProxyAddressResolver address
-  let readProxyAdressResolver = '0x4E3b31eB0E5CB73641EE1E65E7dCEFe520bA3ef2';
   let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
   let exrates = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
 

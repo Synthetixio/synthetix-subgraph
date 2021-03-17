@@ -170,16 +170,8 @@ type Total @entity {
   id: ID!
   trades: BigInt!
   exchangers: BigInt!
-  exchangeUSDTally: BigInt!
-  totalFeesGeneratedInUSD: BigInt!
-}
-
-type PostArchernarTotal @entity {
-  id: ID!
-  trades: BigInt!
-  exchangers: BigInt!
-  exchangeUSDTally: BigInt!
-  totalFeesGeneratedInUSD: BigInt!
+  exchangeUSDTally: BigDecimal!
+  totalFeesGeneratedInUSD: BigDecimal!
 }
 
 # Total synth exchanges per day
@@ -187,8 +179,8 @@ type DailyTotal @entity {
   id: ID!
   trades: BigInt!
   exchangers: BigInt!
-  exchangeUSDTally: BigInt!
-  totalFeesGeneratedInUSD: BigInt!
+  exchangeUSDTally: BigDecimal!
+  totalFeesGeneratedInUSD: BigDecimal!
 }
 
 # Total synth exchanges per 15 minute period
@@ -196,8 +188,8 @@ type FifteenMinuteTotal @entity {
   id: ID!
   trades: BigInt!
   exchangers: BigInt!
-  exchangeUSDTally: BigInt!
-  totalFeesGeneratedInUSD: BigInt!
+  exchangeUSDTally: BigDecimal!
+  totalFeesGeneratedInUSD: BigDecimal!
 }
 
 # SynthExchange tracks this event from the Synthetix.sol contract
@@ -207,11 +199,11 @@ type SynthExchange @entity {
   from: Bytes! # address
   fromCurrencyKey: Bytes! # bytes4
   fromAmount: BigInt! # uint256
-  fromAmountInUSD: BigInt! # from Amount including fees
+  fromAmountInUSD: BigDecimal! # from Amount including fees
   toCurrencyKey: Bytes! # bytes4
   toAmount: BigInt! # uint256
-  toAmountInUSD: BigInt! # to Amount without fees
-  feesInUSD: BigInt!
+  toAmountInUSD: BigDecimal! # to Amount without fees
+  feesInUSD: BigDecimal!
   toAddress: Bytes! # address
   timestamp: BigInt!
   gasPrice: BigInt!
@@ -224,7 +216,7 @@ type ExchangeReclaim @entity {
   account: Bytes! # address
   currencyKey: Bytes! # bytes4
   amount: BigInt! # uint256
-  amountInUSD: BigInt! # uint256
+  amountInUSD: BigDecimal! # uint256
   timestamp: BigInt!
   gasPrice: BigInt!
   block: BigInt!
@@ -235,7 +227,7 @@ type ExchangeRebate @entity {
   account: Bytes! # address
   currencyKey: Bytes! # bytes4
   amount: BigInt! # uint256
-  amountInUSD: BigInt! # uint256
+  amountInUSD: BigDecimal! # uint256
   timestamp: BigInt!
   gasPrice: BigInt!
   block: BigInt!

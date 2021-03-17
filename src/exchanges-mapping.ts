@@ -32,10 +32,10 @@ function getExchanger(address: Address): ExchangerContract {
 
   if (!resolverTry.reverted) {
     let resolver = AddressResolver.bind(resolverTry.value);
-    let exRatesAddressTry = resolver.try_getAddress(exchangerAsBytes);
+    let exchangerAddressTry = resolver.try_getAddress(exchangerAsBytes);
 
-    if (!exRatesAddressTry.reverted) {
-      return ExchangerContract.bind(exRatesAddressTry.value);
+    if (!exchangerAddressTry.reverted) {
+      return ExchangerContract.bind(exchangerAddressTry.value);
     }
   }
 
@@ -182,8 +182,8 @@ function loadTotal(): Total {
   let newTotal = new Total('mainnet');
   newTotal.trades = BigInt.fromI32(0);
   newTotal.exchangers = BigInt.fromI32(0);
-  newTotal.exchangeUSDTally = BigInt.fromI32(0);
-  newTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  newTotal.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
+  newTotal.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
   return newTotal;
 }
 
@@ -191,8 +191,8 @@ function loadDailyTotal(id: string): DailyTotal {
   let newDailyTotal = new DailyTotal(id);
   newDailyTotal.trades = BigInt.fromI32(0);
   newDailyTotal.exchangers = BigInt.fromI32(0);
-  newDailyTotal.exchangeUSDTally = BigInt.fromI32(0);
-  newDailyTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  newDailyTotal.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
+  newDailyTotal.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
   return newDailyTotal;
 }
 
@@ -200,8 +200,8 @@ function loadFifteenMinuteTotal(id: string): FifteenMinuteTotal {
   let newFifteenMinuteTotal = new FifteenMinuteTotal(id);
   newFifteenMinuteTotal.trades = BigInt.fromI32(0);
   newFifteenMinuteTotal.exchangers = BigInt.fromI32(0);
-  newFifteenMinuteTotal.exchangeUSDTally = BigInt.fromI32(0);
-  newFifteenMinuteTotal.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  newFifteenMinuteTotal.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
+  newFifteenMinuteTotal.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
   return newFifteenMinuteTotal;
 }
 

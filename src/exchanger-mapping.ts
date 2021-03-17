@@ -53,7 +53,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   let latestRate = LatestRate.load(synth);
   if (latestRate == null) {
     log.error(
-      'handleExchangeEntryAppended rate missing for volume partner trade with synth: {}, and amount: {} in tx hash: {}',
+      'handleExchangeTracking rate missing for volume partner trade with synth: {}, and amount: {} in tx hash: {}',
       [synth, event.params.amount.toString(), txHash],
     );
     return;
@@ -65,7 +65,8 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
     exchangePartner = loadNewExchangePartner(exchangePartnerID);
   }
   let tradeSizeUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate.rate);
-  let feeSizeUSD = getUSDAmountFromAssetAmount(event.params.fee, latestRate.rate);
+  // fee is in USD already. 
+  let feeSizeUSD = getUSDAmountFromAssetAmount(event.params.fee, BigInt.fromI32(1));
 
   exchangePartner.usdVolume = exchangePartner.usdVolume.plus(tradeSizeUSD);
   exchangePartner.usdFees = exchangePartner.usdFees.plus(feeSizeUSD);

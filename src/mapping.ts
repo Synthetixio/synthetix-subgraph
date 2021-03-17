@@ -38,6 +38,8 @@ import { store, BigInt, Address, ethereum, Bytes, log } from '@graphprotocol/gra
 
 import { strToBytes } from './helpers';
 
+import { escrowContracts } from './hardcoded-contracts';
+
 import { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking } from './exchanger-mapping';
 export { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking };
 
@@ -46,12 +48,6 @@ export { handleRatesUpdated, handleAggregatorAnswerUpdated };
 
 import { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange } from './exchanges-mapping';
 export { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange };
-
-let contracts = new Map<string, string>();
-
-// TODO update these hardcoded contracts
-contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
-contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
@@ -102,8 +98,13 @@ function trackSNXHolder(
   txn: ethereum.Transaction,
 ): void {
   let holder = account.toHex();
+  
   // ignore escrow accounts
-  if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
+  if (
+    escrowContracts.get('escrow') == holder ||
+    escrowContracts.get('rewardEscrow') == holder ||
+    escrowContracts.get('rewardEscrowV2') == holder
+  ) {
     return;
   }
   let existingSNXHolder = SNXHolder.load(holder);
@@ -181,9 +182,14 @@ function trackSNXHolder(
 function trackDebtSnapshot(event: ethereum.Event): void {
   let snxContract = event.transaction.to as Address;
   let account = event.transaction.from;
+  let holder = account.toHex();
 
   // ignore escrow accounts
-  if (contracts.get('escrow') == account.toHex() || contracts.get('rewardEscrow') == account.toHex()) {
+  if (
+    escrowContracts.get('escrow') == holder ||
+    escrowContracts.get('rewardEscrow') == holder ||
+    escrowContracts.get('rewardEscrowV2') == holder
+  ) {
     return;
   }
 
@@ -212,36 +218,6 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
 
   trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
   trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
-}
-
-function trackSynthHolder(contract: Synth, source: string, account: Address): void {
-  let entityID = account.toHex() + '-' + source;
-  let entity = SynthHolder.load(entityID);
-  if (entity == null) {
-    entity = new SynthHolder(entityID);
-  }
-  entity.synth = source;
-  entity.balanceOf = contract.balanceOf(account);
-  entity.save();
-}
-
-export function handleTransferSynth(event: SynthTransferEvent): void {
-  let contract = Synth.bind(event.address);
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'sUSD';
-  let currencyKeyTry = contract.try_currencyKey();
-  if (!currencyKeyTry.reverted) {
-    entity.source = currencyKeyTry.value.toString();
-  }
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = event.params.value;
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.save();
-
-  trackSynthHolder(contract, entity.source, event.params.from);
-  trackSynthHolder(contract, entity.source, event.params.to);
 }
 
 /**
@@ -374,15 +350,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
 
   // Note: this amount isn't in sUSD for sETH or sBTC issuance prior to Vega
   entity.value = event.params.value;
-
-  let synth = Synth.bind(event.address);
-  let currencyKeyTry = synth.try_currencyKey();
-  if (!currencyKeyTry.reverted) {
-    entity.source = currencyKeyTry.value.toString();
-  } else {
-    entity.source = 'sUSD';
-  }
-
+  entity.source = 'sUSD';
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
