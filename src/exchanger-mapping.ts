@@ -13,7 +13,7 @@ import {
   ExchangePartner,
 } from '../generated/schema';
 
-import { getTimeID, getUSDAmountFromAssetAmount } from './helpers';
+import { getTimeID, getUSDAmountFromAssetAmount, toDecimal } from './helpers';
 
 import { BigInt, log, BigDecimal } from '@graphprotocol/graph-ts';
 
@@ -65,8 +65,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
     exchangePartner = loadNewExchangePartner(exchangePartnerID);
   }
   let tradeSizeUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate.rate);
-  // fee is in USD already. 
-  let feeSizeUSD = getUSDAmountFromAssetAmount(event.params.fee, BigInt.fromI32(1));
+  let feeSizeUSD = toDecimal(event.params.fee);
 
   exchangePartner.usdVolume = exchangePartner.usdVolume.plus(tradeSizeUSD);
   exchangePartner.usdFees = exchangePartner.usdFees.plus(feeSizeUSD);
