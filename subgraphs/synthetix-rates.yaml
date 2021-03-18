@@ -1837,78 +1837,6 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: AggregatorSNX_4
-    network: mainnet
-    source:
-      address: '0xBAFe3CB0E563E914806A99D547bdBF2Cfcf5fDF6'
-      abi: Aggregator
-      startBlock: 11752461
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - AggregatorAnswer
-      abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
-        - name: AddressResolver
-          file: ../abis/AddressResolver.json
-      eventHandlers:
-        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
-          handler: handleAggregatorAnswerUpdated
-  - kind: ethereum/contract
-    name: AggregatorCOMP_4
-    network: mainnet
-    source:
-      address: '0x9D6acD34D481512586844fD65328BD358d306752'
-      abi: Aggregator
-      startBlock: 11752524
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - AggregatorAnswer
-      abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
-        - name: AddressResolver
-          file: ../abis/AddressResolver.json
-      eventHandlers:
-        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
-          handler: handleAggregatorAnswerUpdated
-  - kind: ethereum/contract
-    name: AggregatorBNB_4
-    network: mainnet
-    source:
-      address: '0x32dCB582EcD6193937BD33168e19173Cfe10a140'
-      abi: Aggregator
-      startBlock: 11752749
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ../src/rates-mapping.ts
-      entities:
-        - AggregatorAnswer
-      abis:
-        - name: Aggregator
-          file: ../abis/Aggregator.json
-        - name: ExchangeRates
-          file: ../abis/ExchangeRates.json
-        - name: AddressResolver
-          file: ../abis/AddressResolver.json
-      eventHandlers:
-        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
-          handler: handleAggregatorAnswerUpdated
-  - kind: ethereum/contract
     name: AggregatorLINK_4
     network: mainnet
     source:
@@ -2317,7 +2245,7 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: AggregatorCOMP_5
+    name: AggregatorCOMP_4
     network: mainnet
     source:
       address: '0x56658e9312218923B4AEb3727304B6060aB69e8F'
@@ -2413,7 +2341,7 @@ dataSources:
         - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
           handler: handleAggregatorAnswerUpdated
   - kind: ethereum/contract
-    name: AggregatorSNX_5
+    name: AggregatorSNX_4
     network: mainnet
     source:
       address: '0x06ce8Be8729B6bA18dD3416E3C223a5d4DB5e755'
@@ -2683,6 +2611,30 @@ dataSources:
       address: '0xbd11BC57fC140614190CABC1B4c316aba220BAe4'
       abi: Aggregator
       startBlock: 12019180
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/rates-mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+  - kind: ethereum/contract
+    name: AggregatorKRW
+    network: mainnet
+    source:
+      address: '0x256b6E10C153b49Ac7800E2603167026F75Eb765'
+      abi: Aggregator
+      startBlock: 12065402
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
