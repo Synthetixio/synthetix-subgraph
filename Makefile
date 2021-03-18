@@ -28,12 +28,12 @@ shorts-kovan:
 	npm run build:shorts:kovan
 	env-cmd npm run deploy:shorts:kovan
 
-synthetix-delegate-approvals:
+delegate-approvals:
 	npm run codegen:delegate-approvals
 	npm run build:delegate-approvals
 	env-cmd npm run deploy:delegate-approvals
 
-synthetix-delegate-approvals-kovan:
+delegate-approvals-kovan:
 	npm run codegen:delegate-approvals:kovan
 	npm run build:delegate-approvals:kovan
 	env-cmd npm run deploy:delegate-approvals:kovan
@@ -45,5 +45,5 @@ synthetix-delegate-approvals-kovan:
 	collateral-eth-kovan \
 	shorts \
 	shorts-kovan \
-	synthetix-delegate-approvals \
-	synthetix-delegate-approvals-kovan
+	delegate-approvals \
+	delegate-approvals-kovan

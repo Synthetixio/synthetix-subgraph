@@ -39,33 +39,39 @@ dataSources:
         - name: CollateralErc20
           file: ../abis/CollateralErc20.json
       eventHandlers:
+        - event: CacheUpdated(bytes32,address)
+          handler: handleCacheUpdated
+        - event: CanOpenLoansUpdated(bool)
+          handler: handleCanOpenLoansUpdated
+        - event: CollateralDeposited(indexed address,uint256,uint256,uint256)
+          handler: handleCollateralDeposited
+        - event: CollateralWithdrawn(indexed address,uint256,uint256,uint256)
+          handler: handleCollateralWithdrawn
+        - event: InteractionDelayUpdated(uint256)
+          handler: handleInteractionDelayUpdated
+        - event: IssueFeeRateUpdated(uint256)
+          handler: handleIssueFeeRateUpdated
+        - event: LoanClosed(indexed address,uint256)
+          handler: handleLoanClosed
+        - event: LoanClosedByLiquidation(indexed address,uint256,indexed address,uint256,uint256)
+          handler: handleLoanClosedByLiquidation
         - event: LoanCreated(indexed address,uint256,uint256,uint256,bytes32,uint256)
           handler: handleLoanCreated
-        # - event: LoanClosed(indexed address,uint256)
-        #   handler: handleErc20LoanClosedsUSD
-        # - event: CollateralDeposited(indexed address,uint256,uint256,uint256)
-        #   handler: handleErc20CollateralDepositedsUSD
-        # - event: CollateralWithdrawn(indexed address,uint256,uint256,uint256)
-        #   handler: handleErc20CollateralWithdrawnsUSD
-        # - event: LoanRepaymentMade(indexed address,indexed address,uint256,uint256,uint256)
-        #   handler: handleErc20LoanRepaymentMadesUSD
-        # - event: LoanDrawnDown(indexed address,uint256,uint256)
-        #   handler: handleErc20LoanDrawnDownsUSD
-        # - event: LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
-        #   handler: handleLoanPartiallyLiquidatedsUSD
-        # - event: LoanClosedByLiquidation(indexed address,uint256,indexed address,uint256,uint256)
-        #   handler: handleLoanClosedByLiquidationsUSD
-        # - event: MinCratioRatioUpdated(uint256)
-        #   handler: handleMinCratioRatioUpdatedsUSD
-        # - event: MinCollateralUpdated(uint256)
-        #   handler: handleMinCollateralUpdatedsUSD
-        # - event: IssueFeeRateUpdated(uint256)
-        #   handler: handleIssueFeeRateUpdatedsUSD
-        # - event: MaxLoansPerAccountUpdated(uint256)
-        #   handler: handleMaxLoansPerAccountUpdatedsUSD
-        # - event: InteractionDelayUpdated(uint256)
-        #   handler: handleInteractionDelayUpdatedsUSD
-        # - event: ManagerUpdated(address)
-        #   handler: handleManagerUpdatedsUSD
-        # - event: CanOpenLoansUpdated(bool)
-        #   handler: handleCanOpenLoansUpdatedsUSD
+        - event: LoanDrawnDown(indexed address,uint256,uint256)
+          handler: handleLoanDrawnDown
+        - event: LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)
+          handler: handleLoanPartiallyLiquidated
+        - event: LoanRepaymentMade(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLoanRepaymentMade
+        - event: ManagerUpdated(address)
+          handler: handleManagerUpdated
+        - event: MaxLoansPerAccountUpdated(uint256)
+          handler: handleMaxLoansPerAccountUpdated
+        - event: MinCollateralUpdated(uint256)
+          handler: handleMinCollateralUpdated
+        - event: MinCratioRatioUpdated(uint256)
+          handler: handleMinCratioRatioUpdated
+        - event: OwnerChanged(address,address)
+          handler: handleOwnerChanged
+        - event: OwnerNominated(address)
+          handler: handleOwnerNominated
