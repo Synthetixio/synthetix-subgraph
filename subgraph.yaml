@@ -78,8 +78,6 @@ dataSources:
         - name: ExchangeRates
           file: ./abis/ExchangeRates.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransferSynth
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
         - event: Burned(indexed address,uint256)
