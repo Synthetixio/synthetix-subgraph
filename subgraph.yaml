@@ -17,7 +17,7 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
-        - Transfer
+        - SNXTransfer
         - SNXHolder
         - Synthetix
         - ExchangePartner
@@ -57,7 +57,6 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
-        - Transfer
         - Issued
         - Burned
         - ActiveStaker

@@ -6,7 +6,7 @@ type Synthetix @entity {
 }
 
 # Transfer tracks this event from the Synthetix.sol contract and various Synth.sol contracts
-type Transfer @entity {
+type SNXTransfer @entity {
   id: ID!
   from: Bytes! # address
   to: Bytes! # address

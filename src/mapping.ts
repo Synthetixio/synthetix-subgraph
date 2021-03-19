@@ -20,7 +20,7 @@ import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
 
 import {
   Synthetix,
-  Transfer,
+  SNXTransfer,
   Issued,
   Burned,
   Issuer,
@@ -206,7 +206,7 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 }
 
 export function handleTransferSNX(event: SNXTransferEvent): void {
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let entity = new SNXTransfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'SNX';
   entity.from = event.params.from;
   entity.to = event.params.to;
