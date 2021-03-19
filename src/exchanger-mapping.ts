@@ -84,7 +84,7 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
   }
   let tradeSizeUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate.rate);
   // let feeSizeUSD = toDecimal(event.params.fee);
-  let feeSizeUSD = toDecimal(new BigInt(1000000000000000000));
+  let feeSizeUSD = toDecimal(new BigInt(1));
 
   exchangePartner.usdVolume = exchangePartner.usdVolume.plus(tradeSizeUSD);
   exchangePartner.usdFees = exchangePartner.usdFees.plus(feeSizeUSD);

@@ -14,10 +14,9 @@ import {
 
 import { strToBytes } from './helpers';
 
-import { readProxyAdressResolver, contractsToProxies } from './hardcoded-contracts'
+import { readProxyAdressResolver, contractsToProxies } from './hardcoded-contracts';
 
 import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
-
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);

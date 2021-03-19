@@ -37,7 +37,7 @@ import { store, BigInt, Address, ethereum, Bytes, log } from '@graphprotocol/gra
 
 import { strToBytes } from './helpers';
 
-import { escrowContracts } from './hardcoded-contracts';
+import { escrowContracts, readProxyAdressResolver } from './hardcoded-contracts';
 
 import { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking } from './exchanger-mapping';
 export { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking };
@@ -244,7 +244,8 @@ export function handleRewardVestEventV2(event: VestedEventV2): void {
   entity.vestedBalanceOf = contract.totalVestedAccountBalance(event.params.beneficiary);
   entity.save();
   // now track the SNX holder as this action can impact their collateral
-  let synthetixAddress = contract.synthetix();
+  let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
+  let synthetixAddress = resolver.getAddress(strToBytes('Synthetix', 32));
   trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block, event.transaction);
 }
 
@@ -258,7 +259,8 @@ export function handleRewardVestingEventCreatedV2(event: VestingEntryCreatedV2):
   // entity.duration = event.params.duration;
   entity.save();
   // now track the SNX holder as this action can impact their collateral
-  let synthetixAddress = contract.synthetix();
+  let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
+  let synthetixAddress = resolver.getAddress(strToBytes('Synthetix', 32));
   trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block, event.transaction);
 }
 

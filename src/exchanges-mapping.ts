@@ -53,10 +53,11 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   }
 
   let account = event.transaction.from;
-  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.amount, latestRate);
+  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate);
 
   let feeRateForExchange = exchanger.feeRateForExchange(event.params.fromCurrencyKey, event.params.toCurrencyKey);
-  let feesInUSD = fromAmountInUSD.times(feeRateForExchange.div(etherUnits));
+  let feeRateForExchangeBD = new BigDecimal(feeRateForExchange);
+  let feesInUSD = fromAmountInUSD.times(feeRateForExchangeBD.div(etherUnits));
   let toAmountInUSD = fromAmountInUSD.minus(feesInUSD);
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -146,7 +147,7 @@ export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  let latestRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
+  let latestRate = getLatestRate(event.params.currencyKey.toString(), txHash);
 
   if (latestRate == null) {
     log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);
@@ -165,7 +166,7 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  let latestRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
+  let latestRate = getLatestRate(event.params.currencyKey.toString(), txHash);
 
   if (latestRate == null) {
     log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);

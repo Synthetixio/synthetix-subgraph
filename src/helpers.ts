@@ -47,5 +47,5 @@ export function getLatestRate(synth: string, txHash: string): BigInt {
     log.error('latest rate missing for synth: {}, in tx hash: {}', [synth, txHash]);
     return null;
   }
-  return latestRate.rate
+  return latestRate.rate;
 }
