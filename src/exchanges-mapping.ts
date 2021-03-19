@@ -5,7 +5,7 @@ import {
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/Synthetix/Synthetix';
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
-import { Exchanger as ExchangerContract } from '../generated/Synthetix/Exchanger';
+import { Exchanger as ExchangerContract } from '../generated/Exchanger/Exchanger';
 
 import {
   Total,
@@ -53,15 +53,12 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   }
 
   let account = event.transaction.from;
-  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.amount, latestRate)
+  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.amount, latestRate);
 
-  let feeRateForExchange = exchanger.feeRateForExchange(
-    event.params.fromCurrencyKey,
-    event.params.toCurrencyKey
-  );
+  let feeRateForExchange = exchanger.feeRateForExchange(event.params.fromCurrencyKey, event.params.toCurrencyKey);
   let feesInUSD = fromAmountInUSD.times(feeRateForExchange.div(etherUnits));
   let toAmountInUSD = fromAmountInUSD.minus(feesInUSD);
-  
+
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
   entity.from = account;
@@ -211,7 +208,11 @@ function addTotalFeesAndVolume(total: Total, fromAmountInUSD: BigDecimal, feesIn
   return total;
 }
 
-function addDailyTotalFeesAndVolume(dailyTotal: DailyTotal, fromAmountInUSD: BigDecimal, feesInUSD: BigDecimal): DailyTotal {
+function addDailyTotalFeesAndVolume(
+  dailyTotal: DailyTotal,
+  fromAmountInUSD: BigDecimal,
+  feesInUSD: BigDecimal,
+): DailyTotal {
   dailyTotal.exchangeUSDTally = dailyTotal.exchangeUSDTally.plus(fromAmountInUSD);
   dailyTotal.totalFeesGeneratedInUSD = dailyTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
   return dailyTotal;

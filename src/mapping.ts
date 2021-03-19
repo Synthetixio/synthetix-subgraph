@@ -9,12 +9,13 @@ import { sUSD32 } from './helpers';
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
 
 import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
-import { Vested as VestedEventV2, VestingEntryCreated as VestingEntryCreatedV2, RewardEscrowV2 } from '../generated/RewardEscrow/RewardEscrowV2';
-
 import {
-  Issued as IssuedEvent,
-  Burned as BurnedEvent,
-} from '../generated/SynthsUSD/Synth';
+  Vested as VestedEventV2,
+  VestingEntryCreated as VestingEntryCreatedV2,
+  RewardEscrowV2,
+} from '../generated/RewardEscrowV2/RewardEscrowV2';
+
+import { Issued as IssuedEvent, Burned as BurnedEvent } from '../generated/SynthsUSD_proxy/Synth';
 import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
 
 import {
@@ -96,7 +97,7 @@ function trackSNXHolder(
   txn: ethereum.Transaction,
 ): void {
   let holder = account.toHex();
-  
+
   // ignore escrow accounts
   if (
     escrowContracts.get('escrow') == holder ||
@@ -234,7 +235,7 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block, event.transaction);
 }
 
-// For v2 the two methods both need their own functions. can dedupe the methods later 
+// For v2 the two methods both need their own functions. can dedupe the methods later
 // but due to lack of unions in assemblyscript this is maybe as good as it gets.
 export function handleRewardVestEventV2(event: VestedEventV2): void {
   let entity = new RewardEscrowHolder(event.params.beneficiary.toHex());
