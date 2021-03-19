@@ -10,16 +10,10 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "codegen": "node prepare-abis && graph codegen",
-    "codegen:snx": "npm run codegen -- subgraphs/synthetix.yaml",
-    "build": "graph build",
-    "build:snx": "graph build subgraphs/synthetix.yaml",
-    "build:exchanger": "graph build subgraphs/synthetix-exchanger.yaml",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
-    "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
-    "create-local": "graph create --node http://localhost:8020/ synthetixio-team/synthetix",
-    "remove-local": "graph remove --node http://localhost:8020/ synthetixio-team/synthetix",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 synthetixio-team/synthetix"
+    "codegen": "node prepare-abis && graph codegen -- subgraph.yaml",
+    "build": "graph build subgraph.yaml",
+    "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
+    "deploy": "npm run deploy-helper -- dvd-schwrtz/test subgraph.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#ebeeba0009f026bacf940f25ee7b875fe7676032",
