@@ -39,14 +39,11 @@ import { strToBytes } from './helpers';
 
 import { escrowContracts, readProxyAdressResolver } from './hardcoded-contracts';
 
-import { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking } from './exchanger-mapping';
-export { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking };
+export { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking } from './exchanger-mapping';
 
-import { handleRatesUpdated, handleAggregatorAnswerUpdated } from './rates-mapping';
-export { handleRatesUpdated, handleAggregatorAnswerUpdated };
+export { handleRatesUpdated, handleAggregatorAnswerUpdated } from './rates-mapping';
 
-import { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange } from './exchanges-mapping';
-export { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange };
+export { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange } from './exchanges-mapping';
 
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
