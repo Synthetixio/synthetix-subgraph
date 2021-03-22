@@ -68,6 +68,25 @@ function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
   fifteenMinuteSNXPrice.save();
 }
 
+function addLatestRate(synth: string, rate: BigInt): void {
+  let latestRate = LatestRate.load(synth);
+  if (latestRate == null) {
+    latestRate = new LatestRate(synth);
+  }
+  latestRate.rate = rate;
+  latestRate.save();
+}
+
+function addDollar(dollarID: string): void {
+  let dollarRate = LatestRate.load(dollarID);
+  if (dollarRate == null) {
+    dollarRate = new LatestRate(dollarID);
+    let oneDollar = BigInt.fromI32(10);
+    dollarRate.rate = oneDollar.pow(18);
+    dollarRate.save();
+  }
+}
+
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   addDollar('sUSD');
   addDollar('nUSD');
@@ -115,18 +134,15 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
 
   addLatestRate(entity.synth, entity.rate);
 
-  // save aggregated event as rate update from v2.17.5 (Procyon)
-  if (event.block.number > BigInt.fromI32(9123410)) {
-    let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
-    rateEntity.block = entity.block;
-    rateEntity.timestamp = entity.timestamp;
-    rateEntity.currencyKey = currencyKey;
-    rateEntity.synth = entity.synth;
-    rateEntity.rate = entity.rate;
-    rateEntity.save();
-    if (entity.currencyKey.toString() == 'SNX') {
-      handleSNXPrices(entity.timestamp, entity.rate);
-    }
+  let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
+  rateEntity.block = entity.block;
+  rateEntity.timestamp = entity.timestamp;
+  rateEntity.currencyKey = currencyKey;
+  rateEntity.synth = entity.synth;
+  rateEntity.rate = entity.rate;
+  rateEntity.save();
+  if (entity.currencyKey.toString() == 'SNX') {
+    handleSNXPrices(entity.timestamp, entity.rate);
   }
 }
 
@@ -155,24 +171,5 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
     if (currencyKeys[i].toString() != '') {
       createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
     }
-  }
-}
-
-function addLatestRate(synth: string, rate: BigInt): void {
-  let latestRate = LatestRate.load(synth);
-  if (latestRate == null) {
-    latestRate = new LatestRate(synth);
-  }
-  latestRate.rate = rate;
-  latestRate.save();
-}
-
-function addDollar(dollarID: string): void {
-  let dollarRate = LatestRate.load(dollarID);
-  if (dollarRate == null) {
-    dollarRate = new LatestRate(dollarID);
-    let oneDollar = BigInt.fromI32(10);
-    dollarRate.rate = oneDollar.pow(18);
-    dollarRate.save();
   }
 }
