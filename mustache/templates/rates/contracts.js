@@ -38,7 +38,7 @@ const exchangerBlocks = {
 
 module.exports = [
   {
-    prod: 7626469,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'ExchangeRates_v231',
@@ -46,7 +46,7 @@ module.exports = [
     type: 'bytes4',
   },
   {
-    prod: 8075694,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'ExchangeRates_v240',
@@ -54,7 +54,7 @@ module.exports = [
     type: 'bytes4',
   },
   {
-    prod: 8120141,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'ExchangeRates_v272',
@@ -62,7 +62,7 @@ module.exports = [
     type: 'bytes4',
   },
   {
-    prod: 8622895,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'ExchangeRates_v210',
@@ -70,7 +70,7 @@ module.exports = [
     type: 'bytes32',
   },
   {
-    prod: 8971442,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'ExchangeRates_v213',
@@ -78,7 +78,7 @@ module.exports = [
     type: 'bytes32',
   },
   {
-    prod: 9123410,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'ExchangeRates_v217',
@@ -86,7 +86,7 @@ module.exports = [
     type: 'bytes32',
   },
   {
-    prod: 9518289,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'ExchangeRates_v219',
@@ -112,7 +112,7 @@ module.exports = [
     type: 'bytes32',
   },
   {
-    prod: 9085450,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'AggregatorAUD',
@@ -121,7 +121,7 @@ module.exports = [
     type: 'aggregator',
   },
   {
-    prod: 9085417,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'AggregatorEUR',
@@ -130,7 +130,7 @@ module.exports = [
     type: 'aggregator',
   },
   {
-    prod: 9085502,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'AggregatorCHF',
@@ -139,7 +139,7 @@ module.exports = [
     type: 'aggregator',
   },
   {
-    prod: 9085494,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'AggregatorGBP',
@@ -148,7 +148,7 @@ module.exports = [
     type: 'aggregator',
   },
   {
-    prod: 9085433,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'AggregatorJPY',
@@ -157,7 +157,7 @@ module.exports = [
     type: 'aggregator',
   },
   {
-    prod: 9085563,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'AggregatorXAG',
@@ -166,7 +166,7 @@ module.exports = [
     type: 'aggregator',
   },
   {
-    prod: 9085543,
+    prod: 9715469,
     test: null,
     exchanger: exchangerBlocks.RatesBlockOne,
     name: 'AggregatorXAU',
@@ -994,5 +994,29 @@ module.exports = [
     name: 'AggregatorKRW',
     address: "'0x256b6E10C153b49Ac7800E2603167026F75Eb765'",
     proxyAddress: "'0x01435677FB11763550905594A16B645847C1d0F3'",
+  },
+  {
+    prod: 12091134,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorKRW_2',
+    address: "'0x86e345D4113E1105053A81240C75b56B437dA6Ef'",
+    proxyAddress: "'0x01435677FB11763550905594A16B645847C1d0F3'",
+  },
+  {
+    prod: 11928656,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorOIL_4',
+    address: "'0x0dEaf87519D434DCF74551B2E907aF18D2304946'",
+    proxyAddress: "'0xf3584F4dd3b467e73C2339EfD008665a70A4185c'",
+  },
+  {
+    prod: 12091157,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorTesla_4',
+    address: "'0x404BE42e956990b1295cF2405F0945b942b32055'",
+    proxyAddress: "'0x1ceDaaB50936881B3e449e47e40A2cDAF5576A4a'",
   },
 ];
