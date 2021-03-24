@@ -5,26 +5,67 @@ import {
   OwnerNominated,
   OwnerChanged,
 } from '../generated/DelegateApprovals/DelegateApprovals';
-import { DelegateApproval } from '../generated/schema';
+import { Account } from '../generated/schema';
+
+let ALL_ACTION = 'ApproveAll';
+let BURN_ACTION = 'BurnForAddress';
+let MINT_ACTION = 'IssueForAddress';
+let CLAIM_ACTION = 'ClaimForAddress';
+let TRADE_ACTION = 'ExchangeForAddress';
 
 export function handleApproval(event: Approval): void {
-  let id = event.params.authoriser.toHex() + '-' + event.params.delegate.toHex() + '-' + event.params.action.toHex();
-  let entity = DelegateApproval.load(id);
+  let authoriser = event.params.authoriser;
+  let delegate = event.params.delegate;
+  let action = event.params.action.toHex();
+
+  let id = authoriser.toHex() + '-' + delegate.toHex();
+  let entity = Account.load(id);
   if (entity == null) {
-    entity = new DelegateApproval(id);
-    entity.authoriser = event.params.authoriser;
-    entity.delegate = event.params.delegate;
-    entity.action = event.params.action;
+    entity = new Account(id);
+    entity.authoriser = authoriser;
+    entity.delegate = delegate;
   }
-  entity.withdrawn = false;
+  if (action === ALL_ACTION) {
+    entity.all = true;
+    entity.burn = true;
+    entity.mint = true;
+    entity.claim = true;
+    entity.exchange = true;
+  } else if (action === BURN_ACTION) {
+    entity.burn = true;
+  } else if (action === MINT_ACTION) {
+    entity.mint = true;
+  } else if (action === CLAIM_ACTION) {
+    entity.claim = true;
+  } else if (action === TRADE_ACTION) {
+    entity.exchange = true;
+  }
   entity.save();
 }
 
 export function handleWithdrawApproval(event: WithdrawApproval): void {
-  let id = event.params.authoriser.toHex() + '-' + event.params.delegate.toHex() + '-' + event.params.action.toHex();
-  let entity = DelegateApproval.load(id);
+  let authoriser = event.params.authoriser;
+  let delegate = event.params.delegate;
+  let action = event.params.action.toHex();
+
+  let id = authoriser.toHex() + '-' + delegate.toHex();
+  let entity = Account.load(id);
   if (entity != null) {
-    entity.withdrawn = true;
+    if (action === ALL_ACTION) {
+      entity.all = false;
+      entity.burn = false;
+      entity.mint = false;
+      entity.claim = false;
+      entity.exchange = false;
+    } else if (action === BURN_ACTION) {
+      entity.burn = false;
+    } else if (action === MINT_ACTION) {
+      entity.mint = false;
+    } else if (action === CLAIM_ACTION) {
+      entity.claim = false;
+    } else if (action === TRADE_ACTION) {
+      entity.exchange = false;
+    }
     entity.save();
   }
 }

@@ -1,7 +1,10 @@
-type DelegateApproval @entity {
+type Account @entity {
   id: ID!
   authoriser: Bytes! # address
   delegate: Bytes! # address
-  action: Bytes!
-  withdrawn: Boolean!
+  all: Boolean!
+  mint: Boolean!
+  burn: Boolean!
+  claim: Boolean!
+  exchange: Boolean!
 }
