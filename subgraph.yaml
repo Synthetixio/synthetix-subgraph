@@ -38,7 +38,7 @@ dataSources:
         - event: ExchangeTracking(indexed bytes32,bytes32,uint256)
           handler: handleExchangeTracking
         - event: SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)
-          handler: handleSynthExchange32
+          handler: handleSynthExchange
         - event: ExchangeReclaim(indexed address,bytes32,uint256)
           handler: handleExchangeReclaim
         - event: ExchangeRebate(indexed address,bytes32,uint256)
