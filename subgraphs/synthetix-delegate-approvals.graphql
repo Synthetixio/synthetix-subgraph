@@ -2,7 +2,6 @@ type Account @entity {
   id: ID!
   authoriser: Bytes! # address
   delegate: Bytes! # address
-  all: Boolean!
   mint: Boolean!
   burn: Boolean!
   claim: Boolean!
