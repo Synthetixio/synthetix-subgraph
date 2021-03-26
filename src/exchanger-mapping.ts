@@ -1,7 +1,7 @@
 import {
   ExchangeEntrySettled as ExchangeEntrySettledEvent,
   ExchangeEntryAppended as ExchangeEntryAppendedEvent,
-} from '../generated/Exchanger/Exchanger';
+} from '../generated/Exchanger_v7/Exchanger';
 
 import { ExchangeTracking as ExchangeTrackingEvent } from '../generated/Synthetix/Synthetix';
 

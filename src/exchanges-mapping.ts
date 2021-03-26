@@ -5,7 +5,7 @@ import {
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/Synthetix/Synthetix';
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
-import { Exchanger as ExchangerContract } from '../generated/Exchanger/Exchanger';
+import { Exchanger as ExchangerContract } from '../generated/Exchanger_v7/Exchanger';
 
 import {
   Total,
