@@ -1,0 +1,439 @@
+specVersion: 0.0.2
+description: Synthetix API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Synthetix
+    network: optimism-kovan
+    source:
+      address: '0x0064A673267696049938AA47595dD0B3C2e705A1'
+      abi: Synthetix
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - SNXTransfer
+        - SNXHolder
+        - Synthetix
+        - ExchangePartner
+        - DailyExchangePartner
+        - SynthExchange
+        - ExchangeReclaim
+        - ExchangeRebate
+      abis:
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+        - name: AddressResolver
+          file: ./abis/AddressResolver.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransferSNX
+        - event: ExchangeTracking(indexed bytes32,bytes32,uint256)
+          handler: handleExchangeTracking
+        - event: SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)
+          handler: handleSynthExchange
+        - event: ExchangeReclaim(indexed address,bytes32,uint256)
+          handler: handleExchangeReclaim
+        - event: ExchangeRebate(indexed address,bytes32,uint256)
+          handler: handleExchangeRebate
+
+  - kind: ethereum/contract
+    name: SynthsUSD_proxy
+    network: optimism-kovan
+    source:
+      address: '0xaA5068dC2B3AADE533d3e52C6eeaadC6a8154c57' # ProxyERC20sUSD
+      abi: Synth
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Issued
+        - Burned
+        - ActiveStaker
+        - TotalActiveStaker
+        - TotalDailyActiveStaker
+        - Synthetix
+        - SNXHolder
+        - DebtSnapshot
+      abis:
+        - name: Synth
+          file: ./abis/Synth.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+        - name: AddressResolver
+          file: ./abis/AddressResolver.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
+        - name: ExchangeRates
+          file: ./abis/ExchangeRates.json
+      eventHandlers:
+        - event: Issued(indexed address,uint256)
+          handler: handleIssuedSynths
+        - event: Burned(indexed address,uint256)
+          handler: handleBurnedSynths
+
+  - kind: ethereum/contract
+    name: RewardEscrow
+    network: optimism-kovan
+    source:
+      address: '0x9952e42fF92149f48b3b7dee3f921A6DD106F79F' # RewardEscrow
+      abi: RewardEscrow
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - RewardEscrowHolder
+        - SNXHolder
+        - Synthetix
+      abis:
+        - name: RewardEscrow
+          file: ./abis/RewardEscrow.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+        - name: AddressResolver
+          file: ./abis/AddressResolver.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
+      eventHandlers:
+        - event: VestingEntryCreated(indexed address,uint256,uint256)
+          handler: handleRewardVestEvent
+        - event: Vested(indexed address,uint256,uint256)
+          handler: handleRewardVestEvent
+
+  - kind: ethereum/contract
+    name: RewardEscrowV2
+    network: optimism-kovan
+    source:
+      address: '0xB613d148E47525478bD8A91eF7Cf2F7F63d81858' # RewardEscrowV2
+      abi: RewardEscrowV2
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - RewardEscrowHolder
+        - SNXHolder
+        - Synthetix
+      abis:
+        - name: RewardEscrowV2
+          file: ./abis/RewardEscrowV2.json
+        - name: Synthetix
+          file: ./abis/Synthetix.json
+        - name: AddressResolver
+          file: ./abis/AddressResolver.json
+        - name: SynthetixState
+          file: ./abis/SynthetixState.json
+      eventHandlers:
+        - event: VestingEntryCreated(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleRewardVestingEventCreatedV2
+        - event: Vested(indexed address,uint256,uint256)
+          handler: handleRewardVestEventV2
+
+  # Handle FeePool FeesClaimed
+  - kind: ethereum/contract
+    name: FeePool
+    network: optimism-kovan
+    source:
+      address: '0xd8c8887A629F98C56686Be6aEEDAae7f8f75D599' # ProxyFeePool
+      abi: FeePool
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - FeesClaimed
+        - SNXHolder
+      abis:
+        - name: FeePool
+          file: ./abis/FeePool.json
+      eventHandlers:
+        - event: FeesClaimed(address,uint256,uint256)
+          handler: handleFeesClaimed
+
+  - kind: ethereum/contract
+    name: Exchanger
+    network: optimism-kovan
+    source:
+      address: '0xA3de830b5208851539De8e4FF158D635E8f36FCb'
+      abi: Exchanger
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - ExchangeEntrySettled
+        - ExchangeEntryAppended
+      abis:
+        - name: Exchanger
+          file: ./abis/Exchanger.json
+      eventHandlers:
+        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntrySettled
+        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntryAppended
+
+  # NOTE there is a second exchanger contract on the kovan-ovm network but only one on the mainnet-ovm network
+  - kind: ethereum/contract
+    name: ExchangerV2
+    network: optimism-kovan
+    source:
+      address: '0x4AcC0Ba2948F8aB47a4fA734C57B0c3B5a8459f7'
+      abi: Exchanger
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - ExchangeEntrySettled
+        - ExchangeEntryAppended
+      abis:
+        - name: Exchanger
+          file: ./abis/Exchanger.json
+      eventHandlers:
+        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntrySettled
+        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntryAppended
+
+  - kind: ethereum/contract
+    name: ExchangeRates
+    network: optimism-kovan
+    source:
+      address: '0x686cbD15BBC680F8261c7502c360Aa44A2593de6'
+      abi: ExchangeRates
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ./abis/ExchangeRates.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+          
+  - kind: ethereum/contract
+    name: BTC / USD
+    network: optimism-kovan
+    source:
+      address: '0xb2397a9247323Ca2F207139401E2D55748a1BA78'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: ETH / USD
+    network: optimism-kovan
+    source:
+      address: '0xeef539668BF125b29Cd109BDba864C9BF6247Ac7'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: LINK / USD
+    network: optimism-kovan
+    source:
+      address: '0x23B3D7a59B2B79D390C53F0745E342249c040802'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: SNX / USD
+    network: optimism-kovan
+    source:
+      address: '0xd98BEf7fD4C528d6FE97AcB6c322b1531e40c992'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: DEFI / USD
+    network: optimism-kovan
+    source:
+      address: '0x2F42Ee625893D93E2607a37CfC932d8C7F6043a9'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: UNI / USD
+    network: optimism-kovan
+    source:
+      address: '0x6CbE4f3C316D8D24946166C0aEeaF346C3FDe487'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: AAVE / USD
+    network: optimism-kovan
+    source:
+      address: '0x8645eB75898A1e049B624369444600061d46B801'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+
+  - kind: ethereum/contract
+    name: TSLA / USD
+    network: optimism-kovan
+    source:
+      address: '0xCC67978a452588ded1cC70743EB6524F3a73CA49'
+      abi: Aggregator
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AggregatorAnswer
+      abis:
+        - name: Aggregator
+          file: ../abis/Aggregator.json
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAggregatorAnswerUpdated
+

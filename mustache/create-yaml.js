@@ -26,12 +26,10 @@ program
     contractsToProxiesContent += readOnlyComment;
     const targetFile = path.join(__dirname, '../src/', 'contractsToProxies.ts');
     fs.writeFileSync(targetFile, contractsToProxiesContent, 'utf8');
-    // const chainlinkData = contracts.chainlink.map(createAggregatorBlock);
-    const yamlData = { yaml: { ...contracts } };
+    const chainlinkData = contracts.chainlink.map(createAggregatorBlock);
+    const yamlData = { yaml: { ...contracts, chainlinkData } };
     delete yamlData.chainlink;
-    const formattedResponse = JSON.stringify(yamlData, null, 2);
-    console.log('formattedResponse', formattedResponse);
-    return formattedResponse;
+    return console.log(JSON.stringify(yamlData, null, 2) + '\n');
   });
 
 program.parse(process.argv);

@@ -12,8 +12,6 @@
     "lint": "eslint .",
     "create-yaml-ovm": "node mustache/create-yaml create-yaml --env mainnet-ovm | mustache - mustache/yaml.mustache > subgraph-ovm.yaml",
     "create-yaml-kovan-ovm": "node mustache/create-yaml create-yaml --env kovan-ovm | mustache - mustache/yaml.mustache > subgraph-kovan-ovm.yaml",
-    "example": "node mustache/create-yaml create-yaml --env kovan-ovm",
-    "example-all": "node mustache/create-yaml create-yaml --env kovan-ovm | mustache - mustache/test.mustache > example.yaml",
     "codegen": "node prepare-abis && npm run create-yaml-ovm && graph codegen -- subgraph-ovm.yaml",
     "codegen:kovan-ovm": "node prepare-abis && npm run create-yaml-kovan-ovm && graph codegen -- subgraph-kovan-ovm.yaml",
     "build": "graph build subgraph-ovm.yaml",
