@@ -14,7 +14,9 @@ import {
 
 import { strToBytes } from './helpers';
 
-import { readProxyAdressResolver, contractsToProxies } from './hardcoded-contracts';
+import { readProxyAdressResolver } from './hardcoded-contracts';
+
+import { contractsToProxies } from './contractsToProxies';
 
 import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
 

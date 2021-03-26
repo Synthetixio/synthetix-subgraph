@@ -10,19 +10,24 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "codegen": "node prepare-abis && graph codegen -- subgraph.yaml",
-    "codegen:kovan-ovm": "node prepare-abis && graph codegen -- kovan-ovm-subgraph.yaml",
-    "build": "graph build subgraph.yaml",
-    "build:kovan-ovm": "graph build kovan-ovm-subgraph.yaml",
-    "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
-    "deploy": "npm run deploy-helper -- synthetixio-team/synthetix-optimism subgraph.yaml",
-    "deploy:kovan-ovm": "npm run deploy-helper -- synthetixio-team/synthetix-optimism-kovan kovan-ovm-subgraph.yaml"
+    "create-yaml-ovm": "node mustache/create-yaml create-yaml --env mainnet-ovm | mustache - mustache/yaml.mustache > subgraph-ovm.yaml",
+    "create-yaml-kovan-ovm": "node mustache/create-yaml create-yaml --env kovan-ovm | mustache - mustache/yaml.mustache > subgraph-kovan-ovm.yaml",
+    "example": "node mustache/create-yaml create-yaml --env kovan-ovm",
+    "example-all": "node mustache/create-yaml create-yaml --env kovan-ovm | mustache - mustache/test.mustache > example.yaml",
+    "codegen": "node prepare-abis && npm run create-yaml-ovm && graph codegen -- subgraph-ovm.yaml",
+    "codegen:kovan-ovm": "node prepare-abis && npm run create-yaml-kovan-ovm && graph codegen -- subgraph-kovan-ovm.yaml",
+    "build": "graph build subgraph-ovm.yaml",
+    "build:kovan-ovm": "graph build subgraph-kovan-ovm.yaml",
+    "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token 3eaa33fa845e4e79899e85f8c22c99ad",
+    "deploy": "npm run deploy-helper -- synthetixio-team/synthetix-optimism subgraph-ovm.yaml",
+    "deploy:kovan-ovm": "npm run deploy-helper -- dvd-schwrtz/synthetix subgraph-kovan-ovm.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#ebeeba0009f026bacf940f25ee7b875fe7676032",
     "@graphprotocol/graph-ts": "0.18.1",
     "chalk": "2.4.2",
     "commander": "2.20.0",
+    "mustache": "4.1.0",
     "synthetix": "2.40.1-alpha"
   },
   "devDependencies": {
