@@ -16,8 +16,8 @@
     "codegen:kovan-ovm": "node prepare-abis && npm run create-yaml-kovan-ovm && graph codegen -- subgraph-kovan-ovm.yaml",
     "build": "graph build subgraph-ovm.yaml",
     "build:kovan-ovm": "graph build subgraph-kovan-ovm.yaml",
-    "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token 3eaa33fa845e4e79899e85f8c22c99ad",
-    "deploy": "npm run deploy-helper -- synthetixio-team/synthetix-optimism subgraph-ovm.yaml",
+    "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THE_GRAPH_SNX_ACCESS_TOKEN",
+    "deploy": "npm run deploy-helper -- dvd-schwrtz/test subgraph-ovm.yaml",
     "deploy:kovan-ovm": "npm run deploy-helper -- dvd-schwrtz/synthetix subgraph-kovan-ovm.yaml"
   },
   "dependencies": {
