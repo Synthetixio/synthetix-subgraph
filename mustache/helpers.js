@@ -8,15 +8,15 @@ module.exports = {
     abis: [
       {
         name: 'Aggregator',
-        path: '../abis/Aggregator.json',
+        path: './abis/Aggregator.json',
       },
       {
         name: 'ExchangeRates',
-        path: '../abis/ExchangeRates.json',
+        path: './abis/ExchangeRates.json',
       },
       {
         name: 'AddressResolver',
-        path: '../abis/AddressResolver.json',
+        path: './abis/AddressResolver.json',
       },
     ],
     events: [
