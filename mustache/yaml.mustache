@@ -33,6 +33,8 @@ dataSources:
           file: ./abis/AddressResolver.json
         - name: SynthetixState
           file: ./abis/SynthetixState.json
+        - name: Exchanger
+          file: ./abis/Exchanger.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX

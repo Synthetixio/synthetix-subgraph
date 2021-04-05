@@ -17,8 +17,8 @@
     "build": "graph build subgraph-ovm.yaml",
     "build:kovan-ovm": "graph build subgraph-kovan-ovm.yaml",
     "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THE_GRAPH_SNX_ACCESS_TOKEN",
-    "deploy": "npm run deploy-helper -- dvd-schwrtz/test subgraph-ovm.yaml",
-    "deploy:kovan-ovm": "npm run deploy-helper -- dvd-schwrtz/synthetix subgraph-kovan-ovm.yaml"
+    "deploy": "npm run deploy-helper -- synthetixio-team/synthetix-ovm subgraph-ovm.yaml",
+    "deploy:kovan-ovm": "npm run deploy-helper -- synthetixio-team/synthetix-kovan-ovm subgraph-kovan-ovm.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#ebeeba0009f026bacf940f25ee7b875fe7676032",
