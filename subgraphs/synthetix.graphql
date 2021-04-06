@@ -16,17 +16,6 @@ type Transfer @entity {
   source: String!
 }
 
-# Issued tracks this event from various Synth.sol instances
-type Issued @entity {
-  id: ID!
-  account: Bytes! # address
-  value: BigInt!
-  source: String!
-  timestamp: BigInt!
-  gasPrice: BigInt!
-  block: BigInt!
-}
-
 # An individual Issuer
 type Issuer @entity {
   id: ID!
@@ -69,6 +58,18 @@ type SynthHolder @entity {
   balanceOf: BigInt!
 }
 
+# Issued tracks this event from various Synth.sol instances
+type Issued @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigInt!
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  totalIssuedSUSD: BigInt
+  block: BigInt!
+}
+
 # Burned tracks this event from various Synth.sol instances
 type Burned @entity {
   id: ID!
@@ -77,6 +78,7 @@ type Burned @entity {
   source: String!
   timestamp: BigInt!
   gasPrice: BigInt!
+  totalIssuedSUSD: BigInt
   block: BigInt!
 }
 

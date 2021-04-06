@@ -257,9 +257,15 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.timestamp = event.block.timestamp;
   entity.account = account;
 
-  // Use bytes32
-  if (event.block.number > v2100UpgradeBlock) {
+  if (event.block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
+    entity.balanceOf = synthetix.balanceOf(account);
+    entity.collateral = synthetix.collateral(account);
+    entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
+  }
+  // Use bytes32
+  else if (event.block.number > v2100UpgradeBlock) {
+    let synthetix = Synthetix32.bind(snxContract);
     entity.balanceOf = synthetix.balanceOf(account);
     entity.collateral = synthetix.collateral(account);
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
@@ -420,6 +426,13 @@ export function handleIssuedSynths(event: IssuedEvent): void {
     entity.source = 'sUSD';
   }
 
+  // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
+  if (event.block.number > v219UpgradeBlock) {
+    let synthetix = SNX.bind(event.transaction.to as Address);
+    let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    entity.totalIssuedSUSD = totalIssued;
+  }
+
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
@@ -493,6 +506,13 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     entity.source = currencyKeyTry.value.toString();
   } else {
     entity.source = 'sUSD';
+  }
+
+  // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
+  if (event.block.number > v219UpgradeBlock) {
+    let synthetix = SNX.bind(event.transaction.to as Address);
+    let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    entity.totalIssuedSUSD = totalIssued;
   }
 
   entity.timestamp = event.block.timestamp;
