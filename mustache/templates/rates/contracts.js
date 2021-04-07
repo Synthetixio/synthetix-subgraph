@@ -1067,4 +1067,28 @@ module.exports = [
     address: "'0x7104Ac4abCecF1680F933b04c214B0C491D43ecC'",
     proxyAddress: "'0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c'",
   },
+  {
+    prod: 12143456,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorCRV',
+    address: "'0xb4c4a493AB6356497713A78FFA6c60FB53517c63'",
+    proxyAddress: "'0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f'",
+  },
+  {
+    prod: 12143554,
+    test: null,
+    type: 'aggregator',
+    name: 'Aggregator1INCH',
+    address: "'0xd2bdD1E01fd2F8d7d42b209c111c7b32158b5a42'",
+    proxyAddress: "'0xc929ad75B72593967DE83E7F7Cda0493458261D9'",
+  },
+  {
+    prod: 12143238,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorRUNE',
+    address: "'0xE65E6C462119C311D57Fd31bDeBA502CcCC504B4'",
+    proxyAddress: "'0x48731cF7e84dc94C5f84577882c14Be11a5B7456'",
+  },
 ];
