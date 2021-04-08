@@ -1,5 +1,3 @@
-# Synthentix is an aggregation entity
-# Total synth exchanges in aggregate
 type Total @entity {
   id: ID!
   trades: BigInt!
@@ -16,6 +14,15 @@ type PostArchernarTotal @entity {
   totalFeesGeneratedInUSD: BigInt!
 }
 
+type PostArchernarSynthTotal @entity {
+  id: ID!
+  currencyKey: Bytes! # bytes4
+  trades: BigInt!
+  exchangers: BigInt!
+  exchangeUSDTally: BigInt!
+  totalFeesGeneratedInUSD: BigInt!
+}
+
 # Total synth exchanges per day
 type DailyTotal @entity {
   id: ID!
@@ -25,9 +32,29 @@ type DailyTotal @entity {
   totalFeesGeneratedInUSD: BigInt!
 }
 
+type DailySynthTotal @entity {
+  id: ID!
+  currencyKey: Bytes! # bytes4
+  dayID: String!
+  trades: BigInt!
+  exchangers: BigInt!
+  exchangeUSDTally: BigInt!
+  totalFeesGeneratedInUSD: BigInt!
+}
+
 # Total synth exchanges per 15 minute period
 type FifteenMinuteTotal @entity {
   id: ID!
+  trades: BigInt!
+  exchangers: BigInt!
+  exchangeUSDTally: BigInt!
+  totalFeesGeneratedInUSD: BigInt!
+}
+
+type FifteenMinuteSynthTotal @entity {
+  id: ID!
+  currencyKey: Bytes! # bytes4
+  timeID: String!
   trades: BigInt!
   exchangers: BigInt!
   exchangeUSDTally: BigInt!

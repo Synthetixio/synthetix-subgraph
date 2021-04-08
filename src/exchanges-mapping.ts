@@ -12,7 +12,9 @@ import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 import {
   Total,
   DailyTotal,
+  DailySynthTotal,
   FifteenMinuteTotal,
+  FifteenMinuteSynthTotal,
   SynthExchange,
   Exchanger,
   DailyExchanger,
@@ -20,6 +22,7 @@ import {
   ExchangeReclaim,
   ExchangeRebate,
   PostArchernarTotal,
+  PostArchernarSynthTotal,
   PostArchernarExchanger,
 } from '../generated/schema';
 
@@ -32,6 +35,14 @@ import { sUSD32, sUSD4, strToBytes } from './common';
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
 let exchangeRatesAsBytes = strToBytes('ExchangeRates', 32);
+
+interface AggregatedTotalEntity {
+  trades: BigInt
+  exchangers: BigInt
+  exchangeUSDTally: BigInt
+  totalFeesGeneratedInUSD: BigInt
+  save: () => void
+}
 
 function getExchangeRates(address: Address): ExchangeRates {
   let synthetix = Synthetix.bind(address);
@@ -131,86 +142,79 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   let dayID = timestamp / 86400;
   let fifteenMinuteID = timestamp / 900;
 
-  let postArchernarTotal = PostArchernarTotal.load('mainnet');
-  let total = Total.load('mainnet');
-  let dailyTotal = DailyTotal.load(dayID.toString());
-  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString());
+  let fromCurrencyKey = event.params.fromCurrencyKey.toString();
+  let toCurrencyKey = event.params.toCurrencyKey.toString();
 
-  if (total == null) {
-    total = loadTotal();
+  if (v219 < event.block.number) {
+    let postArchernarTotal = PostArchernarTotal.load('mainnet') || populateAggregatedTotalEntity(new PostArchernarTotal('mainnet'));
+    let synthFromPostArchernarTotal = PostArchernarSynthTotal.load(fromCurrencyKey) || populateAggregatedTotalEntity(new PostArchernarSynthTotal(fromCurrencyKey));
+    let synthToPostArchernarTotal = PostArchernarSynthTotal.load(toCurrencyKey) || populateAggregatedTotalEntity(new PostArchernarSynthTotal(toCurrencyKey));
+
+    synthFromPostArchernarTotal.currencyKey = event.params.fromCurrencyKey;
+    synthToPostArchernarTotal.currencyKey = event.params.toCurrencyKey;
+
+    let existingPostArchernarExchanger = PostArchernarExchanger.load(account.toHex());
+    
+    if (existingPostArchernarExchanger == null && v219 < event.block.number) {
+      let postArchernarExchanger = new PostArchernarExchanger(account.toHex());
+      postArchernarExchanger.save();
+    }
+
+    trackTotals(postArchernarTotal, !!existingPostArchernarExchanger, fromAmountInUSD, feesInUSD);
+    trackTotals(synthToPostArchernarTotal, !!existingPostArchernarExchanger, fromAmountInUSD, feesInUSD);
+    trackTotals(synthFromPostArchernarTotal, !!existingPostArchernarExchanger, fromAmountInUSD, feesInUSD);
   }
 
-  if (postArchernarTotal == null && v219 < event.block.number) {
-    postArchernarTotal = loadPostArchernarTotal();
-  }
+  let total = Total.load('mainnet') || new Total('mainnet');
+  let dailyTotal = DailyTotal.load(dayID.toString()) || populateAggregatedTotalEntity(new DailyTotal(dayID.toString()));
+  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteID.toString()));
 
-  if (dailyTotal == null) {
-    dailyTotal = loadDailyTotal(dayID.toString());
-  }
+  let synthFromDailyTotal = DailySynthTotal.load(fromCurrencyKey + '-' + dayID.toString()) || populateAggregatedTotalEntity(new DailySynthTotal(fromCurrencyKey + '-' + dayID.toString()));
+  let synthToDailyTotal = DailySynthTotal.load(toCurrencyKey + '-' + dayID.toString()) || populateAggregatedTotalEntity(new DailySynthTotal(toCurrencyKey + '-' + dayID.toString()));
+  let synthFromFifteenMinuteTotal = FifteenMinuteSynthTotal.load(fromCurrencyKey + '-' + fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteSynthTotal(fromCurrencyKey + '-' + fifteenMinuteID.toString()));
+  let synthToFifteenMinuteTotal = FifteenMinuteSynthTotal.load(toCurrencyKey + '-' + fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteSynthTotal(toCurrencyKey + '-' + fifteenMinuteID.toString()));
+  
+  synthFromDailyTotal.currencyKey = event.params.fromCurrencyKey;
+  synthFromDailyTotal.dayID = dayID.toString();
 
-  if (fifteenMinuteTotal == null) {
-    fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID.toString());
-  }
+  synthToDailyTotal.currencyKey = event.params.toCurrencyKey;
+  synthToDailyTotal.dayID = dayID.toString();
+  
+  synthFromFifteenMinuteTotal.currencyKey = event.params.fromCurrencyKey;
+  synthFromFifteenMinuteTotal.timeID = fifteenMinuteID.toString();
+  
+  synthToFifteenMinuteTotal.currencyKey = event.params.toCurrencyKey;
+  synthToFifteenMinuteTotal.timeID = fifteenMinuteID.toString();
 
-  let existingPostArchernarExchanger = PostArchernarExchanger.load(account.toHex());
   let existingExchanger = Exchanger.load(account.toHex());
   let existingDailyExchanger = DailyExchanger.load(dayID.toString() + '-' + account.toHex());
   let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(fifteenMinuteID.toString() + '-' + account.toHex());
 
   if (existingExchanger == null) {
-    total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
     let exchanger = new Exchanger(account.toHex());
     exchanger.save();
   }
 
-  if (existingPostArchernarExchanger == null && v219 < event.block.number) {
-    postArchernarTotal.exchangers = postArchernarTotal.exchangers.plus(BigInt.fromI32(1));
-    let postArchernarExchanger = new PostArchernarExchanger(account.toHex());
-    postArchernarExchanger.save();
-  }
-
   if (existingDailyExchanger == null) {
-    dailyTotal.exchangers = dailyTotal.exchangers.plus(BigInt.fromI32(1));
     let dailyExchanger = new DailyExchanger(dayID.toString() + '-' + account.toHex());
     dailyExchanger.save();
   }
 
   if (existingFifteenMinuteExchanger == null) {
-    fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
     let fifteenMinuteExchanger = new FifteenMinuteExchanger(fifteenMinuteID.toString() + '-' + account.toHex());
     fifteenMinuteExchanger.save();
   }
 
-  if (v219 < event.block.number) {
-    postArchernarTotal.trades = postArchernarTotal.trades.plus(BigInt.fromI32(1));
-  }
+  trackTotals(total, !!existingExchanger, fromAmountInUSD, feesInUSD);
 
-  total.trades = total.trades.plus(BigInt.fromI32(1));
-  dailyTotal.trades = dailyTotal.trades.plus(BigInt.fromI32(1));
-  fifteenMinuteTotal.trades = fifteenMinuteTotal.trades.plus(BigInt.fromI32(1));
+  trackTotals(dailyTotal, !!existingDailyExchanger, fromAmountInUSD, feesInUSD);
+  trackTotals(synthToDailyTotal, !!existingDailyExchanger, fromAmountInUSD, feesInUSD);
+  trackTotals(synthFromDailyTotal, !!existingDailyExchanger, fromAmountInUSD, feesInUSD);
 
-  if (fromAmountInUSD != null && feesInUSD != null) {
-    if (v219 < event.block.number) {
-      postArchernarTotal = addPostArchernarTotalFeesAndVolume(
-        postArchernarTotal as PostArchernarTotal,
-        fromAmountInUSD,
-        feesInUSD,
-      );
-    }
-    total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
-    dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
-    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(
-      fifteenMinuteTotal as FifteenMinuteTotal,
-      fromAmountInUSD,
-      feesInUSD,
-    );
-  }
-  if (v219 < event.block.number) {
-    postArchernarTotal.save();
-  }
-  total.save();
-  dailyTotal.save();
-  fifteenMinuteTotal.save();
+  trackTotals(fifteenMinuteTotal, !!existingFifteenMinuteExchanger, fromAmountInUSD, feesInUSD);
+  trackTotals(synthToFifteenMinuteTotal, !!existingFifteenMinuteExchanger, fromAmountInUSD, feesInUSD);
+  trackTotals(synthFromFifteenMinuteTotal, !!existingFifteenMinuteExchanger, fromAmountInUSD, feesInUSD);
+
 }
 
 export function handleSynthExchange4(event: SynthExchangeEvent): void {
@@ -219,6 +223,26 @@ export function handleSynthExchange4(event: SynthExchangeEvent): void {
 
 export function handleSynthExchange32(event: SynthExchangeEvent): void {
   handleSynthExchange(event, true);
+}
+
+function populateAggregatedTotalEntity<T extends AggregatedTotalEntity>(entity: T): T {
+  entity.trades = BigInt.fromI32(0);
+  entity.exchangers = BigInt.fromI32(0);
+  entity.exchangeUSDTally = BigInt.fromI32(0);
+  entity.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  return entity;
+}
+
+function trackTotals<T extends AggregatedTotalEntity>(entity: T, existingExchanger: boolean, amountInUSD: BigInt, feesInUSD: BigInt): void {
+
+  entity.trades = entity.trades.plus(BigInt.fromI32(1));
+
+  if(!existingExchanger)
+    entity.exchangers = entity.exchangers.plus(BigInt.fromI32(1));
+
+  entity.exchangeUSDTally = entity.exchangeUSDTally.plus(amountInUSD);
+  entity.totalFeesGeneratedInUSD = entity.totalFeesGeneratedInUSD.plus(feesInUSD);
+  entity.save();
 }
 
 export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
