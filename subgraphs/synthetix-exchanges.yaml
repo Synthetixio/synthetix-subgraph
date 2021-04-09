@@ -10,7 +10,7 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix4
-      startBlock: 6841188 # Synthetix v2.0.0 0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
+      startBlock: 9715469 # Synthetix v2.0.0 0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -31,7 +31,7 @@ dataSources:
     source:
       address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f' # old ProxySynthetix
       abi: Synthetix
-      startBlock: 8622911 # Synthetix v2.10.x Vega
+      startBlock: 9715469 # Synthetix v2.10.x Vega
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -94,3 +94,205 @@ dataSources:
           handler: handleExchangeReclaim
         - event: ExchangeRebate(indexed address,bytes32,uint256)
           handler: handleExchangeRebate
+
+  # EXCHANGE RATES
+  - kind: ethereum/contract
+    name: ExchangeRates_v231
+    network: mainnet
+    source:
+      address: '0xba34e436C9383aa8FA1e3659D2807ae040592498'
+      abi: ExchangeRates
+      startBlock: 9715469
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_bytes4.json
+      eventHandlers:
+        - event: RatesUpdated(bytes4[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_v240
+    network: mainnet
+    source:
+      address: '0x5cBB53Ca85A9E52B593Baf8ae90282C4B3dB0b25'
+      abi: ExchangeRates
+      startBlock: 9715469
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_bytes4.json
+      eventHandlers:
+        - event: RatesUpdated(bytes4[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_v272
+    network: mainnet
+    source:
+      address: '0x70C629875daDBE702489a5E1E3bAaE60e38924fa'
+      abi: ExchangeRates
+      startBlock: 9715469
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_bytes4.json
+      eventHandlers:
+        - event: RatesUpdated(bytes4[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_v210
+    network: mainnet
+    source:
+      address: '0x99a46c42689720d9118ff7af7ce80c2a92fc4f97'
+      abi: ExchangeRates
+      startBlock: 9715469
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_bytes32.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_v213
+    network: mainnet
+    source:
+      address: '0x565C9EB432f4AE9633e50e1213AB4f23D8f31f54'
+      abi: ExchangeRates
+      startBlock: 9715469
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_bytes32.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_v217
+    network: mainnet
+    source:
+      address: '0xE95Ef4e7a04d2fB05cb625c62CA58da10112c605'
+      abi: ExchangeRates
+      startBlock: 9715469
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_bytes32.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_v219
+    network: mainnet
+    source:
+      address: '0x9D7F70AF5DF5D5CC79780032d47a34615D1F1d77'
+      abi: ExchangeRates
+      startBlock: 9715469
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_bytes32.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_v223
+    network: mainnet
+    source:
+      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48'
+      abi: ExchangeRates
+      startBlock: 10364342
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates_v2.23.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates
+    network: mainnet
+    source:
+      address: '0xba727c69636491ecdfE3E6F64cBE9428aD371e48'
+      abi: ExchangeRates
+      startBlock: 10773070
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated
+  - kind: ethereum/contract
+    name: ExchangeRates_2_35_2
+    network: mainnet
+    source:
+      address: '0xd69b189020EF614796578AfE4d10378c5e7e1138'
+      abi: ExchangeRates
+      startBlock: 11513101
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanges-mapping.ts
+      entities:
+        - RatesUpdated
+      abis:
+        - name: ExchangeRates
+          file: ../abis/ExchangeRates.json
+      eventHandlers:
+        - event: RatesUpdated(bytes32[],uint256[])
+          handler: handleRatesUpdated

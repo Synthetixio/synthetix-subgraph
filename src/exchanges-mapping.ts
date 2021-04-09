@@ -4,8 +4,8 @@ import {
   ExchangeReclaim as ExchangeReclaimEvent,
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/Synthetix/Synthetix';
-import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 import { ExchangeRates } from '../generated/Synthetix/ExchangeRates';
+import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates_v223/ExchangeRates';
 import { Synthetix32 } from '../generated/Synthetix/Synthetix32';
 import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
@@ -24,9 +24,10 @@ import {
   PostArchernarTotal,
   PostArchernarSynthTotal,
   PostArchernarExchanger,
+  LatestRate,
 } from '../generated/schema';
 
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { BigInt, Address, Entity, Bytes } from '@graphprotocol/graph-ts';
 
 import { exchangesToIgnore } from './exchangesToIgnore';
 
@@ -44,21 +45,9 @@ interface AggregatedTotalEntity {
   save: () => void
 }
 
-function getExchangeRates(address: Address): ExchangeRates {
-  let synthetix = Synthetix.bind(address);
-
-  let resolverTry = synthetix.try_resolver();
-
-  if (!resolverTry.reverted) {
-    let resolver = AddressResolver.bind(resolverTry.value);
-    let exRatesAddressTry = resolver.try_getAddress(exchangeRatesAsBytes);
-
-    if (!exRatesAddressTry.reverted) {
-      return ExchangeRates.bind(exRatesAddressTry.value);
-    }
-  }
-
-  return null;
+function getExchangeRates(currencyKey: string): BigInt {
+  let latestRate = LatestRate.load(currencyKey);
+  return latestRate ? latestRate.rate : new BigInt(0);
 }
 
 function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): void {
@@ -67,58 +56,9 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
   }
 
   let account = event.transaction.from;
-  let fromAmountInUSD = BigInt.fromI32(0);
-  let toAmountInUSD = BigInt.fromI32(0);
-  let feesInUSD = BigInt.fromI32(0);
-
-  if (event.block.number > v219) {
-    let exRates = getExchangeRates(event.address);
-
-    if (exRates != null) {
-      let effectiveValueTryFrom = exRates.try_effectiveValue(
-        event.params.fromCurrencyKey,
-        event.params.fromAmount,
-        sUSD32,
-      );
-
-      if (!effectiveValueTryFrom.reverted) {
-        fromAmountInUSD = effectiveValueTryFrom.value;
-      }
-
-      let effectiveValueTryTo = exRates.try_effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD32);
-
-      if (!effectiveValueTryTo.reverted) {
-        toAmountInUSD = effectiveValueTryTo.value;
-      }
-    }
-  } else {
-    if (useBytes32) {
-      let synthetix = Synthetix32.bind(event.address);
-
-      let effectiveValueTry = synthetix.try_effectiveValue(
-        event.params.fromCurrencyKey,
-        event.params.fromAmount,
-        sUSD32,
-      );
-      if (!effectiveValueTry.reverted) {
-        fromAmountInUSD = effectiveValueTry.value;
-        toAmountInUSD = synthetix.effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD32);
-      }
-    } else {
-      let synthetix = Synthetix4.bind(event.address);
-
-      let effectiveValueTry = synthetix.try_effectiveValue(
-        event.params.fromCurrencyKey,
-        event.params.fromAmount,
-        sUSD4,
-      );
-      if (!effectiveValueTry.reverted) {
-        fromAmountInUSD = effectiveValueTry.value;
-        toAmountInUSD = synthetix.effectiveValue(event.params.toCurrencyKey, event.params.toAmount, sUSD4);
-      }
-    }
-  }
-  feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
+  let fromAmountInUSD = event.params.fromAmount.times(getExchangeRates(event.params.fromCurrencyKey.toString()));
+  let toAmountInUSD = event.params.toAmount.times(getExchangeRates(event.params.toCurrencyKey.toString()));
+  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD).abs();
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
@@ -150,8 +90,8 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     let synthFromPostArchernarTotal = PostArchernarSynthTotal.load(fromCurrencyKey) || populateAggregatedTotalEntity(new PostArchernarSynthTotal(fromCurrencyKey));
     let synthToPostArchernarTotal = PostArchernarSynthTotal.load(toCurrencyKey) || populateAggregatedTotalEntity(new PostArchernarSynthTotal(toCurrencyKey));
 
-    synthFromPostArchernarTotal.currencyKey = event.params.fromCurrencyKey;
-    synthToPostArchernarTotal.currencyKey = event.params.toCurrencyKey;
+    synthFromPostArchernarTotal.currencyKey = event.params.fromCurrencyKey.toString();
+    synthToPostArchernarTotal.currencyKey = event.params.toCurrencyKey.toString();
 
     let existingPostArchernarExchanger = PostArchernarExchanger.load(account.toHex());
     
@@ -165,25 +105,25 @@ function handleSynthExchange(event: SynthExchangeEvent, useBytes32: boolean): vo
     trackTotals(synthFromPostArchernarTotal, !!existingPostArchernarExchanger, fromAmountInUSD, feesInUSD);
   }
 
-  let total = Total.load('mainnet') || new Total('mainnet');
+  let total = Total.load('mainnet') || populateAggregatedTotalEntity(new Total('mainnet'));
   let dailyTotal = DailyTotal.load(dayID.toString()) || populateAggregatedTotalEntity(new DailyTotal(dayID.toString()));
   let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteID.toString()));
 
-  let synthFromDailyTotal = DailySynthTotal.load(fromCurrencyKey + '-' + dayID.toString()) || populateAggregatedTotalEntity(new DailySynthTotal(fromCurrencyKey + '-' + dayID.toString()));
-  let synthToDailyTotal = DailySynthTotal.load(toCurrencyKey + '-' + dayID.toString()) || populateAggregatedTotalEntity(new DailySynthTotal(toCurrencyKey + '-' + dayID.toString()));
-  let synthFromFifteenMinuteTotal = FifteenMinuteSynthTotal.load(fromCurrencyKey + '-' + fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteSynthTotal(fromCurrencyKey + '-' + fifteenMinuteID.toString()));
-  let synthToFifteenMinuteTotal = FifteenMinuteSynthTotal.load(toCurrencyKey + '-' + fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteSynthTotal(toCurrencyKey + '-' + fifteenMinuteID.toString()));
+  let synthFromDailyTotal = DailySynthTotal.load(fromCurrencyKey + '-' + dayID.toString()) || populateAggregatedTotalEntity(new DailySynthTotal(dayID.toString() + '-' + fromCurrencyKey));
+  let synthToDailyTotal = DailySynthTotal.load(toCurrencyKey + '-' + dayID.toString()) || populateAggregatedTotalEntity(new DailySynthTotal(dayID.toString() + '-' + toCurrencyKey));
+  let synthFromFifteenMinuteTotal = FifteenMinuteSynthTotal.load(fromCurrencyKey + '-' + fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteSynthTotal(fifteenMinuteID.toString() + '-' + fromCurrencyKey));
+  let synthToFifteenMinuteTotal = FifteenMinuteSynthTotal.load(toCurrencyKey + '-' + fifteenMinuteID.toString()) || populateAggregatedTotalEntity(new FifteenMinuteSynthTotal(fifteenMinuteID.toString() + '-' + toCurrencyKey));
   
-  synthFromDailyTotal.currencyKey = event.params.fromCurrencyKey;
+  synthFromDailyTotal.currencyKey = event.params.fromCurrencyKey.toString();
   synthFromDailyTotal.dayID = dayID.toString();
 
-  synthToDailyTotal.currencyKey = event.params.toCurrencyKey;
+  synthToDailyTotal.currencyKey = event.params.toCurrencyKey.toString();
   synthToDailyTotal.dayID = dayID.toString();
   
-  synthFromFifteenMinuteTotal.currencyKey = event.params.fromCurrencyKey;
+  synthFromFifteenMinuteTotal.currencyKey = event.params.fromCurrencyKey.toString();
   synthFromFifteenMinuteTotal.timeID = fifteenMinuteID.toString();
   
-  synthToFifteenMinuteTotal.currencyKey = event.params.toCurrencyKey;
+  synthToFifteenMinuteTotal.currencyKey = event.params.toCurrencyKey.toString();
   synthToFifteenMinuteTotal.timeID = fifteenMinuteID.toString();
 
   let existingExchanger = Exchanger.load(account.toHex());
@@ -253,10 +193,7 @@ export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  let exRates = getExchangeRates(event.address);
-  if (exRates != null) {
-    entity.amountInUSD = exRates.effectiveValue(event.params.currencyKey, event.params.amount, sUSD32);
-  }
+  entity.amountInUSD = event.params.amount.times(getExchangeRates(event.params.currencyKey.toString()));
   entity.save();
 }
 
@@ -268,11 +205,21 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  let exRates = getExchangeRates(event.address);
-  if (exRates != null) {
-    entity.amountInUSD = exRates.effectiveValue(event.params.currencyKey, event.params.amount, sUSD32);
-  }
+  entity.amountInUSD = event.params.amount.times(getExchangeRates(event.params.currencyKey.toString()));
   entity.save();
+}
+
+export function handleRatesUpdated(event: RatesUpdatedEvent): void {
+  setDollar('sUSD');
+  setDollar('nUSD');
+  
+  let currencyKeys = event.params.currencyKeys//.map((k: Bytes) => k.toString());
+  let newRates = event.params.newRates;
+
+  for(let i = 0;i < currencyKeys.length;i++) {
+    if(currencyKeys[i].toString() != '')
+      setLatestRate(currencyKeys[i].toString(), newRates[i]);
+  }
 }
 
 function loadTotal(): Total {
@@ -341,4 +288,23 @@ function addFifteenMinuteTotalFeesAndVolume(
   fifteenMinuteTotal.exchangeUSDTally = fifteenMinuteTotal.exchangeUSDTally.plus(fromAmountInUSD);
   fifteenMinuteTotal.totalFeesGeneratedInUSD = fifteenMinuteTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
   return fifteenMinuteTotal;
+}
+
+function setLatestRate(synth: string, rate: BigInt): void {
+  let latestRate = LatestRate.load(synth);
+  if (latestRate == null) {
+    latestRate = new LatestRate(synth);
+  }
+  latestRate.rate = rate;
+  latestRate.save();
+}
+
+function setDollar(dollarID: string): void {
+  let dollarRate = LatestRate.load(dollarID);
+  if (dollarRate == null) {
+    dollarRate = new LatestRate(dollarID);
+    let oneDollar = BigInt.fromI32(10);
+    dollarRate.rate = oneDollar.pow(18);
+    dollarRate.save();
+  }
 }

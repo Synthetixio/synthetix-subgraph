@@ -1,3 +1,11 @@
+type LatestRate @entity {
+  " Name of synth. E.g. sUSD "
+  id: ID!
+
+  " Synth USD rate with 18 decimals "
+  rate: BigInt!
+}
+
 type Total @entity {
   id: ID!
   trades: BigInt!
@@ -16,7 +24,7 @@ type PostArchernarTotal @entity {
 
 type PostArchernarSynthTotal @entity {
   id: ID!
-  currencyKey: Bytes! # bytes4
+  currencyKey: String!
   trades: BigInt!
   exchangers: BigInt!
   exchangeUSDTally: BigInt!
@@ -34,7 +42,7 @@ type DailyTotal @entity {
 
 type DailySynthTotal @entity {
   id: ID!
-  currencyKey: Bytes! # bytes4
+  currencyKey: String!
   dayID: String!
   trades: BigInt!
   exchangers: BigInt!
@@ -53,7 +61,7 @@ type FifteenMinuteTotal @entity {
 
 type FifteenMinuteSynthTotal @entity {
   id: ID!
-  currencyKey: Bytes! # bytes4
+  currencyKey: String!
   timeID: String!
   trades: BigInt!
   exchangers: BigInt!
