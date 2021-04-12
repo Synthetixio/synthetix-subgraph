@@ -1,3 +1,10 @@
+{{#yaml}}
+specVersion: 0.0.2
+description: Synthetix API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix.graphql
+dataSources:
   - kind: ethereum/contract
     name: ExchangeRates
     network: {{network}}
