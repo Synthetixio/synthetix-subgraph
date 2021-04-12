@@ -58,6 +58,20 @@ type SynthHolder @entity {
   balanceOf: BigInt!
 }
 
+type DailyIssued @entity {
+  id: ID!
+  value: BigInt!
+  totalDebt: BigInt!
+  timestamp: BigInt!
+}
+
+type DailyBurned @entity {
+  id: ID!
+  value: BigInt!
+  totalDebt: BigInt!
+  timestamp: BigInt!
+}
+
 # Issued tracks this event from various Synth.sol instances
 type Issued @entity {
   id: ID!
@@ -66,7 +80,6 @@ type Issued @entity {
   source: String!
   timestamp: BigInt!
   gasPrice: BigInt!
-  totalIssuedSUSD: BigInt
   block: BigInt!
 }
 
@@ -78,7 +91,6 @@ type Burned @entity {
   source: String!
   timestamp: BigInt!
   gasPrice: BigInt!
-  totalIssuedSUSD: BigInt
   block: BigInt!
 }
 

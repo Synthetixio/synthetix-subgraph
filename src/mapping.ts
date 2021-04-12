@@ -7,7 +7,7 @@ import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
-import { sUSD32, sUSD4 } from './common';
+import { sUSD32, sUSD4, getTimeID } from './common';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
@@ -39,6 +39,8 @@ import {
   TotalActiveStaker,
   TotalDailyActiveStaker,
   ActiveStaker,
+  DailyIssued,
+  DailyBurned,
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
@@ -427,10 +429,21 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   }
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
-  if (event.block.number > v219UpgradeBlock) {
+  if (event.block.number > v219UpgradeBlock && entity.source == 'sUSD') {
+    let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
-    entity.totalIssuedSUSD = totalIssued;
+
+    let dailyIssuedEntity = DailyIssued.load(dayId);
+    if (dailyIssuedEntity == null) {
+      dailyIssuedEntity = new DailyIssued(dayId);
+      dailyIssuedEntity.value = event.params.value;
+      dailyIssuedEntity.timestamp = event.block.timestamp;
+    } else {
+      dailyIssuedEntity.value = dailyIssuedEntity.value + event.params.value;
+    }
+    dailyIssuedEntity.totalDebt = totalIssued;
+    dailyIssuedEntity.save();
   }
 
   entity.timestamp = event.block.timestamp;
@@ -509,10 +522,21 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   }
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
-  if (event.block.number > v219UpgradeBlock) {
+  if (event.block.number > v219UpgradeBlock && entity.source == 'sUSD') {
+    let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
-    entity.totalIssuedSUSD = totalIssued;
+
+    let dailyBurnedEntity = DailyBurned.load(dayId);
+    if (dailyBurnedEntity == null) {
+      dailyBurnedEntity = new DailyBurned(dayId);
+      dailyBurnedEntity.value = event.params.value;
+      dailyBurnedEntity.timestamp = event.block.timestamp;
+    } else {
+      dailyBurnedEntity.value = dailyBurnedEntity.value + event.params.value;
+    }
+    dailyBurnedEntity.totalDebt = totalIssued;
+    dailyBurnedEntity.save();
   }
 
   entity.timestamp = event.block.timestamp;
