@@ -10,15 +10,15 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "create-yaml-ovm": "node mustache/create-yaml create-yaml --env mainnet-ovm | mustache - mustache/yaml.mustache > subgraph-ovm.yaml",
-    "create-yaml-kovan-ovm": "node mustache/create-yaml create-yaml --env kovan-ovm | mustache - mustache/yaml.mustache > subgraph-kovan-ovm.yaml",
-    "codegen": "node prepare-abis && npm run create-yaml-ovm && graph codegen -- subgraph-ovm.yaml",
-    "codegen:kovan-ovm": "node prepare-abis && npm run create-yaml-kovan-ovm && graph codegen -- subgraph-kovan-ovm.yaml",
-    "build": "graph build subgraph-ovm.yaml",
-    "build:kovan-ovm": "graph build subgraph-kovan-ovm.yaml",
+    "create-yaml-ovm": "node mustache/create-yaml create-yaml --env mainnet-ovm | mustache - mustache/yaml.mustache > subgraphs/subgraph-ovm.yaml",
+    "create-yaml-kovan-ovm": "node mustache/create-yaml create-yaml --env kovan-ovm | mustache - mustache/yaml.mustache > subgraphs/subgraph-kovan-ovm.yaml",
+    "codegen": "node prepare-abis && npm run create-yaml-ovm && graph codegen -- subgraphs/subgraph-ovm.yaml",
+    "codegen:kovan-ovm": "node prepare-abis && npm run create-yaml-kovan-ovm && graph codegen -- subgraphs/subgraph-kovan-ovm.yaml",
+    "build": "graph build subgraphs/subgraph-ovm.yaml",
+    "build:kovan-ovm": "graph build subgraphs/subgraph-kovan-ovm.yaml",
     "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THE_GRAPH_SNX_ACCESS_TOKEN",
-    "deploy": "npm run deploy-helper -- synthetixio-team/synthetix-ovm subgraph-ovm.yaml",
-    "deploy:kovan-ovm": "npm run deploy-helper -- synthetixio-team/synthetix-kovan-ovm subgraph-kovan-ovm.yaml"
+    "deploy": "npm run deploy-helper -- synthetixio-team/synthetix-ovm subgraphs/subgraph-ovm.yaml",
+    "deploy:kovan-ovm": "npm run deploy-helper -- synthetixio-team/synthetix-kovan-ovm subgraphs/subgraph-kovan-ovm.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#ebeeba0009f026bacf940f25ee7b875fe7676032",
