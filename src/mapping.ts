@@ -39,12 +39,6 @@ import { strToBytes } from './helpers';
 
 import { escrowContracts, readProxyAdressResolver } from './hardcoded-contracts';
 
-export { handleExchangeEntrySettled, handleExchangeEntryAppended, handleExchangeTracking } from './exchanger-mapping';
-
-export { handleRatesUpdated, handleAggregatorAnswerUpdated } from './rates-mapping';
-
-export { handleExchangeReclaim, handleExchangeRebate, handleSynthExchange } from './exchanges-mapping';
-
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
 
