@@ -26,4 +26,15 @@ module.exports = {
       },
     ],
   }),
+  addNetworkData: ({ mainnet, optimism, kovan, kovanOvm, startBlock }) => () => (network, render) => {
+    if (network === 'mainnet') {
+      return render(mainnet || startBlock);
+    } else if (network === 'optimism') {
+      return render(optimism || startBlock);
+    } else if (network === 'kovan-optimism') {
+      return render(kovan || startBlock);
+    } else if (network === 'kovan') {
+      return render(kovanOvm || startBlock);
+    }
+  },
 };

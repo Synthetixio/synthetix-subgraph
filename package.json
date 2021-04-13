@@ -10,14 +10,16 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "create-yaml-ovm": "node mustache/create-yaml create-yaml --env mainnet-ovm | mustache - mustache/yaml.mustache > subgraphs/subgraph-ovm.yaml",
-    "create-yaml-kovan-ovm": "node mustache/create-yaml create-yaml --env kovan-ovm | mustache - mustache/yaml.mustache > subgraphs/subgraph-kovan-ovm.yaml",
+    "test": "node subgraphs/utils/testSetup init-subgraph | mustache - subgraphs/synthetix/mustache/test.mustache > test.yaml",
+    "testa": "node subgraphs/utils/testSetup init-subgraph --subgraph synthetix",
+    "create-yaml-ovm": "node subgraphs/utils/setup init-subgraph --env mainnet-ovm | mustache - mustache/yaml.mustache > subgraphs/subgraph-ovm.yaml",
+    "create-yaml-kovan-ovm": "node subgraphs/utils/setup init-subgraph --env kovan-ovm | mustache - mustache/yaml.mustache > subgraphs/subgraph-kovan-ovm.yaml",
     "codegen:synthetix": "node prepare-abis && npm run create-yaml-ovm && graph codegen -- subgraphs/synthetix/synthetix.yaml",
     "codegen:synthetix-ovm": "node prepare-abis && npm run create-yaml-ovm && graph codegen -- subgraphs/synthetix/synthetix-ovm.yaml",
     "codegen:kovan-ovm": "node prepare-abis && npm run create-yaml-kovan-ovm && graph codegen -- subgraphs/subgraph-kovan-ovm.yaml",
     "build": "graph build subgraphs/subgraph-ovm.yaml",
     "build:kovan-ovm": "graph build subgraphs/subgraph-kovan-ovm.yaml",
-    "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THE_GRAPH_SNX_ACCESS_TOKEN",
+    "deploy-helper": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
     "deploy": "npm run deploy-helper -- synthetixio-team/synthetix-ovm subgraphs/subgraph-ovm.yaml",
     "deploy:kovan-ovm": "npm run deploy-helper -- synthetixio-team/synthetix-kovan-ovm subgraphs/subgraph-kovan-ovm.yaml"
   },
@@ -38,6 +40,7 @@
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-prettier": "3.1.0",
     "minify": "4.1.3",
+    "node-fetch": "2.6.1",
     "prettier": "1.17.1",
     "typescript": "3.8.3"
   }

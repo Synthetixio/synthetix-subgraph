@@ -12,11 +12,10 @@ program
   .description('Creates the necessary yaml and helper files for any supported synthetix subgraph')
   .option(
     '-s, --subgraph <value>',
-    'defaults to synthetix but can point to any supported synthetix subgraph',
+    'defaults to synthetix but can be named after any folder under the main level subgraphs folder',
     'synthetix',
   )
-  .option('-e, --env <value>', 'defaults to mainnet-ovm, but can be set to kovan-ovm', 'mainnet-ovm')
-  .action(async ({ subgraph, env }) => {
+  .action(async ({ subgraph }) => {
     // get the contracts based on the subgraph + env
     const contracts = yamlInput[env];
     if (hasRates) {
