@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const program = require('commander');
 const yamlInput = require('./yaml-inputs');
-const { createAggregatorBlock } = require('./helpers');
+const { createAggregatorBlock } = require('./subgraphs/utils/helpers');
 
 program
   .command('init-subgraph')

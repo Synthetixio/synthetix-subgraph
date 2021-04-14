@@ -1,3 +1,15 @@
+const addNetworkData = ({ mainnet, optimism, kovan, 'optimism-kovan': kovanOvm }) => () => (network, render) => {
+  if (network === 'mainnet') {
+    return render(mainnet);
+  } else if (network === 'optimism') {
+    return render(optimism);
+  } else if (network === 'optimism-kovan') {
+    return render(kovanOvm);
+  } else if (network === 'kovan') {
+    return render(kovan);
+  }
+};
+
 module.exports = {
   createAggregatorBlock: ({ feed, aggregator }) => ({
     name: feed,
@@ -26,15 +38,13 @@ module.exports = {
       },
     ],
   }),
-  addNetworkData: ({ mainnet, optimism, kovan, kovanOvm, startBlock }) => () => (network, render) => {
-    if (network === 'mainnet') {
-      return render(mainnet || startBlock);
-    } else if (network === 'optimism') {
-      return render(optimism || startBlock);
-    } else if (network === 'kovan-optimism') {
-      return render(kovan || startBlock);
-    } else if (network === 'kovan') {
-      return render(kovanOvm || startBlock);
-    }
-  },
+  addAddress: ({ mainnet, optimism, kovan, 'optimism-kovan': kovanOvm }) =>
+    addNetworkData({ mainnet, optimism, kovan, 'optimism-kovan': kovanOvm }),
+  addStartBlock: ({ mainnet, optimism, kovan, 'optimism-kovan': kovanOvm }) =>
+    addNetworkData({
+      mainnet: mainnet || '1',
+      optimism: optimism || '1',
+      kovan: kovan || '1',
+      'optimism-kovan': kovanOvm || '1',
+    }),
 };

@@ -1,4 +1,4 @@
-
+module.exports = network => `
 specVersion: 0.0.2
 description: Synthetix API
 repository: https://github.com/Synthetixio/synthetix-subgraph
@@ -7,11 +7,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Synthetix
-    network: kovan
+    network: ${network}
     source:
-      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'
+      address: '{{#Synthetix.address}}${network}{{/Synthetix.address}}'
       abi: Synthetix
-      startBlock: 1
+      startBlock: {{#Synthetix.startBlock}}${network}{{/Synthetix.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -49,11 +49,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: SynthsUSD_proxy
-    network: kovan
+    network: ${network}
     source:
-      address: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51'
+      address: '{{#SynthsUSD_proxy.address}}${network}{{/SynthsUSD_proxy.address}}'
       abi: Synth
-      startBlock: 1
+      startBlock: {{#SynthsUSD_proxy.startBlock}}${network}{{/SynthsUSD_proxy.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -87,11 +87,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: RewardEscrow
-    network: kovan
+    network: ${network}
     source:
-      address: '0x8c6680412e914932A9abC02B6c7cbf690e583aFA'
+      address: '{{#RewardEscrow.address}}${network}{{/RewardEscrow.address}}'
       abi: RewardEscrow
-      startBlock: 1
+      startBlock: {{#RewardEscrow.startBlock}}${network}{{/RewardEscrow.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -118,11 +118,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: RewardEscrowV2
-    network: kovan
+    network: ${network}
     source:
-      address: '0x64ac15AB583fFfA6a7401B83E3aA5cf4Ad1aA92A'
+      address: '{{#RewardEscrowV2.address}}${network}{{/RewardEscrowV2.address}}'
       abi: RewardEscrowV2
-      startBlock: 1
+      startBlock: {{#RewardEscrowV2.startBlock}}${network}{{/RewardEscrowV2.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -149,11 +149,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: FeePool
-    network: kovan
+    network: ${network}
     source:
-      address: '0xc43b833F93C3896472dED3EfF73311f571e38742'
+      address: '{{#FeePool.address}}${network}{{/FeePool.address}}'
       abi: FeePool
-      startBlock: 1
+      startBlock: {{#FeePool.startBlock}}${network}{{/FeePool.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -168,3 +168,4 @@ dataSources:
       eventHandlers:
         - event: FeesClaimed(address,uint256,uint256)
           handler: handleFeesClaimed
+`;

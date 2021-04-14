@@ -1,22 +1,22 @@
-{{#yaml}}
+
 specVersion: 0.0.2
 description: Synthetix API
 repository: https://github.com/Synthetixio/synthetix-subgraph
 schema:
-  file: ./synthetix.graphql
+  file: ../graphql/synthetix.graphql
 dataSources:
   - kind: ethereum/contract
     name: Synthetix
-    network: {{network}}
+    network: optimism
     source:
-      address: '{{Synthetix}}'
+      address: '0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4'
       abi: Synthetix
-      startBlock: {{startBlock}}
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../../src/mapping.ts
       entities:
         - SNXTransfer
         - SNXHolder
@@ -28,13 +28,13 @@ dataSources:
         - ExchangeRebate
       abis:
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ../../abis/Synthetix.json
         - name: AddressResolver
-          file: ./abis/AddressResolver.json
+          file: ../../abis/AddressResolver.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../../abis/SynthetixState.json
         - name: Exchanger
-          file: ./abis/Exchanger.json
+          file: ../../abis/Exchanger.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSNX
@@ -49,16 +49,16 @@ dataSources:
 
   - kind: ethereum/contract
     name: SynthsUSD_proxy
-    network: {{network}}
+    network: optimism
     source:
-      address: '{{SynthsUSD_proxy}}' # ProxyERC20sUSD
+      address: '0x8c6f28f2F1A3C87F0f938b96d27520d9751ec8d9'
       abi: Synth
-      startBlock: {{startBlock}}
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../../src/mapping.ts
       entities:
         - Issued
         - Burned
@@ -70,15 +70,15 @@ dataSources:
         - DebtSnapshot
       abis:
         - name: Synth
-          file: ./abis/Synth.json
+          file: ../../abis/Synth.json
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ../../abis/Synthetix.json
         - name: AddressResolver
-          file: ./abis/AddressResolver.json
+          file: ../../abis/AddressResolver.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../../abis/SynthetixState.json
         - name: ExchangeRates
-          file: ./abis/ExchangeRates.json
+          file: ../../abis/ExchangeRates.json
       eventHandlers:
         - event: Issued(indexed address,uint256)
           handler: handleIssuedSynths
@@ -87,29 +87,29 @@ dataSources:
 
   - kind: ethereum/contract
     name: RewardEscrow
-    network: {{network}}
+    network: optimism
     source:
-      address: '{{RewardEscrow}}' # RewardEscrow
+      address: '0xd32138018210edA0028240638f35b70ECC0D8C22'
       abi: RewardEscrow
-      startBlock: {{startBlock}}
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../../src/mapping.ts
       entities:
         - RewardEscrowHolder
         - SNXHolder
         - Synthetix
       abis:
         - name: RewardEscrow
-          file: ./abis/RewardEscrow.json
+          file: ../../abis/RewardEscrow.json
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ../../abis/Synthetix.json
         - name: AddressResolver
-          file: ./abis/AddressResolver.json
+          file: ../../abis/AddressResolver.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../../abis/SynthetixState.json
       eventHandlers:
         - event: VestingEntryCreated(indexed address,uint256,uint256)
           handler: handleRewardVestEvent
@@ -118,106 +118,53 @@ dataSources:
 
   - kind: ethereum/contract
     name: RewardEscrowV2
-    network: {{network}}
+    network: optimism
     source:
-      address: '{{RewardEscrowV2}}' # RewardEscrowV2
+      address: '0x47eE58801C1AC44e54FF2651aE50525c5cfc66d0'
       abi: RewardEscrowV2
-      startBlock: {{startBlock}}
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../../src/mapping.ts
       entities:
         - RewardEscrowHolder
         - SNXHolder
         - Synthetix
       abis:
         - name: RewardEscrowV2
-          file: ./abis/RewardEscrowV2.json
+          file: ../../abis/RewardEscrowV2.json
         - name: Synthetix
-          file: ./abis/Synthetix.json
+          file: ../../abis/Synthetix.json
         - name: AddressResolver
-          file: ./abis/AddressResolver.json
+          file: ../../abis/AddressResolver.json
         - name: SynthetixState
-          file: ./abis/SynthetixState.json
+          file: ../../abis/SynthetixState.json
       eventHandlers:
         - event: VestingEntryCreated(indexed address,uint256,uint256,uint256,uint256)
           handler: handleRewardVestingEventCreatedV2
         - event: Vested(indexed address,uint256,uint256)
           handler: handleRewardVestEventV2
 
-  # Handle FeePool FeesClaimed
   - kind: ethereum/contract
     name: FeePool
-    network: {{network}}
+    network: optimism
     source:
-      address: '{{FeePool}}' # ProxyFeePool
+      address: '0x4a16A42407AA491564643E1dfc1fd50af29794eF'
       abi: FeePool
-      startBlock: {{startBlock}}
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mapping.ts
+      file: ../../src/mapping.ts
       entities:
         - FeesClaimed
         - SNXHolder
       abis:
         - name: FeePool
-          file: ./abis/FeePool.json
+          file: ../../abis/FeePool.json
       eventHandlers:
         - event: FeesClaimed(address,uint256,uint256)
           handler: handleFeesClaimed
-
-  - kind: ethereum/contract
-    name: Exchanger
-    network: {{network}}
-    source:
-      address: '{{Exchanger}}'
-      abi: Exchanger
-      startBlock: {{startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-      abis:
-        - name: Exchanger
-          file: ./abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-
-  {{#ExchangerV2}}
-  # NOTE there is a second exchanger contract on the kovan-ovm network but only one on the mainnet-ovm network
-  - kind: ethereum/contract
-    name: ExchangerV2
-    network: {{network}}
-    source:
-      address: '{{ExchangerV2}}'
-      abi: Exchanger
-      startBlock: {{startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mapping.ts
-      entities:
-        - ExchangeEntrySettled
-        - ExchangeEntryAppended
-      abis:
-        - name: Exchanger
-          file: ./abis/Exchanger.json
-      eventHandlers:
-        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntrySettled
-        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
-          handler: handleExchangeEntryAppended
-  {{/ExchangerV2}}
-{{/yaml}}

@@ -7,11 +7,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Synthetix
-    network: kovan
+    network: mainnet
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'
       abi: Synthetix
-      startBlock: 1
+      startBlock: 8314597
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -49,11 +49,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: SynthsUSD_proxy
-    network: kovan
+    network: mainnet
     source:
       address: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51'
       abi: Synth
-      startBlock: 1
+      startBlock: 8621971
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -87,11 +87,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: RewardEscrow
-    network: kovan
+    network: mainnet
     source:
-      address: '0x8c6680412e914932A9abC02B6c7cbf690e583aFA'
+      address: '0xb671F2210B1F6621A2607EA63E6B2DC3e2464d1F'
       abi: RewardEscrow
-      startBlock: 1
+      startBlock: 7680399
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -118,11 +118,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: RewardEscrowV2
-    network: kovan
+    network: mainnet
     source:
-      address: '0x64ac15AB583fFfA6a7401B83E3aA5cf4Ad1aA92A'
+      address: '0xDA4eF8520b1A57D7d63f1E249606D1A459698876'
       abi: RewardEscrowV2
-      startBlock: 1
+      startBlock: 11656230
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -149,11 +149,11 @@ dataSources:
 
   - kind: ethereum/contract
     name: FeePool
-    network: kovan
+    network: mainnet
     source:
-      address: '0xc43b833F93C3896472dED3EfF73311f571e38742'
+      address: '0xb440DD674e1243644791a4AdfE3A2AbB0A92d309'
       abi: FeePool
-      startBlock: 1
+      startBlock: 7680399
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
