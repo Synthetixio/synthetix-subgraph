@@ -62,14 +62,12 @@ type DailyIssued @entity {
   id: ID!
   value: BigInt!
   totalDebt: BigInt!
-  timestamp: BigInt!
 }
 
 type DailyBurned @entity {
   id: ID!
   value: BigInt!
   totalDebt: BigInt!
-  timestamp: BigInt!
 }
 
 # Issued tracks this event from various Synth.sol instances

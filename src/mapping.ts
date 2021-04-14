@@ -438,7 +438,6 @@ export function handleIssuedSynths(event: IssuedEvent): void {
     if (dailyIssuedEntity == null) {
       dailyIssuedEntity = new DailyIssued(dayId);
       dailyIssuedEntity.value = event.params.value;
-      dailyIssuedEntity.timestamp = event.block.timestamp;
     } else {
       dailyIssuedEntity.value = dailyIssuedEntity.value + event.params.value;
     }
@@ -531,7 +530,6 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     if (dailyBurnedEntity == null) {
       dailyBurnedEntity = new DailyBurned(dayId);
       dailyBurnedEntity.value = event.params.value;
-      dailyBurnedEntity.timestamp = event.block.timestamp;
     } else {
       dailyBurnedEntity.value = dailyBurnedEntity.value + event.params.value;
     }
