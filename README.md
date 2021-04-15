@@ -1,5 +1,7 @@
 # Synthetix Subgraph
 
+NOTE this is a temporary repo being used for L2 that is currently being refactored on the l2-refactor branch. To deploy to mainnet-ovm or kovan-ovm you run the regular commands but need to make sure to update the right entries in src/hardcoded-contracts.ts before deploying to each environment.
+
 [![CircleCI](https://circleci.com/gh/Synthetixio/synthetix-subgraph.svg?style=svg)](https://circleci.com/gh/Synthetixio/synthetix-subgraph)
 
 The Graph exposes a GraphQL endpoint to query the events and entities within the Synthetix system.
