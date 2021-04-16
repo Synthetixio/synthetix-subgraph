@@ -39,6 +39,9 @@ import { strToBytes } from './helpers';
 
 import { escrowContracts, readProxyAdressResolver } from './hardcoded-contracts';
 
+// TODO have every block start after the Archernar release at blcok 9518914
+// we can prepopulate mainnet data - discuss with Justin
+
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
 

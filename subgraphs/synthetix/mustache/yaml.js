@@ -18,14 +18,18 @@ dataSources:
       language: wasm/assemblyscript
       file: ../../src/mapping.ts
       entities:
-        - SNXTransfer
-        - SNXHolder
         - Synthetix
-        - ExchangePartner
-        - DailyExchangePartner
-        - SynthExchange
-        - ExchangeReclaim
-        - ExchangeRebate
+        - SNXTransfer
+        - Issued
+        - Burned
+        - Issuer
+        - SNXHolder
+        - DebtSnapshot
+        - RewardEscrowHolder
+        - FeesClaimed
+        - TotalActiveStaker
+        - TotalDailyActiveStaker
+        - ActiveStaker
       abis:
         - name: Synthetix
           file: ../../abis/Synthetix.json
