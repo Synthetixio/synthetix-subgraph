@@ -25,6 +25,14 @@ import { strToBytes, getUSDAmountFromAssetAmount, etherUnits, getLatestRate } fr
 
 let exchangerAsBytes = strToBytes('Exchanger', 32);
 
+interface AggregatedTotalEntity {
+  trades: BigInt
+  exchangers: BigInt
+  exchangeUSDTally: BigDecimal
+  totalFeesGeneratedInUSD: BigDecimal
+  save: () => void
+}
+
 function getExchanger(address: Address): ExchangerContract {
   let synthetix = Synthetix.bind(address);
 
@@ -42,57 +50,27 @@ function getExchanger(address: Address): ExchangerContract {
   return null;
 }
 
-function loadTotal(): Total {
-  let newTotal = new Total('mainnet');
-  newTotal.trades = BigInt.fromI32(0);
-  newTotal.exchangers = BigInt.fromI32(0);
-  newTotal.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
-  newTotal.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
-  return newTotal;
+function populateAggregatedTotalEntity<T extends AggregatedTotalEntity>(entity: T): T {
+  entity.trades = BigInt.fromI32(0);
+  entity.exchangers = BigInt.fromI32(0);
+  entity.exchangeUSDTally = BigInt.fromI32(0);
+  entity.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  return entity;
 }
 
-function loadDailyTotal(id: string): DailyTotal {
-  let newDailyTotal = new DailyTotal(id);
-  newDailyTotal.trades = BigInt.fromI32(0);
-  newDailyTotal.exchangers = BigInt.fromI32(0);
-  newDailyTotal.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
-  newDailyTotal.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
-  return newDailyTotal;
-}
+function trackTotals<T extends AggregatedTotalEntity>(entity: T, existingExchanger: boolean, amountInUSD: BigDecimal|null, feesInUSD: BigDecimal|null): void {
 
-function loadFifteenMinuteTotal(id: string): FifteenMinuteTotal {
-  let newFifteenMinuteTotal = new FifteenMinuteTotal(id);
-  newFifteenMinuteTotal.trades = BigInt.fromI32(0);
-  newFifteenMinuteTotal.exchangers = BigInt.fromI32(0);
-  newFifteenMinuteTotal.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
-  newFifteenMinuteTotal.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
-  return newFifteenMinuteTotal;
-}
+  entity.trades = entity.trades.plus(BigInt.fromI32(1));
 
-function addTotalFeesAndVolume(total: Total, fromAmountInUSD: BigDecimal, feesInUSD: BigDecimal): Total {
-  total.exchangeUSDTally = total.exchangeUSDTally.plus(fromAmountInUSD);
-  total.totalFeesGeneratedInUSD = total.totalFeesGeneratedInUSD.plus(feesInUSD);
-  return total;
-}
+  if(!existingExchanger)
+    entity.exchangers = entity.exchangers.plus(BigInt.fromI32(1));
 
-function addDailyTotalFeesAndVolume(
-  dailyTotal: DailyTotal,
-  fromAmountInUSD: BigDecimal,
-  feesInUSD: BigDecimal,
-): DailyTotal {
-  dailyTotal.exchangeUSDTally = dailyTotal.exchangeUSDTally.plus(fromAmountInUSD);
-  dailyTotal.totalFeesGeneratedInUSD = dailyTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
-  return dailyTotal;
-}
+  if(amountInUSD && feesInUSD) {
+    entity.exchangeUSDTally = entity.exchangeUSDTally.plus(amountInUSD);
+    entity.totalFeesGeneratedInUSD = entity.totalFeesGeneratedInUSD.plus(feesInUSD);
+  }
 
-function addFifteenMinuteTotalFeesAndVolume(
-  fifteenMinuteTotal: FifteenMinuteTotal,
-  fromAmountInUSD: BigDecimal,
-  feesInUSD: BigDecimal,
-): FifteenMinuteTotal {
-  fifteenMinuteTotal.exchangeUSDTally = fifteenMinuteTotal.exchangeUSDTally.plus(fromAmountInUSD);
-  fifteenMinuteTotal.totalFeesGeneratedInUSD = fifteenMinuteTotal.totalFeesGeneratedInUSD.plus(feesInUSD);
-  return fifteenMinuteTotal;
+  entity.save();
 }
 
 export function handleSynthExchange(event: SynthExchangeEvent): void {
@@ -135,60 +113,35 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let dayID = timestamp / 86400;
   let fifteenMinuteID = timestamp / 900;
 
-  let total = Total.load('mainnet');
-  let dailyTotal = DailyTotal.load(dayID.toString());
-  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString());
-
-  if (total == null) {
-    total = loadTotal();
-  }
-
-  if (dailyTotal == null) {
-    dailyTotal = loadDailyTotal(dayID.toString());
-  }
-
-  if (fifteenMinuteTotal == null) {
-    fifteenMinuteTotal = loadFifteenMinuteTotal(fifteenMinuteID.toString());
-  }
+  let total = Total.load('mainnet') || 
+    populateAggregatedTotalEntity(new Total('mainnet'));
+  let dailyTotal = DailyTotal.load(dayID.toString()) || 
+    populateAggregatedTotalEntity(new DailyTotal(dayID.toString()));
+  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString()) || 
+    populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteID.toString()));
 
   let existingExchanger = Exchanger.load(account.toHex());
   let existingDailyExchanger = DailyExchanger.load(dayID.toString() + '-' + account.toHex());
   let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(fifteenMinuteID.toString() + '-' + account.toHex());
 
   if (existingExchanger == null) {
-    total.exchangers = total.exchangers.plus(BigInt.fromI32(1));
     let exchanger = new Exchanger(account.toHex());
     exchanger.save();
   }
 
   if (existingDailyExchanger == null) {
-    dailyTotal.exchangers = dailyTotal.exchangers.plus(BigInt.fromI32(1));
     let dailyExchanger = new DailyExchanger(dayID.toString() + '-' + account.toHex());
     dailyExchanger.save();
   }
 
   if (existingFifteenMinuteExchanger == null) {
-    fifteenMinuteTotal.exchangers = fifteenMinuteTotal.exchangers.plus(BigInt.fromI32(1));
     let fifteenMinuteExchanger = new FifteenMinuteExchanger(fifteenMinuteID.toString() + '-' + account.toHex());
     fifteenMinuteExchanger.save();
   }
 
-  total.trades = total.trades.plus(BigInt.fromI32(1));
-  dailyTotal.trades = dailyTotal.trades.plus(BigInt.fromI32(1));
-  fifteenMinuteTotal.trades = fifteenMinuteTotal.trades.plus(BigInt.fromI32(1));
-
-  if (fromAmountInUSD != null && feesInUSD != null) {
-    total = addTotalFeesAndVolume(total as Total, fromAmountInUSD, feesInUSD);
-    dailyTotal = addDailyTotalFeesAndVolume(dailyTotal as DailyTotal, fromAmountInUSD, feesInUSD);
-    fifteenMinuteTotal = addFifteenMinuteTotalFeesAndVolume(
-      fifteenMinuteTotal as FifteenMinuteTotal,
-      fromAmountInUSD,
-      feesInUSD,
-    );
-  }
-  total.save();
-  dailyTotal.save();
-  fifteenMinuteTotal.save();
+  trackTotals(total, !!existingExchanger, fromAmountInUSD, feesInUSD);
+  trackTotals(dailyTotal, !!existingDailyExchanger, fromAmountInUSD, feesInUSD);
+  trackTotals(fifteenMinuteTotal, !!existingFifteenMinuteExchanger, fromAmountInUSD, feesInUSD);
 }
 
 export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
