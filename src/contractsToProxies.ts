@@ -425,7 +425,7 @@ contractsToProxies.set(
   '0x8994115d287207144236c13Be5E2bDbf6357D9Fd'
 );
 contractsToProxies.set(
-  '0x43cbd8be1ebd180107f1e0e8facd80941f0c5075', // AggregatorGOOG
+  '0x43cbd8be1ebd180107f1e0e8facd80941f0c5075', // AggregatorGOOGL
   '0x36D39936BeA501755921beB5A382a88179070219'
 );
 contractsToProxies.set(

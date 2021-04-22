@@ -1031,7 +1031,7 @@ module.exports = [
     prod: 12108752,
     test: null,
     type: 'aggregator',
-    name: 'AggregatorGOOG',
+    name: 'AggregatorGOOGL',
     address: "'0x43cBd8be1EbD180107f1e0E8fAcD80941F0c5075'",
     proxyAddress: "'0x36D39936BeA501755921beB5A382a88179070219'",
   },
