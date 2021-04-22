@@ -1091,4 +1091,12 @@ module.exports = [
     address: "'0xE65E6C462119C311D57Fd31bDeBA502CcCC504B4'",
     proxyAddress: "'0x48731cF7e84dc94C5f84577882c14Be11a5B7456'",
   },
+  {
+    prod: 12192983,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorFB',
+    address: "'0x365796aBDeC8b93963E76e4107417E71C46b22a0'",
+    proxyAddress: "'0xCe1051646393087e706288C1B57Fd26446657A7f'",
+  },
 ];
