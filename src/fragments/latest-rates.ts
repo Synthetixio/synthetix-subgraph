@@ -1,8 +1,8 @@
-import { RatesUpdated as RatesUpdatedEvent } from '../../generated/ExchangeRates/ExchangeRates';
+import { RatesUpdated as RatesUpdatedEvent } from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
 
 import {
   LatestRate,
-} from '../../generated/schema';
+} from '../../generated/subgraphs/synthetix-rates/schema';
 
 import { BigInt } from '@graphprotocol/graph-ts';
 
