@@ -11,8 +11,12 @@ import {
   OptionsClaimed as OptionsClaimedEvent,
   OptionsExercised as OptionsExercisedEvent,
   BinaryOptionMarket,
-} from '../generated/subgraphs/synthetix-binary-options/BinaryOptionMarket_0/BinaryOptionMarket';
-import { Market, OptionTransaction, HistoricalOptionPrice } from '../generated/subgraphs/synthetix-binary-options/schema';
+} from '../generated/subgraphs/synthetix-binary-options/templates/BinaryOptionMarket/BinaryOptionMarket';
+import {
+  Market,
+  OptionTransaction,
+  HistoricalOptionPrice,
+} from '../generated/subgraphs/synthetix-binary-options/schema';
 import { BinaryOptionMarket as BinaryOptionMarketContract } from '../generated/subgraphs/synthetix-binary-options/templates';
 
 export function handleNewMarket(event: MarketCreatedEvent): void {

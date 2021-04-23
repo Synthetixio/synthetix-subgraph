@@ -5,7 +5,7 @@ import {
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/subgraphs/synthetix-exchanges/Synthetix_0/Synthetix';
 import { AddressResolver } from '../generated/subgraphs/synthetix-exchanges/Synthetix_0/AddressResolver';
-import { Exchanger as ExchangerContract } from '../generated/subgraphs/synthetix-exchanges/Exchanger_0/Exchanger';
+import { Exchanger as ExchangerContract } from '../generated/subgraphs/synthetix-exchanger/Exchanger_0/Exchanger';
 
 import {
   Total,
@@ -26,11 +26,11 @@ import { strToBytes, getUSDAmountFromAssetAmount, etherUnits, getLatestRate } fr
 let exchangerAsBytes = strToBytes('Exchanger', 32);
 
 interface AggregatedTotalEntity {
-  trades: BigInt
-  exchangers: BigInt
-  exchangeUSDTally: BigDecimal
-  totalFeesGeneratedInUSD: BigDecimal
-  save: () => void
+  trades: BigInt;
+  exchangers: BigInt;
+  exchangeUSDTally: BigDecimal;
+  totalFeesGeneratedInUSD: BigDecimal;
+  save: () => void;
 }
 
 function getExchanger(address: Address): ExchangerContract {
@@ -53,19 +53,22 @@ function getExchanger(address: Address): ExchangerContract {
 function populateAggregatedTotalEntity<T extends AggregatedTotalEntity>(entity: T): T {
   entity.trades = BigInt.fromI32(0);
   entity.exchangers = BigInt.fromI32(0);
-  entity.exchangeUSDTally = BigInt.fromI32(0);
-  entity.totalFeesGeneratedInUSD = BigInt.fromI32(0);
+  entity.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
+  entity.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
   return entity;
 }
 
-function trackTotals<T extends AggregatedTotalEntity>(entity: T, existingExchanger: boolean, amountInUSD: BigDecimal|null, feesInUSD: BigDecimal|null): void {
-
+function trackTotals<T extends AggregatedTotalEntity>(
+  entity: T,
+  existingExchanger: boolean,
+  amountInUSD: BigDecimal | null,
+  feesInUSD: BigDecimal | null,
+): void {
   entity.trades = entity.trades.plus(BigInt.fromI32(1));
 
-  if(!existingExchanger)
-    entity.exchangers = entity.exchangers.plus(BigInt.fromI32(1));
+  if (!existingExchanger) entity.exchangers = entity.exchangers.plus(BigInt.fromI32(1));
 
-  if(amountInUSD && feesInUSD) {
+  if (amountInUSD && feesInUSD) {
     entity.exchangeUSDTally = entity.exchangeUSDTally.plus(amountInUSD);
     entity.totalFeesGeneratedInUSD = entity.totalFeesGeneratedInUSD.plus(feesInUSD);
   }
@@ -113,11 +116,10 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let dayID = timestamp / 86400;
   let fifteenMinuteID = timestamp / 900;
 
-  let total = Total.load('mainnet') || 
-    populateAggregatedTotalEntity(new Total('mainnet'));
-  let dailyTotal = DailyTotal.load(dayID.toString()) || 
-    populateAggregatedTotalEntity(new DailyTotal(dayID.toString()));
-  let fifteenMinuteTotal = FifteenMinuteTotal.load(fifteenMinuteID.toString()) || 
+  let total = Total.load('mainnet') || populateAggregatedTotalEntity(new Total('mainnet'));
+  let dailyTotal = DailyTotal.load(dayID.toString()) || populateAggregatedTotalEntity(new DailyTotal(dayID.toString()));
+  let fifteenMinuteTotal =
+    FifteenMinuteTotal.load(fifteenMinuteID.toString()) ||
     populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteID.toString()));
 
   let existingExchanger = Exchanger.load(account.toHex());

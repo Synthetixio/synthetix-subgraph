@@ -5,17 +5,12 @@ function getCurrentNetwork() {
 }
 
 function getReleaseInfo(file) {
-    const net = getCurrentNetwork();
+    const net = getCurrentNetwork() || 'mainnet';
 
-    switch(net) {
-        case 'mainnet':
-        case 'kovan':
-            return require('synthetix/publish/deployed/' + net + '/' + file);
-        case 'optimism-kovan':
-        case 'optimism-mainnet':
-            return require('synthetix/publish/deployed/' +  + '/' + file);
-        default:
-            throw Error('unknown network: ' + net);
+    if (net === 'mainnet' || net === 'kovan') {
+        return require('synthetix/publish/deployed/' + net + '/' + file);
+    } else if (net === 'optimism-kovan' || net === 'optimism-mainnet') {
+        return require('synthetix/publish/deployed/' +  + '/' + file);
     }
 }
 
