@@ -1,7 +1,7 @@
-import { RatesUpdated as RatesUpdatedEvent } from '../generated/ExchangeRates_v223/ExchangeRates';
-import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/AggregatorAUD/Aggregator';
-import { AddressResolver } from '../generated/AggregatorAUD_3/AddressResolver';
-import { ExchangeRates } from '../generated/ExchangeRates/ExchangeRates';
+import { RatesUpdated as RatesUpdatedEvent } from '../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
+import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/subgraphs/synthetix-rates/AggregatorAUD_0/Aggregator';
+import { AddressResolver } from '../generated/subgraphs/synthetix-rates/AggregatorAUD_0/AddressResolver';
+import { ExchangeRates } from '../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
 
 import {
   RatesUpdated,
@@ -10,13 +10,13 @@ import {
   FifteenMinuteSNXPrice,
   DailySNXPrice,
   LatestRate,
-} from '../generated/schema';
+} from '../generated/subgraphs/synthetix-rates/schema';
 
-import { strToBytes } from './helpers';
+import { strToBytes } from './lib/helpers';
 
-import { readProxyAdressResolver } from './hardcoded-contracts';
+import { readProxyAdressResolver } from './lib/hardcoded-contracts';
 
-import { contractsToProxies } from './contractsToProxies';
+import { contractsToProxies } from './lib/contractsToProxies';
 
 import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
 

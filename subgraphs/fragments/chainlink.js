@@ -6,9 +6,8 @@ const aggregatorTokenAddrs = require('../utils/aggregators/' + getCurrentNetwork
 const aggregatorManifests = [];
 
 for(const tok in aggregatorTokenAddrs) {
-    for(let i = 0;i < aggregatorTokenAddrs[tok];i++) {
-        const addrInfo = aggregatorTokenAddrs[tok][i];
 
+    aggregatorTokenAddrs[tok].forEach((addrInfo, i) => {
         aggregatorManifests.push({
             "kind": "ethereum/contract",
             "name": `Aggregator${tok}_${i}`,
@@ -22,7 +21,7 @@ for(const tok in aggregatorTokenAddrs) {
                 "kind": "ethereum/events",
                 "apiVersion": "0.0.4",
                 "language": "wasm/assemblyscript",
-                "file": "../src/fragments/chainlink-mapping.ts",
+                "file": "../src/fragments/chainlink.ts",
                 "entities": [
                     "AggregatorAnswer"
                 ],
@@ -48,7 +47,7 @@ for(const tok in aggregatorTokenAddrs) {
                 ]
             }
         });
-    }
+    });
 }
 
 module.exports = aggregatorManifests;

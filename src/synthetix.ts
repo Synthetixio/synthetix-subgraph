@@ -1,22 +1,22 @@
 // The latest Synthetix and event invocations
-import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/Synthetix/Synthetix';
+import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix';
 
-import { AddressResolver } from '../generated/Synthetix/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/synthetix/Synthetix_0/AddressResolver';
 
-import { sUSD32 } from './helpers';
+import { sUSD32 } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
-import { SynthetixState } from '../generated/Synthetix/SynthetixState';
+import { SynthetixState } from '../generated/subgraphs/synthetix/Synthetix_0/SynthetixState';
 
-import { Vested as VestedEvent, RewardEscrow } from '../generated/RewardEscrow/RewardEscrow';
-import {
+import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/synthetix/RewardEscrow_0/RewardEscrow';
+/*import {
   Vested as VestedEventV2,
   VestingEntryCreated as VestingEntryCreatedV2,
   RewardEscrowV2,
-} from '../generated/RewardEscrowV2/RewardEscrowV2';
+} from '../generated/subgraphs/synthetix/RewardEscrowV2/RewardEscrowV2';*/
 
-import { Issued as IssuedEvent, Burned as BurnedEvent } from '../generated/SynthsUSD_proxy/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/FeePool/FeePool';
+import { Issued as IssuedEvent, Burned as BurnedEvent } from '../generated/subgraphs/synthetix/SynthsUSD_0/Synth';
+import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/synthetix/FeePool_0/FeePool';
 
 import {
   Synthetix,
@@ -31,13 +31,13 @@ import {
   TotalActiveStaker,
   TotalDailyActiveStaker,
   ActiveStaker,
-} from '../generated/schema';
+} from '../generated/subgraphs/synthetix/schema';
 
 import { store, BigInt, Address, ethereum, Bytes, log } from '@graphprotocol/graph-ts';
 
-import { strToBytes } from './helpers';
+import { strToBytes } from './lib/helpers';
 
-import { escrowContracts, readProxyAdressResolver } from './hardcoded-contracts';
+import { escrowContracts, readProxyAdressResolver } from './lib/hardcoded-contracts';
 
 // TODO have every block start after the Archernar release at blcok 9518914
 // we can prepopulate mainnet data - discuss with Justin
@@ -231,7 +231,7 @@ export function handleRewardVestEvent(event: VestedEvent): void {
 
 // For v2 the two methods both need their own functions. can dedupe the methods later
 // but due to lack of unions in assemblyscript this is maybe as good as it gets.
-export function handleRewardVestEventV2(event: VestedEventV2): void {
+/*export function handleRewardVestEventV2(event: VestedEventV2): void {
   let entity = new RewardEscrowHolder(event.params.beneficiary.toHex());
   let contract = RewardEscrowV2.bind(event.address);
   entity.balanceOf = contract.balanceOf(event.params.beneficiary);
@@ -256,7 +256,7 @@ export function handleRewardVestingEventCreatedV2(event: VestingEntryCreatedV2):
   let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
   let synthetixAddress = resolver.getAddress(strToBytes('Synthetix', 32));
   trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block, event.transaction);
-}
+}*/
 
 export function handleIssuedSynths(event: IssuedEvent): void {
   // We need to figure out if this was generated from a call to Synthetix.issueSynths, issueMaxSynths or any earlier

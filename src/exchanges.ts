@@ -3,9 +3,9 @@ import {
   SynthExchange as SynthExchangeEvent,
   ExchangeReclaim as ExchangeReclaimEvent,
   ExchangeRebate as ExchangeRebateEvent,
-} from '../generated/Synthetix/Synthetix';
-import { AddressResolver } from '../generated/Synthetix/AddressResolver';
-import { Exchanger as ExchangerContract } from '../generated/Exchanger_v7/Exchanger';
+} from '../generated/subgraphs/synthetix-exchanges/Synthetix_0/Synthetix';
+import { AddressResolver } from '../generated/subgraphs/synthetix-exchanges/Synthetix_0/AddressResolver';
+import { Exchanger as ExchangerContract } from '../generated/subgraphs/synthetix-exchanges/Exchanger_0/Exchanger';
 
 import {
   Total,
@@ -17,11 +17,11 @@ import {
   FifteenMinuteExchanger,
   ExchangeReclaim,
   ExchangeRebate,
-} from '../generated/schema';
+} from '../generated/subgraphs/synthetix-exchanges/schema';
 
 import { BigDecimal, BigInt, Address, log } from '@graphprotocol/graph-ts';
 
-import { strToBytes, getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './helpers';
+import { strToBytes, getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
 
 let exchangerAsBytes = strToBytes('Exchanger', 32);
 

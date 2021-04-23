@@ -1,13 +1,13 @@
-const { getContractDeployments, getReleaseBlocks, getCurrentNetwork } = require('../utils/network');
+const { getContractDeployments, versions, getCurrentNetwork } = require('../utils/network');
 
 const exchangeRatesContractAddresses = getContractDeployments('ExchangeRates');
 
 const exchangeRatesManifests = [];
 
 // the rates updated event changed from bytes4 to bytes32 in the sirius release
-const BYTE32_UPDATE = getReleaseBlocks().Sirius;
+const BYTE32_UPDATE = versions.Sirius;
 
-for(const ca, i of exchangeRatesContractAddresses) {
+exchangeRatesContractAddresses.forEach((ca, i) => {
     exchangeRatesManifests.push(
         {
            "kind": "ethereum/contract",
@@ -29,7 +29,7 @@ for(const ca, i of exchangeRatesContractAddresses) {
               "abis": [
                  {
                     "name": "ExchangeRates",
-                    "file": ca.startBlock > BYTE32_UPDATE ? "../abis/ExchangeRates.json" : "../abis/ExchangeRates_bytes4.json"
+                    "file": ca.startBlock > BYTE32_UPDATE ? "../abis/ExchangeRates_v2.23.json" : "../abis/ExchangeRates_bytes4.json"
                  }
               ],
               "eventHandlers": [
@@ -41,6 +41,6 @@ for(const ca, i of exchangeRatesContractAddresses) {
            }
         }
     );
-}
+});
 
 module.exports = exchangeRatesManifests;

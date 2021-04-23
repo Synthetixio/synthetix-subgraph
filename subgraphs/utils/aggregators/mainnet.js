@@ -205,7 +205,7 @@ module.exports = {
             "address": "0x570985649832b51786a181d57babe012be1c09a4"
         },
         {
-            "startBlock": BCH_START_BLOCKf,
+            "startBlock": BCH_START_BLOCK,
             "address": "0x75Ed2f61837c3D9Ef1BF0af4DB84664DC6fe56bC"
         }
     ],

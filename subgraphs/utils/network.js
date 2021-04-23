@@ -26,6 +26,20 @@ function estimateBlock(date) {
 
     const idx = sortedIndexBy(blockInfo, [0, date], v => v[1]);
 
+    const numDate = new Date(date).getTime();
+
+    if(idx == blockInfo.length) {
+        if(blockInfo.length < 3) {
+            return null;
+        }
+
+        // determine some semblance of block rate
+        const rate = (blockInfo[blockInfo.length - 1][0] - blockInfo[blockInfo.length - 3][0]) /
+                    (new Date(blockInfo[blockInfo.length - 1][1]).getTime() - new Date(blockInfo[blockInfo.length - 3][1]).getTime());
+                    
+        return blockInfo[blockInfo.length - 1][0] + rate * (numDate - new Date(blockInfo[blockInfo.length - 1][1]).getTime());
+    }
+
     if(blockInfo[idx][1] === date) {
         return blockInfo[idx][0];
     }
@@ -34,7 +48,6 @@ function estimateBlock(date) {
         return null;
     }
 
-    const numDate = new Date(date).getTime();
     const beforeDate = new Date(blockInfo[idx - 1][1]).getTime();
     const afterDate = new Date(blockInfo[idx][1]).getTime();
 
@@ -48,7 +61,7 @@ function getReleaseBlocks() {
 
     for(const n in versionInfo) {
         const info = versionInfo[n];
-        versions[info.release || info.tag] = info.block || estimateBlock(info.date);
+        versionNameMap[info.release || info.tag] = info.block || estimateBlock(info.date);
     }
 
     return versionNameMap;

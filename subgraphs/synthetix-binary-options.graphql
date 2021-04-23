@@ -1,0 +1,43 @@
+type Market @entity {
+  id: ID!
+  timestamp: BigInt!
+  creator: Bytes!
+  currencyKey: Bytes!
+  strikePrice: BigInt!
+  biddingEndDate: BigInt!
+  maturityDate: BigInt!
+  expiryDate: BigInt!
+  isOpen: Boolean!
+  longPrice: BigInt!
+  shortPrice: BigInt!
+  poolSize: BigInt!
+  result: Int
+}
+
+enum OptionTransactionType {
+  bid
+  refund
+  claim
+  exercise
+}
+
+type OptionTransaction @entity {
+  id: ID!
+  timestamp: BigInt!
+  type: OptionTransactionType!
+  account: Bytes!
+  market: Bytes!
+  amount: BigInt!
+  currencyKey: Bytes
+  side: Int
+  fee: BigInt
+}
+
+type HistoricalOptionPrice @entity {
+  id: ID!
+  timestamp: BigInt!
+  longPrice: BigInt!
+  shortPrice: BigInt!
+  market: Bytes!
+  poolSize: BigInt!
+}

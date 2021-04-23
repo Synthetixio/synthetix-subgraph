@@ -1,6 +1,6 @@
-const { clone } = require('_');
+const { clone } = require('lodash');
 
-const { getContractDeployments } = require('../utils/network');
+const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
 const aggregatorManifests = require('./fragments/chainlink');
@@ -9,7 +9,7 @@ const latestRatesManifests = require('./fragments/latest-rates');
 const manifest = clone(aggregatorManifests);
 
 // add exchanger events
-for(const a, i of getContractDeployments('Exchanger')) {
+getContractDeployments('Exchanger').forEach((a, i) => {
     manifest.push(
         {
             "kind": "ethereum/contract",
@@ -49,10 +49,10 @@ for(const a, i of getContractDeployments('Exchanger')) {
              }
         }
     );
-}
+});
 
 // add synthetix (only the new contracts)
-for(const a, i of getContractDeployments('ProxyERC20')) {
+getContractDeployments('ProxyERC20').forEach((a, i) => {
     manifest.push(
         {
             "kind": "ethereum/contract",
@@ -88,7 +88,7 @@ for(const a, i of getContractDeployments('ProxyERC20')) {
             }
         }
     );
-}
+});
 
 // for exchange rates, modify the handler for the latest rates handler which does most of the work for us
 for(const lrm of clone(latestRatesManifests)) {
@@ -96,4 +96,12 @@ for(const lrm of clone(latestRatesManifests)) {
     manifest.push(lrm);
 }
 
-module.exports = manifest;
+module.exports = {
+    "specVersion": "0.0.2",
+    "description": "Synthetix Exchanger API",
+    "repository": "https://github.com/Synthetixio/synthetix-subgraph",
+    "schema": {
+        "file": "./synthetix-exchanger.graphql"
+    },
+    "dataSources": manifest
+};

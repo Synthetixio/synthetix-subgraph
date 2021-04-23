@@ -1,0 +1,307 @@
+# Synthentix is an aggregation entity
+type Synthetix @entity {
+  id: ID!
+  issuers: BigInt!
+  snxHolders: BigInt!
+}
+
+# Transfer tracks this event from the Synthetix.sol contract and various Synth.sol contracts
+type SNXTransfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
+  timestamp: BigInt!
+  block: BigInt!
+  source: String!
+}
+
+# Issued tracks this event from various Synth.sol instances
+type Issued @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigInt!
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+# An individual Issuer
+type Issuer @entity {
+  id: ID!
+}
+
+# An individual SNX holder (always overridden with their latest information)
+type SNXHolder @entity {
+  id: ID! # address of potential holder
+  # last block where an event happened
+  block: BigInt!
+  timestamp: BigInt!
+  balanceOf: BigInt
+  # the following will be null before multicurrency (v2) release
+  collateral: BigInt
+  transferable: BigInt
+  initialDebtOwnership: BigInt
+  debtEntryAtIndex: BigInt
+  # number of claims performed
+  claims: BigInt
+  # number of mints performed
+  mints: BigInt
+}
+
+# A historical debt tracker
+type DebtSnapshot @entity {
+  id: ID!
+  # last block where an event happened
+  block: BigInt!
+  timestamp: BigInt!
+  account: Bytes! # address
+  balanceOf: BigInt # early on it was possible this wouldn't have a value (pre v2)
+  # the following will be null before multicurrency (v2) release
+  collateral: BigInt
+  debtBalanceOf: BigInt
+}
+
+# Burned tracks this event from various Synth.sol instances
+type Burned @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigInt! # uint256
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+type RewardEscrowHolder @entity {
+  id: ID!
+  balanceOf: BigInt!
+  vestedBalanceOf: BigInt!
+  # entryID: BigInt
+  # duration: BigInt
+}
+
+type FeesClaimed @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigInt! # uint256
+  rewards: BigInt! # uint256
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+type TotalActiveStaker @entity {
+  id: ID!
+  count: BigInt!
+}
+
+type TotalDailyActiveStaker @entity {
+  id: ID!
+  count: BigInt!
+}
+
+type ActiveStaker @entity {
+  id: ID!
+}
+
+# RatesUpdated tracks this event from the ExchangeRates.sol contract
+type RatesUpdated @entity {
+  id: ID!
+  from: Bytes! # address
+  currencyKeys: [Bytes!]! # bytes4[]
+  newRates: [BigInt!]! # uint256[]
+  gasPrice: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+# An individual RateUpdate - split out of RatesUpdated event
+type RateUpdate @entity {
+  id: ID!
+  currencyKey: Bytes!
+  synth: String!
+  rate: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+# A chainlink Answer
+type AggregatorAnswer @entity {
+  id: ID!
+  currencyKey: Bytes!
+  synth: String!
+  aggregator: Bytes!
+  rate: BigInt!
+  roundId: BigInt!
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+# The average price of SNX over a 15 minute period
+type FifteenMinuteSNXPrice @entity {
+  id: ID!
+  count: BigInt!
+  averagePrice: BigInt!
+}
+
+# The average price of SNX over a day
+type DailySNXPrice @entity {
+  id: ID!
+  count: BigInt!
+  averagePrice: BigInt!
+}
+
+type LatestRate @entity {
+  " Name of synth. E.g. sUSD "
+  id: ID!
+
+  " Synth USD rate with 18 decimals "
+  rate: BigInt!
+}
+
+# Synthentix is an aggregation entity
+# Total synth exchanges in aggregate
+type Total @entity {
+  id: ID!
+  trades: BigInt!
+  exchangers: BigInt!
+  exchangeUSDTally: BigDecimal!
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+# Total synth exchanges per day
+type DailyTotal @entity {
+  id: ID!
+  trades: BigInt!
+  exchangers: BigInt!
+  exchangeUSDTally: BigDecimal!
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+# Total synth exchanges per 15 minute period
+type FifteenMinuteTotal @entity {
+  id: ID!
+  trades: BigInt!
+  exchangers: BigInt!
+  exchangeUSDTally: BigDecimal!
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+# SynthExchange tracks this event from the Synthetix.sol contract
+type SynthExchange @entity {
+  id: ID!
+  account: Bytes! # address
+  from: Bytes! # address
+  fromCurrencyKey: Bytes! # bytes4
+  fromAmount: BigInt! # uint256
+  fromAmountInUSD: BigDecimal! # from Amount including fees
+  toCurrencyKey: Bytes! # bytes4
+  toAmount: BigInt! # uint256
+  toAmountInUSD: BigDecimal! # to Amount without fees
+  feesInUSD: BigDecimal!
+  toAddress: Bytes! # address
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+  network: String!
+}
+
+type ExchangeReclaim @entity {
+  id: ID!
+  account: Bytes! # address
+  currencyKey: Bytes! # bytes4
+  amount: BigInt! # uint256
+  amountInUSD: BigDecimal! # uint256
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+type ExchangeRebate @entity {
+  id: ID!
+  account: Bytes! # address
+  currencyKey: Bytes! # bytes4
+  amount: BigInt! # uint256
+  amountInUSD: BigDecimal! # uint256
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+# An individual Exchanger
+type Exchanger @entity {
+  id: ID!
+}
+
+# An individual Exchanger Post Archernar
+type PostArchernarExchanger @entity {
+  id: ID!
+}
+
+type DailyExchanger @entity {
+  id: ID!
+}
+
+type FifteenMinuteExchanger @entity {
+  id: ID!
+}
+
+type ExchangeEntrySettled @entity {
+  id: ID!
+  from: Bytes!
+  src: Bytes!
+  amount: BigInt!
+  dest: Bytes!
+  reclaim: BigInt!
+  rebate: BigInt!
+  srcRoundIdAtPeriodEnd: BigInt!
+  destRoundIdAtPeriodEnd: BigInt!
+  exchangeTimestamp: BigInt!
+}
+
+type ExchangeEntryAppended @entity {
+  id: ID! # the transaction hash plus event log
+  account: Bytes!
+  src: Bytes!
+  amount: BigInt!
+  dest: Bytes!
+  amountReceived: BigInt!
+  exchangeFeeRate: BigInt!
+  roundIdForSrc: BigInt!
+  roundIdForDest: BigInt!
+}
+
+type DailyExchangePartner @entity {
+  " Day timestamp + tracking code of the partner "
+  id: ID!
+
+  " Total transaction volume in USD for the partner on this day "
+  usdVolume: BigDecimal!
+
+  " Total fees generated by the volume partner for this day "
+  usdFees: BigDecimal!
+
+  " Total number of trades from the volume partner for this day "
+  trades: BigInt!
+
+  " Tracking code of the partner "
+  partner: String!
+
+  " a string id representing the day "
+  dayID: String!
+}
+
+type ExchangePartner @entity {
+  " Tracking code of the partner "
+  id: ID!
+
+  " Total transaction volume in USD for the partner "
+  usdVolume: BigDecimal!
+
+  " Total fees generated by the volume partner "
+  usdFees: BigDecimal!
+
+  " Total number of trades from the volume partner "
+  trades: BigInt!
+}

@@ -1,9 +1,9 @@
 import {
   ExchangeEntrySettled as ExchangeEntrySettledEvent,
   ExchangeEntryAppended as ExchangeEntryAppendedEvent,
-} from '../generated/Exchanger_v7/Exchanger';
+} from '../generated/subgraphs/synthetix-exchanger/Exchanger_0/Exchanger';
 
-import { ExchangeTracking as ExchangeTrackingEvent } from '../generated/Synthetix/Synthetix';
+import { ExchangeTracking as ExchangeTrackingEvent } from '../generated/subgraphs/synthetix-exchanger/Synthetix_0/Synthetix';
 
 import {
   ExchangeEntrySettled,
@@ -11,9 +11,9 @@ import {
   LatestRate,
   DailyExchangePartner,
   ExchangePartner,
-} from '../generated/schema';
+} from '../generated/subgraphs/synthetix-exchanger/schema';
 
-import { getTimeID, getUSDAmountFromAssetAmount, toDecimal } from './helpers';
+import { getTimeID, getUSDAmountFromAssetAmount, toDecimal } from './lib/helpers';
 
 import { BigInt, log, BigDecimal } from '@graphprotocol/graph-ts';
 

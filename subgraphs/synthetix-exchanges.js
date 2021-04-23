@@ -1,7 +1,5 @@
-const { getContractDeployments, getReleaseBlocks } = require('../utils/network');
+const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
-
-const exchangeRatesContractAddresses = ;
 
 const manifest = [];
 
@@ -99,7 +97,7 @@ if(getCurrentNetwork() == 'mainnet') {
     );
 }
 
-for(const a, i of getContractDeployments('ProxyERC20')) {
+getContractDeployments('ProxyERC20').forEach((a, i) => {
     manifest.push(
         {
             "kind": "ethereum/contract",
@@ -159,6 +157,14 @@ for(const a, i of getContractDeployments('ProxyERC20')) {
             }
         }
     );
-}
+});
 
-module.exports = manifest;
+module.exports = {
+    "specVersion": "0.0.2",
+    "description": "Synthetix Exchanges API",
+    "repository": "https://github.com/Synthetixio/synthetix-subgraph",
+    "schema": {
+        "file": "./synthetix-exchanges.graphql"
+    },
+    "dataSources": manifest
+};

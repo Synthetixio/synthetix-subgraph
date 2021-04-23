@@ -1,3 +1,4 @@
+// not versioned, just regular json export for now
 module.exports = {
    "specVersion": "0.0.2",
    "description": "Synthetix GrantsDAO API",
@@ -19,7 +20,7 @@ module.exports = {
             "kind": "ethereum/events",
             "apiVersion": "0.0.4",
             "language": "wasm/assemblyscript",
-            "file": "../src/grantsdao-mapping.ts",
+            "file": "../src/grantsdao.ts",
             "entities": [
                "Account",
                "Member",
