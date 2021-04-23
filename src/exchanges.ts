@@ -61,8 +61,8 @@ function populateAggregatedTotalEntity<T extends AggregatedTotalEntity>(entity: 
 function trackTotals<T extends AggregatedTotalEntity>(
   entity: T,
   existingExchanger: boolean,
-  amountInUSD: BigDecimal | null,
-  feesInUSD: BigDecimal | null,
+  amountInUSD: BigDecimal,
+  feesInUSD: BigDecimal,
 ): void {
   entity.trades = entity.trades.plus(BigInt.fromI32(1));
 

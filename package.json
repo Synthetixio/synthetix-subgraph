@@ -14,7 +14,7 @@
     "build": "graph build",
     "deploy": "graph deploy",
     "codegen-all": "for f in subgraphs/*.js; do SNX_NETWORK=mainnet graph codegen $f -o generated/${f%.js}; done",
-    "build-all": "for f in subgraphs/*.js; do graph build $f -o build/$SNX_NETWORK/${f%.js}; done",
+    "build-all": "for f in subgraphs/*.js; do SNX_NETWORK=mainnet graph build $f -o build/$SNX_NETWORK/${f%.js}; done",
     "deploy-all": "for f in subgraphs/*.js; do graph deploy build/$SNX_NETWORK/${f%.js}/subgraph.yaml; done"
   },
   "dependencies": {

@@ -6,6 +6,8 @@ const exchangeRatesManifests = [];
 
 // the rates updated event changed from bytes4 to bytes32 in the sirius release
 const BYTE32_UPDATE = versions.Sirius;
+const POLLUX_UPDATE = versions.Pollux;
+const ACRUX_UPDATE = versions.Acrux;
 
 exchangeRatesContractAddresses.forEach((ca, i) => {
     exchangeRatesManifests.push(
@@ -29,7 +31,13 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
               "abis": [
                  {
                     "name": "ExchangeRates",
-                    "file": ca.startBlock > BYTE32_UPDATE ? "../abis/ExchangeRates_v2.23.json" : "../abis/ExchangeRates_bytes4.json"
+                    "file": ca.startBlock > BYTE32_UPDATE ? 
+                              ca.startBlock === ACRUX_UPDATE ?
+                                "../abis/ExchangeRates_v2.23.json" :
+                                ca.startBlock >= POLLUX_UPDATE ?
+                                  "../abis/ExchangeRates.json" :
+                                "../abis/ExchangeRates_bytes32.json" :
+                              "../abis/ExchangeRates_bytes4.json"
                  }
               ],
               "eventHandlers": [
