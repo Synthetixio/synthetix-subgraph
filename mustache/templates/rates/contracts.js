@@ -1099,4 +1099,20 @@ module.exports = [
     address: "'0x365796aBDeC8b93963E76e4107417E71C46b22a0'",
     proxyAddress: "'0xCe1051646393087e706288C1B57Fd26446657A7f'",
   },
+  {
+    prod: 12285633,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorCOIN',
+    address: "'0x3bAa9b535F279995B62bC4046D9185E577f53691'",
+    proxyAddress: "'0xb10a047f8db80d781D006F1401BEB7d70Eb4da1a'",
+  },
+  {
+    prod: 12290364,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorMSFT',
+    address: "'0x99a9422bdBf888fAd917b3a714103E896D3e2011'",
+    proxyAddress: "'0x021Fb44bfeafA0999C7b07C4791cf4B859C3b431'",
+  },
 ];
