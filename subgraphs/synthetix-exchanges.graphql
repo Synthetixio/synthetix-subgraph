@@ -92,3 +92,19 @@ type DailyExchanger @entity {
 type FifteenMinuteExchanger @entity {
   id: ID!
 }
+
+type ExchangeFee @entity {
+  " Name of the synth. E.g. sUSD "
+  id: ID!
+
+  " Current Fee as a ratio of the trade amount "
+  fee: BigDecimal!
+}
+
+type LatestRate @entity {
+  " Name of synth. E.g. sUSD "
+  id: ID!
+
+  " Synth USD rate "
+  rate: BigDecimal!
+}

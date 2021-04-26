@@ -3,10 +3,9 @@ const { clone } = require('lodash');
 const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
-const aggregatorManifests = require('./fragments/chainlink');
 const latestRatesManifests = require('./fragments/latest-rates');
 
-const manifest = clone(aggregatorManifests);
+const manifest = clone(latestRatesManifests.dataSources);
 
 // add exchanger events
 getContractDeployments('Exchanger').forEach((a, i) => {
@@ -90,12 +89,6 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     );
 });
 
-// for exchange rates, modify the handler for the latest rates handler which does most of the work for us
-for(const lrm of clone(latestRatesManifests)) {
-    lrm.mapping.file = '../src/exchanger.ts';
-    manifest.push(lrm);
-}
-
 module.exports = {
     "specVersion": "0.0.2",
     "description": "Synthetix Exchanger API",
@@ -103,5 +96,6 @@ module.exports = {
     "schema": {
         "file": "./synthetix-exchanger.graphql"
     },
-    "dataSources": manifest
+    "dataSources": manifest,
+    "templates": latestRatesManifests.templates
 };

@@ -1,11 +1,15 @@
+const { clone } = require('lodash');
+
 const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
-const manifest = [];
+const latestRates = require('./fragments/latest-rates');
+
+const manifest = clone(latestRates.dataSources);
 
 if(getCurrentNetwork() == 'mainnet') {
     // pre-recording contracts
-    manifest.push(
+    /*manifest.push(
         {
             "kind": "ethereum/contract",
             "name": "Synthetix4_viaOldProxy",
@@ -81,7 +85,7 @@ if(getCurrentNetwork() == 'mainnet') {
                 "eventHandlers": [
                     {
                     "event": "SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)",
-                    "handler": "handleSynthExchange32"
+                    "handler": "handleSynthExchange"
                     },
                     {
                     "event": "ExchangeReclaim(indexed address,bytes32,uint256)",
@@ -94,7 +98,7 @@ if(getCurrentNetwork() == 'mainnet') {
                 ]
             }
         }
-    );
+    );*/
 }
 
 getContractDeployments('ProxyERC20').forEach((a, i) => {
@@ -143,7 +147,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
                 "eventHandlers": [
                     {
                     "event": "SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)",
-                    "handler": "handleSynthExchange32"
+                    "handler": "handleSynthExchange"
                     },
                     {
                     "event": "ExchangeReclaim(indexed address,bytes32,uint256)",
@@ -159,6 +163,42 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     );
 });
 
+getContractDeployments('SystemSettings').forEach((a, i) => {
+    manifest.push(
+        {
+            "kind": "ethereum/contract",
+            "name": `SystemSettings_${i}`,
+            "network": getCurrentNetwork(),
+            "source": {
+                "address": a.address,
+                "startBlock": a.startBlock,
+                "abi": "SystemSettings",
+            },
+            "mapping": {
+                "kind": "ethereum/events",
+                "apiVersion": "0.0.4",
+                "language": "wasm/assemblyscript",
+                "file": "../src/exchanges.ts",
+                "entities": [
+                    "SystemSettings",
+                ],
+                "abis": [
+                    {
+                    "name": "SystemSettings",
+                    "file": "../abis/SystemSettings.json"
+                    }
+                ],
+                "eventHandlers": [
+                    {
+                        "event": "ExchangeFeeUpdated(bytes32,uint256)",
+                        "handler": "handleFeeChange"
+                    },
+                ]
+            }
+        }
+    );
+});
+
 module.exports = {
     "specVersion": "0.0.2",
     "description": "Synthetix Exchanges API",
@@ -166,5 +206,6 @@ module.exports = {
     "schema": {
         "file": "./synthetix-exchanges.graphql"
     },
-    "dataSources": manifest
+    "dataSources": manifest,
+    "templates": latestRates.templates
 };

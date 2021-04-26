@@ -45,10 +45,18 @@ type DailySNXPrice @entity {
   averagePrice: BigInt!
 }
 
+type ResolvedAddress @entity {
+  " Name of synth. E.g. sUSD "
+  id: ID!
+
+  " Address of the aggregator feeding the SNX price "
+  address: Bytes!
+}
+
 type LatestRate @entity {
   " Name of synth. E.g. sUSD "
   id: ID!
 
-  " Synth USD rate with 18 decimals "
-  rate: BigInt!
+  " Synth USD rate "
+  rate: BigDecimal!
 }

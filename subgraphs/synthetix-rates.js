@@ -1,12 +1,10 @@
 const { clone } = require('lodash');
+const latestRates = require('./fragments/latest-rates');
 
-const aggregatorManifests = require('./fragments/chainlink');
-const latestRatesManifests = require('./fragments/latest-rates');
-
-const manifest = clone(aggregatorManifests);
+const manifest = [];//clone(latestRates.dataSources);
 
 // for exchange rates, modify the handler for the latest rates handler which does most of the work for us
-for(const lrm of clone(latestRatesManifests)) {
+for(const lrm of clone(latestRates.dataSources)) {
     lrm.mapping.file = '../src/rates.ts';
     manifest.push(lrm);
 }
@@ -18,5 +16,6 @@ module.exports = {
     "schema": {
         "file": "./synthetix-rates.graphql"
     },
-    "dataSources": manifest
+    "dataSources": manifest,
+    "templates": latestRates.templates
 };

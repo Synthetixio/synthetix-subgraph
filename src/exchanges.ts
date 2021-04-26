@@ -1,11 +1,10 @@
 import {
-  Synthetix,
   SynthExchange as SynthExchangeEvent,
   ExchangeReclaim as ExchangeReclaimEvent,
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/subgraphs/synthetix-exchanges/Synthetix_0/Synthetix';
-import { AddressResolver } from '../generated/subgraphs/synthetix-exchanges/Synthetix_0/AddressResolver';
-import { Exchanger as ExchangerContract } from '../generated/subgraphs/synthetix-exchanger/Exchanger_0/Exchanger';
+
+import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subgraphs/synthetix-exchanges/SystemSettings_0/SystemSettings';
 
 import {
   Total,
@@ -17,13 +16,16 @@ import {
   FifteenMinuteExchanger,
   ExchangeReclaim,
   ExchangeRebate,
+  ExchangeFee
 } from '../generated/subgraphs/synthetix-exchanges/schema';
 
-import { BigDecimal, BigInt, Address, log } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 
-import { strToBytes, getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
+import { getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
 
-let exchangerAsBytes = strToBytes('Exchanger', 32);
+let DEFAULT_FEE = new BigDecimal(BigInt.fromI32(3))
+
+DEFAULT_FEE = DEFAULT_FEE.div(new BigDecimal(BigInt.fromI32(1000)));
 
 interface AggregatedTotalEntity {
   trades: BigInt;
@@ -33,21 +35,16 @@ interface AggregatedTotalEntity {
   save: () => void;
 }
 
-function getExchanger(address: Address): ExchangerContract {
-  let synthetix = Synthetix.bind(address);
+function getFeeRate(fromCurrencyKey: string, toCurrencyKey: string): BigDecimal {
+  let latestFee = ExchangeFee.load(toCurrencyKey);
 
-  let resolverTry = synthetix.try_resolver();
+  let theFee = latestFee ? latestFee.fee : DEFAULT_FEE;
 
-  if (!resolverTry.reverted) {
-    let resolver = AddressResolver.bind(resolverTry.value);
-    let exchangerAddressTry = resolver.try_getAddress(exchangerAsBytes);
+  if((fromCurrencyKey[0] === 'i' && toCurrencyKey[0] === 's') ||
+    (fromCurrencyKey[0] === 's' && toCurrencyKey[0] === 'i'))
+    return theFee.times(new BigDecimal(BigInt.fromI32(2)));
 
-    if (!exchangerAddressTry.reverted) {
-      return ExchangerContract.bind(exchangerAddressTry.value);
-    }
-  }
-
-  return null;
+  return theFee;
 }
 
 function populateAggregatedTotalEntity<T extends AggregatedTotalEntity>(entity: T): T {
@@ -79,9 +76,9 @@ function trackTotals<T extends AggregatedTotalEntity>(
 export function handleSynthExchange(event: SynthExchangeEvent): void {
   let txHash = event.transaction.hash.toHex();
   let latestRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
-  let exchanger = getExchanger(event.address);
+  let feeRateForExchange = getFeeRate(event.params.fromCurrencyKey.toString(), event.params.toCurrencyKey.toString());
 
-  if (exchanger == null || latestRate == null) {
+  if (latestRate == null || latestRate == null) {
     log.error('handleSynthExchange has an issue in tx hash: {}', [txHash]);
     return;
   }
@@ -89,9 +86,7 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let account = event.transaction.from;
   let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate);
 
-  let feeRateForExchange = exchanger.feeRateForExchange(event.params.fromCurrencyKey, event.params.toCurrencyKey);
-  let feeRateForExchangeBD = new BigDecimal(feeRateForExchange);
-  let feesInUSD = fromAmountInUSD.times(feeRateForExchangeBD.div(etherUnits));
+  let feesInUSD = fromAmountInUSD.times(feeRateForExchange.div(etherUnits));
   let toAmountInUSD = fromAmountInUSD.minus(feesInUSD);
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -181,5 +176,14 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
     return;
   }
   entity.amountInUSD = getUSDAmountFromAssetAmount(event.params.amount, latestRate);
+  entity.save();
+}
+
+export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
+  let currencyKey = event.params.synthKey.toString();
+
+  let entity = new ExchangeFee(currencyKey)
+  entity.fee = new BigDecimal(event.params.newExchangeFeeRate)
+  entity.fee = entity.fee.div(etherUnits);
   entity.save();
 }

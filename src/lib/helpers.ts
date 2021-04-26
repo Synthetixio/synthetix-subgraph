@@ -33,15 +33,13 @@ export function getTimeID(timestampI32: i32, num: i32): string {
 
 export let etherUnits = new BigDecimal(BigInt.fromI32(10).pow(18));
 
-export function getUSDAmountFromAssetAmount(amount: BigInt, rate: BigInt): BigDecimal {
+export function getUSDAmountFromAssetAmount(amount: BigInt, rate: BigDecimal): BigDecimal {
   let decimalAmount = new BigDecimal(amount);
   let formattedDecimalAmount = decimalAmount.div(etherUnits);
-  let decimalRate = new BigDecimal(rate);
-  let formattedDecimalRate = decimalRate.div(etherUnits);
-  return formattedDecimalRate.times(formattedDecimalAmount);
+  return formattedDecimalAmount.times(rate);
 }
 
-export function getLatestRate(synth: string, txHash: string): BigInt {
+export function getLatestRate(synth: string, txHash: string): BigDecimal {
   let latestRate = LatestRate.load(synth);
   if (latestRate == null) {
     log.error('latest rate missing for synth: {}, in tx hash: {}', [synth, txHash]);

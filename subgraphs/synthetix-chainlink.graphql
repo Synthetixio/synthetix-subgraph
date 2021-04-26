@@ -10,6 +10,14 @@ type AggregatorAnswer @entity {
   timestamp: BigInt!
 }
 
+type ResolvedAddress @entity {
+  " Name of synth. E.g. sUSD "
+  id: ID!
+
+  " Address of the aggregator feeding the SNX price "
+  address: Bytes!
+}
+
 type LatestRate @entity {
   " Name of synth. E.g. sUSD "
   id: ID!

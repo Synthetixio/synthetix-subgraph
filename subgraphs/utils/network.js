@@ -19,7 +19,10 @@ function estimateBlock(date) {
         .filter(v => v.block && v.date)
         .map(v => ([v.block, v.date]));
 
+    // find the release immediately after the specified time
     const idx = sortedIndexBy(blockInfo, [0, date], v => v[1]);
+
+    console.log('idx', idx, blockInfo[idx]);
 
     const numDate = new Date(date).getTime();
 
@@ -32,7 +35,7 @@ function estimateBlock(date) {
         const rate = (blockInfo[blockInfo.length - 1][0] - blockInfo[blockInfo.length - 3][0]) /
                     (new Date(blockInfo[blockInfo.length - 1][1]).getTime() - new Date(blockInfo[blockInfo.length - 3][1]).getTime());
                     
-        return blockInfo[blockInfo.length - 1][0] + rate * (numDate - new Date(blockInfo[blockInfo.length - 1][1]).getTime());
+        return Math.floor(blockInfo[blockInfo.length - 1][0] + rate * (numDate - new Date(blockInfo[blockInfo.length - 1][1]).getTime()));
     }
 
     if(blockInfo[idx][1] === date) {
@@ -46,7 +49,9 @@ function estimateBlock(date) {
     const beforeDate = new Date(blockInfo[idx - 1][1]).getTime();
     const afterDate = new Date(blockInfo[idx][1]).getTime();
 
-    return blockInfo[idx - 1][0] + (blockInfo[idx][0] - blockInfo[idx - 1][0]) * (afterDate - beforeDate) / (numDate - beforeDate);
+    console.log(`${blockInfo[idx - 1][0]} + ${(blockInfo[idx][0] - blockInfo[idx - 1][0])} * ${(numDate - beforeDate) / (afterDate - beforeDate)}`)
+
+    return Math.floor(blockInfo[idx - 1][0] + (blockInfo[idx][0] - blockInfo[idx - 1][0]) * (numDate - beforeDate) / (afterDate - beforeDate));
 }
 
 function getReleaseBlocks() {
@@ -65,12 +70,6 @@ function getReleaseBlocks() {
 const versions = getReleaseBlocks();
 
 function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE) {
-
-    const aggregatorMatch = contractName.match(/^Aggregator(.*)$/);
-    if(aggregatorMatch) {
-        return require('./aggregators/' + getCurrentNetwork())[aggregatorMatch[1]];
-    }
-
     const versionInfo = getReleaseInfo('versions');
 
     const addressInfo = [];
@@ -101,6 +100,7 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
 module.exports = {
     getCurrentNetwork,
     getReleaseInfo,
+    estimateBlock,
     versions,
     getContractDeployments
 }

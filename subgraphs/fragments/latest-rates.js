@@ -12,43 +12,88 @@ const ACRUX_UPDATE = versions.Acrux;
 exchangeRatesContractAddresses.forEach((ca, i) => {
     exchangeRatesManifests.push(
         {
-           "kind": "ethereum/contract",
-           "name": `ExchangeRates_${i}`,
-           "network": getCurrentNetwork(),
-           "source": {
-              "address": ca.address,
-              "startBlock": ca.startBlock,
-              "abi": "ExchangeRates",
-           },
-           "mapping": {
-              "kind": "ethereum/events",
-              "apiVersion": "0.0.4",
-              "language": "wasm/assemblyscript",
-              "file": "../src/fragments/latest-rates.ts",
-              "entities": [
-                 "RatesUpdated"
-              ],
-              "abis": [
-                 {
-                    "name": "ExchangeRates",
-                    "file": ca.startBlock > BYTE32_UPDATE ? 
-                              ca.startBlock === ACRUX_UPDATE ?
-                                "../abis/ExchangeRates_v2.23.json" :
-                                ca.startBlock >= POLLUX_UPDATE ?
-                                  "../abis/ExchangeRates.json" :
-                                "../abis/ExchangeRates_bytes32.json" :
-                              "../abis/ExchangeRates_bytes4.json"
-                 }
-              ],
-              "eventHandlers": [
-                 {
-                    "event": ca.startBlock > BYTE32_UPDATE ? "RatesUpdated(bytes32[],uint256[])" : "RatesUpdated(bytes4[],uint256[])",
-                    "handler": "handleRatesUpdated"
-                 }
-              ]
-           }
-        }
-    );
+            "kind": "ethereum/contract",
+            "name": `ExchangeRates_${i}`,
+            "network": getCurrentNetwork(),
+            "source": {
+               "address": ca.address,
+               "startBlock": ca.startBlock,
+               "abi": "ExchangeRates",
+            },
+            "mapping": {
+               "kind": "ethereum/events",
+               "apiVersion": "0.0.4",
+               "language": "wasm/assemblyscript",
+               "file": "../src/fragments/latest-rates.ts",
+               "entities": [
+                 "RatesUpdated",
+                 "AggregatorAddress"
+               ],
+               "abis": [
+                  {
+                     "name": "ExchangeRates",
+                     "file": ca.startBlock >= BYTE32_UPDATE ? "../abis/ExchangeRates.json" : "../abis/ExchangeRates_bytes4.json"
+                  }
+               ],
+               "eventHandlers": ((getCurrentNetwork() == 'mainnet' && ca.startBlock >= BYTE32_UPDATE) ? [
+                  {
+                     "event": "AggregatorAdded(bytes32,address)",
+                     "handler": "handleAggregatorAdded"
+                  },
+                  {
+                     "event": "RatesUpdated(bytes32[],uint256[])",
+                     "handler": "handleRatesUpdated"
+                  }
+               ] : [
+                  {
+                     "event": "RatesUpdated(bytes4[],uint256[])",
+                     "handler": "handleRatesUpdated"
+                  }
+               ])
+            }
+         }
+      );
 });
 
-module.exports = exchangeRatesManifests;
+const aggregatorTemplate = {
+   "kind": "ethereum/contract",
+   "name": `Aggregator`,
+   "network": getCurrentNetwork(),
+   "source": {
+       "abi": "Aggregator",
+   },
+   "mapping": {
+       "kind": "ethereum/events",
+       "apiVersion": "0.0.4",
+       "language": "wasm/assemblyscript",
+       "file": "../src/fragments/latest-rates.ts",
+       "entities": [
+           "LatestRates"
+       ],
+       "abis": [
+           {
+               "name": "Aggregator",
+               "file": "../abis/Aggregator.json"
+           },
+           {
+               "name": "ExchangeRates",
+               "file": "../abis/ExchangeRates.json"
+           },
+           {
+               "name": "AddressResolver",
+               "file": "../abis/AddressResolver.json"
+           }
+       ],
+       "eventHandlers": [
+           {
+               "event": "AnswerUpdated(indexed int256,indexed uint256,uint256)",
+               "handler": "handleAggregatorAnswerUpdated"
+           }
+       ]
+   }
+}
+
+module.exports = {
+   dataSources: exchangeRatesManifests,
+   templates: [aggregatorTemplate]
+};
