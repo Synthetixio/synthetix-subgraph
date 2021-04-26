@@ -3,57 +3,60 @@ const { getCurrentNetwork } = require('./utils/network');
 
 const manifest = [];
 
-getContractDeployments('ProxyERC20').forEach((a, i) => {
-    manifest.push(
-        {
-            "kind": "ethereum/contract",
-            "name": `Synthetix_${i}`,
-            "network": getCurrentNetwork(),
-            "source": {
-              "address": a.address,
-              "startBlock": a.startBlock,
-              "abi": "Synthetix"
-            },
-            "mapping": {
-               "kind": "ethereum/events",
-               "apiVersion": "0.0.4",
-               "language": "wasm/assemblyscript",
-               "file": "../src/synthetix.ts",
-               "entities": [
-                    "SNXTransfer"
-               ],
-               "abis": [
-                    {
-                        "name": "Synthetix",
-                        "file": "../abis/Synthetix.json"
-                    },
-                    {
-                        "name": "Synthetix4",
-                        "file": "../abis/Synthetix_bytes4.json"
-                    },
-                    {
-                        "name": "Synthetix32",
-                        "file": "../abis/Synthetix_bytes32.json"
-                    },
-                    {
-                        "name": "AddressResolver",
-                        "file": "../abis/AddressResolver.json"
-                    },
-                    {
-                        "name": "SynthetixState",
-                        "file": "../abis/SynthetixState.json"
-                    }
+for(const contractName of ['Synthetix', 'ERC20']) {
+    getContractDeployments('Proxy' + contractName).forEach((a, i) => {
+        manifest.push(
+            {
+                "kind": "ethereum/contract",
+                "name": `Synthetix_${i}`,
+                "network": getCurrentNetwork(),
+                "source": {
+                "address": a.address,
+                "startBlock": a.startBlock,
+                "abi": "Synthetix"
+                },
+                "mapping": {
+                "kind": "ethereum/events",
+                "apiVersion": "0.0.4",
+                "language": "wasm/assemblyscript",
+                "file": "../src/synthetix.ts",
+                "entities": [
+                        "SNXTransfer"
                 ],
-                "eventHandlers": [
-                    {
-                        "event": "Transfer(indexed address,indexed address,uint256)",
-                        "handler": "handleTransferSNX"
-                    }
-                ]
+                "abis": [
+                        {
+                            "name": "Synthetix",
+                            "file": "../abis/Synthetix.json"
+                        },
+                        {
+                            "name": "Synthetix4",
+                            "file": "../abis/Synthetix_bytes4.json"
+                        },
+                        {
+                            "name": "Synthetix32",
+                            "file": "../abis/Synthetix_bytes32.json"
+                        },
+                        {
+                            "name": "AddressResolver",
+                            "file": "../abis/AddressResolver.json"
+                        },
+                        {
+                            "name": "SynthetixState",
+                            "file": "../abis/SynthetixState.json"
+                        }
+                    ],
+                    "eventHandlers": [
+                        {
+                            "event": "Transfer(indexed address,indexed address,uint256)",
+                            "handler": "handleTransferSNX"
+                        }
+                    ]
+                }
             }
-        }
-    );
-});
+        );
+    });
+}
+
 
 getContractDeployments('ProxyFeePool').forEach((a, i) => {
     manifest.push(
@@ -169,7 +172,7 @@ getContractDeployments('RewardEscrow').forEach((a, i) => {
     );
 });
 
-for(const token of ['sUSD', 'sETH', 'sBTC', 'iETH', 'iBTC']) {
+for(const token of ['sUSD', 'ERC20sUSD']) {
     getContractDeployments('Proxy' + token).forEach((a, i) => {
         manifest.push(
             {
