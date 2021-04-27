@@ -37,8 +37,6 @@ import { store, BigInt, Address, ethereum, Bytes, log } from '@graphprotocol/gra
 
 import { strToBytes } from './lib/helpers';
 
-import { escrowContracts, readProxyAdressResolver } from './lib/hardcoded-contracts';
-
 // TODO have every block start after the Archernar release at blcok 9518914
 // we can prepopulate mainnet data - discuss with Justin
 
@@ -84,6 +82,28 @@ function trackIssuer(account: Address): void {
   }
 }
 
+function isEscrowAccount(synthetix: SNX, holder: string, txHash: string): boolean {
+  let resolverTry = synthetix.try_resolver();
+  if (resolverTry.reverted) {
+    log.debug('isEscrowAccount method reverted. Return true to stop further processing in tx: {}', [txHash]);
+    return true;
+  }
+  let resolverAddress = resolverTry.value;
+  let resolver = AddressResolver.bind(resolverAddress);
+  let synthetixEscrowAddress = resolver.getAddress(strToBytes('SynthetixEscrow', 32));
+  let rewardEscrowAddress = resolver.getAddress(strToBytes('RewardEscrow', 32));
+  let rewardEscrowV2Address = resolver.getAddress(strToBytes('RewardEscrowV2', 32));
+
+  if (
+    synthetixEscrowAddress.toHex() == holder ||
+    rewardEscrowAddress.toHex() == holder ||
+    rewardEscrowV2Address.toHex() == holder
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function trackSNXHolder(
   snxContract: Address,
   account: Address,
@@ -91,21 +111,16 @@ function trackSNXHolder(
   txn: ethereum.Transaction,
 ): void {
   let holder = account.toHex();
-
-  // ignore escrow accounts
-  if (
-    escrowContracts.get('escrow') == holder ||
-    escrowContracts.get('rewardEscrow') == holder ||
-    escrowContracts.get('rewardEscrowV2') == holder
-  ) {
+  let snxHolder = new SNXHolder(holder);
+  let synthetix = SNX.bind(snxContract);
+  let escrowBoolean = isEscrowAccount(synthetix, holder, txn.hash.toHex());
+  if (escrowBoolean) {
     return;
   }
   let existingSNXHolder = SNXHolder.load(holder);
-  let snxHolder = new SNXHolder(holder);
   snxHolder.block = block.number;
   snxHolder.timestamp = block.timestamp;
 
-  let synthetix = SNX.bind(snxContract);
   snxHolder.balanceOf = synthetix.balanceOf(account);
   snxHolder.collateral = synthetix.collateral(account);
 
@@ -114,15 +129,8 @@ function trackSNXHolder(
   if (!transferableTry.reverted) {
     snxHolder.transferable = transferableTry.value;
   }
-  let resolverTry = synthetix.try_resolver();
-  if (resolverTry.reverted) {
-    log.debug('Skipping SNX holder tracking: No resolver property from SNX holder from hash: {}, block: {}', [
-      txn.hash.toHex(),
-      block.number.toString(),
-    ]);
-    return;
-  }
-  let resolverAddress = resolverTry.value;
+  // NOTE if it gets here past the escrow try_resolver() check, this will always resolve
+  let resolverAddress = synthetix.resolver();
   let resolver = AddressResolver.bind(resolverAddress);
   let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
   let issuanceData = synthetixState.issuanceData(account);
@@ -176,13 +184,9 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   let snxContract = event.transaction.to as Address;
   let account = event.transaction.from;
   let holder = account.toHex();
-
-  // ignore escrow accounts
-  if (
-    escrowContracts.get('escrow') == holder ||
-    escrowContracts.get('rewardEscrow') == holder ||
-    escrowContracts.get('rewardEscrowV2') == holder
-  ) {
+  let synthetix = SNX.bind(snxContract);
+  let escrowBoolean = isEscrowAccount(synthetix, holder, event.transaction.hash.toHex());
+  if (escrowBoolean) {
     return;
   }
 
@@ -190,8 +194,6 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.block = event.block.number;
   entity.timestamp = event.block.timestamp;
   entity.account = account;
-
-  let synthetix = SNX.bind(snxContract);
   entity.balanceOf = synthetix.balanceOf(account);
   entity.collateral = synthetix.collateral(account);
   entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);

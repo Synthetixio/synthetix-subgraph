@@ -14,8 +14,6 @@ import {
 
 import { strToBytes } from './lib/helpers';
 
-import { readProxyAdressResolver } from './lib/hardcoded-contracts';
-
 import { contractsToProxies } from './lib/contractsToProxies';
 
 import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
@@ -150,6 +148,7 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
 
 // create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
+  // NOTE: taking this hardcoded value away in case we need it at some point for rates
   let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
   let exrates = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
 
