@@ -1,6 +1,8 @@
-import { RatesUpdated as RatesUpdatedEvent, AggregatorAdded as AggregatorAddedEvent } from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
+import {
+  RatesUpdated as RatesUpdatedEvent,
+  AggregatorAdded as AggregatorAddedEvent,
+} from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
 import { AggregatorProxy } from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/AggregatorProxy';
-
 
 import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/synthetix-rates/templates/Aggregator/Aggregator';
 
@@ -34,13 +36,11 @@ export function handleAggregatorAdded(event: AggregatorAddedEvent): void {
 
   context.setString('currencyKey', currencyKey);
 
-  if(currencyKey.startsWith('s')) {
+  if (currencyKey.startsWith('s')) {
     Aggregator.createWithContext(aggregatorAddress, context);
-  }
-  else {
+  } else {
     InverseAggregator.createWithContext(aggregatorAddress, context);
   }
-
 }
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {

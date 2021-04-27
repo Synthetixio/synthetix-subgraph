@@ -16,14 +16,14 @@ import {
   FifteenMinuteExchanger,
   ExchangeReclaim,
   ExchangeRebate,
-  ExchangeFee
+  ExchangeFee,
 } from '../generated/subgraphs/synthetix-exchanges/schema';
 
 import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 
 import { getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
 
-let DEFAULT_FEE = new BigDecimal(BigInt.fromI32(3))
+let DEFAULT_FEE = new BigDecimal(BigInt.fromI32(3));
 
 DEFAULT_FEE = DEFAULT_FEE.div(new BigDecimal(BigInt.fromI32(1000)));
 
@@ -40,8 +40,10 @@ function getFeeRate(fromCurrencyKey: string, toCurrencyKey: string): BigDecimal 
 
   let theFee = latestFee ? latestFee.fee : DEFAULT_FEE;
 
-  if((fromCurrencyKey[0] === 'i' && toCurrencyKey[0] === 's') ||
-    (fromCurrencyKey[0] === 's' && toCurrencyKey[0] === 'i'))
+  if (
+    (fromCurrencyKey[0] === 'i' && toCurrencyKey[0] === 's') ||
+    (fromCurrencyKey[0] === 's' && toCurrencyKey[0] === 'i')
+  )
     return theFee.times(new BigDecimal(BigInt.fromI32(2)));
 
   return theFee;
@@ -182,8 +184,8 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
 export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
   let currencyKey = event.params.synthKey.toString();
 
-  let entity = new ExchangeFee(currencyKey)
-  entity.fee = new BigDecimal(event.params.newExchangeFeeRate)
+  let entity = new ExchangeFee(currencyKey);
+  entity.fee = new BigDecimal(event.params.newExchangeFeeRate);
   entity.fee = entity.fee.div(etherUnits);
   entity.save();
 }
