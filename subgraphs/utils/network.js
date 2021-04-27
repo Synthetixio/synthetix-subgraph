@@ -85,11 +85,11 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
                 break;
 
             if(addressInfo.length)
-                last(addressInfo).endBlock = info.block || (estimateBlock(info.date) + 8640);
+                last(addressInfo).endBlock = (info.block || estimateBlock(info.date)) + 8640;
 
             addressInfo.push({
                 address: contractInfo.address,
-                startBlock: info.block || (estimateBlock(info.date) - 8640)
+                startBlock: (info.block || estimateBlock(info.date)) - 8640
             });
         }
     }

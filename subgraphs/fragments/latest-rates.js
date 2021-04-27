@@ -91,9 +91,48 @@ const aggregatorTemplate = {
            }
        ]
    }
-}
+};
+
+// separate aggregator for inverse synths
+const inverseAggregatorTemplate = {
+   "kind": "ethereum/contract",
+   "name": `InverseAggregator`,
+   "network": getCurrentNetwork(),
+   "source": {
+       "abi": "Aggregator",
+   },
+   "mapping": {
+       "kind": "ethereum/events",
+       "apiVersion": "0.0.4",
+       "language": "wasm/assemblyscript",
+       "file": "../src/fragments/latest-rates.ts",
+       "entities": [
+           "LatestRates"
+       ],
+       "abis": [
+           {
+               "name": "Aggregator",
+               "file": "../abis/Aggregator.json"
+           },
+           {
+               "name": "ExchangeRates",
+               "file": "../abis/ExchangeRates.json"
+           },
+           {
+               "name": "AddressResolver",
+               "file": "../abis/AddressResolver.json"
+           }
+       ],
+       "eventHandlers": [
+           {
+               "event": "AnswerUpdated(indexed int256,indexed uint256,uint256)",
+               "handler": "handleInverseAggregatorAnswerUpdated"
+           }
+       ]
+   }
+};
 
 module.exports = {
    dataSources: exchangeRatesManifests,
-   templates: [aggregatorTemplate]
+   templates: [aggregatorTemplate, inverseAggregatorTemplate]
 };
