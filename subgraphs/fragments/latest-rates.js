@@ -33,6 +33,10 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
                   {
                      "name": "ExchangeRates",
                      "file": ca.startBlock >= BYTE32_UPDATE ? "../abis/ExchangeRates.json" : "../abis/ExchangeRates_bytes4.json"
+                  },
+                  {
+                      "name": "AggregatorProxy",
+                      "file": "../abis/AggregatorProxy.json"
                   }
                ],
                "eventHandlers": ((getCurrentNetwork() == 'mainnet' && ca.startBlock >= BYTE32_UPDATE) ? [

@@ -1,4 +1,6 @@
 import { RatesUpdated as RatesUpdatedEvent, AggregatorAdded as AggregatorAddedEvent } from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
+import { AggregatorProxy } from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/AggregatorProxy';
+
 
 import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/synthetix-rates/templates/Aggregator/Aggregator';
 
@@ -24,15 +26,19 @@ function addDollar(dollarID: string): void {
 export function handleAggregatorAdded(event: AggregatorAddedEvent): void {
   let context = new DataSourceContext();
 
+  // check to see if the aggregator given is actually a proxy
+  let possibleProxy = AggregatorProxy.bind(event.params.aggregator);
+  let tryAggregator = possibleProxy.try_aggregator();
+  let aggregatorAddress = !tryAggregator.reverted ? tryAggregator.value : event.params.aggregator;
   let currencyKey = event.params.currencyKey.toString();
 
   context.setString('currencyKey', currencyKey);
 
   if(currencyKey.startsWith('s')) {
-    Aggregator.createWithContext(event.params.aggregator, context);
+    Aggregator.createWithContext(aggregatorAddress, context);
   }
   else {
-    InverseAggregator.createWithContext(event.params.aggregator, context);
+    InverseAggregator.createWithContext(aggregatorAddress, context);
   }
 
 }
