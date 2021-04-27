@@ -3,151 +3,60 @@ const { getCurrentNetwork } = require('./utils/network');
 
 const manifest = [];
 
-/*if(getCurrentNetwork() == 'mainnet') {
-    // pre-recording contracts
-    manifest.push(
-        {
-            "kind": "ethereum/contract",
-            "name": "Synthetix4_viaOldProxy",
-            "network": "mainnet",
-            "source": {
-                "address": "0xc011a72400e58ecd99ee497cf89e3775d4bd732f",
-                "abi": "Synthetix4",
-                "startBlock": 6841188
-            },
-            "mapping": {
+for(const contractName of ['Synthetix', 'ERC20']) {
+    getContractDeployments('Proxy' + contractName).forEach((a, i) => {
+        manifest.push(
+            {
+                "kind": "ethereum/contract",
+                "name": `Synthetix_${i}`,
+                "network": getCurrentNetwork(),
+                "source": {
+                "address": a.address,
+                "startBlock": a.startBlock,
+                "abi": "Synthetix"
+                },
+                "mapping": {
                 "kind": "ethereum/events",
                 "apiVersion": "0.0.4",
                 "language": "wasm/assemblyscript",
-                "file": "../src/synthetix-old.ts",
+                "file": "../src/synthetix.ts",
                 "entities": [
-                    "SynthExchange"
+                        "SNXTransfer"
                 ],
                 "abis": [
-                    {
-                    "name": "Synthetix4",
-                    "file": "../abis/Synthetix_bytes4.json"
-                    }
-                ],
-                "eventHandlers": [
-                    {
-                    "event": "SynthExchange(indexed address,bytes4,uint256,bytes4,uint256,address)",
-                    "handler": "handleSynthExchange4"
-                    }
-                ]
+                        {
+                            "name": "Synthetix",
+                            "file": "../abis/Synthetix.json"
+                        },
+                        {
+                            "name": "Synthetix4",
+                            "file": "../abis/Synthetix_bytes4.json"
+                        },
+                        {
+                            "name": "Synthetix32",
+                            "file": "../abis/Synthetix_bytes32.json"
+                        },
+                        {
+                            "name": "AddressResolver",
+                            "file": "../abis/AddressResolver.json"
+                        },
+                        {
+                            "name": "SynthetixState",
+                            "file": "../abis/SynthetixState.json"
+                        }
+                    ],
+                    "eventHandlers": [
+                        {
+                            "event": "Transfer(indexed address,indexed address,uint256)",
+                            "handler": "handleTransferSNX"
+                        }
+                    ]
+                }
             }
-        },
-        {
-            "kind": "ethereum/contract",
-            "name": "Synthetix_viaOldProxy",
-            "network": "mainnet",
-            "source": {
-                "address": "0xc011a72400e58ecd99ee497cf89e3775d4bd732f",
-                "abi": "Synthetix",
-                "startBlock": 8622911
-            },
-            "mapping": {
-                "kind": "ethereum/events",
-                "apiVersion": "0.0.4",
-                "language": "wasm/assemblyscript",
-                "file": "../src/synthetix-old.ts",
-                "entities": [
-                    "SynthExchange",
-                    "ExchangeReclaim",
-                    "ExchangeRebate"
-                ],
-                "abis": [
-                    {
-                    "name": "Synthetix4",
-                    "file": "../abis/Synthetix_bytes4.json"
-                    },
-                    {
-                    "name": "Synthetix32",
-                    "file": "../abis/Synthetix_bytes32.json"
-                    },
-                    {
-                    "name": "Synthetix",
-                    "file": "../abis/Synthetix.json"
-                    },
-                    {
-                    "name": "AddressResolver",
-                    "file": "../abis/AddressResolver.json"
-                    },
-                    {
-                    "name": "ExchangeRates",
-                    "file": "../abis/ExchangeRates.json"
-                    }
-                ],
-                "eventHandlers": [
-                    {
-                    "event": "SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)",
-                    "handler": "handleSynthExchange32"
-                    },
-                    {
-                    "event": "ExchangeReclaim(indexed address,bytes32,uint256)",
-                    "handler": "handleExchangeReclaim"
-                    },
-                    {
-                    "event": "ExchangeRebate(indexed address,bytes32,uint256)",
-                    "handler": "handleExchangeRebate"
-                    }
-                ]
-            }
-        }
-    );
-}*/
+        );
+    });
+}
 
-getContractDeployments('ProxyERC20').forEach((a, i) => {
-    manifest.push(
-        {
-            "kind": "ethereum/contract",
-            "name": `Synthetix_${i}`,
-            "network": getCurrentNetwork(),
-            "source": {
-              "address": a.address,
-              "startBlock": a.startBlock,
-              "abi": "Synthetix"
-            },
-            "mapping": {
-                "kind": "ethereum/events",
-                "apiVersion": "0.0.4",
-                "language": "wasm/assemblyscript",
-                "file": "../src/synthetix-old.ts",
-                "entities": [
-                   "Transfer"
-                ],
-                "abis": [
-                   {
-                      "name": "Synthetix",
-                      "file": "../abis/Synthetix.json"
-                   },
-                   {
-                      "name": "Synthetix4",
-                      "file": "../abis/Synthetix_bytes4.json"
-                   },
-                   {
-                      "name": "Synthetix32",
-                      "file": "../abis/Synthetix_bytes32.json"
-                   },
-                   {
-                      "name": "AddressResolver",
-                      "file": "../abis/AddressResolver.json"
-                   },
-                   {
-                      "name": "SynthetixState",
-                      "file": "../abis/SynthetixState.json"
-                   }
-                ],
-                "eventHandlers": [
-                   {
-                      "event": "Transfer(indexed address,indexed address,uint256)",
-                      "handler": "handleTransferSNX"
-                   }
-                ]
-            }
-        }
-    );
-});
 
 getContractDeployments('ProxyFeePool').forEach((a, i) => {
     manifest.push(
@@ -263,7 +172,7 @@ getContractDeployments('RewardEscrow').forEach((a, i) => {
     );
 });
 
-for(const token of ['sUSD', 'sETH', 'sBTC', 'iETH', 'iBTC']) {
+for(const token of ['sUSD', 'ERC20sUSD']) {
     getContractDeployments('Proxy' + token).forEach((a, i) => {
         manifest.push(
             {
