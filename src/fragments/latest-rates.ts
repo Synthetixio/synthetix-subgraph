@@ -69,6 +69,17 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
   let context = dataSource.context();
   let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
 
+  // since this is inverse pricing, we have to get the latest token information and then apply it to the rate
+  let inversePricingInfo = InversePricingInfo.load(context.getString('currencyKey'));
+
+  if(inversePricingInfo.frozen)
+    return;
+  
+  let inverseRate = inversePricingInfo.entryPoint.times(2).minus(rate);
+
+  inverseRate = inversePricingInfo.lowerLimit.lt(inverseRate) ? inverseRate : inversePricingInfo.lowerLimit;
+  inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
+
   addDollar('sUSD');
-  addLatestRate(context.getString('currencyKey'), rate);
+  addLatestRate(context.getString('currencyKey'), inverseRate);
 }

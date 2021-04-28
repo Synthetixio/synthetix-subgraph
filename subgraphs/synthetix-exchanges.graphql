@@ -101,6 +101,20 @@ type ExchangeFee @entity {
   fee: BigDecimal!
 }
 
+type InversePricingInfo @entity {
+  " Name of inverse synth. E.g. iETH "
+  id: ID!
+
+  " configured upper limit "
+  upperLimit: BigDecimal!
+
+  " configured lower limit "
+  lowerLimit: BigDecimal!
+
+  " matching price point with long synth "
+  entryPoint: BigDecimal!
+}
+
 type LatestRate @entity {
   " Name of synth. E.g. sUSD "
   id: ID!
