@@ -16,14 +16,14 @@ import {
   FifteenMinuteExchanger,
   ExchangeReclaim,
   ExchangeRebate,
-  ExchangeFee
+  ExchangeFee,
 } from '../generated/subgraphs/synthetix-exchanges/schema';
 
 import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 
 import { getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
 
-let DEFAULT_FEE = new BigDecimal(BigInt.fromI32(3))
+let DEFAULT_FEE = new BigDecimal(BigInt.fromI32(3));
 
 DEFAULT_FEE = DEFAULT_FEE.div(new BigDecimal(BigInt.fromI32(1000)));
 
@@ -33,18 +33,6 @@ interface AggregatedTotalEntity {
   exchangeUSDTally: BigDecimal;
   totalFeesGeneratedInUSD: BigDecimal;
   save: () => void;
-}
-
-function getFeeRate(fromCurrencyKey: string, toCurrencyKey: string): BigDecimal {
-  let latestFee = ExchangeFee.load(toCurrencyKey);
-
-  let theFee = latestFee ? latestFee.fee : DEFAULT_FEE;
-
-  if((fromCurrencyKey[0] === 'i' && toCurrencyKey[0] === 's') ||
-    (fromCurrencyKey[0] === 's' && toCurrencyKey[0] === 'i'))
-    return theFee.times(new BigDecimal(BigInt.fromI32(2)));
-
-  return theFee;
 }
 
 function populateAggregatedTotalEntity<T extends AggregatedTotalEntity>(entity: T): T {
@@ -75,19 +63,19 @@ function trackTotals<T extends AggregatedTotalEntity>(
 
 export function handleSynthExchange(event: SynthExchangeEvent): void {
   let txHash = event.transaction.hash.toHex();
-  let latestRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
-  let feeRateForExchange = getFeeRate(event.params.fromCurrencyKey.toString(), event.params.toCurrencyKey.toString());
+  let latestFromRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
+  let latestToRate = getLatestRate(event.params.toCurrencyKey.toString(), txHash);
 
-  if (latestRate == null || latestRate == null) {
+  if (latestFromRate == null || latestToRate == null) {
     log.error('handleSynthExchange has an issue in tx hash: {}', [txHash]);
     return;
   }
 
   let account = event.transaction.from;
-  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate);
+  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.fromAmount, latestFromRate);
+  let toAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestToRate);
 
-  let feesInUSD = fromAmountInUSD.times(feeRateForExchange.div(etherUnits));
-  let toAmountInUSD = fromAmountInUSD.minus(feesInUSD);
+  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
 
   let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.account = event.params.account;
@@ -182,8 +170,8 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
 export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
   let currencyKey = event.params.synthKey.toString();
 
-  let entity = new ExchangeFee(currencyKey)
-  entity.fee = new BigDecimal(event.params.newExchangeFeeRate)
+  let entity = new ExchangeFee(currencyKey);
+  entity.fee = new BigDecimal(event.params.newExchangeFeeRate);
   entity.fee = entity.fee.div(etherUnits);
   entity.save();
 }

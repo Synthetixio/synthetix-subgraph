@@ -1,19 +1,27 @@
-import { RatesUpdated as RatesUpdatedEvent, AggregatorAdded as AggregatorAddedEvent } from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
+import {
+  RatesUpdated as RatesUpdatedEvent,
+  AggregatorAdded as AggregatorAddedEvent,
+  InversePriceConfigured,
+  InversePriceFrozen,
+} from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
 import { AggregatorProxy } from '../../generated/subgraphs/synthetix-rates/ExchangeRates_13/AggregatorProxy';
-
 
 import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/synthetix-rates/templates/Aggregator/Aggregator';
 
 import { Aggregator, InverseAggregator } from '../../generated/subgraphs/synthetix-rates/templates';
-import { LatestRate } from '../../generated/subgraphs/synthetix-rates/schema';
+import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/synthetix-rates/schema';
 
-import { BigDecimal, BigInt, DataSourceContext, dataSource } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, DataSourceContext, dataSource, log } from '@graphprotocol/graph-ts';
 import { etherUnits } from '../lib/helpers';
 
 function addLatestRate(synth: string, rate: BigInt): void {
-  let latestRate = new LatestRate(synth);
   let decimalRate = new BigDecimal(rate);
-  latestRate.rate = decimalRate.div(etherUnits);
+  addLatestRateFromDecimal(synth, decimalRate.div(etherUnits));
+}
+
+function addLatestRateFromDecimal(synth: string, rate: BigDecimal): void {
+  let latestRate = new LatestRate(synth);
+  latestRate.rate = rate;
   latestRate.save();
 }
 
@@ -34,13 +42,11 @@ export function handleAggregatorAdded(event: AggregatorAddedEvent): void {
 
   context.setString('currencyKey', currencyKey);
 
-  if(currencyKey.startsWith('s')) {
+  if (currencyKey.startsWith('s')) {
     Aggregator.createWithContext(aggregatorAddress, context);
-  }
-  else {
+  } else {
     InverseAggregator.createWithContext(aggregatorAddress, context);
   }
-
 }
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
@@ -65,21 +71,50 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   addLatestRate(context.getString('currencyKey'), rate);
 }
 
+export function handleInverseConfigured(event: InversePriceConfigured): void {
+  let entity = new InversePricingInfo(event.params.currencyKey.toString());
+  entity.entryPoint = new BigDecimal(event.params.entryPoint);
+  entity.lowerLimit = new BigDecimal(event.params.lowerLimit);
+  entity.upperLimit = new BigDecimal(event.params.upperLimit);
+
+  entity.entryPoint = entity.entryPoint.div(etherUnits);
+  entity.lowerLimit = entity.lowerLimit.div(etherUnits);
+  entity.upperLimit = entity.upperLimit.div(etherUnits);
+
+  entity.frozen = false;
+
+  entity.save();
+}
+
+export function handleInverseFrozen(event: InversePriceFrozen): void {
+  let entity = new InversePricingInfo(event.params.currencyKey.toString());
+  entity.frozen = true;
+  entity.save();
+
+  addLatestRate(event.params.currencyKey.toString(), event.params.rate);
+}
+
 export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   let context = dataSource.context();
   let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
 
+  let decimalRate = new BigDecimal(rate);
+
   // since this is inverse pricing, we have to get the latest token information and then apply it to the rate
   let inversePricingInfo = InversePricingInfo.load(context.getString('currencyKey'));
+
+  if(inversePricingInfo == null) {
+    log.warning(`Missing inverse pricing info for asset ${context.getString('currencyKey')}`, []);
+    return;
+  }
 
   if(inversePricingInfo.frozen)
     return;
   
-  let inverseRate = inversePricingInfo.entryPoint.times(2).minus(rate);
+  let inverseRate = inversePricingInfo.entryPoint.times(new BigDecimal(BigInt.fromI32(2))).minus(decimalRate.div(etherUnits));
 
   inverseRate = inversePricingInfo.lowerLimit.lt(inverseRate) ? inverseRate : inversePricingInfo.lowerLimit;
   inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
 
-  addDollar('sUSD');
-  addLatestRate(context.getString('currencyKey'), inverseRate);
+  addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate);
 }

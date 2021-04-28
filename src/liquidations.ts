@@ -10,7 +10,11 @@ import {
 
 import { AccountLiquidated as AccountLiquidatedEvent } from '../generated/subgraphs/synthetix-liquidations/Synthetix_0/Synthetix';
 
-import { AccountFlaggedForLiquidation, AccountRemovedFromLiquidation, AccountLiquidated } from '../generated/subgraphs/synthetix-liquidations/schema';
+import {
+  AccountFlaggedForLiquidation,
+  AccountRemovedFromLiquidation,
+  AccountLiquidated,
+} from '../generated/subgraphs/synthetix-liquidations/schema';
 
 import { strToBytes } from './lib/util';
 

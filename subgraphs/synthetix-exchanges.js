@@ -7,9 +7,9 @@ const latestRates = require('./fragments/latest-rates');
 
 const manifest = clone(latestRates.dataSources);
 
-if(getCurrentNetwork() == 'mainnet') {
-    // pre-recording contracts
-    /*manifest.push(
+if (getCurrentNetwork() == 'mainnet') {
+  // pre-recording contracts
+  /*manifest.push(
         {
             "kind": "ethereum/contract",
             "name": "Synthetix4_viaOldProxy",
@@ -102,110 +102,100 @@ if(getCurrentNetwork() == 'mainnet') {
 }
 
 getContractDeployments('ProxyERC20').forEach((a, i) => {
-    manifest.push(
+  manifest.push({
+    kind: 'ethereum/contract',
+    name: `Synthetix_${i}`,
+    network: getCurrentNetwork(),
+    source: {
+      address: a.address,
+      startBlock: a.startBlock,
+      abi: 'Synthetix',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.4',
+      language: 'wasm/assemblyscript',
+      file: '../src/exchanges.ts',
+      entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate'],
+      abis: [
         {
-            "kind": "ethereum/contract",
-            "name": `Synthetix_${i}`,
-            "network": getCurrentNetwork(),
-            "source": {
-                "address": a.address,
-                "startBlock": a.startBlock,
-                "abi": "Synthetix",
-            },
-            "mapping": {
-                "kind": "ethereum/events",
-                "apiVersion": "0.0.4",
-                "language": "wasm/assemblyscript",
-                "file": "../src/exchanges.ts",
-                "entities": [
-                    "SynthExchange",
-                    "ExchangeReclaim",
-                    "ExchangeRebate"
-                ],
-                "abis": [
-                    {
-                    "name": "Synthetix4",
-                    "file": "../abis/Synthetix_bytes4.json"
-                    },
-                    {
-                    "name": "Synthetix32",
-                    "file": "../abis/Synthetix_bytes32.json"
-                    },
-                    {
-                    "name": "Synthetix",
-                    "file": "../abis/Synthetix.json"
-                    },
-                    {
-                    "name": "AddressResolver",
-                    "file": "../abis/AddressResolver.json"
-                    },
-                    {
-                    "name": "ExchangeRates",
-                    "file": "../abis/ExchangeRates.json"
-                    }
-                ],
-                "eventHandlers": [
-                    {
-                    "event": "SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)",
-                    "handler": "handleSynthExchange"
-                    },
-                    {
-                    "event": "ExchangeReclaim(indexed address,bytes32,uint256)",
-                    "handler": "handleExchangeReclaim"
-                    },
-                    {
-                    "event": "ExchangeRebate(indexed address,bytes32,uint256)",
-                    "handler": "handleExchangeRebate"
-                    }
-                ]
-            }
-        }
-    );
+          name: 'Synthetix4',
+          file: '../abis/Synthetix_bytes4.json',
+        },
+        {
+          name: 'Synthetix32',
+          file: '../abis/Synthetix_bytes32.json',
+        },
+        {
+          name: 'Synthetix',
+          file: '../abis/Synthetix.json',
+        },
+        {
+          name: 'AddressResolver',
+          file: '../abis/AddressResolver.json',
+        },
+        {
+          name: 'ExchangeRates',
+          file: '../abis/ExchangeRates.json',
+        },
+      ],
+      eventHandlers: [
+        {
+          event: 'SynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)',
+          handler: 'handleSynthExchange',
+        },
+        {
+          event: 'ExchangeReclaim(indexed address,bytes32,uint256)',
+          handler: 'handleExchangeReclaim',
+        },
+        {
+          event: 'ExchangeRebate(indexed address,bytes32,uint256)',
+          handler: 'handleExchangeRebate',
+        },
+      ],
+    },
+  });
 });
 
 getContractDeployments('SystemSettings').forEach((a, i) => {
-    manifest.push(
+  manifest.push({
+    kind: 'ethereum/contract',
+    name: `SystemSettings_${i}`,
+    network: getCurrentNetwork(),
+    source: {
+      address: a.address,
+      startBlock: a.startBlock,
+      abi: 'SystemSettings',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.4',
+      language: 'wasm/assemblyscript',
+      file: '../src/exchanges.ts',
+      entities: ['SystemSettings'],
+      abis: [
         {
-            "kind": "ethereum/contract",
-            "name": `SystemSettings_${i}`,
-            "network": getCurrentNetwork(),
-            "source": {
-                "address": a.address,
-                "startBlock": a.startBlock,
-                "abi": "SystemSettings",
-            },
-            "mapping": {
-                "kind": "ethereum/events",
-                "apiVersion": "0.0.4",
-                "language": "wasm/assemblyscript",
-                "file": "../src/exchanges.ts",
-                "entities": [
-                    "SystemSettings",
-                ],
-                "abis": [
-                    {
-                    "name": "SystemSettings",
-                    "file": "../abis/SystemSettings.json"
-                    }
-                ],
-                "eventHandlers": [
-                    {
-                        "event": "ExchangeFeeUpdated(bytes32,uint256)",
-                        "handler": "handleFeeChange"
-                    },
-                ]
-            }
-        }
-    );
+          name: 'SystemSettings',
+          file: '../abis/SystemSettings.json',
+        },
+      ],
+      eventHandlers: [
+        {
+          event: 'ExchangeFeeUpdated(bytes32,uint256)',
+          handler: 'handleFeeChange',
+        },
+      ],
+    },
+  });
 });
 
 module.exports = {
-    "specVersion": "0.0.2",
-    "description": "Synthetix Exchanges API",
-    "repository": "https://github.com/Synthetixio/synthetix-subgraph",
-    "schema": {
-        "file": "./synthetix-exchanges.graphql"
-    },
-    "dataSources": manifest,
-    "templates": latestRates.templates
+  specVersion: '0.0.2',
+  description: 'Synthetix Exchanges API',
+  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
+  schema: {
+    file: './synthetix-exchanges.graphql',
+  },
+  dataSources: manifest,
+  templates: latestRates.templates,
 };
