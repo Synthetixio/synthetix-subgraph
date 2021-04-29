@@ -22,7 +22,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
       apiVersion: '0.0.4',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
-      entities: ['RatesUpdated', 'AggregatorAddress'],
+      entities: ['LatestRate', 'InversePricingInfo'],
       abis: [
         {
           name: 'ExchangeRates',
@@ -79,7 +79,9 @@ if(getCurrentNetwork() == 'mainnet') {
       apiVersion: '0.0.4',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
-      entities: [],
+      entities: [
+        'LatestRate' // dummy
+      ],
       abis: [
         {
           name: 'ProxyERC20',
@@ -90,16 +92,24 @@ if(getCurrentNetwork() == 'mainnet') {
           file: '../abis/Synthetix.json',
         },
         {
+          name: 'ExchangeRates',
+          file: '../abis/ExchangeRates.json',
+        },
+        {
           name: 'AddressResolver',
           file: '../abis/AddressResolver.json',
         },
+        {
+          name: 'AggregatorProxy',
+          file: '../abis/AggregatorProxy.json'
+        }
       ],
       blockHandlers: [
         {
           handler: 'handleChainlinkUpdate',
-          filter: {
+          /*filter: {
             kind: 'call'
-          }
+          }*/
         }
       ]
     }

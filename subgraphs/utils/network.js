@@ -1,5 +1,7 @@
 const { values, last, sortedIndexBy } = require('lodash');
 
+const BLOCK_SAFETY_OFFSET = 8640;
+
 function getCurrentNetwork() {
   return process.env['SNX_NETWORK'];
 }
@@ -21,8 +23,6 @@ function estimateBlock(date) {
 
   // find the release immediately after the specified time
   const idx = sortedIndexBy(blockInfo, [0, date], (v) => v[1]);
-
-  console.log('idx', idx, blockInfo[idx]);
 
   const numDate = new Date(date).getTime();
 
@@ -52,12 +52,6 @@ function estimateBlock(date) {
   const beforeDate = new Date(blockInfo[idx - 1][1]).getTime();
   const afterDate = new Date(blockInfo[idx][1]).getTime();
 
-  console.log(
-    `${blockInfo[idx - 1][0]} + ${blockInfo[idx][0] - blockInfo[idx - 1][0]} * ${
-      (numDate - beforeDate) / (afterDate - beforeDate)
-    }`,
-  );
-
   return Math.floor(
     blockInfo[idx - 1][0] +
       ((blockInfo[idx][0] - blockInfo[idx - 1][0]) * (numDate - beforeDate)) / (afterDate - beforeDate),
@@ -80,23 +74,38 @@ function getReleaseBlocks() {
 const versions = getReleaseBlocks();
 
 function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE) {
+
+  startBlock = Math.max(startBlock, process.env['SNX_START_BLOCK'] || 0);
+
   const versionInfo = getReleaseInfo('versions');
 
   const addressInfo = [];
+
+  let prevInfo = null;
 
   // search for contract deployments
   for (const info of values(versionInfo)) {
     const contractInfo = info.contracts[contractName];
     if (contractInfo) {
-      const theBlock = info.block || estimateBlock(info.date);
-      if (theBlock < startBlock) continue;
+      const theBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
+
+      if (theBlock < startBlock) {
+        prevInfo = { address: contractInfo.address, startBlock };
+        continue;
+      }
+
+      if(prevInfo) {
+        addressInfo.push(prevInfo);
+        prevInfo = null;
+      }
+
       if (theBlock >= endBlock) break;
 
-      if (addressInfo.length) last(addressInfo).endBlock = (info.block || estimateBlock(info.date)) + 8640;
+      if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
 
       addressInfo.push({
         address: contractInfo.address,
-        startBlock: (info.block || estimateBlock(info.date)) - 8640,
+        startBlock: theBlock - BLOCK_SAFETY_OFFSET,
       });
     }
   }

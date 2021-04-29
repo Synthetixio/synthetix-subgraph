@@ -122,7 +122,7 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
   let inversePricingInfo = InversePricingInfo.load(context.getString('currencyKey'));
 
   if(inversePricingInfo == null) {
-    log.warning(`Missing inverse pricing info for asset ${context.getString('currencyKey')}`, []);
+    log.warning(`Missing inverse pricing info for asset {}`, [context.getString('currencyKey')]);
     return;
   }
 
@@ -139,6 +139,9 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
 
 // hack function for mainnet contract stupid
 export function handleChainlinkUpdate(event: ethereum.Block): void {
+  // for desparate debug
+  log.warning('chainlink aggregator refresh triggered', []);
+
   let synthetixProxyContract = ProxyERC20.bind(Address.fromHexString('0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f') as Address);
   let synthetixAddress = synthetixProxyContract.try_target();
 
@@ -180,5 +183,9 @@ export function handleChainlinkUpdate(event: ethereum.Block): void {
     }
 
   } while(!aggregatorKey.reverted);
+
+  if(index == 0) {
+    log.warning('no aggregator keys found in rates contract for chainlink update, or reverted', []);
+  }
 
 }
