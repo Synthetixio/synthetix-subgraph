@@ -72,17 +72,19 @@ if(getCurrentNetwork() == 'mainnet') {
     source: {
       address: '0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca',
       startBlock: 10500000,
-      abi: 'Synthetix' // dummy
+      abi: 'GnosisSafe'
     },
     mapping: {
       kind: 'ethereum/events',
       apiVersion: '0.0.4',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
-      entities: [
-        'LatestRate' // dummy
-      ],
+      entities: [],
       abis: [
+        {
+          name: 'GnosisSafe',
+          file: '../abis/GnosisSafe.json',
+        },
         {
           name: 'ProxyERC20',
           file: '../abis/ProxyERC20.json',
@@ -104,14 +106,12 @@ if(getCurrentNetwork() == 'mainnet') {
           file: '../abis/AggregatorProxy.json'
         }
       ],
-      blockHandlers: [
+      eventHandlers: [
         {
+          event: 'ExecutionSuccess(bytes32,uint256)',
           handler: 'handleChainlinkUpdate',
-          /*filter: {
-            kind: 'call'
-          }*/
         }
-      ]
+      ],
     }
   });
 }
@@ -119,6 +119,42 @@ if(getCurrentNetwork() == 'mainnet') {
 const aggregatorTemplate = {
   kind: 'ethereum/contract',
   name: `Aggregator`,
+  network: getCurrentNetwork(),
+  source: {
+    abi: 'Aggregator',
+  },
+  mapping: {
+    kind: 'ethereum/events',
+    apiVersion: '0.0.4',
+    language: 'wasm/assemblyscript',
+    file: '../src/fragments/latest-rates.ts',
+    entities: ['LatestRates'],
+    abis: [
+      {
+        name: 'Aggregator',
+        file: '../abis/Aggregator.json',
+      },
+      {
+        name: 'ExchangeRates',
+        file: '../abis/ExchangeRates.json',
+      },
+      {
+        name: 'AddressResolver',
+        file: '../abis/AddressResolver.json',
+      },
+    ],
+    eventHandlers: [
+      {
+        event: 'AnswerUpdated(indexed int256,indexed uint256,uint256)',
+        handler: 'handleAggregatorAnswerUpdated',
+      },
+    ],
+  },
+};
+
+const synthAggregatorTemplate = {
+  kind: 'ethereum/contract',
+  name: `SynthAggregator`,
   network: getCurrentNetwork(),
   source: {
     abi: 'Aggregator',
@@ -191,5 +227,5 @@ const inverseAggregatorTemplate = {
 
 module.exports = {
   dataSources: exchangeRatesManifests,
-  templates: [aggregatorTemplate, inverseAggregatorTemplate],
+  templates: [aggregatorTemplate, synthAggregatorTemplate, inverseAggregatorTemplate],
 };

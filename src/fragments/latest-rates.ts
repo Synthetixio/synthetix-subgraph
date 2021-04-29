@@ -9,13 +9,14 @@ import { AggregatorProxy } from '../../generated/subgraphs/synthetix-rates/Excha
 
 import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/synthetix-rates/templates/Aggregator/Aggregator';
 
-import { Aggregator, InverseAggregator } from '../../generated/subgraphs/synthetix-rates/templates';
+import { Aggregator, SynthAggregator, InverseAggregator } from '../../generated/subgraphs/synthetix-rates/templates';
 import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/synthetix-rates/schema';
 
 import { BigDecimal, BigInt, DataSourceContext, dataSource, log, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
 import { etherUnits, strToBytes } from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/Synthetix';
+import { ExecutionSuccess } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/GnosisSafe';
 import { AddressResolver } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/AddressResolver';
 
 function addLatestRate(synth: string, rate: BigInt, version: BigInt): void {
@@ -52,9 +53,11 @@ function addAggregator(currencyKey: string, aggregatorAddress: Address, version:
   context.setBigInt('version', version)
 
   if (currencyKey.startsWith('s')) {
-    Aggregator.createWithContext(trueAggregatorAddress, context);
-  } else {
+    SynthAggregator.createWithContext(trueAggregatorAddress, context);
+  } else if (currencyKey.startsWith('i')) {
     InverseAggregator.createWithContext(trueAggregatorAddress, context);
+  } else {
+    Aggregator.createWithContext(trueAggregatorAddress, context);
   }
 }
 
@@ -138,7 +141,7 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
 }
 
 // hack function for mainnet contract stupid
-export function handleChainlinkUpdate(event: ethereum.Block): void {
+export function handleChainlinkUpdate(event: ExecutionSuccess): void {
   // for desparate debug
   log.warning('chainlink aggregator refresh triggered', []);
 
@@ -178,7 +181,7 @@ export function handleChainlinkUpdate(event: ethereum.Block): void {
       let aggregatorAddress = ratesContract.try_aggregators(aggregatorKey.value);
 
       if(!aggregatorAddress.reverted) {
-        addAggregator(aggregatorKey.value.toString(), aggregatorAddress.value, event.number);
+        addAggregator(aggregatorKey.value.toString(), aggregatorAddress.value, event.block.number);
       }
     }
 
