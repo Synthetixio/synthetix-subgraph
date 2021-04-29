@@ -63,6 +63,49 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
   });
 });
 
+if(getCurrentNetwork() == 'mainnet') {
+  // hack for chainlink, tracking of aggregator address changes
+  exchangeRatesManifests.push({
+    kind: 'ethereum/contract',
+    name: `ChainlinkMultisig`,
+    network: getCurrentNetwork(),
+    source: {
+      address: '0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca',
+      startBlock: 10500000,
+      abi: 'Synthetix' // dummy
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.4',
+      language: 'wasm/assemblyscript',
+      file: '../src/fragments/latest-rates.ts',
+      entities: [],
+      abis: [
+        {
+          name: 'ProxyERC20',
+          file: '../abis/ProxyERC20.json',
+        },
+        {
+          name: 'Synthetix',
+          file: '../abis/Synthetix.json',
+        },
+        {
+          name: 'AddressResolver',
+          file: '../abis/AddressResolver.json',
+        },
+      ],
+      blockHandlers: [
+        {
+          handler: 'handleChainlinkUpdate',
+          filter: {
+            kind: 'call'
+          }
+        }
+      ]
+    }
+  });
+}
+
 const aggregatorTemplate = {
   kind: 'ethereum/contract',
   name: `Aggregator`,
