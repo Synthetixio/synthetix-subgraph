@@ -13,44 +13,59 @@ import { Aggregator, SynthAggregator, InverseAggregator } from '../../generated/
 import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/synthetix-rates/schema';
 
 import { BigDecimal, BigInt, DataSourceContext, dataSource, log, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
-import { etherUnits, strToBytes } from '../lib/helpers';
+import { etherUnits, strToBytes, ZERO } from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/Synthetix';
 import { ExecutionSuccess } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/GnosisSafe';
 import { AddressResolver } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/AddressResolver';
+import { ZERO_ADDRESS } from '../lib/util';
 
-function addLatestRate(synth: string, rate: BigInt, version: BigInt): void {
+function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
   let decimalRate = new BigDecimal(rate);
-  addLatestRateFromDecimal(synth, decimalRate.div(etherUnits), version);
+  addLatestRateFromDecimal(synth, decimalRate.div(etherUnits), aggregator);
 }
 
-function addLatestRateFromDecimal(synth: string, rate: BigDecimal, version: BigInt): void {
+function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggregator: Address): void {
   let prevLatestRate = LatestRate.load(synth);
-  if(prevLatestRate != null && prevLatestRate.version.gt(version))
+  if(prevLatestRate != null && aggregator.notEqual(prevLatestRate.aggregator))
     return;
 
-  let latestRate = new LatestRate(synth);
-  latestRate.rate = rate;
-  latestRate.version = version;
-  latestRate.save();
+  if(prevLatestRate == null) {
+    prevLatestRate = new LatestRate(synth);
+    prevLatestRate.aggregator = aggregator;
+  }
+
+  prevLatestRate.rate = rate;
+  prevLatestRate.save();
 }
 
 function addDollar(dollarID: string): void {
   let dollarRate = new LatestRate(dollarID);
   dollarRate.rate = new BigDecimal(BigInt.fromI32(1));
-  dollarRate.version = BigInt.fromI32(1);
+  dollarRate.aggregator = ZERO_ADDRESS;
   dollarRate.save();
 }
 
-function addAggregator(currencyKey: string, aggregatorAddress: Address, version: BigInt): void {
+function addAggregator(currencyKey: string, aggregatorAddress: Address): void {
   // check to see if the aggregator given is actually a proxy
   let possibleProxy = AggregatorProxy.bind(aggregatorAddress);
   let tryAggregator = possibleProxy.try_aggregator();
   let trueAggregatorAddress = !tryAggregator.reverted ? tryAggregator.value : aggregatorAddress;
 
+  // check current aggregator address, and don't add again if its same
+  let latestRate = LatestRate.load(currencyKey);
+
+  if(latestRate != null) {
+    if(trueAggregatorAddress.equals(latestRate.aggregator)) {
+      return;
+    }
+    
+    latestRate.aggregator = trueAggregatorAddress;
+    latestRate.save();
+  }
+
   let context = new DataSourceContext();
   context.setString('currencyKey', currencyKey);
-  context.setBigInt('version', version)
 
   if (currencyKey.startsWith('s')) {
     SynthAggregator.createWithContext(trueAggregatorAddress, context);
@@ -62,7 +77,7 @@ function addAggregator(currencyKey: string, aggregatorAddress: Address, version:
 }
 
 export function handleAggregatorAdded(event: AggregatorAddedEvent): void {
-  addAggregator(event.params.currencyKey.toString(), event.params.aggregator, event.block.number);
+  addAggregator(event.params.currencyKey.toString(), event.params.aggregator);
 }
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
@@ -74,17 +89,9 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
 
   for (let i = 0; i < keys.length; i++) {
     if (keys[i].toString() != '') {
-      addLatestRate(keys[i].toString(), rates[i], BigInt.fromI32(0));
+      addLatestRate(keys[i].toString(), rates[i], ZERO_ADDRESS);
     }
   }
-}
-
-export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
-  let context = dataSource.context();
-  let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
-
-  addDollar('sUSD');
-  addLatestRate(context.getString('currencyKey'), rate, context.getBigInt('version'));
 }
 
 export function handleInverseConfigured(event: InversePriceConfigured): void {
@@ -112,7 +119,15 @@ export function handleInverseFrozen(event: InversePriceFrozen): void {
   if(!curInverseRate)
     return;
 
-  addLatestRate(event.params.currencyKey.toString(), event.params.rate, curInverseRate.version);
+  addLatestRate(event.params.currencyKey.toString(), event.params.rate, curInverseRate.aggregator as Address);
+}
+
+export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
+  let context = dataSource.context();
+  let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
+
+  addDollar('sUSD');
+  addLatestRate(context.getString('currencyKey'), rate, event.address);
 }
 
 export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
@@ -137,7 +152,7 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
   inverseRate = inversePricingInfo.lowerLimit.lt(inverseRate) ? inverseRate : inversePricingInfo.lowerLimit;
   inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
 
-  addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate, context.getBigInt('version'));
+  addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate, event.address);
 }
 
 // hack function for mainnet contract stupid
@@ -181,7 +196,7 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
       let aggregatorAddress = ratesContract.try_aggregators(aggregatorKey.value);
 
       if(!aggregatorAddress.reverted) {
-        addAggregator(aggregatorKey.value.toString(), aggregatorAddress.value, event.block.number);
+        addAggregator(aggregatorKey.value.toString(), aggregatorAddress.value);
       }
     }
 

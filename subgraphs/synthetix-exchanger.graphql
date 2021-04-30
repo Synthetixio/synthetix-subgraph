@@ -143,6 +143,6 @@ type LatestRate @entity {
   " Synth USD rate "
   rate: BigDecimal!
 
-  " Block that the aggregator was provisioned (used internally only) "
-  version: BigInt!
+  " Address of the aggregator which produces current result "
+  aggregator: Bytes!
 }
