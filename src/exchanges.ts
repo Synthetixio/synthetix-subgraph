@@ -23,10 +23,6 @@ import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 
 import { getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
 
-let DEFAULT_FEE = new BigDecimal(BigInt.fromI32(3));
-
-DEFAULT_FEE = DEFAULT_FEE.div(new BigDecimal(BigInt.fromI32(1000)));
-
 interface AggregatedTotalEntity {
   trades: BigInt;
   exchangers: BigInt;

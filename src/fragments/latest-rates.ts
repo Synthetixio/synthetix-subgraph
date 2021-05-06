@@ -163,10 +163,9 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
   addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate, event.address);
 }
 
-// hack function for mainnet contract stupid
+// required to rescan all aggregator addresses whenever chainlink settings are updated. This is because of an issue where the chainlink aggregator proxy
+// does not contain an event to track when the aggregator addresses are updated, which means we must scan them manually when it makes sense to do so
 export function handleChainlinkUpdate(event: ExecutionSuccess): void {
-  // for desparate debug
-  log.warning('chainlink aggregator refresh triggered', []);
 
   let synthetixProxyContract = ProxyERC20.bind(Address.fromHexString(
     '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
