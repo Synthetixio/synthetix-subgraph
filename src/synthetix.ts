@@ -1,5 +1,8 @@
 // The latest Synthetix and event invocations
-import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/synthetix-old/Synthetix_0/Synthetix';
+import {
+  Synthetix as SNX,
+  Transfer as SNXTransferEvent,
+} from '../generated/subgraphs/synthetix-old/Synthetix_0/Synthetix';
 
 import { Synthetix32 } from '../generated/subgraphs/synthetix-old/Synthetix_0/Synthetix32';
 

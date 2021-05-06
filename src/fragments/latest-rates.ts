@@ -12,7 +12,16 @@ import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/s
 import { Aggregator, SynthAggregator, InverseAggregator } from '../../generated/subgraphs/synthetix-rates/templates';
 import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/synthetix-rates/schema';
 
-import { BigDecimal, BigInt, DataSourceContext, dataSource, log, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
+import {
+  BigDecimal,
+  BigInt,
+  DataSourceContext,
+  dataSource,
+  log,
+  Address,
+  ethereum,
+  Bytes,
+} from '@graphprotocol/graph-ts';
 import { etherUnits, strToBytes, ZERO } from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/Synthetix';
@@ -27,10 +36,9 @@ function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
 
 function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggregator: Address): void {
   let prevLatestRate = LatestRate.load(synth);
-  if(prevLatestRate != null && aggregator.notEqual(prevLatestRate.aggregator))
-    return;
+  if (prevLatestRate != null && aggregator.notEqual(prevLatestRate.aggregator)) return;
 
-  if(prevLatestRate == null) {
+  if (prevLatestRate == null) {
     prevLatestRate = new LatestRate(synth);
     prevLatestRate.aggregator = aggregator;
   }
@@ -55,11 +63,11 @@ function addAggregator(currencyKey: string, aggregatorAddress: Address): void {
   // check current aggregator address, and don't add again if its same
   let latestRate = LatestRate.load(currencyKey);
 
-  if(latestRate != null) {
-    if(trueAggregatorAddress.equals(latestRate.aggregator)) {
+  if (latestRate != null) {
+    if (trueAggregatorAddress.equals(latestRate.aggregator)) {
       return;
     }
-    
+
     latestRate.aggregator = trueAggregatorAddress;
     latestRate.save();
   }
@@ -115,9 +123,8 @@ export function handleInverseFrozen(event: InversePriceFrozen): void {
   entity.save();
 
   let curInverseRate = LatestRate.load(event.params.currencyKey.toString());
-  
-  if(!curInverseRate)
-    return;
+
+  if (!curInverseRate) return;
 
   addLatestRate(event.params.currencyKey.toString(), event.params.rate, curInverseRate.aggregator as Address);
 }
@@ -139,15 +146,16 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
   // since this is inverse pricing, we have to get the latest token information and then apply it to the rate
   let inversePricingInfo = InversePricingInfo.load(context.getString('currencyKey'));
 
-  if(inversePricingInfo == null) {
+  if (inversePricingInfo == null) {
     log.warning(`Missing inverse pricing info for asset {}`, [context.getString('currencyKey')]);
     return;
   }
 
-  if(inversePricingInfo.frozen)
-    return;
-  
-  let inverseRate = inversePricingInfo.entryPoint.times(new BigDecimal(BigInt.fromI32(2))).minus(decimalRate.div(etherUnits));
+  if (inversePricingInfo.frozen) return;
+
+  let inverseRate = inversePricingInfo.entryPoint
+    .times(new BigDecimal(BigInt.fromI32(2)))
+    .minus(decimalRate.div(etherUnits));
 
   inverseRate = inversePricingInfo.lowerLimit.lt(inverseRate) ? inverseRate : inversePricingInfo.lowerLimit;
   inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
@@ -160,10 +168,12 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
   // for desparate debug
   log.warning('chainlink aggregator refresh triggered', []);
 
-  let synthetixProxyContract = ProxyERC20.bind(Address.fromHexString('0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f') as Address);
+  let synthetixProxyContract = ProxyERC20.bind(Address.fromHexString(
+    '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
+  ) as Address);
   let synthetixAddress = synthetixProxyContract.try_target();
 
-  if(synthetixAddress.reverted) {
+  if (synthetixAddress.reverted) {
     log.warning('snx base contract not available', []);
     return;
   }
@@ -172,15 +182,15 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
 
   let resolverAddress = synthetixContract.try_resolver();
 
-  if(resolverAddress.reverted) {
+  if (resolverAddress.reverted) {
     log.warning('snx resolver not available', []);
     return;
   }
 
   let resolverContract = AddressResolver.bind(resolverAddress.value);
   let ratesAddress = resolverContract.try_getAddress(strToBytes('ExchangeRates'));
-  
-  if(ratesAddress.reverted) {
+
+  if (ratesAddress.reverted) {
     log.warning('could not get exchangerates address from resolver', []);
     return;
   }
@@ -192,18 +202,16 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
   do {
     aggregatorKey = ratesContract.try_aggregatorKeys(BigInt.fromI32(index++));
 
-    if(!aggregatorKey.reverted) {
+    if (!aggregatorKey.reverted) {
       let aggregatorAddress = ratesContract.try_aggregators(aggregatorKey.value);
 
-      if(!aggregatorAddress.reverted) {
+      if (!aggregatorAddress.reverted) {
         addAggregator(aggregatorKey.value.toString(), aggregatorAddress.value);
       }
     }
+  } while (!aggregatorKey.reverted);
 
-  } while(!aggregatorKey.reverted);
-
-  if(index == 0) {
+  if (index == 0) {
     log.warning('no aggregator keys found in rates contract for chainlink update, or reverted', []);
   }
-
 }

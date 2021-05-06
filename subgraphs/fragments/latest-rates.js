@@ -63,7 +63,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
   });
 });
 
-if(getCurrentNetwork() == 'mainnet') {
+if (getCurrentNetwork() == 'mainnet') {
   // hack for chainlink, tracking of aggregator address changes
   exchangeRatesManifests.push({
     kind: 'ethereum/contract',
@@ -72,7 +72,7 @@ if(getCurrentNetwork() == 'mainnet') {
     source: {
       address: '0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca',
       startBlock: 10500000,
-      abi: 'GnosisSafe'
+      abi: 'GnosisSafe',
     },
     mapping: {
       kind: 'ethereum/events',
@@ -103,16 +103,16 @@ if(getCurrentNetwork() == 'mainnet') {
         },
         {
           name: 'AggregatorProxy',
-          file: '../abis/AggregatorProxy.json'
-        }
+          file: '../abis/AggregatorProxy.json',
+        },
       ],
       eventHandlers: [
         {
           event: 'ExecutionSuccess(bytes32,uint256)',
           handler: 'handleChainlinkUpdate',
-        }
+        },
       ],
-    }
+    },
   });
 }
 

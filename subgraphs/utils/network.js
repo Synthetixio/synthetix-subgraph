@@ -18,11 +18,11 @@ function getReleaseInfo(file) {
 
 function estimateBlock(date) {
   const blockInfo = values(getReleaseInfo('versions'))
-    .filter((v) => v.block && v.date)
-    .map((v) => [v.block, v.date]);
+    .filter(v => v.block && v.date)
+    .map(v => [v.block, v.date]);
 
   // find the release immediately after the specified time
-  const idx = sortedIndexBy(blockInfo, [0, date], (v) => v[1]);
+  const idx = sortedIndexBy(blockInfo, [0, date], v => v[1]);
 
   const numDate = new Date(date).getTime();
 
@@ -74,7 +74,6 @@ function getReleaseBlocks() {
 const versions = getReleaseBlocks();
 
 function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE) {
-
   startBlock = Math.max(startBlock, process.env['SNX_START_BLOCK'] || 0);
 
   const versionInfo = getReleaseInfo('versions');
@@ -94,7 +93,7 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
         continue;
       }
 
-      if(prevInfo) {
+      if (prevInfo) {
         addressInfo.push(prevInfo);
         prevInfo = null;
       }
