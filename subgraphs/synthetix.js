@@ -7,7 +7,7 @@ for (const contractName of ['Synthetix', 'ERC20']) {
   getContractDeployments('Proxy' + contractName).forEach((a, i) => {
     manifest.push({
       kind: 'ethereum/contract',
-      name: `Synthetix_${i}`,
+      name: `${contractName}_${i}`,
       network: getCurrentNetwork(),
       source: {
         address: a.address,
@@ -67,7 +67,7 @@ getContractDeployments('ProxyFeePool').forEach((a, i) => {
       kind: 'ethereum/events',
       apiVersion: '0.0.4',
       language: 'wasm/assemblyscript',
-      file: '../src/synthetix-old.ts',
+      file: '../src/synthetix.ts',
       entities: ['FeesClaimed', 'SNXHolder'],
       abis: [
         {
@@ -111,7 +111,7 @@ getContractDeployments('RewardEscrow').forEach((a, i) => {
       kind: 'ethereum/events',
       apiVersion: '0.0.4',
       language: 'wasm/assemblyscript',
-      file: '../src/synthetix-old.ts',
+      file: '../src/synthetix.ts',
       entities: ['RewardEscrowHolder', 'SNXHolder'],
       abis: [
         {
@@ -172,7 +172,7 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
         kind: 'ethereum/events',
         apiVersion: '0.0.4',
         language: 'wasm/assemblyscript',
-        file: '../src/synthetix-old.ts',
+        file: '../src/synthetix.ts',
         entities: ['Transfer', 'Issued', 'Burned'],
         abis: [
           {
@@ -224,7 +224,7 @@ module.exports = {
   description: 'Synthetix API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-old.graphql',
+    file: './synthetix.graphql',
   },
   dataSources: manifest,
 };
