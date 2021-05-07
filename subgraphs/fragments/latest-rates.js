@@ -34,7 +34,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
         },
       ],
       eventHandlers:
-        getCurrentNetwork() == 'mainnet' && ca.startBlock >= BYTE32_UPDATE
+        getCurrentNetwork() != 'mainnet' || ca.startBlock >= BYTE32_UPDATE
           ? [
               {
                 event: 'AggregatorAdded(bytes32,address)',

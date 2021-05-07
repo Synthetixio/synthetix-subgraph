@@ -341,30 +341,6 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
 }
 
 /**
- * Track when underlying contracts change
- */
-/*function contractUpdate(source: string, target: Address, block: ethereum.Block, hash: Bytes): void {
-  let entity = new ContractUpdated(hash.toHex());
-  entity.source = source;
-  entity.target = target;
-  entity.block = block.number;
-  entity.timestamp = block.timestamp;
-  entity.save();
-}
-
-export function handleProxyTargetUpdated(event: TargetUpdatedEvent): void {
-  contractUpdate('Synthetix', event.params.newTarget, event.block, event.transaction.hash);
-}*/
-
-// export function handleSetExchangeRates(call: SetExchangeRatesCall): void {
-//   contractUpdate('ExchangeRates', call.inputs._exchangeRates, call.block, call.transaction.hash);
-// }
-
-// export function handleSetFeePool(call: SetFeePoolCall): void {
-//   contractUpdate('FeePool', call.inputs._feePool, call.block, call.transaction.hash);
-// }
-
-/**
  * Handle reward vest events so that we know which addresses have rewards, and
  * to recalculate SNX Holders staking details.
  */

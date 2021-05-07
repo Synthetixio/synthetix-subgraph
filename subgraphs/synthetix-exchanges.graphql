@@ -1,40 +1,76 @@
 # Synthentix is an aggregation entity
 # Total synth exchanges in aggregate
 type Total @entity {
+  " 'mainnet' always "
   id: ID!
+
+  " number of trades completed over period "
   trades: BigInt!
+
+  " number of unique traders seen over period "
   exchangers: BigInt!
+
+  " synth value exchanged in USD units "
   exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
   totalFeesGeneratedInUSD: BigDecimal!
 }
 
 type PostArchernarTotal @entity {
+  " 'mainnet' always "
   id: ID!
+
+  " number of trades completed over period "
   trades: BigInt!
+
+  " number of unique traders seen over period "
   exchangers: BigInt!
+
+  " synth value exchanged in USD units "
   exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
   totalFeesGeneratedInUSD: BigDecimal!
 }
 
 # Total synth exchanges per day
 type DailyTotal @entity {
+  " numeric, incrementing day id "
   id: ID!
+
+  " number of trades completed over period "
   trades: BigInt!
+
+  " number of unique traders seen over period "
   exchangers: BigInt!
+
+  " synth value exchanged in USD units "
   exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
   totalFeesGeneratedInUSD: BigDecimal!
 }
 
 # Total synth exchanges per 15 minute period
 type FifteenMinuteTotal @entity {
+  " numeric, incrementing time period "
   id: ID!
+
+  " number of trades completed over period "
   trades: BigInt!
+
+  " number of unique traders seen over period "
   exchangers: BigInt!
+
+  " synth value exchanged in USD units "
   exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
   totalFeesGeneratedInUSD: BigDecimal!
 }
 
-# SynthExchange tracks this event from the Synthetix.sol contract
+" Tracks this event from the Synthetix.sol contract "
 type SynthExchange @entity {
   id: ID!
   account: Bytes! # address
@@ -53,6 +89,7 @@ type SynthExchange @entity {
   network: String!
 }
 
+" Tracks this event from the Synthetix.sol contract "
 type ExchangeReclaim @entity {
   id: ID!
   account: Bytes! # address
@@ -64,6 +101,7 @@ type ExchangeReclaim @entity {
   block: BigInt!
 }
 
+" Tracks this event from the Synthetix.sol contract "
 type ExchangeRebate @entity {
   id: ID!
   account: Bytes! # address
@@ -75,20 +113,22 @@ type ExchangeRebate @entity {
   block: BigInt!
 }
 
-# An individual Exchanger
+" An individual Exchanger "
 type Exchanger @entity {
   id: ID!
 }
 
-# An individual Exchanger Post Archernar
+" An individual Exchanger Post Archernar "
 type PostArchernarExchanger @entity {
   id: ID!
 }
 
+" An individual Exchanger seen during a day "
 type DailyExchanger @entity {
   id: ID!
 }
 
+" An individual Exchanger seen during a fifteen minute period "
 type FifteenMinuteExchanger @entity {
   id: ID!
 }

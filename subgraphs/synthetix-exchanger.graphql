@@ -1,25 +1,61 @@
 type ExchangeEntrySettled @entity {
+  " transaction hash and log index "
   id: ID!
+
+  " synth exchanged from "
   from: Bytes!
+
+  " synth exchanged to "
   src: Bytes!
+
+  " number of units of synth from exchanged "
   amount: BigInt!
+
+  " address which receives the settlement "
   dest: Bytes!
+
+  " amount reclaimed of dest due to underpayment "
   reclaim: BigInt!
+
+  " amount returned of dest due to overpayment "
   rebate: BigInt!
+
+  " aggregator price round for src synth "
   srcRoundIdAtPeriodEnd: BigInt!
+
+  " aggregator price round for dest synth "
   destRoundIdAtPeriodEnd: BigInt!
+
+  " time when the original exchange occured "
   exchangeTimestamp: BigInt!
 }
 
 type ExchangeEntryAppended @entity {
+  " transaction hash and log index "
   id: ID! # the transaction hash plus event log
+
+  " ethereum address which funded the exchange "
   account: Bytes!
+
+  " synth exchanged from "
   src: Bytes!
+
+  " number of units of synth from exchanged "
   amount: BigInt!
+
+  " synth exchanged to "
   dest: Bytes!
+
+  " number of units of synth to received "
   amountReceived: BigInt!
+
+  " fee paid in sUSD to the synthetix fee pool "
   exchangeFeeRate: BigInt!
+
+  " aggregator price round for src synth "
   roundIdForSrc: BigInt!
+
+  " aggregator price round for dest synth "
   roundIdForDest: BigInt!
 }
 
@@ -69,54 +105,6 @@ type ExchangePartner @entity {
 
   " Total number of trades from the volume partner "
   trades: BigInt!
-}
-
-# Temporarily add rates entities until the Graph adds composability between subgraphs
-# RatesUpdated tracks this event from the ExchangeRates.sol contract
-type RatesUpdated @entity {
-  id: ID!
-  from: Bytes! # address
-  currencyKeys: [Bytes!]! # bytes4[]
-  newRates: [BigInt!]! # uint256[]
-  gasPrice: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-# An individual RateUpdate - split out of RatesUpdated event
-type RateUpdate @entity {
-  id: ID!
-  currencyKey: Bytes!
-  synth: String!
-  rate: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-# A chainlink Answer
-type AggregatorAnswer @entity {
-  id: ID!
-  currencyKey: Bytes!
-  synth: String!
-  aggregator: Bytes!
-  rate: BigInt!
-  roundId: BigInt!
-  block: BigInt!
-  timestamp: BigInt!
-}
-
-# The average price of SNX over a 15 minute period
-type FifteenMinuteSNXPrice @entity {
-  id: ID!
-  count: BigInt!
-  averagePrice: BigInt!
-}
-
-# The average price of SNX over a day
-type DailySNXPrice @entity {
-  id: ID!
-  count: BigInt!
-  averagePrice: BigInt!
 }
 
 type InversePricingInfo @entity {

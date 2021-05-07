@@ -1,22 +1,18 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/subgraphs/synthetix-rates/AggregatorAUD_0/Aggregator';
-import { AddressResolver } from '../generated/subgraphs/synthetix-rates/AggregatorAUD_0/AddressResolver';
-import { ExchangeRates } from '../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
 
 import {
-  RatesUpdated,
-  RateUpdate,
-  AggregatorAnswer,
   FifteenMinuteSNXPrice,
   DailySNXPrice,
-  LatestRate,
 } from '../generated/subgraphs/synthetix-rates/schema';
 
-import { strToBytes } from './lib/helpers';
+import { addLatestRate, addDollar } from './fragments/latest-rates';
 
-import { contractsToProxies } from './lib/contractsToProxies';
+// pass through
+export { handleAggregatorAdded, handleInverseConfigured, handleInverseFrozen } from './fragments/latest-rates';
 
-import { Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
+import { BigInt, dataSource } from '@graphprotocol/graph-ts';
+import { ZERO_ADDRESS } from './lib/util';
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -68,109 +64,35 @@ function handleSNXPrices(timestamp: BigInt, rate: BigInt): void {
   fifteenMinuteSNXPrice.save();
 }
 
-function addLatestRate(synth: string, rate: BigInt): void {
-  let latestRate = LatestRate.load(synth);
-  if (latestRate == null) {
-    latestRate = new LatestRate(synth);
-  }
-  latestRate.rate = rate;
-  latestRate.save();
-}
-
-function addDollar(dollarID: string): void {
-  let dollarRate = LatestRate.load(dollarID);
-  if (dollarRate == null) {
-    dollarRate = new LatestRate(dollarID);
-    let oneDollar = BigInt.fromI32(10);
-    dollarRate.rate = oneDollar.pow(18);
-    dollarRate.save();
-  }
-}
-
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {
   addDollar('sUSD');
   addDollar('nUSD');
 
-  let entity = new RatesUpdated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.currencyKeys = event.params.currencyKeys;
-  entity.newRates = event.params.newRates;
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.from = event.transaction.from;
-  entity.gasPrice = event.transaction.gasPrice;
-  entity.save();
+  let keys = event.params.currencyKeys;
+  let rates = event.params.newRates;
 
-  // required due to assemblyscript
-  let keys = entity.currencyKeys;
-  let rates = entity.newRates;
-  // now save each individual update
-  for (let i = 0; i < entity.currencyKeys.length; i++) {
+  for (let i = 0; i < keys.length; i++) {
+    if (keys[i].toString() == 'SNX') {
+      handleSNXPrices(event.block.timestamp, rates[i]);
+    }
+
     if (keys[i].toString() != '') {
-      let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + keys[i].toString());
-      rateEntity.block = event.block.number;
-      rateEntity.timestamp = event.block.timestamp;
-      rateEntity.currencyKey = keys[i];
-      rateEntity.synth = keys[i].toString();
-      rateEntity.rate = rates[i];
-      rateEntity.save();
-      if (keys[i].toString() == 'SNX') {
-        handleSNXPrices(event.block.timestamp, rateEntity.rate);
-      }
-      addLatestRate(rateEntity.synth, rateEntity.rate);
+      addLatestRate(keys[i].toString(), rates[i], ZERO_ADDRESS);
     }
   }
 }
 
-function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt): void {
-  let entity = new AggregatorAnswer(event.transaction.hash.toHex() + '-' + currencyKey.toString());
-  entity.block = event.block.number;
-  entity.timestamp = event.block.timestamp;
-  entity.currencyKey = currencyKey;
-  entity.synth = currencyKey.toString();
-  entity.rate = rate;
-  entity.roundId = event.params.roundId;
-  entity.aggregator = event.address;
-  entity.save();
-
-  addLatestRate(entity.synth, entity.rate);
-
-  let rateEntity = new RateUpdate(event.transaction.hash.toHex() + '-' + entity.synth);
-  rateEntity.block = entity.block;
-  rateEntity.timestamp = entity.timestamp;
-  rateEntity.currencyKey = currencyKey;
-  rateEntity.synth = entity.synth;
-  rateEntity.rate = entity.rate;
-  rateEntity.save();
-  if (entity.currencyKey.toString() == 'SNX') {
-    handleSNXPrices(entity.timestamp, entity.rate);
-  }
-}
-
-// create a contract mapping to know which synth the aggregator corresponds to
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
-  // NOTE: taking this hardcoded value away in case we need it at some point for rates
-  let resolver = AddressResolver.bind(Address.fromHexString(readProxyAdressResolver) as Address);
-  let exrates = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
+  let context = dataSource.context();
+  let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
 
-  let tryCurrencyKeys = exrates.try_currenciesUsingAggregator(Address.fromHexString(
-    // for the aggregator, we need the proxy
-    contractsToProxies.get(event.address.toHexString()),
-  ) as Address);
+  let currencyKey = context.getString('currencyKey');
 
-  if (tryCurrencyKeys.reverted) {
-    log.debug('currenciesUsingAggregator was reverted in tx hash: {}, from block: {}', [
-      event.transaction.hash.toHex(),
-      event.block.number.toString(),
-    ]);
-    return;
+  addDollar('sUSD');
+
+  if(currencyKey == 'SNX') {
+    handleSNXPrices(event.block.timestamp, rate);
   }
 
-  let currencyKeys = tryCurrencyKeys.value;
-  // for each currency key using this aggregator
-  for (let i = 0; i < currencyKeys.length; i++) {
-    // create an answer entity for the non-zero entries
-    if (currencyKeys[i].toString() != '') {
-      createRates(event, currencyKeys[i], exrates.rateForCurrency(currencyKeys[i]));
-    }
-  }
+  addLatestRate(currencyKey, rate, event.address);
 }

@@ -29,12 +29,12 @@ import { ExecutionSuccess } from '../../generated/subgraphs/synthetix-rates/Chai
 import { AddressResolver } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/AddressResolver';
 import { ZERO_ADDRESS } from '../lib/util';
 
-function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
+export function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
   let decimalRate = new BigDecimal(rate);
   addLatestRateFromDecimal(synth, decimalRate.div(etherUnits), aggregator);
 }
 
-function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggregator: Address): void {
+export function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggregator: Address): void {
   let prevLatestRate = LatestRate.load(synth);
   if (prevLatestRate != null && aggregator.notEqual(prevLatestRate.aggregator)) return;
 
@@ -47,7 +47,7 @@ function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggregator: A
   prevLatestRate.save();
 }
 
-function addDollar(dollarID: string): void {
+export function addDollar(dollarID: string): void {
   let dollarRate = new LatestRate(dollarID);
   dollarRate.rate = new BigDecimal(BigInt.fromI32(1));
   dollarRate.aggregator = ZERO_ADDRESS;
