@@ -21,12 +21,13 @@ import {
 } from '../generated/subgraphs/synthetix-loans/schema';
 
 import { log } from '@graphprotocol/graph-ts';
+import { toDecimal } from './lib/util';
 
 function addLoanEntity(event: LoanCreatedEvent, collateralMinted: string): Loan {
   let loanEntity = new Loan(event.params.loanID.toHex() + '-' + collateralMinted);
   loanEntity.txHash = event.transaction.hash.toHex();
   loanEntity.account = event.params.account;
-  loanEntity.amount = event.params.amount;
+  loanEntity.amount = toDecimal(event.params.amount);
   loanEntity.hasPartialLiquidations = false;
   loanEntity.isOpen = true;
   loanEntity.createdAt = event.block.timestamp;
@@ -78,8 +79,8 @@ export function handleLoanPartiallyLiquidated(event: LoanPartiallyLiquidatedEven
   loanPartiallyLiquidatedEntity.loanId = event.params.loanID;
   loanPartiallyLiquidatedEntity.account = event.params.account;
   loanPartiallyLiquidatedEntity.liquidator = event.params.liquidator;
-  loanPartiallyLiquidatedEntity.liquidatedAmount = event.params.liquidatedAmount;
-  loanPartiallyLiquidatedEntity.liquidatedCollateral = event.params.liquidatedCollateral;
+  loanPartiallyLiquidatedEntity.liquidatedAmount = toDecimal(event.params.liquidatedAmount);
+  loanPartiallyLiquidatedEntity.liquidatedCollateral = toDecimal(event.params.liquidatedCollateral);
   loanPartiallyLiquidatedEntity.timestamp = event.block.timestamp;
   loanPartiallyLiquidatedEntity.save();
 
@@ -92,7 +93,7 @@ export function handleLoanPartiallyLiquidated(event: LoanPartiallyLiquidatedEven
     return;
   }
   loanEntity.hasPartialLiquidations = true;
-  loanEntity.amount = loanEntity.amount.minus(event.params.liquidatedAmount);
+  loanEntity.amount = loanEntity.amount.minus(toDecimal(event.params.liquidatedAmount));
   loanEntity.save();
 }
 
@@ -100,8 +101,8 @@ export function handleCollateralDeposited(event: CollateralDepositedEvent): void
   let collateralDepositedEntity = new CollateralDeposited(
     event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
   );
-  collateralDepositedEntity.collateralAmount = event.params.collateralAmount;
-  collateralDepositedEntity.collateralAfter = event.params.collateralAfter;
+  collateralDepositedEntity.collateralAmount = toDecimal(event.params.collateralAmount);
+  collateralDepositedEntity.collateralAfter = toDecimal(event.params.collateralAfter);
   collateralDepositedEntity.loanId = event.params.loanID;
   collateralDepositedEntity.account = event.params.account;
   collateralDepositedEntity.timestamp = event.block.timestamp;
@@ -112,8 +113,8 @@ export function handleCollateralWithdrawn(event: CollateralWithdrawnEvent): void
   let collateralWithdrawnEntity = new CollateralWithdrawn(
     event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
   );
-  collateralWithdrawnEntity.amountWithdrawn = event.params.amountWithdrawn;
-  collateralWithdrawnEntity.collateralAfter = event.params.collateralAfter;
+  collateralWithdrawnEntity.amountWithdrawn = toDecimal(event.params.amountWithdrawn);
+  collateralWithdrawnEntity.collateralAfter = toDecimal(event.params.collateralAfter);
   collateralWithdrawnEntity.loanId = event.params.loanID;
   collateralWithdrawnEntity.account = event.params.account;
   collateralWithdrawnEntity.timestamp = event.block.timestamp;
@@ -122,8 +123,8 @@ export function handleCollateralWithdrawn(event: CollateralWithdrawnEvent): void
 
 export function handleLoanRepaid(event: LoanRepaidEvent): void {
   let loanRepaid = new LoanRepaid(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  loanRepaid.repaidAmount = event.params.repaidAmount;
-  loanRepaid.newLoanAmount = event.params.newLoanAmount;
+  loanRepaid.repaidAmount = toDecimal(event.params.repaidAmount);
+  loanRepaid.newLoanAmount = toDecimal(event.params.newLoanAmount);
   loanRepaid.loanId = event.params.loanID;
   loanRepaid.account = event.params.account;
   loanRepaid.timestamp = event.block.timestamp;

@@ -15,13 +15,13 @@ type Short @entity {
   collateralLocked: Bytes!
 
   " the amount of collateral locked in the short "
-  collateralLockedAmount: BigInt!
+  collateralLockedAmount: BigDecimal!
 
   " the denomination of the loan repayment - sETH, sBTC "
   synthBorrowed: Bytes!
 
   " the amount owed denominated in the loan repayment synth "
-  synthBorrowedAmount: BigInt!
+  synthBorrowedAmount: BigDecimal!
 
   " the timestamp the accrued interest was most recently updated "
   accruedInterestLastUpdateTimestamp: BigInt!
@@ -56,10 +56,10 @@ type ShortCollateralChange @entity {
   isDeposit: Boolean!
 
   " the amount of collateral deposited or withdrawn "
-  amount: BigInt!
+  amount: BigDecimal!
 
   " the total amount of collateral after the deposit or withdrawal is included "
-  collateralAfter: BigInt!
+  collateralAfter: BigDecimal!
 
   " the respective short "
   short: Short!
@@ -79,10 +79,10 @@ type ShortLoanChange @entity {
   isRepayment: Boolean!
 
   " the amount of loan repaid or increased "
-  amount: BigInt!
+  amount: BigDecimal!
 
   " the total amount of loan due after the repayment or increase is included "
-  loanAfter: BigInt!
+  loanAfter: BigDecimal!
 
   " the respective short "
   short: Short!
@@ -105,10 +105,10 @@ type ShortLiquidation @entity {
   isClosed: Boolean!
 
   " the amount of the loan that was burned "
-  liquidatedAmount: BigInt!
+  liquidatedAmount: BigDecimal!
 
   " the amount of the collateral that was taken away from the short owner "
-  liquidatedCollateral: BigInt!
+  liquidatedCollateral: BigDecimal!
 
   " the respective short "
   short: Short!
@@ -134,10 +134,10 @@ type ShortContract @entity {
   minCratio: BigInt!
 
   " the minimum collateral required to open a position "
-  minCollateral: BigInt!
+  minCollateral: BigDecimal!
 
   " the fee for issuing a short "
-  issueFeeRate: BigInt!
+  issueFeeRate: BigDecimal!
 
   " the max number of loans per account "
   maxLoansPerAccount: BigInt!

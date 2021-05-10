@@ -26,9 +26,9 @@ import {
   ShortContractUpdate,
 } from '../generated/subgraphs/synthetix-shorts/schema';
 
-import { BigInt, Bytes, log, Address } from '@graphprotocol/graph-ts';
+import { BigInt, Bytes, log, Address, BigDecimal } from '@graphprotocol/graph-ts';
 
-import { strToBytes } from './lib/helpers';
+import { strToBytes, toDecimal } from './lib/helpers';
 
 function saveContractLevelUpdate(
   txHash: string,
@@ -70,9 +70,9 @@ function addContractData(
     );
   }
   shortContractEntity.minCratio = collateralShortContract.minCratio();
-  shortContractEntity.minCollateral = collateralShortContract.minCollateral();
+  shortContractEntity.minCollateral = toDecimal(collateralShortContract.minCollateral());
   shortContractEntity.maxLoansPerAccount = collateralShortContract.maxLoansPerAccount();
-  shortContractEntity.issueFeeRate = collateralShortContract.issueFeeRate();
+  shortContractEntity.issueFeeRate = toDecimal(collateralShortContract.issueFeeRate());
   shortContractEntity.interactionDelay = collateralShortContract.interactionDelay();
   shortContractEntity.manager = collateralShortContract.manager();
   shortContractEntity.canOpenLoans = collateralShortContract.canOpenLoans();
@@ -108,9 +108,9 @@ function createShort(event: LoanCreatedEvent, collateralLocked: Bytes): void {
   shortEntity.txHash = event.transaction.hash.toHex();
   shortEntity.account = event.params.account;
   shortEntity.collateralLocked = collateralLocked;
-  shortEntity.collateralLockedAmount = event.params.collateral;
+  shortEntity.collateralLockedAmount = toDecimal(event.params.collateral);
   shortEntity.synthBorrowed = event.params.currency;
-  shortEntity.synthBorrowedAmount = event.params.amount;
+  shortEntity.synthBorrowedAmount = toDecimal(event.params.amount);
   shortEntity.isOpen = true;
   shortEntity.createdAt = event.block.timestamp;
   shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
@@ -120,7 +120,7 @@ function createShort(event: LoanCreatedEvent, collateralLocked: Bytes): void {
     event.transaction.hash.toHex(),
     event.logIndex.toString(),
     false,
-    event.params.amount,
+    toDecimal(event.params.amount),
     shortEntity.synthBorrowedAmount,
     event.block.timestamp,
     event.block.number,
@@ -132,8 +132,8 @@ function handleDepositOrWithdrawal(
   id: string,
   txHash: string,
   logIndex: string,
-  amount: BigInt,
-  collateralAfter: BigInt,
+  amount: BigDecimal,
+  collateralAfter: BigDecimal,
   isDeposit: boolean,
   timestamp: BigInt,
   blockNumber: BigInt,
@@ -146,7 +146,7 @@ function handleDepositOrWithdrawal(
     ]);
     return;
   }
-  let newTotal: BigInt;
+  let newTotal: BigDecimal;
   if (isDeposit) {
     newTotal = shortEntity.collateralLockedAmount.plus(amount);
   } else {
@@ -181,8 +181,8 @@ function saveLoanChangeEntity(
   txHash: string,
   logIndex: string,
   isRepayment: boolean,
-  amount: BigInt,
-  amountAfter: BigInt,
+  amount: BigDecimal,
+  amountAfter: BigDecimal,
   timestamp: BigInt,
   blockNumber: BigInt,
   shortEntity: Short,
@@ -202,8 +202,8 @@ function handleLiquidations(
   logIndex: string,
   loanId: string,
   isClosed: boolean,
-  liquidatedAmount: BigInt,
-  liquidatedCollateral: BigInt,
+  liquidatedAmount: BigDecimal,
+  liquidatedCollateral: BigDecimal,
   liquidator: Bytes,
   timestamp: BigInt,
   blockNumber: BigInt,
@@ -247,8 +247,8 @@ export function handleShortLoanClosedsUSD(event: LoanClosedEvent): void {
   shortEntity.isOpen = false;
   shortEntity.closedAt = event.block.timestamp;
   shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
-  shortEntity.synthBorrowedAmount = BigInt.fromI32(0);
-  shortEntity.collateralLockedAmount = BigInt.fromI32(0);
+  shortEntity.synthBorrowedAmount = toDecimal(BigInt.fromI32(0));
+  shortEntity.collateralLockedAmount = toDecimal(BigInt.fromI32(0));
   shortEntity.save();
 }
 
@@ -257,8 +257,8 @@ export function handleShortCollateralDepositedsUSD(event: CollateralDepositedEve
     event.params.id.toString(),
     event.transaction.hash.toHex(),
     event.logIndex.toString(),
-    event.params.amountDeposited,
-    event.params.collateralAfter,
+    toDecimal(event.params.amountDeposited),
+    toDecimal(event.params.collateralAfter),
     true,
     event.block.timestamp,
     event.block.number,
@@ -270,8 +270,8 @@ export function handleShortCollateralWithdrawnsUSD(event: CollateralWithdrawnEve
     event.params.id.toString(),
     event.transaction.hash.toHex(),
     event.logIndex.toString(),
-    event.params.amountWithdrawn,
-    event.params.collateralAfter,
+    toDecimal(event.params.amountWithdrawn),
+    toDecimal(event.params.collateralAfter),
     false,
     event.block.timestamp,
     event.block.number,
@@ -287,8 +287,8 @@ export function handleShortLoanRepaymentMadesUSD(event: LoanRepaymentMadeEvent):
     ]);
     return;
   }
-  let newTotal = shortEntity.synthBorrowedAmount.minus(event.params.amountRepaid);
-  if (event.params.amountAfter.notEqual(newTotal)) {
+  let newTotal = shortEntity.synthBorrowedAmount.minus(toDecimal(event.params.amountRepaid));
+  if (toDecimal(event.params.amountAfter).notEqual(newTotal)) {
     log.error(
       'for short loan replayment there is a math error where amountAfter: {} does not equal current synthBorrowedAmount: {} minus new repayment: {}, which totals to: {}',
       [
@@ -300,14 +300,14 @@ export function handleShortLoanRepaymentMadesUSD(event: LoanRepaymentMadeEvent):
     );
   }
   shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
-  shortEntity.synthBorrowedAmount = event.params.amountAfter;
+  shortEntity.synthBorrowedAmount = toDecimal(event.params.amountAfter);
   shortEntity.save();
   saveLoanChangeEntity(
     event.transaction.hash.toHex(),
     event.logIndex.toString(),
     true,
-    event.params.amountRepaid,
-    event.params.amountAfter,
+    toDecimal(event.params.amountRepaid),
+    toDecimal(event.params.amountAfter),
     event.block.timestamp,
     event.block.number,
     shortEntity as Short,
@@ -324,14 +324,14 @@ export function handleShortLoanDrawnDownsUSD(event: LoanDrawnDownEvent): void {
     ]);
     return;
   }
-  shortEntity.synthBorrowedAmount = shortEntity.synthBorrowedAmount.plus(event.params.amount);
+  shortEntity.synthBorrowedAmount = shortEntity.synthBorrowedAmount.plus(toDecimal(event.params.amount));
   shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
   shortEntity.save();
   saveLoanChangeEntity(
     event.transaction.hash.toHex(),
     event.logIndex.toString(),
     false,
-    event.params.amount,
+    toDecimal(event.params.amount),
     shortEntity.synthBorrowedAmount,
     event.block.timestamp,
     event.block.number,
@@ -345,8 +345,8 @@ export function handleLoanPartiallyLiquidatedsUSD(event: LoanPartiallyLiquidated
     event.logIndex.toString(),
     event.params.id.toString(),
     false,
-    event.params.amountLiquidated,
-    event.params.collateralLiquidated,
+    toDecimal(event.params.amountLiquidated),
+    toDecimal(event.params.collateralLiquidated),
     event.params.liquidator,
     event.block.timestamp,
     event.block.number,
@@ -359,8 +359,8 @@ export function handleLoanClosedByLiquidationsUSD(event: LoanClosedByLiquidation
     event.logIndex.toString(),
     event.params.id.toString(),
     true,
-    event.params.amountLiquidated,
-    event.params.collateralLiquidated,
+    toDecimal(event.params.amountLiquidated),
+    toDecimal(event.params.collateralLiquidated),
     event.params.liquidator,
     event.block.timestamp,
     event.block.number,
@@ -396,7 +396,7 @@ export function handleMinCollateralUpdatedsUSD(event: MinCollateralUpdatedEvent)
     event.block.timestamp,
     event.block.number,
   );
-  shortContractEntity.minCollateral = event.params.minCollateral;
+  shortContractEntity.minCollateral = toDecimal(event.params.minCollateral);
   shortContractEntity.save();
   saveContractLevelUpdate(
     event.transaction.hash.toHex(),
@@ -417,7 +417,7 @@ export function handleIssueFeeRateUpdatedsUSD(event: IssueFeeRateUpdatedEvent): 
     event.block.timestamp,
     event.block.number,
   );
-  shortContractEntity.issueFeeRate = event.params.issueFeeRate;
+  shortContractEntity.issueFeeRate = toDecimal(event.params.issueFeeRate);
   shortContractEntity.save();
   saveContractLevelUpdate(
     event.transaction.hash.toHex(),

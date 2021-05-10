@@ -9,16 +9,16 @@ type ExchangeEntrySettled @entity {
   src: Bytes!
 
   " number of units of synth from exchanged "
-  amount: BigInt!
+  amount: BigDecimal!
 
   " address which receives the settlement "
   dest: Bytes!
 
   " amount reclaimed of dest due to underpayment "
-  reclaim: BigInt!
+  reclaim: BigDecimal!
 
   " amount returned of dest due to overpayment "
-  rebate: BigInt!
+  rebate: BigDecimal!
 
   " aggregator price round for src synth "
   srcRoundIdAtPeriodEnd: BigInt!
@@ -41,16 +41,16 @@ type ExchangeEntryAppended @entity {
   src: Bytes!
 
   " number of units of synth from exchanged "
-  amount: BigInt!
+  amount: BigDecimal!
 
   " synth exchanged to "
   dest: Bytes!
 
   " number of units of synth to received "
-  amountReceived: BigInt!
+  amountReceived: BigDecimal!
 
   " fee paid in sUSD to the synthetix fee pool "
-  exchangeFeeRate: BigInt!
+  exchangeFeeRate: BigDecimal!
 
   " aggregator price round for src synth "
   roundIdForSrc: BigInt!

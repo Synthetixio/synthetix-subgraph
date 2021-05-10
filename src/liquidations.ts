@@ -16,7 +16,7 @@ import {
   AccountLiquidated,
 } from '../generated/subgraphs/synthetix-liquidations/schema';
 
-import { strToBytes } from './lib/util';
+import { strToBytes, toDecimal } from './lib/util';
 
 export function handleAccountFlaggedForLiquidation(event: AccountFlaggedForLiquidationEvent): void {
   let liquidationsContract = Liquidations.bind(event.address);
@@ -28,8 +28,8 @@ export function handleAccountFlaggedForLiquidation(event: AccountFlaggedForLiqui
   accountFlaggedForLiquidation.account = event.params.account;
   accountFlaggedForLiquidation.deadline = event.params.deadline;
   accountFlaggedForLiquidation.collateralRatio = synthetix.collateralisationRatio(event.params.account);
-  accountFlaggedForLiquidation.collateral = synthetix.collateral(event.params.account);
-  accountFlaggedForLiquidation.liquidatableNonEscrowSNX = synthetix.balanceOf(event.params.account);
+  accountFlaggedForLiquidation.collateral = toDecimal(synthetix.collateral(event.params.account));
+  accountFlaggedForLiquidation.liquidatableNonEscrowSNX = toDecimal(synthetix.balanceOf(event.params.account));
   accountFlaggedForLiquidation.save();
 }
 
@@ -46,8 +46,8 @@ export function handleAccountLiquidated(event: AccountLiquidatedEvent): void {
   let entity = new AccountLiquidated(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
 
   entity.account = event.params.account;
-  entity.snxRedeemed = event.params.snxRedeemed;
-  entity.amountLiquidated = event.params.amountLiquidated;
+  entity.snxRedeemed = toDecimal(event.params.snxRedeemed);
+  entity.amountLiquidated = toDecimal(event.params.amountLiquidated);
   entity.liquidator = event.params.liquidator;
   entity.time = event.block.timestamp;
 

@@ -22,7 +22,7 @@ import {
   ethereum,
   Bytes,
 } from '@graphprotocol/graph-ts';
-import { etherUnits, strToBytes, ZERO } from '../lib/helpers';
+import { etherUnits, strToBytes, toDecimal, ZERO } from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/Synthetix';
 import { ExecutionSuccess } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/GnosisSafe';
@@ -84,6 +84,27 @@ function addAggregator(currencyKey: string, aggregatorAddress: Address): void {
   }
 }
 
+export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal): BigDecimal|null {
+  // since this is inverse pricing, we have to get the latest token information and then apply it to the rate
+  let inversePricingInfo = InversePricingInfo.load(currencyKey);
+
+  if (inversePricingInfo == null) {
+    log.warning(`Missing inverse pricing info for asset {}`, [currencyKey]);
+    return null;
+  }
+
+  if (inversePricingInfo.frozen) return null;
+
+  let inverseRate = inversePricingInfo.entryPoint
+    .times(new BigDecimal(BigInt.fromI32(2)))
+    .minus(beforeRate);
+
+  inverseRate = inversePricingInfo.lowerLimit.lt(inverseRate) ? inverseRate : inversePricingInfo.lowerLimit;
+  inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
+
+  return inverseRate;
+}
+
 export function handleAggregatorAdded(event: AggregatorAddedEvent): void {
   addAggregator(event.params.currencyKey.toString(), event.params.aggregator);
 }
@@ -141,26 +162,12 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
   let context = dataSource.context();
   let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
 
-  let decimalRate = new BigDecimal(rate);
+  let inverseRate = calculateInverseRate(context.getString('currencyKey'), toDecimal(rate));
 
-  // since this is inverse pricing, we have to get the latest token information and then apply it to the rate
-  let inversePricingInfo = InversePricingInfo.load(context.getString('currencyKey'));
-
-  if (inversePricingInfo == null) {
-    log.warning(`Missing inverse pricing info for asset {}`, [context.getString('currencyKey')]);
+  if (inverseRate == null)
     return;
-  }
 
-  if (inversePricingInfo.frozen) return;
-
-  let inverseRate = inversePricingInfo.entryPoint
-    .times(new BigDecimal(BigInt.fromI32(2)))
-    .minus(decimalRate.div(etherUnits));
-
-  inverseRate = inversePricingInfo.lowerLimit.lt(inverseRate) ? inverseRate : inversePricingInfo.lowerLimit;
-  inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
-
-  addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate, event.address);
+  addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate as BigDecimal, event.address);
 }
 
 // required to rescan all aggregator addresses whenever chainlink settings are updated. This is because of an issue where the chainlink aggregator proxy

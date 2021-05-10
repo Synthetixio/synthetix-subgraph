@@ -12,7 +12,7 @@ type Loan @entity {
   collateralMinted: String!
 
   " the amount of the loan "
-  amount: BigInt!
+  amount: BigDecimal!
 
   " is the loan still open? "
   isOpen: Boolean!
@@ -58,10 +58,10 @@ type LoanPartiallyLiquidated @entity {
   liquidator: Bytes!
 
   " the amount partially liquidated "
-  liquidatedAmount: BigInt!
+  liquidatedAmount: BigDecimal!
 
   " the amount partially liquidated plus the liquidation fee "
-  liquidatedCollateral: BigInt!
+  liquidatedCollateral: BigDecimal!
 
   " the timestamp the loan was partially liquidated "
   timestamp: BigInt!
@@ -72,10 +72,10 @@ type CollateralDeposited @entity {
   id: ID!
 
   " the amount of collateral deposited "
-  collateralAmount: BigInt!
+  collateralAmount: BigDecimal!
 
   " the total amount of collateral after the deposit is included "
-  collateralAfter: BigInt!
+  collateralAfter: BigDecimal!
 
   " the account that created the loan "
   account: Bytes!
@@ -92,10 +92,10 @@ type CollateralWithdrawn @entity {
   id: ID!
 
   " the amount of collateral withdrawn "
-  amountWithdrawn: BigInt!
+  amountWithdrawn: BigDecimal!
 
   " the total amount of collateral after the withdrawal is accounted for "
-  collateralAfter: BigInt!
+  collateralAfter: BigDecimal!
 
   " the account that created the loan "
   account: Bytes!
@@ -112,10 +112,10 @@ type LoanRepaid @entity {
   id: ID!
 
   " the amount of the loan that was repaid " # what is the measurement
-  repaidAmount: BigInt!
+  repaidAmount: BigDecimal!
 
   " the total amount of the loan after the repaid amount is accounted for "
-  newLoanAmount: BigInt!
+  newLoanAmount: BigDecimal!
 
   " the account that created the loan "
   account: Bytes!

@@ -4,19 +4,19 @@ import {
   Transfer as SNXTransferEvent,
 } from '../generated/subgraphs/synthetix-old/Synthetix_0/Synthetix';
 
-import { Synthetix32 } from '../generated/subgraphs/synthetix-old/Synthetix_0/Synthetix32';
+import { Synthetix32 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix32';
 
-import { Synthetix4 } from '../generated/subgraphs/synthetix-old/Synthetix_0/Synthetix4';
+import { Synthetix4 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix4';
 
-import { AddressResolver } from '../generated/subgraphs/synthetix-old/Synthetix_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/synthetix/Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID } from './lib/util';
+import { sUSD32, sUSD4, getTimeID, toDecimal } from './lib/util';
 
 // SynthetixState has not changed ABI since deployment
-import { SynthetixState } from '../generated/subgraphs/synthetix-old/Synthetix_0/SynthetixState';
+import { SynthetixState } from '../generated/subgraphs/synthetix/Synthetix_0/SynthetixState';
 
 //import { TargetUpdated as TargetUpdatedEvent } from '../generated/subgraphs/synthetix-old/Synthetix_0/ProxyERC20';
-import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/synthetix-old/RewardEscrow_0/RewardEscrow';
+import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/synthetix/RewardEscrow_0/RewardEscrow';
 
 import {
   Synth,
@@ -24,8 +24,8 @@ import {
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/subgraphs/synthetix-old/SynthsUSD_0/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/synthetix-old/FeePool_0/FeePool';
-import { FeePoolv217 } from '../generated/subgraphs/synthetix-old/FeePool_0/FeePoolv217';
+import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/synthetix/FeePool_0/FeePool';
+import { FeePoolv217 } from '../generated/subgraphs/synthetix/FeePool_0/FeePoolv217';
 
 import {
   Synthetix,
@@ -43,7 +43,7 @@ import {
   ActiveStaker,
   DailyIssued,
   DailyBurned,
-} from '../generated/subgraphs/synthetix-old/schema';
+} from '../generated/subgraphs/synthetix/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
 
@@ -142,13 +142,13 @@ function trackSNXHolder(
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
   if (block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
-    snxHolder.balanceOf = synthetix.balanceOf(account);
-    snxHolder.collateral = synthetix.collateral(account);
+    snxHolder.balanceOf = toDecimal(synthetix.balanceOf(account));
+    snxHolder.collateral = toDecimal(synthetix.collateral(account));
 
     // Check transferable because it will be null when rates are stale
     let transferableTry = synthetix.try_transferableSynthetix(account);
     if (!transferableTry.reverted) {
-      snxHolder.transferable = transferableTry.value;
+      snxHolder.transferable = toDecimal(transferableTry.value);
     }
     let resolverTry = synthetix.try_resolver();
     if (resolverTry.reverted) {
@@ -198,15 +198,15 @@ function trackSNXHolder(
     // Synthetix32 or Synthetix4
     let synthetix = Synthetix32.bind(snxContract);
     // Track all the staking information relevant to this SNX Holder
-    snxHolder.balanceOf = synthetix.balanceOf(account);
-    snxHolder.collateral = synthetix.collateral(account);
+    snxHolder.balanceOf = toDecimal(synthetix.balanceOf(account));
+    snxHolder.collateral = toDecimal(synthetix.collateral(account));
     // Note: Below we try_transferableSynthetix as it uses debtBalanceOf, which eventually calls ExchangeRates.abs
     // It's slower to use try but this protects against instances when Transfers were enabled
     // yet ExchangeRates were stale and throwing errors when calling effectiveValue.
     // E.g. https://etherscan.io/tx/0x5368339311aafeb9f92c5b5d84faa4864c2c3878681a402bbf0aabff60bafa08
     let transferableTry = synthetix.try_transferableSynthetix(account);
     if (!transferableTry.reverted) {
-      snxHolder.transferable = transferableTry.value;
+      snxHolder.transferable = toDecimal(transferableTry.value);
     }
     let stateTry = synthetix.try_synthetixState();
     if (!stateTry.reverted) {
@@ -222,24 +222,24 @@ function trackSNXHolder(
   } else {
     // When we were Havven, simply track their collateral (SNX balance and escrowed balance)
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
-    snxHolder.balanceOf = synthetix.balanceOf(account);
+    snxHolder.balanceOf = toDecimal(synthetix.balanceOf(account));
     let collateralTry = synthetix.try_collateral(account);
     if (!collateralTry.reverted) {
-      snxHolder.collateral = collateralTry.value;
+      snxHolder.collateral = toDecimal(collateralTry.value);
     }
   }
 
   if (
-    (existingSNXHolder == null && snxHolder.balanceOf > BigInt.fromI32(0)) ||
+    (existingSNXHolder == null && snxHolder.balanceOf.gt(toDecimal(BigInt.fromI32(0)))) ||
     (existingSNXHolder != null &&
-      existingSNXHolder.balanceOf == BigInt.fromI32(0) &&
-      snxHolder.balanceOf > BigInt.fromI32(0))
+      existingSNXHolder.balanceOf == toDecimal(BigInt.fromI32(0)) &&
+      snxHolder.balanceOf > toDecimal(BigInt.fromI32(0)))
   ) {
     incrementMetadata('snxHolders');
   } else if (
     existingSNXHolder != null &&
-    existingSNXHolder.balanceOf > BigInt.fromI32(0) &&
-    snxHolder.balanceOf == BigInt.fromI32(0)
+    existingSNXHolder.balanceOf > toDecimal(BigInt.fromI32(0)) &&
+    snxHolder.balanceOf == toDecimal(BigInt.fromI32(0))
   ) {
     decrementMetadata('snxHolders');
   }
@@ -263,30 +263,30 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 
   if (event.block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
-    entity.balanceOf = synthetix.balanceOf(account);
-    entity.collateral = synthetix.collateral(account);
-    entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
+    entity.balanceOf = toDecimal(synthetix.balanceOf(account));
+    entity.collateral = toDecimal(synthetix.collateral(account));
+    entity.debtBalanceOf = toDecimal(synthetix.debtBalanceOf(account, sUSD32));
   }
   // Use bytes32
   else if (event.block.number > v2100UpgradeBlock) {
     let synthetix = Synthetix32.bind(snxContract);
-    entity.balanceOf = synthetix.balanceOf(account);
-    entity.collateral = synthetix.collateral(account);
-    entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
+    entity.balanceOf = toDecimal(synthetix.balanceOf(account));
+    entity.collateral = toDecimal(synthetix.collateral(account));
+    entity.debtBalanceOf = toDecimal(synthetix.debtBalanceOf(account, sUSD32));
     // Use bytes4
   } else {
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
     let balanceOfTry = synthetix.try_balanceOf(account);
     if (!balanceOfTry.reverted) {
-      entity.balanceOf = balanceOfTry.value;
+      entity.balanceOf = toDecimal(balanceOfTry.value);
     }
     let collateralTry = synthetix.try_collateral(account);
     if (!collateralTry.reverted) {
-      entity.collateral = collateralTry.value;
+      entity.collateral = toDecimal(collateralTry.value);
     }
     let debtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD4);
     if (!debtBalanceOfTry.reverted) {
-      entity.debtBalanceOf = debtBalanceOfTry.value;
+      entity.debtBalanceOf = toDecimal(debtBalanceOfTry.value);
     }
   }
 
@@ -298,7 +298,7 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   entity.source = 'SNX';
   entity.from = event.params.from;
   entity.to = event.params.to;
-  entity.value = event.params.value;
+  entity.value = toDecimal(event.params.value);
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.save();
@@ -314,7 +314,7 @@ function trackSynthHolder(contract: Synth, source: string, account: Address): vo
     entity = new SynthHolder(entityID);
   }
   entity.synth = source;
-  entity.balanceOf = contract.balanceOf(account);
+  entity.balanceOf = toDecimal(contract.balanceOf(account));
   entity.save();
 }
 
@@ -331,7 +331,7 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   }
   entity.from = event.params.from;
   entity.to = event.params.to;
-  entity.value = event.params.value;
+  entity.value = toDecimal(event.params.value);
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.save();
@@ -348,8 +348,8 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
 export function handleRewardVestEvent(event: VestedEvent): void {
   let entity = new RewardEscrowHolder(event.params.beneficiary.toHex());
   let contract = RewardEscrow.bind(event.address);
-  entity.balanceOf = contract.balanceOf(event.params.beneficiary);
-  entity.vestedBalanceOf = contract.totalVestedAccountBalance(event.params.beneficiary);
+  entity.balanceOf = toDecimal(contract.balanceOf(event.params.beneficiary));
+  entity.vestedBalanceOf = toDecimal(contract.totalVestedAccountBalance(event.params.beneficiary));
   entity.save();
   // now track the SNX holder as this action can impact their collateral
   let synthetixAddress = contract.synthetix();
@@ -396,7 +396,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.account = event.transaction.from;
 
   // Note: this amount isn't in sUSD for sETH or sBTC issuance prior to Vega
-  entity.value = event.params.value;
+  entity.value = toDecimal(event.params.value);
 
   let synth = Synth.bind(event.address);
   let currencyKeyTry = synth.try_currencyKey();
@@ -415,11 +415,11 @@ export function handleIssuedSynths(event: IssuedEvent): void {
     let dailyIssuedEntity = DailyIssued.load(dayId);
     if (dailyIssuedEntity == null) {
       dailyIssuedEntity = new DailyIssued(dayId);
-      dailyIssuedEntity.value = event.params.value;
+      dailyIssuedEntity.value = toDecimal(event.params.value);
     } else {
-      dailyIssuedEntity.value = dailyIssuedEntity.value + event.params.value;
+      dailyIssuedEntity.value = dailyIssuedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyIssuedEntity.totalDebt = totalIssued;
+    dailyIssuedEntity.totalDebt = toDecimal(totalIssued);
     dailyIssuedEntity.save();
   }
 
@@ -488,7 +488,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.account = event.transaction.from;
 
   // Note: this amount isn't in sUSD for sETH or sBTC issuance prior to Vega
-  entity.value = event.params.value;
+  entity.value = toDecimal(event.params.value);
 
   let synth = Synth.bind(event.address);
   let currencyKeyTry = synth.try_currencyKey();
@@ -507,11 +507,11 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     let dailyBurnedEntity = DailyBurned.load(dayId);
     if (dailyBurnedEntity == null) {
       dailyBurnedEntity = new DailyBurned(dayId);
-      dailyBurnedEntity.value = event.params.value;
+      dailyBurnedEntity.value = toDecimal(event.params.value);
     } else {
-      dailyBurnedEntity.value = dailyBurnedEntity.value + event.params.value;
+      dailyBurnedEntity.value = dailyBurnedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyBurnedEntity.totalDebt = totalIssued;
+    dailyBurnedEntity.totalDebt = toDecimal(totalIssued);
     dailyBurnedEntity.save();
   }
 
@@ -534,10 +534,10 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   let entity = new FeesClaimed(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
 
   entity.account = event.params.account;
-  entity.rewards = event.params.snxRewards;
+  entity.rewards = toDecimal(event.params.snxRewards);
   if (event.block.number > v219UpgradeBlock) {
     // post Achernar, we had no XDRs, so use the value as sUSD
-    entity.value = event.params.sUSDAmount;
+    entity.value = toDecimal(event.params.sUSDAmount);
   } else {
     // pre Achernar, we had XDRs, so we need to figure out their effective value,
     // and for that we need to get to synthetix, which in pre-Achernar was exposed
@@ -557,14 +557,14 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
       );
 
       if (!tryEffectiveValue.reverted) {
-        entity.value = tryEffectiveValue.value;
+        entity.value = toDecimal(tryEffectiveValue.value);
       } else {
-        entity.value = BigInt.fromI32(0); // Note: not sure why this might be happening. Need to investigat
+        entity.value = toDecimal(BigInt.fromI32(0)); // Note: not sure why this might be happening. Need to investigat
       }
     } else {
       // use bytes4
       let synthetix = Synthetix4.bind(feePool.synthetix());
-      entity.value = synthetix.effectiveValue(strToBytes('XDR', 4), event.params.sUSDAmount, strToBytes('sUSD', 4));
+      entity.value = toDecimal(synthetix.effectiveValue(strToBytes('XDR', 4), event.params.sUSDAmount, strToBytes('sUSD', 4)));
     }
   }
 

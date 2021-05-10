@@ -14,7 +14,7 @@ type Transfer @entity {
   id: ID!
   from: Bytes! # address
   to: Bytes! # address
-  value: BigInt! # uint256
+  value: BigDecimal! # uint256
   timestamp: BigInt!
   block: BigInt!
   source: String!
@@ -37,14 +37,14 @@ type SNXHolder @entity {
   timestamp: BigInt!
 
   " current SNX balance of the holder "
-  balanceOf: BigInt
+  balanceOf: BigDecimal
   
   # the following will be null before multicurrency (v2) release
   " SNX which is being used for collateral as of last event and cannot be spent "
-  collateral: BigInt
+  collateral: BigDecimal
 
   " SNX which can be spent as of last event "
-  transferable: BigInt
+  transferable: BigDecimal
 
   
   initialDebtOwnership: BigInt
@@ -73,14 +73,14 @@ type DebtSnapshot @entity {
   account: Bytes! # address
 
 
-  balanceOf: BigInt # early on it was possible this wouldn't have a value (pre v2)
+  balanceOf: BigDecimal # early on it was possible this wouldn't have a value (pre v2)
   # the following will be null before multicurrency (v2) release
 
   " SNX which is being used for collateral as of last event and cannot be spent "
-  collateral: BigInt
+  collateral: BigDecimal
 
   " sUSD of debt as of last event "
-  debtBalanceOf: BigInt
+  debtBalanceOf: BigDecimal
 }
 
 type SynthHolder @entity {
@@ -91,7 +91,7 @@ type SynthHolder @entity {
   synth: String!
 
   " units of the synth held in wei "
-  balanceOf: BigInt!
+  balanceOf: BigDecimal!
 }
 
 type DailyIssued @entity {
@@ -99,10 +99,10 @@ type DailyIssued @entity {
   id: ID!
 
   " amount issued "
-  value: BigInt!
+  value: BigDecimal!
 
   " amount of debt as of the last event for this day "
-  totalDebt: BigInt!
+  totalDebt: BigDecimal!
 }
 
 type DailyBurned @entity {
@@ -110,17 +110,17 @@ type DailyBurned @entity {
   id: ID!
 
   " amount burned "
-  value: BigInt!
+  value: BigDecimal!
 
   " amount of debt as of the last event for this day "
-  totalDebt: BigInt!
+  totalDebt: BigDecimal!
 }
 
 " Tracks this event from various Synth.sol instances "
 type Issued @entity {
   id: ID!
   account: Bytes! # address
-  value: BigInt!
+  value: BigDecimal!
   source: String!
   timestamp: BigInt!
   gasPrice: BigInt!
@@ -131,7 +131,7 @@ type Issued @entity {
 type Burned @entity {
   id: ID!
   account: Bytes! # address
-  value: BigInt! # uint256
+  value: BigDecimal! # uint256
   source: String!
   timestamp: BigInt!
   gasPrice: BigInt!
@@ -143,18 +143,18 @@ type RewardEscrowHolder @entity {
   id: ID!
 
   " amount of tokens remaining to be claimed from the escrow "
-  balanceOf: BigInt!
+  balanceOf: BigDecimal!
 
   " amount of SNX claimed from the escrow "
-  vestedBalanceOf: BigInt!
+  vestedBalanceOf: BigDecimal!
 }
 
 " Tracks this event from Synthetix.sol "
 type FeesClaimed @entity {
   id: ID!
   account: Bytes! # address
-  value: BigInt! # uint256
-  rewards: BigInt! # uint256
+  value: BigDecimal! # uint256
+  rewards: BigDecimal! # uint256
   block: BigInt!
   timestamp: BigInt!
 }

@@ -5,14 +5,20 @@ const manifest = []; //clone(latestRates.dataSources);
 
 // for exchange rates, modify so we can capture the snx price
 for (const lrm of clone(latestRates.dataSources)) {
+  if (lrm.name === 'ChainlinkMultisig') {
+    continue;
+  }
+
   lrm.mapping.file = '../src/rates.ts';
   manifest.push(lrm);
 }
 
 const templates = clone(latestRates.templates);
 
-// handle SNX price by overriding template
+// handle SNX price and rate updates by overriding template
 templates.find(v => v.name == 'Aggregator').mapping.file = '../src/rates.ts';
+templates.find(v => v.name == 'InverseAggregator').mapping.file = '../src/rates.ts';
+templates.find(v => v.name == 'SynthAggregator').mapping.file = '../src/rates.ts';
 
 module.exports = {
   specVersion: '0.0.2',

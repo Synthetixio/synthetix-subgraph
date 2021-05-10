@@ -12,10 +12,10 @@ type AccountFlaggedForLiquidation @entity {
   collateralRatio: BigInt!
 
   " snx that is liquidatable "
-  liquidatableNonEscrowSNX: BigInt!
+  liquidatableNonEscrowSNX: BigDecimal!
 
   " total collateral held by the staker including escrow amount "
-  collateral: BigInt!
+  collateral: BigDecimal!
 }
 
 type AccountRemovedFromLiquidation @entity {
@@ -36,10 +36,10 @@ type AccountLiquidated @entity {
   account: Bytes!
 
   "the amount of SNX redeemed by the liquidator"
-  snxRedeemed: BigInt!
+  snxRedeemed: BigDecimal!
 
   "the amount of sUSD liquidated"
-  amountLiquidated: BigInt!
+  amountLiquidated: BigDecimal!
 
   "the address liquidating the account"
   liquidator: Bytes!

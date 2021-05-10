@@ -1,15 +1,48 @@
-# The average price of SNX over a 15 minute period
-type FifteenMinuteSNXPrice @entity {
+" Latest Rates over time "
+type RateUpdate @entity {
+  " <transaction hash>-<currency key> "
   id: ID!
-  count: BigInt!
-  averagePrice: BigInt!
+
+  " currencyKey for which this this rate update applies "
+  currencyKey: Bytes!
+
+  " currencyKey expressed as a string "
+  synth: String!
+
+  " the rate recorded at this timestamp "
+  rate: BigDecimal!
+
+  " the block which this rate was recorded "
+  block: BigInt!
+
+  " timestamp of the block in which the rate was recorded "
+  timestamp: BigInt!
 }
 
-# The average price of SNX over a day
-type DailySNXPrice @entity {
+" The average price of SNX over a 15 minute period "
+type FifteenMinuteSNXPrice @entity {
+
+  " numeric dayId "
   id: ID!
+  
+  " number of samples averaged in the period "
   count: BigInt!
-  averagePrice: BigInt!
+
+  " calculated average price of all the samples "
+  averagePrice: BigDecimal!
+}
+
+" The average price of SNX over a day "
+type DailySNXPrice @entity {
+
+  " numeric dayId "
+  id: ID!
+
+  " number of samples averaged in the period "
+  count: BigInt!
+
+  " calculated average price of all the samples "
+  averagePrice: BigDecimal!
 }
 
 type InversePricingInfo @entity {

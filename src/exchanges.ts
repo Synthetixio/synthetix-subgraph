@@ -22,6 +22,7 @@ import {
 import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 
 import { getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
+import { toDecimal } from './lib/util';
 
 interface AggregatedTotalEntity {
   trades: BigInt;
@@ -77,10 +78,10 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.account = event.params.account;
   entity.from = account;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
-  entity.fromAmount = event.params.fromAmount;
+  entity.fromAmount = toDecimal(event.params.fromAmount);
   entity.fromAmountInUSD = fromAmountInUSD;
   entity.toCurrencyKey = event.params.toCurrencyKey;
-  entity.toAmount = event.params.toAmount;
+  entity.toAmount = toDecimal(event.params.toAmount);
   entity.toAmountInUSD = toAmountInUSD;
   entity.toAddress = event.params.toAddress;
   entity.feesInUSD = feesInUSD;
@@ -129,7 +130,7 @@ export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
   let txHash = event.transaction.hash.toHex();
   let entity = new ExchangeReclaim(txHash + '-' + event.logIndex.toString());
   entity.account = event.params.account;
-  entity.amount = event.params.amount;
+  entity.amount = toDecimal(event.params.amount);
   entity.currencyKey = event.params.currencyKey;
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
@@ -148,7 +149,7 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
   let txHash = event.transaction.hash.toHex();
   let entity = new ExchangeRebate(txHash + '-' + event.logIndex.toString());
   entity.account = event.params.account;
-  entity.amount = event.params.amount;
+  entity.amount = toDecimal(event.params.amount);
   entity.currencyKey = event.params.currencyKey;
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
