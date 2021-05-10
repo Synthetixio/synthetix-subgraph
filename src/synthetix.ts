@@ -45,7 +45,7 @@ import {
   DailyBurned,
 } from '../generated/subgraphs/synthetix/schema';
 
-import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
+import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './lib/util';
 
@@ -64,22 +64,6 @@ let v2100UpgradeBlock = BigInt.fromI32(8622911);
 // Synthetix v2.0.0 (rebrand from Havven and adding Multicurrency) at txn
 // https://etherscan.io/tx/0x4b5864b1e4fdfe0ab9798de27aef460b124e9039a96d474ed62bd483e10c835a
 let v200UpgradeBlock = BigInt.fromI32(6841188); // Dec 7, 2018
-
-// [reference only] Havven v1.0.1 release at txn
-// https://etherscan.io/tx/0x7d5e4d92c702d4863ed71d5c1348e9dec028afd8d165e673d4b6aea75c8b9e2c
-// let v101UpgradeBlock = BigInt.fromI32(5873222); // June 29, 2018 (nUSDa.1)
-
-// [reference only] Havven v1.0.0 release at txn
-// https://etherscan.io/tx/0x1c3b873d0ce0dfafff428fc019bc9f630ac51031fc6021e57fb24c65143d328a
-// let v100UpgradeBlock = BigInt.fromI32(5762355); // June 10, 2018 (nUSDa)
-
-// [reference only] ProxySynthetix creation
-// https://etherscan.io/tx/0xa733e675705a8af67f4f82df796be763d4f389a45216a89bf5d09f7e7d1aec11
-// let proxySynthetixBlock = BigInt.fromI32(5750875); //  June 8, 2018
-
-// [reference only] Havven v0.1.0 (0xf244176246168f24e3187f7288edbca29267739b)
-// https://etherscan.io/tx/0x7770e66f2be4f32caa929fe671a5fc4fd134227812f2ef80612395c8f3dade50
-// let initialHavvenBlock = BigInt.fromI32(5238336); // Mar 11, 2018 (eUSD)
 
 function getMetadata(): Synthetix {
   let synthetix = Synthetix.load('1');
@@ -140,7 +124,7 @@ function trackSNXHolder(
   snxHolder.timestamp = block.timestamp;
 
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
-  if (block.number > v219UpgradeBlock) {
+  if (dataSource.network() !== 'mainnet' || block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     snxHolder.balanceOf = toDecimal(synthetix.balanceOf(account));
     snxHolder.collateral = toDecimal(synthetix.collateral(account));
@@ -261,7 +245,7 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.timestamp = event.block.timestamp;
   entity.account = account;
 
-  if (event.block.number > v219UpgradeBlock) {
+  if (dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     entity.balanceOf = toDecimal(synthetix.balanceOf(account));
     entity.collateral = toDecimal(synthetix.collateral(account));
@@ -322,7 +306,7 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'sUSD';
-  if (event.block.number > v200UpgradeBlock) {
+  if (dataSource.network() !== 'mainnet' || event.block.number > v200UpgradeBlock) {
     // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
     let currencyKeyTry = contract.try_currencyKey();
     if (!currencyKeyTry.reverted) {
@@ -407,7 +391,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   }
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
-  if (event.block.number > v219UpgradeBlock && entity.source == 'sUSD') {
+  if ((dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
@@ -428,7 +412,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  if (event.block.number > v200UpgradeBlock) {
+  if (dataSource.network() !== 'mainnet' || event.block.number > v200UpgradeBlock) {
     trackActiveStakers(event, false);
   }
 
@@ -499,7 +483,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   }
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
-  if (event.block.number > v219UpgradeBlock && entity.source == 'sUSD') {
+  if ((dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
@@ -520,7 +504,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  if (event.block.number > v200UpgradeBlock) {
+  if (dataSource.network() !== 'mainnet' || event.block.number > v200UpgradeBlock) {
     trackActiveStakers(event, true);
   }
 
@@ -535,7 +519,7 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 
   entity.account = event.params.account;
   entity.rewards = toDecimal(event.params.snxRewards);
-  if (event.block.number > v219UpgradeBlock) {
+  if (dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) {
     // post Achernar, we had no XDRs, so use the value as sUSD
     entity.value = toDecimal(event.params.sUSDAmount);
   } else {
@@ -590,7 +574,7 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   let snxContract = event.transaction.to as Address;
   let accountDebtBalance = BigInt.fromI32(0);
 
-  if (event.block.number > v2100UpgradeBlock) {
+  if (dataSource.network() !== 'mainnet' || event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
   } else if (event.block.number > v200UpgradeBlock) {
