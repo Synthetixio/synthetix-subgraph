@@ -27,7 +27,6 @@
     "codegen:grantsdao": "npm run codegen -- subgraphs/synthetix-grantsdao.yaml",
     "codegen:liquidations": "npm run codegen -- subgraphs/synthetix-liquidations.yaml",
     "codegen:shorts": "npm run codegen -- subgraphs/synthetix-shorts.yaml",
-    "codegen:wrapper": "npm run codegen -- subgraphs/synthetix-shorts.yaml",
     "build": "graph build",
     "build:snx": "graph build subgraphs/synthetix.yaml",
     "build:chainlink": "graph build subgraphs/synthetix-chainlink.yaml",
