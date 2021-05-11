@@ -1,0 +1,26 @@
+specVersion: 0.0.2
+description: Synthetix Optimism Bridge API
+repository: https://github.com/Synthetixio/synthetix-subgraph
+schema:
+  file: ./synthetix-optimism-bridge.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: SynthetixBridgeToOptimism
+    network: mainnet
+    source:
+      address: '0xCd9D4988C0AE61887B075bA77f08cbFAd2b65068'
+      abi: OptimismBridge
+      startBlock: 12409013
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/optimism-bridge.ts
+      entities:
+        - DepositInitiated
+      abis:
+        - name: OptimismBridge
+          file: ../abis/OptimismBridge.json
+      eventHandlers:
+        - event: DepositInitiated(indexed address,address,uint256)
+          handler: handleDepositInitiated

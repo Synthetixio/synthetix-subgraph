@@ -1,0 +1,19 @@
+type DepositInitiated @entity {
+  " the event tx hash plus event log index "
+  id: ID!
+
+  " the from address of the deposit "
+  fromAddress: Bytes!
+
+  " the to address of the deposit "
+  toAddress: Bytes!
+
+  " the amount deposited "
+  amount: BigInt!
+
+  " the block the deposit arrived "
+  block: BigInt!
+
+  " the timestamp the deposit arrived "
+  timestamp: BigInt!
+}
