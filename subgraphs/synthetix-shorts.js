@@ -1,6 +1,10 @@
+const { clone } = require('lodash');
+
 const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
 
-const manifest = [];
+const latestRates = require('./fragments/latest-rates');
+
+const manifest = clone(latestRates.dataSources);
 
 /**
  * NOTE we need to update this file when we start using
@@ -103,4 +107,5 @@ module.exports = {
     file: './synthetix-shorts.graphql',
   },
   dataSources: manifest,
+  templates: latestRates.templates,
 };
