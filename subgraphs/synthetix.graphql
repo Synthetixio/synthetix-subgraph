@@ -1,0 +1,180 @@
+" Synthentix is an aggregation entity "
+type Synthetix @entity {
+  id: ID!
+
+  " number of stakers currently staking "
+  issuers: BigInt!
+
+  " number of addresses which hold SNX "
+  snxHolders: BigInt!
+}
+
+" tracks this event from the Synthetix.sol contract and various Synth.sol contracts "
+type Transfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigDecimal! # uint256
+  timestamp: BigInt!
+  block: BigInt!
+  source: String!
+}
+
+" An individual Issuer "
+type Issuer @entity {
+  id: ID!
+}
+
+" An individual SNX holder (always overridden with their latest information) "
+type SNXHolder @entity {
+  " address of holder "
+  id: ID!
+
+  " last block where an event happened "
+  block: BigInt!
+
+  " last time where an event happened "
+  timestamp: BigInt!
+
+  " current SNX balance of the holder "
+  balanceOf: BigDecimal
+  
+  # the following will be null before multicurrency (v2) release
+  " SNX which is being used for collateral as of last event and cannot be spent "
+  collateral: BigDecimal
+
+  " SNX which can be spent as of last event "
+  transferable: BigDecimal
+
+  
+  initialDebtOwnership: BigInt
+
+  
+  debtEntryAtIndex: BigInt
+  
+  " number of claims performed "
+  claims: BigInt
+
+  " number of mints performed "
+  mints: BigInt
+}
+
+" A historical debt tracker "
+type DebtSnapshot @entity {
+  id: ID!
+  
+  " last block where an event happened "
+  block: BigInt!
+
+  " last time when an event happened "
+  timestamp: BigInt!
+
+  " address for which these statistics are applicable "
+  account: Bytes! # address
+
+
+  balanceOf: BigDecimal # early on it was possible this wouldn't have a value (pre v2)
+  # the following will be null before multicurrency (v2) release
+
+  " SNX which is being used for collateral as of last event and cannot be spent "
+  collateral: BigDecimal
+
+  " sUSD of debt as of last event "
+  debtBalanceOf: BigDecimal
+}
+
+type SynthHolder @entity {
+  " address of the holder + the synth "
+  id: ID!
+
+  " currencyKey of the synth "
+  synth: String!
+
+  " units of the synth held in wei "
+  balanceOf: BigDecimal!
+}
+
+type DailyIssued @entity {
+  " dayId of the measurement "
+  id: ID!
+
+  " amount issued "
+  value: BigDecimal!
+
+  " amount of debt as of the last event for this day "
+  totalDebt: BigDecimal!
+}
+
+type DailyBurned @entity {
+  " dayId of the measurement "
+  id: ID!
+
+  " amount burned "
+  value: BigDecimal!
+
+  " amount of debt as of the last event for this day "
+  totalDebt: BigDecimal!
+}
+
+" Tracks this event from various Synth.sol instances "
+type Issued @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigDecimal!
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+" Burned tracks this event from various Synth.sol instances "
+type Burned @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigDecimal! # uint256
+  source: String!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+type RewardEscrowHolder @entity {
+  " address which holds a rewardescrow "
+  id: ID!
+
+  " amount of tokens remaining to be claimed from the escrow "
+  balanceOf: BigDecimal!
+
+  " amount of SNX claimed from the escrow "
+  vestedBalanceOf: BigDecimal!
+}
+
+" Tracks this event from Synthetix.sol "
+type FeesClaimed @entity {
+  id: ID!
+  account: Bytes! # address
+  value: BigDecimal! # uint256
+  rewards: BigDecimal! # uint256
+  block: BigInt!
+  timestamp: BigInt!
+}
+
+type TotalActiveStaker @entity {
+  " single value "
+  id: ID!
+
+  " number of stakers seen "
+  count: BigInt!
+}
+
+type TotalDailyActiveStaker @entity {
+  " dayID relevant to this statistic "
+  id: ID!
+
+  " number of stakers seen on this day "
+  count: BigInt!
+}
+
+type ActiveStaker @entity {
+  id: ID!
+}

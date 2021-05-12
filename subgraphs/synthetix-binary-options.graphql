@@ -1,0 +1,96 @@
+type Market @entity {
+
+  " address of the market "
+  id: ID!
+
+  " time at which the market was created"
+  timestamp: BigInt!
+
+  " address which created the market "
+  creator: Bytes!
+
+  " currency to be predicted "
+  currencyKey: Bytes!
+
+  " price to be predicted "
+  strikePrice: BigInt!
+
+  " unix timestamp of the last time a bid will be accepted "
+  biddingEndDate: BigInt!
+
+  " unix timestamp date of he strike price prediction "
+  maturityDate: BigInt!
+
+  " date at which the market will close "
+  expiryDate: BigInt!
+
+  " whether or not the market is active "
+  isOpen: Boolean!
+
+  " price of buying a share for predicting a price higher than strikePrice "
+  longPrice: BigInt!
+
+  " price of buying a share for predicting a price lower than strikePrice "
+  shortPrice: BigInt!
+
+  " number of sUSD at stake in wei "
+  poolSize: BigInt!
+
+  result: Int
+}
+
+enum OptionTransactionType {
+  bid
+  refund
+  claim
+  exercise
+}
+
+type OptionTransaction @entity {
+  " transaction hash "
+  id: ID!
+
+  " unix timestamp of the transaction "
+  timestamp: BigInt!
+
+  " which action was taken "
+  type: OptionTransactionType!
+
+  " address which performed the transaction "
+  account: Bytes!
+
+  " address of the market the transaction was performed on "
+  market: Bytes!
+
+  " value of the transaction "
+  amount: BigInt!
+
+  " name of the token used for amount "
+  currencyKey: Bytes
+
+
+  side: Int
+
+
+  fee: BigInt
+}
+
+type HistoricalOptionPrice @entity {
+  
+  id: ID!
+  
+  " unix timestamp for which this option price applies "
+  timestamp: BigInt!
+
+  " price of buying a share for predicting a price higher than the strikePrice "
+  longPrice: BigInt!
+
+  " price of buying a share for predicting a price lower than the strikePrice "
+  shortPrice: BigInt!
+
+  " address of hte market associated with these rates "
+  market: Bytes!
+
+  " amount of funds bid in the pool "
+  poolSize: BigInt!
+}

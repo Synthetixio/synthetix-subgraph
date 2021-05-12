@@ -1,0 +1,170 @@
+# Synthentix is an aggregation entity
+# Total synth exchanges in aggregate
+type Total @entity {
+  " 'mainnet' always "
+  id: ID!
+
+  " number of trades completed over period "
+  trades: BigInt!
+
+  " number of unique traders seen over period "
+  exchangers: BigInt!
+
+  " synth value exchanged in USD units "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+type PostArchernarTotal @entity {
+  " 'mainnet' always "
+  id: ID!
+
+  " number of trades completed over period "
+  trades: BigInt!
+
+  " number of unique traders seen over period "
+  exchangers: BigInt!
+
+  " synth value exchanged in USD units "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+# Total synth exchanges per day
+type DailyTotal @entity {
+  " numeric, incrementing day id "
+  id: ID!
+
+  " number of trades completed over period "
+  trades: BigInt!
+
+  " number of unique traders seen over period "
+  exchangers: BigInt!
+
+  " synth value exchanged in USD units "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+# Total synth exchanges per 15 minute period
+type FifteenMinuteTotal @entity {
+  " numeric, incrementing time period "
+  id: ID!
+
+  " number of trades completed over period "
+  trades: BigInt!
+
+  " number of unique traders seen over period "
+  exchangers: BigInt!
+
+  " synth value exchanged in USD units "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+" Tracks this event from the Synthetix.sol contract "
+type SynthExchange @entity {
+  id: ID!
+  account: Bytes! # address
+  from: Bytes! # address
+  fromCurrencyKey: Bytes! # bytes4
+  fromAmount: BigDecimal! # uint256
+  fromAmountInUSD: BigDecimal! # from Amount including fees
+  toCurrencyKey: Bytes! # bytes4
+  toAmount: BigDecimal! # uint256
+  toAmountInUSD: BigDecimal! # to Amount without fees
+  feesInUSD: BigDecimal!
+  toAddress: Bytes! # address
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+  network: String!
+}
+
+" Tracks this event from the Synthetix.sol contract "
+type ExchangeReclaim @entity {
+  id: ID!
+  account: Bytes! # address
+  currencyKey: Bytes! # bytes4
+  amount: BigDecimal! # uint256
+  amountInUSD: BigDecimal! # uint256
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+" Tracks this event from the Synthetix.sol contract "
+type ExchangeRebate @entity {
+  id: ID!
+  account: Bytes! # address
+  currencyKey: Bytes! # bytes4
+  amount: BigDecimal! # uint256
+  amountInUSD: BigDecimal! # uint256
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  block: BigInt!
+}
+
+" An individual Exchanger "
+type Exchanger @entity {
+  id: ID!
+}
+
+" An individual Exchanger Post Archernar "
+type PostArchernarExchanger @entity {
+  id: ID!
+}
+
+" An individual Exchanger seen during a day "
+type DailyExchanger @entity {
+  id: ID!
+}
+
+" An individual Exchanger seen during a fifteen minute period "
+type FifteenMinuteExchanger @entity {
+  id: ID!
+}
+
+type ExchangeFee @entity {
+  " Name of the synth. E.g. sUSD "
+  id: ID!
+
+  " Current Fee as a ratio of the trade amount "
+  fee: BigDecimal!
+}
+
+type InversePricingInfo @entity {
+  " Name of inverse synth. E.g. iETH "
+  id: ID!
+
+  " whether or not this inverse synth has been frozen "
+  frozen: Boolean!
+
+  " configured upper limit "
+  upperLimit: BigDecimal!
+
+  " configured lower limit "
+  lowerLimit: BigDecimal!
+
+  " matching price point with long synth "
+  entryPoint: BigDecimal!
+}
+
+type LatestRate @entity {
+  " Name of synth. E.g. sUSD "
+  id: ID!
+
+  " Synth USD rate "
+  rate: BigDecimal!
+
+  " Address of the aggregator which produces current result "
+  aggregator: Bytes!
+}

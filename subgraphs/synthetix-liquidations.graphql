@@ -1,0 +1,49 @@
+type AccountFlaggedForLiquidation @entity {
+  " the deadline plus the staker address "
+  id: ID!
+
+  " the address of the staker "
+  account: Bytes!
+
+  " liqudation deadline "
+  deadline: BigInt!
+
+  " current collateral ratio "
+  collateralRatio: BigInt!
+
+  " snx that is liquidatable "
+  liquidatableNonEscrowSNX: BigDecimal!
+
+  " total collateral held by the staker including escrow amount "
+  collateral: BigDecimal!
+}
+
+type AccountRemovedFromLiquidation @entity {
+  " the time at which the staker fixed their c-ratio plus the staker address "
+  id: ID!
+
+  " the address of the staker "
+  account: Bytes!
+
+  " the time at which the staker fixed their c-ratio "
+  time: BigInt!
+}
+
+type AccountLiquidated @entity {
+  id: ID!
+
+  "the liquidated address"
+  account: Bytes!
+
+  "the amount of SNX redeemed by the liquidator"
+  snxRedeemed: BigDecimal!
+
+  "the amount of sUSD liquidated"
+  amountLiquidated: BigDecimal!
+
+  "the address liquidating the account"
+  liquidator: Bytes!
+
+  "the time at which the liquidation occurred"
+  time: BigInt!
+}
