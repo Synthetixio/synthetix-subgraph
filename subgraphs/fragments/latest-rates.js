@@ -67,7 +67,7 @@ if (getCurrentNetwork() == 'mainnet') {
   // hack for chainlink, tracking of aggregator address changes
   exchangeRatesManifests.push({
     kind: 'ethereum/contract',
-    name: `ChainlinkMultisig`,
+    name: 'ChainlinkMultisig',
     network: getCurrentNetwork(),
     source: {
       address: '0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca',
@@ -118,7 +118,7 @@ if (getCurrentNetwork() == 'mainnet') {
 
 const aggregatorTemplate = {
   kind: 'ethereum/contract',
-  name: `Aggregator`,
+  name: 'Aggregator',
   network: getCurrentNetwork(),
   source: {
     abi: 'Aggregator',
@@ -154,7 +154,7 @@ const aggregatorTemplate = {
 
 const synthAggregatorTemplate = {
   kind: 'ethereum/contract',
-  name: `SynthAggregator`,
+  name: 'SynthAggregator',
   network: getCurrentNetwork(),
   source: {
     abi: 'Aggregator',
@@ -191,7 +191,7 @@ const synthAggregatorTemplate = {
 // separate aggregator for inverse synths
 const inverseAggregatorTemplate = {
   kind: 'ethereum/contract',
-  name: `InverseAggregator`,
+  name: 'InverseAggregator',
   network: getCurrentNetwork(),
   source: {
     abi: 'Aggregator',
