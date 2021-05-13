@@ -9,6 +9,7 @@ function getCurrentNetwork() {
 function getReleaseInfo(file) {
   const net = getCurrentNetwork() || 'mainnet';
 
+  let info = null;
   if (net === 'mainnet' || net === 'kovan') {
     return require('synthetix/publish/deployed/' + net + '/' + file);
   } else if (net === 'optimism-mainnet') {
@@ -16,6 +17,13 @@ function getReleaseInfo(file) {
   } else if (net === 'optimism-kovan') {
     return require('synthetix/publish/deployed/kovan-ovm/' + file);
   }
+
+  // hack for mainnet: starting block could be earlier than indicated
+  if (net === 'mainnet') {
+    info['v2.0-19'].block = 5873222;
+  }
+
+  return info;
 }
 
 function estimateBlock(date) {
