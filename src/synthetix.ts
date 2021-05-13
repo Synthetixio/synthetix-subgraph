@@ -124,7 +124,7 @@ function trackSNXHolder(
   snxHolder.timestamp = block.timestamp;
 
   // // Don't bother trying these extra fields before v2 upgrade (slows down The Graph processing to do all these as try_ calls)
-  if (dataSource.network() !== 'mainnet' || block.number > v219UpgradeBlock) {
+  if (dataSource.network() != 'mainnet' || block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     snxHolder.balanceOf = toDecimal(synthetix.balanceOf(account));
     snxHolder.collateral = toDecimal(synthetix.collateral(account));
@@ -245,7 +245,7 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   entity.timestamp = event.block.timestamp;
   entity.account = account;
 
-  if (dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) {
+  if (dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     entity.balanceOf = toDecimal(synthetix.balanceOf(account));
     entity.collateral = toDecimal(synthetix.collateral(account));
@@ -306,7 +306,7 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
   let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.source = 'sUSD';
-  if (dataSource.network() !== 'mainnet' || event.block.number > v200UpgradeBlock) {
+  if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
     // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
     let currencyKeyTry = contract.try_currencyKey();
     if (!currencyKeyTry.reverted) {
@@ -391,7 +391,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   }
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
-  if ((dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
+  if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
@@ -412,7 +412,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  if (dataSource.network() !== 'mainnet' || event.block.number > v200UpgradeBlock) {
+  if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
     trackActiveStakers(event, false);
   }
 
@@ -483,7 +483,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   }
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
-  if ((dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
+  if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
@@ -504,7 +504,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   entity.save();
 
-  if (dataSource.network() !== 'mainnet' || event.block.number > v200UpgradeBlock) {
+  if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
     trackActiveStakers(event, true);
   }
 
@@ -519,7 +519,7 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 
   entity.account = event.params.account;
   entity.rewards = toDecimal(event.params.snxRewards);
-  if (dataSource.network() !== 'mainnet' || event.block.number > v219UpgradeBlock) {
+  if (dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) {
     // post Achernar, we had no XDRs, so use the value as sUSD
     entity.value = toDecimal(event.params.sUSDAmount);
   } else {
@@ -574,7 +574,7 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   let snxContract = event.transaction.to as Address;
   let accountDebtBalance = BigInt.fromI32(0);
 
-  if (dataSource.network() !== 'mainnet' || event.block.number > v2100UpgradeBlock) {
+  if (dataSource.network() != 'mainnet' || event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
     accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
   } else if (event.block.number > v200UpgradeBlock) {
