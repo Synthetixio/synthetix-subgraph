@@ -10,19 +10,18 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "codegen": "node prepare-abis && graph codegen",
-    "build": "graph build",
-    "deploy": "graph deploy",
-    "codegen-all": "for f in subgraphs/*.js; do SNX_NETWORK=mainnet graph codegen $f -o generated/${f%.js}; done",
-    "build-all": "for f in subgraphs/*.js; do SNX_NETWORK=mainnet graph build $f -o build/$SNX_NETWORK/${f%.js}; done",
-    "deploy-all": "for f in subgraphs/*.js; do graph deploy build/$SNX_NETWORK/${f%.js}/subgraph.yaml; done",
+    "prepare-abis": "node prepare-abis",
+    "build": "npm run prepare-abis && ./build.sh",
+    "deploy": "./deploy.sh",
+    "build-all": "for f in subgraphs/*.js; do ./build.sh all $(basename ${f%.js}); done",
+    "deploy-all": "for f in subgraphs/*.js; do ./deploy.sh all $(basename ${f%.js}); done",
     "prepare": "husky install"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#ebeeba0009f026bacf940f25ee7b875fe7676032",
+    "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#14fb300393a72645a879f9c0af78b2a67c0e448a",
     "@graphprotocol/graph-ts": "0.18.1",
     "chalk": "2.4.2",
     "commander": "2.20.0",

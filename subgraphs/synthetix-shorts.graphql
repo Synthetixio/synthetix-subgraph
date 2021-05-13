@@ -87,6 +87,9 @@ type ShortLoanChange @entity {
   " the respective short "
   short: Short!
 
+  " the price of the repaid synth in dollars "
+  rate: BigDecimal!
+
   " the timestamp of the loan repayment or increase "
   timestamp: BigInt!
 

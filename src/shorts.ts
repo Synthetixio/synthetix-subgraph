@@ -28,7 +28,7 @@ import {
 
 import { BigInt, Bytes, log, Address, BigDecimal } from '@graphprotocol/graph-ts';
 
-import { strToBytes, toDecimal } from './lib/helpers';
+import { strToBytes, toDecimal, getLatestRate } from './lib/helpers';
 
 function saveContractLevelUpdate(
   txHash: string,
@@ -188,6 +188,7 @@ function saveLoanChangeEntity(
   shortEntity: Short,
 ): void {
   let shortLoanChangeEntity = new ShortLoanChange(txHash + '-' + logIndex);
+  shortLoanChangeEntity.rate = getLatestRate(shortEntity.synthBorrowed.toString(), txHash);
   shortLoanChangeEntity.isRepayment = isRepayment;
   shortLoanChangeEntity.amount = amount;
   shortLoanChangeEntity.loanAfter = amountAfter;
