@@ -1,15 +1,18 @@
 #!/bin/bash
 network=$1
 subgraph=$2
-networks=( mainnet optimism-mainnet kovan optimism-kovan )
+networks='mainnet optimism-mainnet kovan optimism-kovan'
+
+GRAPH=${GRAPH:-graph}
+
+# only need to run the same codegen once for all networks
+SNX_NETWORK=mainnet $GRAPH codegen subgraphs/$subgraph.js -o generated/subgraphs/$subgraph
 
 if [ "all" == $network ]; then
-    for i in "${networks[@]}"
-    do
-        SNX_NETWORK=$i graph codegen subgraphs/$subgraph.js -o generated/subgraphs/$subgraph
-        SNX_NETWORK=$i graph build subgraphs/$subgraph.js -o build/$i/subgraphs/$subgraph
+    for i in $networks; do
+	echo "building $i"
+        SNX_NETWORK=$i $GRAPH build subgraphs/$subgraph.js -o build/$i/subgraphs/$subgraph
     done
 else
-    SNX_NETWORK=$network graph codegen subgraphs/$subgraph.js -o generated/subgraphs/$subgraph
-    SNX_NETWORK=$network graph build subgraphs/$subgraph.js -o build/$network/subgraphs/$subgraph
+    SNX_NETWORK=$network $GRAPH build subgraphs/$subgraph.js -o build/$network/subgraphs/$subgraph
 fi

@@ -11,8 +11,10 @@ function getReleaseInfo(file) {
 
   if (net === 'mainnet' || net === 'kovan') {
     return require('synthetix/publish/deployed/' + net + '/' + file);
-  } else if (net === 'optimism-kovan' || net === 'optimism-mainnet') {
-    return require('synthetix/publish/deployed/' + +'/' + file);
+  } else if (net === 'optimism-mainnet') {
+    return require('synthetix/publish/deployed/mainnet-ovm/' + file);
+  } else if (net === 'optimism-kovan') {
+    return require('synthetix/publish/deployed/kovan-ovm/' + file);
   }
 }
 
