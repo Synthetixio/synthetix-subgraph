@@ -10,9 +10,10 @@ SNX_NETWORK=mainnet $GRAPH codegen subgraphs/$subgraph.js -o generated/subgraphs
 
 if [ "all" == $network ]; then
     for i in $networks; do
-	echo "building $i"
+	echo "building $subgraph $i"
         SNX_NETWORK=$i $GRAPH build subgraphs/$subgraph.js -o build/$i/subgraphs/$subgraph
     done
 else
+    echo "building $subgraph $network"
     SNX_NETWORK=$network $GRAPH build subgraphs/$subgraph.js -o build/$network/subgraphs/$subgraph
 fi
