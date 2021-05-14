@@ -16,9 +16,9 @@ for (const lrm of clone(latestRates.dataSources)) {
 const templates = clone(latestRates.templates);
 
 // handle SNX price and rate updates by overriding template
-templates.find(v => v.name == 'Aggregator').mapping.file = '../src/rates.ts';
-templates.find(v => v.name == 'InverseAggregator').mapping.file = '../src/rates.ts';
-templates.find(v => v.name == 'SynthAggregator').mapping.file = '../src/rates.ts';
+templates.find((v) => v.name == 'Aggregator').mapping.file = '../src/rates.ts';
+templates.find((v) => v.name == 'InverseAggregator').mapping.file = '../src/rates.ts';
+templates.find((v) => v.name == 'SynthAggregator').mapping.file = '../src/rates.ts';
 
 module.exports = {
   specVersion: '0.0.2',

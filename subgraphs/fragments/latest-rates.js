@@ -26,7 +26,12 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
       abis: [
         {
           name: 'ExchangeRates',
-          file: ca.startBlock >= BYTE32_UPDATE ? '../abis/ExchangeRates.json' : '../abis/ExchangeRates_bytes4.json',
+          file:
+            ca.startBlock >= BYTE32_UPDATE
+              ? '../abis/ExchangeRates.json'
+              : getCurrentNetwork() === 'mainnet'
+              ? '../abis/ExchangeRates_bytes4.json'
+              : '../abis/ExchangeRates.json',
         },
         {
           name: 'AggregatorProxy',
@@ -34,7 +39,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
         },
       ],
       eventHandlers:
-        getCurrentNetwork() != 'mainnet' || ca.startBlock >= BYTE32_UPDATE
+        getCurrentNetwork() !== 'mainnet' || ca.startBlock >= BYTE32_UPDATE
           ? [
               {
                 event: 'AggregatorAdded(bytes32,address)',
@@ -63,7 +68,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
   });
 });
 
-if (getCurrentNetwork() == 'mainnet') {
+if (getCurrentNetwork() === 'mainnet') {
   // hack for chainlink, tracking of aggregator address changes
   exchangeRatesManifests.push({
     kind: 'ethereum/contract',
