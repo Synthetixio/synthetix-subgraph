@@ -22,7 +22,7 @@ import {
   ethereum,
   Bytes,
 } from '@graphprotocol/graph-ts';
-import { etherUnits, strToBytes, toDecimal, ZERO } from '../lib/helpers';
+import { etherUnits, strToBytes, toDecimal } from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/Synthetix';
 import { ExecutionSuccess } from '../../generated/subgraphs/synthetix-rates/ChainlinkMultisig/GnosisSafe';
@@ -84,7 +84,7 @@ function addAggregator(currencyKey: string, aggregatorAddress: Address): void {
   }
 }
 
-export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal): BigDecimal|null {
+export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal): BigDecimal | null {
   // since this is inverse pricing, we have to get the latest token information and then apply it to the rate
   let inversePricingInfo = InversePricingInfo.load(currencyKey);
 
@@ -95,9 +95,7 @@ export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal
 
   if (inversePricingInfo.frozen) return null;
 
-  let inverseRate = inversePricingInfo.entryPoint
-    .times(new BigDecimal(BigInt.fromI32(2)))
-    .minus(beforeRate);
+  let inverseRate = inversePricingInfo.entryPoint.times(new BigDecimal(BigInt.fromI32(2))).minus(beforeRate);
 
   inverseRate = inversePricingInfo.lowerLimit.lt(inverseRate) ? inverseRate : inversePricingInfo.lowerLimit;
   inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
@@ -164,8 +162,7 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
 
   let inverseRate = calculateInverseRate(context.getString('currencyKey'), toDecimal(rate));
 
-  if (inverseRate == null)
-    return;
+  if (inverseRate == null) return;
 
   addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate as BigDecimal, event.address);
 }
@@ -173,10 +170,9 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
 // required to rescan all aggregator addresses whenever chainlink settings are updated. This is because of an issue where the chainlink aggregator proxy
 // does not contain an event to track when the aggregator addresses are updated, which means we must scan them manually when it makes sense to do so
 export function handleChainlinkUpdate(event: ExecutionSuccess): void {
-
-  let synthetixProxyContract = ProxyERC20.bind(Address.fromHexString(
-    '0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f',
-  ) as Address);
+  let synthetixProxyContract = ProxyERC20.bind(
+    Address.fromHexString('0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f') as Address,
+  );
   let synthetixAddress = synthetixProxyContract.try_target();
 
   if (synthetixAddress.reverted) {

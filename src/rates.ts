@@ -1,18 +1,13 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
-import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/subgraphs/synthetix-rates/AggregatorAUD_0/Aggregator';
+import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/subgraphs/synthetix-rates/templates/Aggregator/Aggregator';
 
-import {
-  FifteenMinuteSNXPrice,
-  DailySNXPrice,
-  RateUpdate,
-} from '../generated/subgraphs/synthetix-rates/schema';
+import { FifteenMinuteSNXPrice, DailySNXPrice, RateUpdate } from '../generated/subgraphs/synthetix-rates/schema';
 
 import { addDollar, addLatestRateFromDecimal, calculateInverseRate } from './fragments/latest-rates';
 
-// pass through
 export { handleAggregatorAdded, handleInverseConfigured, handleInverseFrozen } from './fragments/latest-rates';
 
-import { BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, Bytes, dataSource } from '@graphprotocol/graph-ts';
 import { toDecimal, ZERO_ADDRESS } from './lib/util';
 import { strToBytes } from './lib/helpers';
 
@@ -102,7 +97,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
 
   addDollar('sUSD');
 
-  if(currencyKey == 'SNX') {
+  if (currencyKey == 'SNX') {
     handleSNXPrices(event.block.timestamp, rate);
   }
 
@@ -115,10 +110,14 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
   let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
 
   let inverseRate = calculateInverseRate(context.getString('currencyKey'), toDecimal(rate));
-  
-  if (inverseRate == null)
-    return;
 
-  addRateUpdate(strToBytes(context.getString('currencyKey')), event.block.number, event.block.timestamp, inverseRate as BigDecimal);
+  if (inverseRate == null) return;
+
+  addRateUpdate(
+    strToBytes(context.getString('currencyKey')),
+    event.block.number,
+    event.block.timestamp,
+    inverseRate as BigDecimal,
+  );
   addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate as BigDecimal, event.address);
 }
