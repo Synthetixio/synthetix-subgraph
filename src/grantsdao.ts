@@ -203,7 +203,7 @@ export function handleRemoveCommunityMember(call: RemoveCommunityMemberCall): vo
   system.save();
 
   // Remove member's votes from proposals
-  call.inputs._proposals.forEach(proposalNumber => {
+  call.inputs._proposals.forEach((proposalNumber) => {
     let proposal = Proposal.load(proposalNumber.toString());
 
     if (proposal != null) {
@@ -306,12 +306,12 @@ function getSystemInfo(block: ethereum.Block, transaction: ethereum.Transaction)
     let teamMembers = dao.getTeamMembers();
 
     // Register community members
-    communityMembers.forEach(address => {
+    communityMembers.forEach((address) => {
       createMember(address, 'COMMUNITY').save();
     });
 
     // Register team members
-    teamMembers.forEach(address => {
+    teamMembers.forEach((address) => {
       createMember(address, 'TEAM').save();
     });
 

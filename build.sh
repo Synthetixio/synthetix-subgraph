@@ -9,7 +9,7 @@ GRAPH=${GRAPH:-graph}
 SNX_NETWORK=mainnet $GRAPH codegen subgraphs/synthetix-rates.js -o generated/subgraphs/synthetix-rates
 SNX_NETWORK=mainnet $GRAPH codegen subgraphs/$subgraph.js -o generated/subgraphs/$subgraph
 
-if [[ -d generated/subgraphs/$subgraph/ChainlinkMultisig ]]
+if [[ $subgraph != synthetix-rates && -d generated/subgraphs/$subgraph/ChainlinkMultisig ]]
 then
     mv generated/subgraphs/$subgraph/ChainlinkMultisig generated/subgraphs/synthetix-rates/ChainlinkMultisig
 fi

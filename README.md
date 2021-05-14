@@ -22,23 +22,57 @@ Synthetix has eleven bundled subgraps, all generated from this one repository:
 
 ## To run and deploy locally
 
-For any of the eleven subgraphs: `snx`, `exchanges`, `rates`, `depot`, `loans`, `binary-options` etc... as `[subgraph]`
+list of networks: mainnet optimism-mainnet kovan optimism-kovan
+also, all deploys to all networks
 
-1. Run the `npm run codegen:[subgraph]` task to prepare the TypeScript sources for the GraphQL (generated/schema) and the ABIs (generated/[ABI]/\*)
-2. [Optional] run the `npm run build:[subgraph]` task for the subgraph
-3. Deploy via `npm run deploy:[subgraph]`. Note: requires env variable of `$THEGRAPH_SNX_ACCESS_TOKEN` set in bash to work.
+npm run build <network> <subgraph>
+npm run deploy <network> <subgraph>
 
-## To test deploy the Chainlink, Rates, or Exchanger subgraphs at different start blocks
+deploying `synthetix` subgraph examples:
 
-1. First, you have to udpate the `--env` flag to `test` in `yaml:rates` or `yaml:exchanger` in `package.json` and then it will pick up any changes you make to the `test` field start blocks in the `contracts` file in the relevant subgraph folder inside the `./mustache` folder. If you leave a test block as null it will use the prod block instead.
+- npm run build mainnet synthetix
+- npm run deploy mainnet synthetix
 
-IMPORTANT: if you just want to use a single start block for all contracts within the chainlink, rates, or exchanger subgraph, simply change the `--universal-test-block` flag in `yaml:rates` or `yaml:exchanger` or `yaml:chainlink` in `package.json` from `null` to `<number>` and you don't need to make any changes to the `contracts` file in that case; it will pick up this number for every contract in the yaml file.
+--
 
-2. Continue from step 2 in the section `To run and deploy locally` above.
+- npm run build kovan synthetix
+- npm run build kovan synthetix
+
+--
+
+- npm run build optimism-mainnet synthetix
+- npm run build optimism-mainnet synthetix
+
+--
+
+- npm run deploy all synthetix
+- npm run deploy all synthetix
+
+deploying `synthetix-loans` subgraph examples:
+
+- npm run build mainnet synthetix-loans
+- npm run deploy mainnet synthetix-loans
+
+--
+
+- npm run build kovan synthetix-loans
+- npm run build kovan synthetix-loans
+
+--
+
+- npm run build optimism-mainnet synthetix-loans
+- npm run build optimism-mainnet synthetix-loans
+
+--
+
+- npm run deploy all synthetix-loans
+- npm run deploy all synthetix-loans
+
+Replace `synthetix-loans` with the subgraph of your choice in the above commands
 
 ## To query these subgraphs
 
-Please use our node & browser utility: [synthetix-data](https://github.com/Synthetixio/synthetix-data).
+Please use our node & browser utility: [@synthetixio/data](https://github.com/Synthetixio/js-monorepo/tree/master/packages/data).
 
 ## Or to query the subgraphs without any JS library
 
@@ -84,4 +118,4 @@ In it's simplest version (on a modern browser assuming `async await` support and
 })();
 ```
 
-> Note: due to The Graph limitation, only `100` results will be returned (the maximum allowed `first` amount). The way around this is to use paging (using the `skip` operator in GraphQL). See the function `pageResults` in [synthetix-data](https://github.com/Synthetixio/synthetix-data/blob/master/index.js) for an example.
+> Note: due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/data` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination

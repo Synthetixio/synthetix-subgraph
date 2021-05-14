@@ -13,8 +13,6 @@
     "prepare-abis": "node prepare-abis",
     "build": "npm run prepare-abis && ./build.sh",
     "deploy": "./deploy.sh",
-    "build-all": "for f in subgraphs/*.js; do ./build.sh all $(basename ${f%.js}); done",
-    "deploy-all": "for f in subgraphs/*.js; do ./deploy.sh all $(basename ${f%.js}); done",
     "prepare": "husky install"
   },
   "lint-staged": {
