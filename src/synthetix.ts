@@ -1,8 +1,5 @@
 // The latest Synthetix and event invocations
-import {
-  Synthetix as SNX,
-  Transfer as SNXTransferEvent,
-} from '../generated/subgraphs/synthetix-old/Synthetix_0/Synthetix';
+import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix';
 
 import { Synthetix32 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix32';
 
@@ -15,7 +12,6 @@ import { sUSD32, sUSD4, getTimeID, toDecimal } from './lib/util';
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/subgraphs/synthetix/Synthetix_0/SynthetixState';
 
-//import { TargetUpdated as TargetUpdatedEvent } from '../generated/subgraphs/synthetix-old/Synthetix_0/ProxyERC20';
 import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/synthetix/RewardEscrow_0/RewardEscrow';
 
 import {
@@ -23,7 +19,7 @@ import {
   Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
-} from '../generated/subgraphs/synthetix-old/SynthsUSD_0/Synth';
+} from '../generated/subgraphs/synthetix/SynthsUSD_0/Synth';
 import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/synthetix/FeePool_0/FeePool';
 import { FeePoolv217 } from '../generated/subgraphs/synthetix/FeePool_0/FeePoolv217';
 
@@ -548,7 +544,9 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
     } else {
       // use bytes4
       let synthetix = Synthetix4.bind(feePool.synthetix());
-      entity.value = toDecimal(synthetix.effectiveValue(strToBytes('XDR', 4), event.params.sUSDAmount, strToBytes('sUSD', 4)));
+      entity.value = toDecimal(
+        synthetix.effectiveValue(strToBytes('XDR', 4), event.params.sUSDAmount, strToBytes('sUSD', 4)),
+      );
     }
   }
 
