@@ -12,7 +12,7 @@ function getReleaseInfo(file) {
   let info = null;
   if (net === 'mainnet' || net === 'kovan') {
     return require('synthetix/publish/deployed/' + net + '/' + file);
-  } else if (net === 'optimism-mainnet') {
+  } else if (net === 'optimism') {
     return require('synthetix/publish/deployed/mainnet-ovm/' + file);
   } else if (net === 'optimism-kovan') {
     return require('synthetix/publish/deployed/kovan-ovm/' + file);
@@ -28,11 +28,11 @@ function getReleaseInfo(file) {
 
 function estimateBlock(date) {
   const blockInfo = values(getReleaseInfo('versions'))
-    .filter(v => v.block && v.date)
-    .map(v => [v.block, v.date]);
+    .filter((v) => v.block && v.date)
+    .map((v) => [v.block, v.date]);
 
   // find the release immediately after the specified time
-  const idx = sortedIndexBy(blockInfo, [0, date], v => v[1]);
+  const idx = sortedIndexBy(blockInfo, [0, date], (v) => v[1]);
 
   const numDate = new Date(date).getTime();
 

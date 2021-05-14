@@ -22,7 +22,7 @@ Synthetix has eleven bundled subgraps, all generated from this one repository:
 
 ## To run and deploy locally
 
-list of networks: `mainnet`, `optimism-mainnet`, `kovan`, `optimism-kovan`, also, `all` deploys to all 4 networks
+list of networks: `mainnet`, `optimism`, `kovan`, `optimism-kovan`, also, `all` deploys to all 4 networks
 
 npm run build <network> <subgraph>
 npm run deploy <network> <subgraph>
@@ -39,8 +39,8 @@ deploying `synthetix` subgraph examples:
 
 --
 
-- npm run build optimism-mainnet synthetix
-- npm run build optimism-mainnet synthetix
+- npm run build optimism synthetix
+- npm run build optimism synthetix
 
 --
 
@@ -59,8 +59,8 @@ deploying `synthetix-loans` subgraph examples:
 
 --
 
-- npm run build optimism-mainnet synthetix-loans
-- npm run build optimism-mainnet synthetix-loans
+- npm run build optimism synthetix-loans
+- npm run build optimism synthetix-loans
 
 --
 

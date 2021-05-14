@@ -1,7 +1,7 @@
 #!/bin/bash
 network=$1
 subgraph=$2
-networks='mainnet optimism-mainnet kovan optimism-kovan'
+networks='mainnet optimism kovan optimism-kovan'
 
 GRAPH=${GRAPH:-graph}
 
