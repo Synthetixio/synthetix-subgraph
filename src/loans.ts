@@ -2,14 +2,14 @@ import {
   LoanCreated as LoanCreatedEvent,
   LoanClosed as LoanClosedEvent,
   LoanLiquidated as LoanLiquidatedEvent,
-} from '../generated/subgraphs/synthetix-loans/EtherCollateral_0/EtherCollateral';
+} from '../generated/subgraphs/loans/EtherCollateral_0/EtherCollateral';
 
 import {
   LoanPartiallyLiquidated as LoanPartiallyLiquidatedEvent,
   CollateralDeposited as CollateralDepositedEvent,
   CollateralWithdrawn as CollateralWithdrawnEvent,
   LoanRepaid as LoanRepaidEvent,
-} from '../generated/subgraphs/synthetix-loans/EtherCollateralsUSD_0/EtherCollateralsUSD';
+} from '../generated/subgraphs/loans/EtherCollateralsUSD_0/EtherCollateralsUSD';
 
 import {
   Loan,
@@ -18,7 +18,7 @@ import {
   CollateralDeposited,
   CollateralWithdrawn,
   LoanRepaid,
-} from '../generated/subgraphs/synthetix-loans/schema';
+} from '../generated/subgraphs/loans/schema';
 
 import { log } from '@graphprotocol/graph-ts';
 import { toDecimal } from './lib/util';

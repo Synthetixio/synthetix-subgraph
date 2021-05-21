@@ -15,7 +15,7 @@ import {
   InteractionDelayUpdated as InteractionDelayUpdatedEvent,
   ManagerUpdated as ManagerUpdatedEvent,
   CanOpenLoansUpdated as CanOpenLoansUpdatedEvent,
-} from '../generated/subgraphs/synthetix-shorts/CollateralShort_0/CollateralShort';
+} from '../generated/subgraphs/shorts/CollateralShort_0/CollateralShort';
 
 import {
   Short,
@@ -24,7 +24,7 @@ import {
   ShortLoanChange,
   ShortContract,
   ShortContractUpdate,
-} from '../generated/subgraphs/synthetix-shorts/schema';
+} from '../generated/subgraphs/shorts/schema';
 
 import { BigInt, Bytes, log, Address, BigDecimal } from '@graphprotocol/graph-ts';
 

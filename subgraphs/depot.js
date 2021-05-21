@@ -59,7 +59,7 @@ module.exports = {
   description: 'Synthetix Depot API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-depot.graphql',
+    file: './depot.graphql',
   },
   dataSources: manifest,
 };

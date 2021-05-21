@@ -1,20 +1,20 @@
-import { Synthetix32 } from '../generated/subgraphs/synthetix-liquidations/Liquidations_0/Synthetix32';
+import { Synthetix32 } from '../generated/subgraphs/liquidations/Liquidations_0/Synthetix32';
 
-import { AddressResolver } from '../generated/subgraphs/synthetix-liquidations/Liquidations_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/liquidations/Liquidations_0/AddressResolver';
 
 import {
   AccountFlaggedForLiquidation as AccountFlaggedForLiquidationEvent,
   AccountRemovedFromLiquidation as AccountRemovedFromLiquidationEvent,
   Liquidations,
-} from '../generated/subgraphs/synthetix-liquidations/Liquidations_0/Liquidations';
+} from '../generated/subgraphs/liquidations/Liquidations_0/Liquidations';
 
-import { AccountLiquidated as AccountLiquidatedEvent } from '../generated/subgraphs/synthetix-liquidations/Synthetix_0/Synthetix';
+import { AccountLiquidated as AccountLiquidatedEvent } from '../generated/subgraphs/liquidations/Synthetix_0/Synthetix';
 
 import {
   AccountFlaggedForLiquidation,
   AccountRemovedFromLiquidation,
   AccountLiquidated,
-} from '../generated/subgraphs/synthetix-liquidations/schema';
+} from '../generated/subgraphs/liquidations/schema';
 
 import { strToBytes, toDecimal } from './lib/util';
 

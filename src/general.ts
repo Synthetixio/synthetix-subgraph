@@ -390,7 +390,13 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    if (totalIssued.reverted) {
+      log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+        event.transaction.hash.toHex(),
+      ]);
+      return;
+    }
 
     let dailyIssuedEntity = DailyIssued.load(dayId);
     if (dailyIssuedEntity == null) {
@@ -399,7 +405,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
     } else {
       dailyIssuedEntity.value = dailyIssuedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyIssuedEntity.totalDebt = toDecimal(totalIssued);
+    dailyIssuedEntity.totalDebt = toDecimal(totalIssued.value);
     dailyIssuedEntity.save();
   }
 
@@ -482,7 +488,13 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    if (totalIssued.reverted) {
+      log.debug('Reverted burned try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+        event.transaction.hash.toHex(),
+      ]);
+      return;
+    }
 
     let dailyBurnedEntity = DailyBurned.load(dayId);
     if (dailyBurnedEntity == null) {
@@ -491,7 +503,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     } else {
       dailyBurnedEntity.value = dailyBurnedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyBurnedEntity.totalDebt = toDecimal(totalIssued);
+    dailyBurnedEntity.totalDebt = toDecimal(totalIssued.value);
     dailyBurnedEntity.save();
   }
 

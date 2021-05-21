@@ -2,9 +2,9 @@ import {
   SynthExchange as SynthExchangeEvent,
   ExchangeReclaim as ExchangeReclaimEvent,
   ExchangeRebate as ExchangeRebateEvent,
-} from '../generated/subgraphs/synthetix-exchanges/Synthetix_0/Synthetix';
+} from '../generated/subgraphs/exchanges/Synthetix_0/Synthetix';
 
-import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subgraphs/synthetix-exchanges/SystemSettings_0/SystemSettings';
+import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subgraphs/exchanges/SystemSettings_0/SystemSettings';
 
 import {
   Total,
@@ -17,7 +17,7 @@ import {
   ExchangeReclaim,
   ExchangeRebate,
   ExchangeFee,
-} from '../generated/subgraphs/synthetix-exchanges/schema';
+} from '../generated/subgraphs/exchanges/schema';
 
 import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 

@@ -4,7 +4,7 @@ module.exports = {
   description: 'Synthetix GrantsDAO API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-grantsdao.graphql',
+    file: './grantsdao.graphql',
   },
   dataSources: [
     {

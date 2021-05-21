@@ -38,7 +38,7 @@ type SNXHolder @entity {
 
   " current SNX balance of the holder "
   balanceOf: BigDecimal
-  
+
   # the following will be null before multicurrency (v2) release
   " SNX which is being used for collateral as of last event and cannot be spent "
   collateral: BigDecimal
@@ -46,12 +46,10 @@ type SNXHolder @entity {
   " SNX which can be spent as of last event "
   transferable: BigDecimal
 
-  
   initialDebtOwnership: BigInt
 
-  
   debtEntryAtIndex: BigInt
-  
+
   " number of claims performed "
   claims: BigInt
 
@@ -62,7 +60,7 @@ type SNXHolder @entity {
 " A historical debt tracker "
 type DebtSnapshot @entity {
   id: ID!
-  
+
   " last block where an event happened "
   block: BigInt!
 
@@ -71,8 +69,6 @@ type DebtSnapshot @entity {
 
   " address for which these statistics are applicable "
   account: Bytes! # address
-
-
   balanceOf: BigDecimal # early on it was possible this wouldn't have a value (pre v2)
   # the following will be null before multicurrency (v2) release
 

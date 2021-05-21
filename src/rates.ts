@@ -1,7 +1,7 @@
-import { RatesUpdated as RatesUpdatedEvent } from '../generated/subgraphs/synthetix-rates/ExchangeRates_13/ExchangeRates';
-import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/subgraphs/synthetix-rates/templates/Aggregator/Aggregator';
+import { RatesUpdated as RatesUpdatedEvent } from '../generated/subgraphs/rates/ExchangeRates_13/ExchangeRates';
+import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/subgraphs/rates/templates/Aggregator/Aggregator';
 
-import { FifteenMinuteSNXPrice, DailySNXPrice, RateUpdate } from '../generated/subgraphs/synthetix-rates/schema';
+import { FifteenMinuteSNXPrice, DailySNXPrice, RateUpdate } from '../generated/subgraphs/rates/schema';
 
 import { addDollar, addLatestRateFromDecimal, calculateInverseRate } from './fragments/latest-rates';
 

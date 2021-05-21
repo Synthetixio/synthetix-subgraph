@@ -83,7 +83,7 @@ module.exports = {
   description: 'Synthetix Exchanger API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-exchanger.graphql',
+    file: './exchanger.graphql',
   },
   dataSources: manifest,
   templates: latestRatesManifests.templates,

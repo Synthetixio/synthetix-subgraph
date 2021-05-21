@@ -194,7 +194,7 @@ module.exports = {
   description: 'Synthetix Exchanges API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-exchanges.graphql',
+    file: './exchanges.graphql',
   },
   dataSources: manifest,
   templates: latestRates.templates,

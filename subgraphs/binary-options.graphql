@@ -1,5 +1,4 @@
 type Market @entity {
-
   " address of the market "
   id: ID!
 
@@ -68,17 +67,14 @@ type OptionTransaction @entity {
   " name of the token used for amount "
   currencyKey: Bytes
 
-
   side: Int
-
 
   fee: BigInt
 }
 
 type HistoricalOptionPrice @entity {
-  
   id: ID!
-  
+
   " unix timestamp for which this option price applies "
   timestamp: BigInt!
 

@@ -21,10 +21,9 @@ type RateUpdate @entity {
 
 " The average price of SNX over a 15 minute period "
 type FifteenMinuteSNXPrice @entity {
-
   " numeric dayId "
   id: ID!
-  
+
   " number of samples averaged in the period "
   count: BigInt!
 
@@ -34,7 +33,6 @@ type FifteenMinuteSNXPrice @entity {
 
 " The average price of SNX over a day "
 type DailySNXPrice @entity {
-
   " numeric dayId "
   id: ID!
 

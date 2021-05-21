@@ -112,9 +112,12 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
 
       if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
 
+      const cushionStartBlock =
+        theBlock - BLOCK_SAFETY_OFFSET * 2 > 0 ? theBlock - BLOCK_SAFETY_OFFSET * 2 : theBlock - BLOCK_SAFETY_OFFSET;
+
       addressInfo.push({
         address: contractInfo.address,
-        startBlock: theBlock - BLOCK_SAFETY_OFFSET,
+        startBlock: cushionStartBlock,
       });
     }
   }
