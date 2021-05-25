@@ -54,7 +54,47 @@ type LatestRate @entity {
 }
 
 type DailyCandle @entity {
-  " Minute-Asset. E.g. 18361-sETH "
+  " DailyEpoch-Asset. E.g. 18361-sETH "
+  id: ID!
+  synth: String!
+  open: BigInt!
+  high: BigInt!
+  low: BigInt!
+  close: BigInt!
+}
+
+type FourHourlyCandle @entity {
+  " FourthHourlyEpoch-Asset. "
+  id: ID!
+  synth: String!
+  open: BigInt!
+  high: BigInt!
+  low: BigInt!
+  close: BigInt!
+}
+
+type HourlyCandle @entity {
+  " HourlyEpoch-Asset "
+  id: ID!
+  synth: String!
+  open: BigInt!
+  high: BigInt!
+  low: BigInt!
+  close: BigInt!
+}
+
+type WeeklyCandle @entity {
+  " WeeklyEpoch-Asset "
+  id: ID!
+  synth: String!
+  open: BigInt!
+  high: BigInt!
+  low: BigInt!
+  close: BigInt!
+}
+
+type MonthlyCandle @entity {
+  " MonthlyEpoch-Asset "
   id: ID!
   synth: String!
   open: BigInt!

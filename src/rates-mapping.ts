@@ -10,7 +10,6 @@ import {
   FifteenMinuteSNXPrice,
   DailySNXPrice,
   LatestRate,
-  DailyCandle,
 } from '../generated/schema';
 
 import { contracts } from './contractsData';
@@ -18,6 +17,13 @@ import { contractsToProxies } from './contractsToProxies';
 import { strToBytes } from './common';
 
 import { ByteArray, Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
+import {
+  updateDailyCandle,
+  updateHourlyCandle,
+  updateFourHourlyCandle,
+  updateWeeklyCandle,
+  updateMonthlyCandle,
+} from './candle-helper';
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -98,35 +104,18 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
       if (keys[i].toString() == 'SNX') {
         handleSNXPrices(event.block.timestamp, rateEntity.rate);
       }
-      createDailyCandles(event.block.timestamp, keys[i], rates[i]);
+      updateCandles(event.block.timestamp, keys[i], rates[i]);
       addLatestRate(rateEntity.synth, rateEntity.rate);
     }
   }
 }
 
-function createDailyCandles(timestamp: BigInt, currencyKey: Bytes, rate: BigInt): void {
-  // get the synth and the rate
-  let synth = currencyKey.toString();
-  let dayID = timestamp.toI32() / 86400;
-  let newDailyCandle = DailyCandle.load(dayID.toString() + '-' + synth);
-  if (newDailyCandle == null) {
-    newDailyCandle = new DailyCandle(dayID.toString() + '-' + synth);
-    newDailyCandle.synth = synth;
-    newDailyCandle.open = rate;
-    newDailyCandle.high = rate;
-    newDailyCandle.low = rate;
-    newDailyCandle.close = rate;
-    newDailyCandle.save();
-    return;
-  }
-  if (newDailyCandle.low > rate) {
-    newDailyCandle.low = rate;
-  }
-  if (newDailyCandle.high < rate) {
-    newDailyCandle.high = rate;
-  }
-  newDailyCandle.close = rate;
-  newDailyCandle.save();
+function updateCandles(timestamp: BigInt, currencyKey: Bytes, rate: BigInt): void {
+  updateDailyCandle(timestamp.toI32() / 86400, currencyKey.toString(), rate);
+  updateHourlyCandle(timestamp.toI32() / 3600, currencyKey.toString(), rate);
+  updateFourHourlyCandle(timestamp.toI32() / 14400, currencyKey.toString(), rate);
+  updateWeeklyCandle(timestamp.toI32() / 604800, currencyKey.toString(), rate);
+  updateMonthlyCandle(timestamp.toI32() / 2629743, currencyKey.toString(), rate);
 }
 
 function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt): void {
