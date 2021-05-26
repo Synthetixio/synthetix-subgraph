@@ -24,7 +24,9 @@ export { handleRatesUpdated, handleAggregatorAnswerUpdated };
 
 let etherUnits = new BigDecimal(BigInt.fromI32(10).pow(18));
 let partnerProgramStart = BigInt.fromI32(10782000);
-let feeTrackingStart = BigIntfromI32(13000000);
+
+// TODO get the exact start block here!
+// let feeTrackingStart = BigInt.fromI32(13000000);
 
 export function handleExchangeEntrySettled(event: ExchangeEntrySettledEvent): void {
   let entity = new ExchangeEntrySettled(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -103,12 +105,44 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
 }
 
 export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
-  if (event.block.number > feeTrackingStart) {
-    return;
-  } else {
-    let txHash = event.transaction.hash.toHex();
-    let exchangePartnerID = event.params.trackingCode.toString();
+  let txHash = event.transaction.hash.toHex();
 
+  let exchangePartnerID = event.params.trackingCode.toString();
+  let exchangePartner = ExchangePartner.load(exchangePartnerID);
+  if (exchangePartner == null) {
+    exchangePartner = loadNewExchangePartner(exchangePartnerID);
+  }
+  exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
+
+  let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
+  let dailyExchangePartnerID = dayID + '-' + exchangePartnerID;
+  let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
+  if (dailyExchangePartner == null) {
+    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, dayID);
+  }
+  dailyExchangePartner.trades = dailyExchangePartner.trades.plus(BigInt.fromI32(1));
+
+  if (event.block.number > feeTrackingStart) {
+    let synth = event.params.toCurrencyKey.toString();
+    let latestRate = LatestRate.load(synth);
+    if (latestRate == null) {
+      log.error(
+        'handleExchangeTracking rate missing for volume partner trade with synth: {}, and amount: {} in tx hash: {}',
+        [synth, event.params.toAmount.toString(), txHash],
+      );
+      return;
+    }
+    let usdFees = new BigDecimal(event.params.fee);
+    // NOTE that volume should be based on the from side which is equal to the to side plus fees;
+    let usdVolume = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate.rate).plus(usdFees);
+    exchangePartner.usdVolume = exchangePartner.usdVolume.plus(usdVolume);
+    exchangePartner.usdFees = exchangePartner.usdFees.plus(usdFees);
+    exchangePartner.save();
+
+    dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(usdVolume);
+    dailyExchangePartner.usdFees = dailyExchangePartner.usdFees.plus(usdFees);
+    dailyExchangePartner.save();
+  } else {
     let tempEntity = TemporaryExchangePartnerTracker.load(txHash);
 
     if (tempEntity == null) {
@@ -126,26 +160,12 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
       return;
     }
 
-    let exchangePartner = ExchangePartner.load(exchangePartnerID);
-    if (exchangePartner == null) {
-      exchangePartner = loadNewExchangePartner(exchangePartnerID);
-    }
-
     exchangePartner.usdVolume = exchangePartner.usdVolume.plus(tempEntity.usdVolume as BigDecimal);
     exchangePartner.usdFees = exchangePartner.usdFees.plus(tempEntity.usdFees as BigDecimal);
-    exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
     exchangePartner.save();
-
-    let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-    let dailyExchangePartnerID = dayID + '-' + exchangePartnerID;
-    let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
-    if (dailyExchangePartner == null) {
-      dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, dayID);
-    }
 
     dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(tempEntity.usdVolume as BigDecimal);
     dailyExchangePartner.usdFees = dailyExchangePartner.usdFees.plus(tempEntity.usdFees as BigDecimal);
-    dailyExchangePartner.trades = dailyExchangePartner.trades.plus(BigInt.fromI32(1));
     dailyExchangePartner.save();
 
     resetTempEntity(txHash);
