@@ -9,17 +9,6 @@ type Synthetix @entity {
   snxHolders: BigInt!
 }
 
-" tracks this event from the Synthetix.sol contract and various Synth.sol contracts "
-type Transfer @entity {
-  id: ID!
-  from: Bytes! # address
-  to: Bytes! # address
-  value: BigDecimal! # uint256
-  timestamp: BigInt!
-  block: BigInt!
-  source: String!
-}
-
 " An individual Issuer "
 type Issuer @entity {
   id: ID!

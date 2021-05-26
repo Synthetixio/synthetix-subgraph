@@ -65,3 +65,4 @@ build
 
 generated
 .DS_Store
+test-deploy.sh

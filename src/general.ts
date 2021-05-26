@@ -7,7 +7,7 @@ import { Synthetix4 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthet
 
 import { AddressResolver } from '../generated/subgraphs/synthetix/Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID, toDecimal } from './lib/util';
+import { sUSD32, sUSD4, getTimeID, toDecimal, ZERO_ADDRESS } from './lib/util';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/subgraphs/synthetix/Synthetix_0/SynthetixState';
@@ -274,17 +274,12 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 }
 
 export function handleTransferSNX(event: SNXTransferEvent): void {
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'SNX';
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = toDecimal(event.params.value);
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.save();
-
-  trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
-  trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
+  if (event.params.from.toHex() != ZERO_ADDRESS.toString()) {
+    trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
+  }
+  if (event.params.to.toHex() != ZERO_ADDRESS.toString()) {
+    trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
+  }
 }
 
 function trackSynthHolder(contract: Synth, source: string, account: Address): void {
@@ -300,24 +295,21 @@ function trackSynthHolder(contract: Synth, source: string, account: Address): vo
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'sUSD';
+  let source = 'sUSD';
   if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
     // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
     let currencyKeyTry = contract.try_currencyKey();
     if (!currencyKeyTry.reverted) {
-      entity.source = currencyKeyTry.value.toString();
+      source = currencyKeyTry.value.toString();
     }
   }
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = toDecimal(event.params.value);
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.save();
 
-  trackSynthHolder(contract, entity.source, event.params.from);
-  trackSynthHolder(contract, entity.source, event.params.to);
+  if (event.params.from.toHex() != ZERO_ADDRESS.toString()) {
+    trackSynthHolder(contract, source, event.params.from);
+  }
+  if (event.params.to.toHex() != ZERO_ADDRESS.toString()) {
+    trackSynthHolder(contract, source, event.params.to);
+  }
 }
 
 /**
