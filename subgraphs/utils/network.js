@@ -18,11 +18,6 @@ function getReleaseInfo(file) {
     return require('synthetix/publish/deployed/kovan-ovm/' + file);
   }
 
-  // hack for mainnet: starting block could be earlier than indicated
-  if (net === 'mainnet') {
-    info['v2.0-19'].block = 5873222;
-  }
-
   return info;
 }
 

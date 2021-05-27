@@ -1,31 +1,30 @@
 // The latest Synthetix and event invocations
-import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix';
+import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/general/Synthetix_0/Synthetix';
 
-import { Synthetix32 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix32';
+import { Synthetix32 } from '../generated/subgraphs/general/Synthetix_0/Synthetix32';
 
-import { Synthetix4 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix4';
+import { Synthetix4 } from '../generated/subgraphs/general/Synthetix_0/Synthetix4';
 
-import { AddressResolver } from '../generated/subgraphs/synthetix/Synthetix_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/general/Synthetix_0/AddressResolver';
 
 import { sUSD32, sUSD4, getTimeID, toDecimal, ZERO_ADDRESS } from './lib/util';
 
 // SynthetixState has not changed ABI since deployment
-import { SynthetixState } from '../generated/subgraphs/synthetix/Synthetix_0/SynthetixState';
+import { SynthetixState } from '../generated/subgraphs/general/Synthetix_0/SynthetixState';
 
-import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/synthetix/RewardEscrow_0/RewardEscrow';
+import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/general/RewardEscrow_0/RewardEscrow';
 
 import {
   Synth,
   Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
-} from '../generated/subgraphs/synthetix/SynthsUSD_0/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/synthetix/FeePool_0/FeePool';
-import { FeePoolv217 } from '../generated/subgraphs/synthetix/FeePool_0/FeePoolv217';
+} from '../generated/subgraphs/general/SynthsUSD_0/Synth';
+import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/general/FeePool_0/FeePool';
+import { FeePoolv217 } from '../generated/subgraphs/general/FeePool_0/FeePoolv217';
 
 import {
   Synthetix,
-  Transfer,
   Issued,
   Burned,
   Issuer,
@@ -39,7 +38,7 @@ import {
   ActiveStaker,
   DailyIssued,
   DailyBurned,
-} from '../generated/subgraphs/synthetix/schema';
+} from '../generated/subgraphs/general/schema';
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 

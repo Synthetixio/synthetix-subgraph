@@ -3,6 +3,9 @@ const { getCurrentNetwork } = require('./utils/network');
 
 const manifest = [];
 
+const OVERWRITE_HISTORICAL_BLOCK = 5873222;
+const HISTORICAL_PROXY_SYNTHETIX = '0xc011a72400e58ecd99ee497cf89e3775d4bd732f';
+
 for (const contractName of ['Synthetix', 'ERC20']) {
   getContractDeployments('Proxy' + contractName).forEach((a, i) => {
     manifest.push({
@@ -11,14 +14,14 @@ for (const contractName of ['Synthetix', 'ERC20']) {
       network: getCurrentNetwork(),
       source: {
         address: a.address,
-        startBlock: a.startBlock,
+        startBlock: a.address.toLowerCase() === HISTORICAL_PROXY_SYNTHETIX ? OVERWRITE_HISTORICAL_BLOCK : a.startBlock,
         abi: 'Synthetix',
       },
       mapping: {
         kind: 'ethereum/events',
         apiVersion: '0.0.4',
         language: 'wasm/assemblyscript',
-        file: '../src/synthetix.ts',
+        file: '../src/general.ts',
         entities: ['SNXTransfer'],
         abis: [
           {
@@ -67,7 +70,7 @@ getContractDeployments('ProxyFeePool').forEach((a, i) => {
       kind: 'ethereum/events',
       apiVersion: '0.0.4',
       language: 'wasm/assemblyscript',
-      file: '../src/synthetix.ts',
+      file: '../src/general.ts',
       entities: ['FeesClaimed', 'SNXHolder'],
       abis: [
         {
@@ -111,7 +114,7 @@ getContractDeployments('RewardEscrow').forEach((a, i) => {
       kind: 'ethereum/events',
       apiVersion: '0.0.4',
       language: 'wasm/assemblyscript',
-      file: '../src/synthetix.ts',
+      file: '../src/general.ts',
       entities: ['RewardEscrowHolder', 'SNXHolder'],
       abis: [
         {
@@ -172,7 +175,7 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
         kind: 'ethereum/events',
         apiVersion: '0.0.4',
         language: 'wasm/assemblyscript',
-        file: '../src/synthetix.ts',
+        file: '../src/general.ts',
         entities: ['Transfer', 'Issued', 'Burned'],
         abis: [
           {
@@ -219,12 +222,14 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
   });
 }
 
+console.log('manifest', manifest);
+
 module.exports = {
   specVersion: '0.0.2',
   description: 'Synthetix API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix.graphql',
+    file: './general.graphql',
   },
   dataSources: manifest,
 };
