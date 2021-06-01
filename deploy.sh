@@ -9,9 +9,8 @@ GRAPH=${GRAPH:-graph}
 if [ "all" == $network ]; then
     for i in $networks; do
         echo "deploying subgraph: $subgraph, to network: $i"
-        SNX_NETWORK=$i $GRAPH deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $token synthetixio-$i/$subgraph subgraphs/$subgraph.js
+        SNX_NETWORK=$i $GRAPH deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN_$i synthetixio-$i/$subgraph subgraphs/$subgraph.js
     done
 else
-    echo "deploying subgraph: $subgraph, to network: $network"
     SNX_NETWORK=$network $GRAPH deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $token synthetixio-$network/$subgraph subgraphs/$subgraph.js
 fi

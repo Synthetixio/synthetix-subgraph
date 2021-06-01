@@ -4,22 +4,23 @@
 
 The Graph exposes a GraphQL endpoint to query the events and entities within the Synthetix system.
 
-Synthetix has ten bundled subgraps, all generated from this one repository:
+Synthetix has 11 bundled subgraps, all generated from this one repository:
 
 ![image](https://user-images.githubusercontent.com/799038/79390156-32c93080-7f3d-11ea-812a-34ad3543fc28.png)
 
-NOTE: replace `mainnet` with `optimism`, `kovan`, or `optimism-kovan` for the other networks
+NOTE: replace `mainnet` with `optimism`, `kovan`, or `optimism-kovan` for the other networks e.g. `synthetixio-optimism/rates`
 
-1. **Synthetix**: issuing (aka minting) sUSD, burning sUSD and transferring SNX & Synths: https://thegraph.com/explorer/subgraph/synthetixio-team/general-mainnet
-2. **Exchanges**: synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/exchanges-mainnet
-3. **Rates**: historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/rates-mainnet
-4. **Depot**: deposits, withdrawls and successful exchanges in the Depot: https://thegraph.com/explorer/subgraph/synthetixio-team/depot-mainnet
-5. **Loans**: loans created and closed using EtherCollateral: https://thegraph.com/explorer/subgraph/synthetixio-team/loans-mainnet
-6. **Binary Options**: Binary options data: https://thegraph.com/explorer/subgraph/synthetixio-team/binary-options-mainnet
-7. **Grants DAO**: Grants DAO data: https://thegraph.com/explorer/subgraph/synthetixio-team/grantsdao
-8. **Exchanger**: Tracks exchange entries and volume sources: https://thegraph.com/explorer/subgraph/synthetixio-team/exchanger-mainnet
-9. **Liquidations**: Tracks protocol liquidations: https://thegraph.com/explorer/subgraph/synthetixio-team/liquidations-mainnet
-10. **Limit Orders**: Tracks limit orders: https://thegraph.com/explorer/subgraph/synthetixio-team/limit-orders-mainnet
+1. **General**: issuing (aka minting) sUSD, burning sUSD and transferring SNX & Synths: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/general
+2. **Exchanges**: synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/exchanges
+3. **Rates**: historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/rates
+4. **Depot**: deposits, withdrawls and successful exchanges in the Depot: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/depot
+5. **Loans**: loans created and closed using EtherCollateral: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/loans
+6. **Binary Options**: Binary options data: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/binary-options
+7. **Grants DAO**: Grants DAO data: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/grantsdao
+8. **Exchanger**: Tracks exchange entries and volume sources: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/exchanger
+9. **Liquidations**: Tracks protocol liquidations: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/liquidations
+10. **Shorts**: Tracks shorts: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/shorts
+11. **Optimism Bridge**: Tracks limit orders: https://thegraph.com/explorer/subgraph/synthetixio-mainnet/optimism-bridge
 
 ## To run and deploy locally
 
