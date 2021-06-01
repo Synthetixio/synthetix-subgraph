@@ -43,12 +43,9 @@ import {
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './lib/util';
+import { escrowContracts } from './lib/escrow-contracts';
 
 import { log } from '@graphprotocol/graph-ts';
-
-let contracts = new Map<string, string>();
-contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
-contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 
 let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -110,7 +107,10 @@ function trackSNXHolder(
 ): void {
   let holder = account.toHex();
   // ignore escrow accounts
-  if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
+  if (
+    escrowContracts.get(`escrow-${dataSource.network()}`) == holder ||
+    escrowContracts.get(`rewardEscrow-${dataSource.network()}`) == holder
+  ) {
     return;
   }
   let existingSNXHolder = SNXHolder.load(holder);
@@ -231,7 +231,10 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   let account = event.transaction.from;
 
   // ignore escrow accounts
-  if (contracts.get('escrow') == account.toHex() || contracts.get('rewardEscrow') == account.toHex()) {
+  if (
+    escrowContracts.get(`escrow-${dataSource.network()}`) == account.toHex() ||
+    escrowContracts.get(`rewardEscrow-${dataSource.network()}`) == account.toHex()
+  ) {
     return;
   }
 

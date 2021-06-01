@@ -6,8 +6,8 @@ function getCurrentNetwork() {
   return process.env['SNX_NETWORK'];
 }
 
-function getReleaseInfo(file) {
-  const net = getCurrentNetwork() || 'mainnet';
+function getReleaseInfo(file, network = undefined) {
+  const net = network || getCurrentNetwork() || 'mainnet';
 
   let info = null;
   if (net === 'mainnet' || net === 'kovan') {
@@ -78,10 +78,10 @@ function getReleaseBlocks() {
 
 const versions = getReleaseBlocks();
 
-function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE) {
+function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE, network = undefined) {
   startBlock = Math.max(startBlock, process.env['SNX_START_BLOCK'] || 0);
 
-  const versionInfo = getReleaseInfo('versions');
+  const versionInfo = getReleaseInfo('versions', network);
 
   const addressInfo = [];
 
@@ -120,10 +120,13 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
   return addressInfo;
 }
 
+const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism'];
+
 module.exports = {
   getCurrentNetwork,
   getReleaseInfo,
   estimateBlock,
   versions,
   getContractDeployments,
+  NETWORKS,
 };

@@ -1,4 +1,6 @@
-const { getContractDeployments } = require('./utils/network');
+const fs = require('fs');
+const path = require('path');
+const { getContractDeployments, NETWORKS } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
 const manifest = [];
@@ -221,8 +223,6 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
     });
   });
 }
-
-console.log('manifest', manifest);
 
 module.exports = {
   specVersion: '0.0.2',

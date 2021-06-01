@@ -9,6 +9,10 @@ GRAPH=${GRAPH:-graph}
 SNX_NETWORK=mainnet $GRAPH codegen subgraphs/rates.js -o generated/subgraphs/rates
 SNX_NETWORK=mainnet $GRAPH codegen subgraphs/$subgraph.js -o generated/subgraphs/$subgraph
 
+if [ "general" == $subgraph ]; then
+    node ./create-escrow-contracts
+fi
+
 if [[ $subgraph != rates && -d generated/subgraphs/$subgraph/ChainlinkMultisig ]]
 then
     mv generated/subgraphs/$subgraph/ChainlinkMultisig generated/subgraphs/rates/ChainlinkMultisig

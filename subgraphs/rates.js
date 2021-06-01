@@ -5,7 +5,6 @@ const manifest = []; //clone(latestRates.dataSources);
 
 // for exchange rates, modify so we can capture the snx price
 for (const lrm of clone(latestRates.dataSources)) {
-  console.log('lrm.name', lrm.name);
   if (lrm.name !== 'ChainlinkMultisig') {
     lrm.mapping.file = '../src/rates.ts';
   }
