@@ -1,7 +1,8 @@
 import { DailyCandle, HourlyCandle, FourHourlyCandle, WeeklyCandle, MonthlyCandle } from '../generated/schema';
 import { BigInt } from '@graphprotocol/graph-ts';
 
-export function updateDailyCandle(dayID: number, synth: string, rate: BigInt): void {
+export function updateDailyCandle(timestamp: BigInt, synth: string, rate: BigInt): void {
+  let dayID = timestamp.toI32() / 86400;
   let newCandle = DailyCandle.load(dayID.toString() + '-' + synth);
   if (newCandle == null) {
     newCandle = new DailyCandle(dayID.toString() + '-' + synth);
@@ -10,6 +11,7 @@ export function updateDailyCandle(dayID: number, synth: string, rate: BigInt): v
     newCandle.high = rate;
     newCandle.low = rate;
     newCandle.close = rate;
+    newCandle.timestamp = timestamp;
     newCandle.save();
     return;
   }
@@ -23,15 +25,17 @@ export function updateDailyCandle(dayID: number, synth: string, rate: BigInt): v
   newCandle.save();
 }
 
-export function updateHourlyCandle(dayID: number, synth: string, rate: BigInt): void {
-  let newCandle = HourlyCandle.load(dayID.toString() + '-' + synth);
+export function updateHourlyCandle(timestamp: BigInt, synth: string, rate: BigInt): void {
+  let hourID = timestamp.toI32() / 3600;
+  let newCandle = HourlyCandle.load(hourID.toString() + '-' + synth);
   if (newCandle == null) {
-    newCandle = new HourlyCandle(dayID.toString() + '-' + synth);
+    newCandle = new HourlyCandle(hourID.toString() + '-' + synth);
     newCandle.synth = synth;
     newCandle.open = rate;
     newCandle.high = rate;
     newCandle.low = rate;
     newCandle.close = rate;
+    newCandle.timestamp = timestamp;
     newCandle.save();
     return;
   }
@@ -45,15 +49,17 @@ export function updateHourlyCandle(dayID: number, synth: string, rate: BigInt): 
   newCandle.save();
 }
 
-export function updateFourHourlyCandle(dayID: number, synth: string, rate: BigInt): void {
-  let newCandle = FourHourlyCandle.load(dayID.toString() + '-' + synth);
+export function updateFourHourlyCandle(timestamp: BigInt, synth: string, rate: BigInt): void {
+  let fourHourID = timestamp.toI32() / 14400;
+  let newCandle = FourHourlyCandle.load(fourHourID.toString() + '-' + synth);
   if (newCandle == null) {
-    newCandle = new FourHourlyCandle(dayID.toString() + '-' + synth);
+    newCandle = new FourHourlyCandle(fourHourID.toString() + '-' + synth);
     newCandle.synth = synth;
     newCandle.open = rate;
     newCandle.high = rate;
     newCandle.low = rate;
     newCandle.close = rate;
+    newCandle.timestamp = timestamp;
     newCandle.save();
     return;
   }
@@ -67,15 +73,17 @@ export function updateFourHourlyCandle(dayID: number, synth: string, rate: BigIn
   newCandle.save();
 }
 
-export function updateWeeklyCandle(dayID: number, synth: string, rate: BigInt): void {
-  let newCandle = WeeklyCandle.load(dayID.toString() + '-' + synth);
+export function updateWeeklyCandle(timestamp: BigInt, synth: string, rate: BigInt): void {
+  let weekID = timestamp.toI32() / 604800;
+  let newCandle = WeeklyCandle.load(weekID.toString() + '-' + synth);
   if (newCandle == null) {
-    newCandle = new WeeklyCandle(dayID.toString() + '-' + synth);
+    newCandle = new WeeklyCandle(weekID.toString() + '-' + synth);
     newCandle.synth = synth;
     newCandle.open = rate;
     newCandle.high = rate;
     newCandle.low = rate;
     newCandle.close = rate;
+    newCandle.timestamp = timestamp;
     newCandle.save();
     return;
   }
@@ -89,15 +97,17 @@ export function updateWeeklyCandle(dayID: number, synth: string, rate: BigInt): 
   newCandle.save();
 }
 
-export function updateMonthlyCandle(dayID: number, synth: string, rate: BigInt): void {
-  let newCandle = MonthlyCandle.load(dayID.toString() + '-' + synth);
+export function updateMonthlyCandle(timestamp: BigInt, synth: string, rate: BigInt): void {
+  let monthID = timestamp.toI32() / 2629743;
+  let newCandle = MonthlyCandle.load(monthID.toString() + '-' + synth);
   if (newCandle == null) {
-    newCandle = new MonthlyCandle(dayID.toString() + '-' + synth);
+    newCandle = new MonthlyCandle(monthID.toString() + '-' + synth);
     newCandle.synth = synth;
     newCandle.open = rate;
     newCandle.high = rate;
     newCandle.low = rate;
     newCandle.close = rate;
+    newCandle.timestamp = timestamp;
     newCandle.save();
     return;
   }

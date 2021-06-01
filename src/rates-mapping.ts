@@ -111,11 +111,11 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
 }
 
 function updateCandles(timestamp: BigInt, currencyKey: Bytes, rate: BigInt): void {
-  updateDailyCandle(timestamp.toI32() / 86400, currencyKey.toString(), rate);
-  updateHourlyCandle(timestamp.toI32() / 3600, currencyKey.toString(), rate);
-  updateFourHourlyCandle(timestamp.toI32() / 14400, currencyKey.toString(), rate);
-  updateWeeklyCandle(timestamp.toI32() / 604800, currencyKey.toString(), rate);
-  updateMonthlyCandle(timestamp.toI32() / 2629743, currencyKey.toString(), rate);
+  updateDailyCandle(timestamp, currencyKey.toString(), rate);
+  updateHourlyCandle(timestamp, currencyKey.toString(), rate);
+  updateFourHourlyCandle(timestamp, currencyKey.toString(), rate);
+  updateWeeklyCandle(timestamp, currencyKey.toString(), rate);
+  updateMonthlyCandle(timestamp, currencyKey.toString(), rate);
 }
 
 function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt): void {

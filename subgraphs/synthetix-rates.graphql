@@ -61,6 +61,7 @@ type DailyCandle @entity {
   high: BigInt!
   low: BigInt!
   close: BigInt!
+  timestamp: BigInt!
 }
 
 type FourHourlyCandle @entity {
@@ -71,6 +72,7 @@ type FourHourlyCandle @entity {
   high: BigInt!
   low: BigInt!
   close: BigInt!
+  timestamp: BigInt!
 }
 
 type HourlyCandle @entity {
@@ -81,6 +83,7 @@ type HourlyCandle @entity {
   high: BigInt!
   low: BigInt!
   close: BigInt!
+  timestamp: BigInt!
 }
 
 type WeeklyCandle @entity {
@@ -91,6 +94,7 @@ type WeeklyCandle @entity {
   high: BigInt!
   low: BigInt!
   close: BigInt!
+  timestamp: BigInt!
 }
 
 type MonthlyCandle @entity {
@@ -101,4 +105,5 @@ type MonthlyCandle @entity {
   high: BigInt!
   low: BigInt!
   close: BigInt!
+  timestamp: BigInt!
 }
