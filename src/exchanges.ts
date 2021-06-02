@@ -8,10 +8,12 @@ import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subg
 
 import {
   Total,
+  PostArchernarTotal,
   DailyTotal,
   FifteenMinuteTotal,
   SynthExchange,
   Exchanger,
+  PostArchernarExchanger,
   DailyExchanger,
   FifteenMinuteExchanger,
   ExchangeReclaim,
@@ -19,10 +21,12 @@ import {
   ExchangeFee,
 } from '../generated/subgraphs/exchanges/schema';
 
-import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, dataSource, log } from '@graphprotocol/graph-ts';
 
 import { getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
 import { toDecimal } from './lib/util';
+
+let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
 interface AggregatedTotalEntity {
   trades: BigInt;
@@ -119,6 +123,17 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   if (existingFifteenMinuteExchanger == null) {
     let fifteenMinuteExchanger = new FifteenMinuteExchanger(fifteenMinuteID.toString() + '-' + account.toHex());
     fifteenMinuteExchanger.save();
+  }
+
+  if (dataSource.network() == 'mainnet' && event.block.number > v219) {
+    let postArchernarTotal =
+      PostArchernarTotal.load('mainnet') || populateAggregatedTotalEntity(new PostArchernarTotal('mainnet'));
+    let existingPostArchernarExchanger = PostArchernarExchanger.load(account.toHex());
+    if (existingPostArchernarExchanger == null) {
+      let postArchernarExchanger = new PostArchernarExchanger(account.toHex());
+      postArchernarExchanger.save();
+    }
+    trackTotals(postArchernarTotal, !!existingPostArchernarExchanger, fromAmountInUSD, feesInUSD);
   }
 
   trackTotals(total, !!existingExchanger, fromAmountInUSD, feesInUSD);
