@@ -1,4 +1,4 @@
-// import { log } from '@graphprotocol/graph-ts';
+import { log } from '@graphprotocol/graph-ts';
 import {
   Approval,
   WithdrawApproval,
@@ -19,7 +19,7 @@ export function handleApproval(event: Approval): void {
   let delegate = event.params.delegate;
   let action = event.params.action.toString();
 
-  // log.warning('approve: {}', [action]);
+  log.warning('approve: {}', [action]);
 
   let id = authoriser.toHex() + '-' + delegate.toHex();
   let entity = Account.load(id);
@@ -37,16 +37,14 @@ export function handleApproval(event: Approval): void {
     entity.mint = true;
     entity.claim = true;
     entity.exchange = true;
-  } else {
-    if (action == BURN_ACTION) {
-      entity.burn = true;
-    } else if (action == MINT_ACTION) {
-      entity.mint = true;
-    } else if (action == CLAIM_ACTION) {
-      entity.claim = true;
-    } else if (action == TRADE_ACTION) {
-      entity.exchange = true;
-    }
+  } else if (action == BURN_ACTION) {
+    entity.burn = true;
+  } else if (action == MINT_ACTION) {
+    entity.mint = true;
+  } else if (action == CLAIM_ACTION) {
+    entity.claim = true;
+  } else if (action == TRADE_ACTION) {
+    entity.exchange = true;
   }
   entity.save();
 }
@@ -56,7 +54,7 @@ export function handleWithdrawApproval(event: WithdrawApproval): void {
   let delegate = event.params.delegate;
   let action = event.params.action.toString();
 
-  // log.warning('withdraw: {}', [action]);
+  log.warning('withdraw: {}', [action]);
 
   let id = authoriser.toHex() + '-' + delegate.toHex();
   let entity = Account.load(id);
@@ -66,16 +64,14 @@ export function handleWithdrawApproval(event: WithdrawApproval): void {
       entity.mint = false;
       entity.claim = false;
       entity.exchange = false;
-    } else {
-      if (action == BURN_ACTION) {
-        entity.burn = false;
-      } else if (action == MINT_ACTION) {
-        entity.mint = false;
-      } else if (action == CLAIM_ACTION) {
-        entity.claim = false;
-      } else if (action == TRADE_ACTION) {
-        entity.exchange = false;
-      }
+    } else if (action == BURN_ACTION) {
+      entity.burn = false;
+    } else if (action == MINT_ACTION) {
+      entity.mint = false;
+    } else if (action == CLAIM_ACTION) {
+      entity.claim = false;
+    } else if (action == TRADE_ACTION) {
+      entity.exchange = false;
     }
     entity.save();
   }
