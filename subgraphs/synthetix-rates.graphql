@@ -52,3 +52,14 @@ type LatestRate @entity {
   " Synth USD rate with 18 decimals "
   rate: BigInt!
 }
+
+type DailyCandle @entity {
+  " DailyEpoch-Asset. E.g. 18361-sETH "
+  id: ID!
+  synth: String!
+  open: BigInt!
+  high: BigInt!
+  low: BigInt!
+  close: BigInt!
+  timestamp: BigInt!
+}
