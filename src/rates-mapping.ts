@@ -17,13 +17,7 @@ import { contractsToProxies } from './contractsToProxies';
 import { strToBytes } from './common';
 
 import { ByteArray, Bytes, BigInt, Address, log } from '@graphprotocol/graph-ts';
-import {
-  updateDailyCandle,
-  updateHourlyCandle,
-  updateFourHourlyCandle,
-  updateWeeklyCandle,
-  updateMonthlyCandle,
-} from './candle-helper';
+import { updateDailyCandle } from './candle-helper';
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -104,18 +98,9 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
       if (keys[i].toString() == 'SNX') {
         handleSNXPrices(event.block.timestamp, rateEntity.rate);
       }
-      updateCandles(event.block.timestamp, keys[i], rates[i]);
       addLatestRate(rateEntity.synth, rateEntity.rate);
     }
   }
-}
-
-function updateCandles(timestamp: BigInt, currencyKey: Bytes, rate: BigInt): void {
-  updateDailyCandle(timestamp, currencyKey.toString(), rate);
-  updateHourlyCandle(timestamp, currencyKey.toString(), rate);
-  updateFourHourlyCandle(timestamp, currencyKey.toString(), rate);
-  updateWeeklyCandle(timestamp, currencyKey.toString(), rate);
-  updateMonthlyCandle(timestamp, currencyKey.toString(), rate);
 }
 
 function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt): void {
@@ -130,6 +115,7 @@ function createRates(event: AnswerUpdatedEvent, currencyKey: Bytes, rate: BigInt
   entity.save();
 
   addLatestRate(entity.synth, entity.rate);
+  updateDailyCandle(event.block.timestamp, currencyKey.toString(), rate);
 
   // save aggregated event as rate update from v2.17.5 (Procyon)
   if (event.block.number > BigInt.fromI32(9123410)) {
