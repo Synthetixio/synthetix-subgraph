@@ -33,7 +33,7 @@ if (getCurrentNetwork() == 'mainnet') {
         eventHandlers: [
           {
             event: 'SynthExchange(indexed address,bytes4,uint256,bytes4,uint256,address)',
-            handler: 'handleSynthExchange4',
+            handler: 'handleSynthExchange',
           },
         ],
       },

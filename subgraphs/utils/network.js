@@ -6,6 +6,10 @@ function getCurrentNetwork() {
   return process.env['SNX_NETWORK'];
 }
 
+function getCurrentSubgraph() {
+  return process.env['SUBGRAPH'];
+}
+
 function getReleaseInfo(file, network = undefined) {
   const net = network || getCurrentNetwork() || 'mainnet';
 
@@ -23,11 +27,11 @@ function getReleaseInfo(file, network = undefined) {
 
 function estimateBlock(date) {
   const blockInfo = values(getReleaseInfo('versions'))
-    .filter((v) => v.block && v.date)
-    .map((v) => [v.block, v.date]);
+    .filter(v => v.block && v.date)
+    .map(v => [v.block, v.date]);
 
   // find the release immediately after the specified time
-  const idx = sortedIndexBy(blockInfo, [0, date], (v) => v[1]);
+  const idx = sortedIndexBy(blockInfo, [0, date], v => v[1]);
 
   const numDate = new Date(date).getTime();
 
@@ -129,4 +133,5 @@ module.exports = {
   versions,
   getContractDeployments,
   NETWORKS,
+  getCurrentSubgraph,
 };
