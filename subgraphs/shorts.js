@@ -104,7 +104,7 @@ module.exports = {
   description: 'Synthetix Shorts API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-shorts.graphql',
+    file: './shorts.graphql',
   },
   dataSources: manifest,
   templates: latestRates.templates,

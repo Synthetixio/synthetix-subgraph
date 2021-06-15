@@ -6,8 +6,12 @@ function getCurrentNetwork() {
   return process.env['SNX_NETWORK'];
 }
 
-function getReleaseInfo(file) {
-  const net = getCurrentNetwork() || 'mainnet';
+function getCurrentSubgraph() {
+  return process.env['SUBGRAPH'];
+}
+
+function getReleaseInfo(file, network = undefined) {
+  const net = network || getCurrentNetwork() || 'mainnet';
 
   let info = null;
   if (net === 'mainnet' || net === 'kovan') {
@@ -18,21 +22,16 @@ function getReleaseInfo(file) {
     return require('synthetix/publish/deployed/kovan-ovm/' + file);
   }
 
-  // hack for mainnet: starting block could be earlier than indicated
-  if (net === 'mainnet') {
-    info['v2.0-19'].block = 5873222;
-  }
-
   return info;
 }
 
 function estimateBlock(date) {
   const blockInfo = values(getReleaseInfo('versions'))
-    .filter((v) => v.block && v.date)
-    .map((v) => [v.block, v.date]);
+    .filter(v => v.block && v.date)
+    .map(v => [v.block, v.date]);
 
   // find the release immediately after the specified time
-  const idx = sortedIndexBy(blockInfo, [0, date], (v) => v[1]);
+  const idx = sortedIndexBy(blockInfo, [0, date], v => v[1]);
 
   const numDate = new Date(date).getTime();
 
@@ -83,10 +82,10 @@ function getReleaseBlocks() {
 
 const versions = getReleaseBlocks();
 
-function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE) {
+function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE, network = undefined) {
   startBlock = Math.max(startBlock, process.env['SNX_START_BLOCK'] || 0);
 
-  const versionInfo = getReleaseInfo('versions');
+  const versionInfo = getReleaseInfo('versions', network);
 
   const addressInfo = [];
 
@@ -112,9 +111,12 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
 
       if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
 
+      const cushionStartBlock =
+        theBlock - BLOCK_SAFETY_OFFSET * 2 > 0 ? theBlock - BLOCK_SAFETY_OFFSET * 2 : theBlock - BLOCK_SAFETY_OFFSET;
+
       addressInfo.push({
         address: contractInfo.address,
-        startBlock: theBlock - BLOCK_SAFETY_OFFSET,
+        startBlock: cushionStartBlock,
       });
     }
   }
@@ -122,10 +124,14 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
   return addressInfo;
 }
 
+const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism'];
+
 module.exports = {
   getCurrentNetwork,
   getReleaseInfo,
   estimateBlock,
   versions,
   getContractDeployments,
+  NETWORKS,
+  getCurrentSubgraph,
 };

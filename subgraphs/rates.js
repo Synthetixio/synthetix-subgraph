@@ -5,11 +5,9 @@ const manifest = []; //clone(latestRates.dataSources);
 
 // for exchange rates, modify so we can capture the snx price
 for (const lrm of clone(latestRates.dataSources)) {
-  if (lrm.name === 'ChainlinkMultisig') {
-    continue;
+  if (lrm.name !== 'ChainlinkMultisig') {
+    lrm.mapping.file = '../src/rates.ts';
   }
-
-  lrm.mapping.file = '../src/rates.ts';
   manifest.push(lrm);
 }
 
@@ -25,7 +23,7 @@ module.exports = {
   description: 'Synthetix Rates API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-rates.graphql',
+    file: './rates.graphql',
   },
   dataSources: manifest,
   templates: templates,

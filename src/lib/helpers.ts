@@ -1,6 +1,6 @@
 import { BigDecimal, BigInt, Bytes, ByteArray, log } from '@graphprotocol/graph-ts';
 
-import { LatestRate } from '../../generated/subgraphs/synthetix-rates/schema';
+import { LatestRate } from '../../generated/subgraphs/rates/schema';
 
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);

@@ -6,20 +6,24 @@ networks='mainnet optimism kovan optimism-kovan'
 GRAPH=${GRAPH:-graph}
 
 # only need to run the same codegen once for all networks
-SNX_NETWORK=mainnet $GRAPH codegen subgraphs/synthetix-rates.js -o generated/subgraphs/synthetix-rates
-SNX_NETWORK=mainnet $GRAPH codegen subgraphs/$subgraph.js -o generated/subgraphs/$subgraph
+SNX_NETWORK=mainnet SUBGRAPH=$subgraph $GRAPH codegen subgraphs/rates.js -o generated/subgraphs/rates
+SNX_NETWORK=mainnet SUBGRAPH=$subgraph $GRAPH codegen subgraphs/$subgraph.js -o generated/subgraphs/$subgraph
 
-if [[ $subgraph != synthetix-rates && -d generated/subgraphs/$subgraph/ChainlinkMultisig ]]
+if [ "general" == $subgraph ]; then
+    node ./create-escrow-contracts
+fi
+
+if [[ $subgraph != "rates" && -d generated/subgraphs/$subgraph/ChainlinkMultisig ]]
 then
-    mv generated/subgraphs/$subgraph/ChainlinkMultisig generated/subgraphs/synthetix-rates/ChainlinkMultisig
+    mv generated/subgraphs/$subgraph/ChainlinkMultisig generated/subgraphs/rates/ChainlinkMultisig
 fi
 
 if [ "all" == $network ]; then
     for i in $networks; do
 	echo "building $subgraph $i"
-        SNX_NETWORK=$i $GRAPH build subgraphs/$subgraph.js -o build/$i/subgraphs/$subgraph
+        SNX_NETWORK=$i SUBGRAPH=$subgraph $GRAPH build subgraphs/$subgraph.js -o build/$i/subgraphs/$subgraph
     done
 else
     echo "building $subgraph $network"
-    SNX_NETWORK=$network $GRAPH build subgraphs/$subgraph.js -o build/$network/subgraphs/$subgraph
+    SNX_NETWORK=$network SUBGRAPH=$subgraph $GRAPH build subgraphs/$subgraph.js -o build/$network/subgraphs/$subgraph
 fi

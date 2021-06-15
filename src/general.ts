@@ -1,31 +1,30 @@
 // The latest Synthetix and event invocations
-import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix';
+import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/general/Synthetix_0/Synthetix';
 
-import { Synthetix32 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix32';
+import { Synthetix32 } from '../generated/subgraphs/general/Synthetix_0/Synthetix32';
 
-import { Synthetix4 } from '../generated/subgraphs/synthetix/Synthetix_0/Synthetix4';
+import { Synthetix4 } from '../generated/subgraphs/general/Synthetix_0/Synthetix4';
 
-import { AddressResolver } from '../generated/subgraphs/synthetix/Synthetix_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/general/Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID, toDecimal } from './lib/util';
+import { sUSD32, sUSD4, getTimeID, toDecimal, ZERO_ADDRESS } from './lib/util';
 
 // SynthetixState has not changed ABI since deployment
-import { SynthetixState } from '../generated/subgraphs/synthetix/Synthetix_0/SynthetixState';
+import { SynthetixState } from '../generated/subgraphs/general/Synthetix_0/SynthetixState';
 
-import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/synthetix/RewardEscrow_0/RewardEscrow';
+import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/general/RewardEscrow_0/RewardEscrow';
 
 import {
   Synth,
   Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
-} from '../generated/subgraphs/synthetix/SynthsUSD_0/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/synthetix/FeePool_0/FeePool';
-import { FeePoolv217 } from '../generated/subgraphs/synthetix/FeePool_0/FeePoolv217';
+} from '../generated/subgraphs/general/SynthsUSD_0/Synth';
+import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/general/FeePool_0/FeePool';
+import { FeePoolv217 } from '../generated/subgraphs/general/FeePool_0/FeePoolv217';
 
 import {
   Synthetix,
-  Transfer,
   Issued,
   Burned,
   Issuer,
@@ -39,17 +38,14 @@ import {
   ActiveStaker,
   DailyIssued,
   DailyBurned,
-} from '../generated/subgraphs/synthetix/schema';
+} from '../generated/subgraphs/general/schema';
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './lib/util';
+import { escrowContracts } from './lib/escrow-contracts';
 
 import { log } from '@graphprotocol/graph-ts';
-
-let contracts = new Map<string, string>();
-contracts.set('escrow', '0x971e78e0c92392a4e39099835cf7e6ab535b2227');
-contracts.set('rewardEscrow', '0xb671f2210b1f6621a2607ea63e6b2dc3e2464d1f');
 
 let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -111,7 +107,10 @@ function trackSNXHolder(
 ): void {
   let holder = account.toHex();
   // ignore escrow accounts
-  if (contracts.get('escrow') == holder || contracts.get('rewardEscrow') == holder) {
+  if (
+    escrowContracts.get(`escrow-${dataSource.network()}`) == holder ||
+    escrowContracts.get(`rewardEscrow-${dataSource.network()}`) == holder
+  ) {
     return;
   }
   let existingSNXHolder = SNXHolder.load(holder);
@@ -232,7 +231,10 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   let account = event.transaction.from;
 
   // ignore escrow accounts
-  if (contracts.get('escrow') == account.toHex() || contracts.get('rewardEscrow') == account.toHex()) {
+  if (
+    escrowContracts.get(`escrow-${dataSource.network()}`) == account.toHex() ||
+    escrowContracts.get(`rewardEscrow-${dataSource.network()}`) == account.toHex()
+  ) {
     return;
   }
 
@@ -274,17 +276,12 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 }
 
 export function handleTransferSNX(event: SNXTransferEvent): void {
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'SNX';
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = toDecimal(event.params.value);
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.save();
-
-  trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
-  trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
+  if (event.params.from.toHex() != ZERO_ADDRESS.toString()) {
+    trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
+  }
+  if (event.params.to.toHex() != ZERO_ADDRESS.toString()) {
+    trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
+  }
 }
 
 function trackSynthHolder(contract: Synth, source: string, account: Address): void {
@@ -300,24 +297,21 @@ function trackSynthHolder(contract: Synth, source: string, account: Address): vo
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
-  let entity = new Transfer(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.source = 'sUSD';
+  let source = 'sUSD';
   if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
     // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
     let currencyKeyTry = contract.try_currencyKey();
     if (!currencyKeyTry.reverted) {
-      entity.source = currencyKeyTry.value.toString();
+      source = currencyKeyTry.value.toString();
     }
   }
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = toDecimal(event.params.value);
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.save();
 
-  trackSynthHolder(contract, entity.source, event.params.from);
-  trackSynthHolder(contract, entity.source, event.params.to);
+  if (event.params.from.toHex() != ZERO_ADDRESS.toString()) {
+    trackSynthHolder(contract, source, event.params.from);
+  }
+  if (event.params.to.toHex() != ZERO_ADDRESS.toString()) {
+    trackSynthHolder(contract, source, event.params.to);
+  }
 }
 
 /**
@@ -390,7 +384,13 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    if (totalIssued.reverted) {
+      log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+        event.transaction.hash.toHex(),
+      ]);
+      return;
+    }
 
     let dailyIssuedEntity = DailyIssued.load(dayId);
     if (dailyIssuedEntity == null) {
@@ -399,7 +399,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
     } else {
       dailyIssuedEntity.value = dailyIssuedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyIssuedEntity.totalDebt = toDecimal(totalIssued);
+    dailyIssuedEntity.totalDebt = toDecimal(totalIssued.value);
     dailyIssuedEntity.save();
   }
 
@@ -482,7 +482,13 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    if (totalIssued.reverted) {
+      log.debug('Reverted burned try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+        event.transaction.hash.toHex(),
+      ]);
+      return;
+    }
 
     let dailyBurnedEntity = DailyBurned.load(dayId);
     if (dailyBurnedEntity == null) {
@@ -491,7 +497,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     } else {
       dailyBurnedEntity.value = dailyBurnedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyBurnedEntity.totalDebt = toDecimal(totalIssued);
+    dailyBurnedEntity.totalDebt = toDecimal(totalIssued.value);
     dailyBurnedEntity.save();
   }
 

@@ -101,7 +101,7 @@ module.exports = {
   description: 'Synthetix Binary Options API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-binary-options.graphql',
+    file: './binary-options.graphql',
   },
   dataSources: manifest,
   templates: templates,

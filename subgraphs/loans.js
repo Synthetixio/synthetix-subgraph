@@ -117,7 +117,7 @@ module.exports = {
   description: 'Synthetix Loans API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './synthetix-loans.graphql',
+    file: './loans.graphql',
   },
   dataSources: manifest,
 };

@@ -1,4 +1,4 @@
-const { getContractDeployments, versions, getCurrentNetwork } = require('../utils/network');
+const { getContractDeployments, versions, getCurrentNetwork, getCurrentSubgraph } = require('../utils/network');
 
 const exchangeRatesContractAddresses = getContractDeployments('ExchangeRates');
 
@@ -7,14 +7,30 @@ const exchangeRatesManifests = [];
 // the rates updated event changed from bytes4 to bytes32 in the sirius release
 const BYTE32_UPDATE = versions.Sirius;
 
+// the earliest start block to track exchanger subgraph rates
+const EXCHANGER_START_BLOCK = 10537958;
+// the earliest start block to track exchanges subgraph rates
+const EXCHANGES_START_BLOCK = 6841188;
+// the earliest start block to track shorts subgraph rates
+const SHORTS_START_BLOCK = 11513382;
+
 exchangeRatesContractAddresses.forEach((ca, i) => {
+  let startBlock = ca.startBlock;
+  if (getCurrentSubgraph() === 'exchanger' && startBlock < EXCHANGER_START_BLOCK) {
+    startBlock = EXCHANGER_START_BLOCK;
+  } else if (getCurrentSubgraph() === 'exchanges' && startBlock < EXCHANGES_START_BLOCK) {
+    startBlock = EXCHANGES_START_BLOCK;
+  } else if (getCurrentSubgraph() === 'shorts' && startBlock < SHORTS_START_BLOCK) {
+    startBlock = SHORTS_START_BLOCK;
+  }
+
   exchangeRatesManifests.push({
     kind: 'ethereum/contract',
     name: `ExchangeRates_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: ca.address,
-      startBlock: ca.startBlock,
+      startBlock,
       abi: 'ExchangeRates',
     },
     mapping: {

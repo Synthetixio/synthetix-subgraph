@@ -7,8 +7,8 @@ import {
   SynthDepositNotAccepted as SynthDepositNotAcceptedEvent,
   ClearedDeposit as ClearedDepositEvent,
   Exchange as ExchangeEvent,
-} from '../generated/subgraphs/synthetix-depot/Depot_0/Depot';
-import { UserAction, ClearedDeposit, Exchange } from '../generated/subgraphs/synthetix-depot/schema';
+} from '../generated/subgraphs/depot/Depot_0/Depot';
+import { UserAction, ClearedDeposit, Exchange } from '../generated/subgraphs/depot/schema';
 import { toDecimal } from './lib/util';
 
 function createUserAction(event: ethereum.Event): UserAction {

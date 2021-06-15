@@ -2,72 +2,78 @@
 
 [![CircleCI](https://circleci.com/gh/Synthetixio/synthetix-subgraph.svg?style=svg)](https://circleci.com/gh/Synthetixio/synthetix-subgraph)
 
-The Graph exposes a GraphQL endpoint to query the events and entities within the Synthetix system.
-
-Synthetix has eleven bundled subgraps, all generated from this one repository:
-
 ![image](https://user-images.githubusercontent.com/799038/79390156-32c93080-7f3d-11ea-812a-34ad3543fc28.png)
 
-1. **Synthetix**: issuing (aka minting) sUSD, burning sUSD and transferring SNX & Synths: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix
-2. **Exchanges**: synth Exchange Volume and fees generated: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanges
-3. **Rates**: historical rates on-chain for the various synths to USD: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-rates
-4. **Depot**: deposits, withdrawls and successful exchanges in the Depot: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-depot
-5. **Loans**: loans created and closed using EtherCollateral: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-loans
-6. **Binary Options**: Binary options data: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-binary-options
-7. **Grants DAO**: Grants DAO data: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-grantsdao
-8. **Exchanger**: Tracks exchange entries and volume sources: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-exchanger
-9. **Liquidations**: Tracks protocol liquidations: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-liquidations
-10. **Limit Orders**: Tracks limit orders: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-limit-orders
-11. **Chainlink**: Tracks chainlink rates: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-chainlink
+The Graph exposes GraphQL endpoints to query events and entities from the Synthetix contracts built on the Ethereum and Optimism networks.
 
-## To run and deploy locally
+Synthetix has 11 bundled subgraps on mainnet, and most of these subgraphs also have mirrored endpoints that point to similar activity on the `optimism`, `kovan`, and `optimism-kovan` networks. Below is a table outlining which subgraph is available on each network:
 
-list of networks: `mainnet`, `optimism`, `kovan`, `optimism-kovan`, also, `all` deploys to all 4 networks
+| Subgraph            | Description                                                            | Networks & Links                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **General**         | issuing (aka minting) sUSD, burning sUSD and transferring SNX & Synths | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-general), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-general), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-general), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-general)                             |
+| **Exchanges**       | synth Exchange Volume and fees generated                               | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-exchanges), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-exchanges), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-exchanges), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-exchanges)                     |
+| **Rates**           | historical rates on-chain for the various synths to USD                | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-rates), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-rates), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-rates), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-rates)                                     |
+| **Depot**           | deposits, withdrawls and successful exchanges in the Depot             | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-depot), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-depot), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-depot), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-depot)                                     |
+| **Loans**           | loans created and closed using EtherCollateral                         | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-loans), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-loans), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-loans), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-loans)                                     |
+| **Binary Options**  | Binary options data                                                    | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-binary-options), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-binary-options), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-binary-options), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-binary-options) |
+| **Grants DAO**      | Grants DAO data (historical and only on mainnet)                       | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/grantsdao)                                                                                                                                                                                                                                                                                                           |
+| **Exchanger**       | Tracks exchange entries and volume sources                             | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-exchanger), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-exchanger), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-exchanger), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-exchanger)                     |
+| **Liquidations**    | Tracks protocol liquidations                                           | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-liquidations), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-liquidations), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-liquidations), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-liquidations)         |
+| **Shorts**          | Tracks shorts in Synthetix                                             | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-shorts), [Optimism](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-shorts), [Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/kovan-shorts), [Optimism-Kovan](https://thegraph.com/explorer/subgraph/synthetixio-team/optimism-kovan-shorts)                                 |
+| **Optimism Bridge** | Tracks Mainnet deposits to Optimism                                    | [Mainnet](https://thegraph.com/explorer/subgraph/synthetixio-team/mainnet-optimism-bridge)                                                                                                                                                                                                                                                                                             |
 
-npm run build <network> <subgraph>
-npm run deploy <network> <subgraph>
+<br></br>
 
-deploying `synthetix` subgraph examples:
+## To run and deploy subgraphs
 
-- npm run build mainnet synthetix
-- npm run deploy mainnet synthetix
+First you need to get the API key from the Synthetix core contributors who manage access to the subgraphs. Once you have this key stored under $THEGRAPH_SNX_ACCESS_TOKEN you may continue.
 
---
+The list of supported networks is: `mainnet`, `optimism`, `kovan`, `optimism-kovan`; also, `all` deploys to all 4 networks. The following 2 commands will build and deploy a subgraph:
 
-- npm run build kovan synthetix
-- npm run build kovan synthetix
+- npm run build $network $subgraph
+- npm run deploy $network $subgraph
 
---
+Example 1: deploying `general` subgraph:
 
-- npm run build optimism synthetix
-- npm run build optimism synthetix
-
---
-
-- npm run deploy all synthetix
-- npm run deploy all synthetix
-
-deploying `synthetix-loans` subgraph examples:
-
-- npm run build mainnet synthetix-loans
-- npm run deploy mainnet synthetix-loans
+- npm run build mainnet general
+- npm run deploy mainnet general
 
 --
 
-- npm run build kovan synthetix-loans
-- npm run build kovan synthetix-loans
+- npm run build kovan general
+- npm run deploy kovan general
 
 --
 
-- npm run build optimism synthetix-loans
-- npm run build optimism synthetix-loans
+- npm run build optimism general
+- npm run deploy optimism general
 
 --
 
-- npm run deploy all synthetix-loans
-- npm run deploy all synthetix-loans
+- npm run build all general
+- npm run deploy all general
 
-Replace `synthetix-loans` with the subgraph of your choice in the above commands
+Example 2: deploying `loans` subgraph:
+
+- npm run build mainnet loans
+- npm run deploy mainnet loans
+
+--
+
+- npm run build kovan loans
+- npm run deploy kovan loans
+
+--
+
+- npm run build optimism loans
+- npm run deploy optimism loans
+
+--
+
+- npm run build all loans
+- npm run deploy all loans
+
+Example 3+: Replace `loans` with the subgraph of your choice in the above commands
 
 ## To query these subgraphs
 
@@ -105,7 +111,7 @@ In it's simplest version (on a modern browser assuming `async await` support and
     variables: null,
   });
 
-  const response = await fetch('https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-exchanges', {
+  const response = await fetch('https://api.thegraph.com/subgraphs/name/synthetixio-team/exchanges', {
     method: 'POST',
     body,
   });

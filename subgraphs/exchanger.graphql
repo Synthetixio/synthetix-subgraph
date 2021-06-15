@@ -33,7 +33,6 @@ type ExchangeEntrySettled @entity {
 type ExchangeEntryAppended @entity {
   " transaction hash and log index "
   id: ID! # the transaction hash plus event log
-
   " ethereum address which funded the exchange "
   account: Bytes!
 

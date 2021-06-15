@@ -2,7 +2,7 @@ import {
   MarketCreated as MarketCreatedEvent,
   MarketExpired as MarketExpiredEvent,
   MarketCancelled as MarketCancelledEvent,
-} from '../generated/subgraphs/synthetix-binary-options/BinaryOptionMarketManager_0/BinaryOptionMarketManager';
+} from '../generated/subgraphs/binary-options/BinaryOptionMarketManager_0/BinaryOptionMarketManager';
 import {
   Bid as BidEvent,
   Refund as RefundEvent,
@@ -11,13 +11,9 @@ import {
   OptionsClaimed as OptionsClaimedEvent,
   OptionsExercised as OptionsExercisedEvent,
   BinaryOptionMarket,
-} from '../generated/subgraphs/synthetix-binary-options/templates/BinaryOptionMarket/BinaryOptionMarket';
-import {
-  Market,
-  OptionTransaction,
-  HistoricalOptionPrice,
-} from '../generated/subgraphs/synthetix-binary-options/schema';
-import { BinaryOptionMarket as BinaryOptionMarketContract } from '../generated/subgraphs/synthetix-binary-options/templates';
+} from '../generated/subgraphs/binary-options/templates/BinaryOptionMarket/BinaryOptionMarket';
+import { Market, OptionTransaction, HistoricalOptionPrice } from '../generated/subgraphs/binary-options/schema';
+import { BinaryOptionMarket as BinaryOptionMarketContract } from '../generated/subgraphs/binary-options/templates';
 
 export function handleNewMarket(event: MarketCreatedEvent): void {
   BinaryOptionMarketContract.create(event.params.market);

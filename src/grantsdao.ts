@@ -11,16 +11,9 @@ import {
   RemoveTeamMemberCall,
   UpdateToPassCall,
   VoteProposal,
-} from '../generated/subgraphs/synthetix-grantsdao/GrantsDAO/GrantsDAO';
+} from '../generated/subgraphs/grantsdao/GrantsDAO/GrantsDAO';
 
-import {
-  Account,
-  Member,
-  Proposal,
-  SystemInfo,
-  Vote,
-  Tribute,
-} from '../generated/subgraphs/synthetix-grantsdao/schema';
+import { Account, Member, Proposal, SystemInfo, Vote, Tribute } from '../generated/subgraphs/grantsdao/schema';
 
 import { toDecimal, ZERO, ONE } from './lib/util';
 
