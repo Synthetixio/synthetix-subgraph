@@ -276,10 +276,10 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 }
 
 export function handleTransferSNX(event: SNXTransferEvent): void {
-  if (event.params.from.toHex() != ZERO_ADDRESS.toString()) {
+  if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
     trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
   }
-  if (event.params.to.toHex() != ZERO_ADDRESS.toString()) {
+  if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
     trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
   }
 }
@@ -306,10 +306,10 @@ export function handleTransferSynth(event: SynthTransferEvent): void {
     }
   }
 
-  if (event.params.from.toHex() != ZERO_ADDRESS.toString()) {
+  if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
     trackSynthHolder(contract, source, event.params.from);
   }
-  if (event.params.to.toHex() != ZERO_ADDRESS.toString()) {
+  if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
     trackSynthHolder(contract, source, event.params.to);
   }
 }
