@@ -7,7 +7,7 @@ import { Synthetix4 } from '../generated/subgraphs/general/Synthetix_0/Synthetix
 
 import { AddressResolver } from '../generated/subgraphs/general/Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID, toDecimal, ZERO_ADDRESS } from './lib/util';
+import { sUSD32, sUSD4, getTimeID, toDecimal, ZERO_ADDRESS, isEscrow } from './lib/util';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/subgraphs/general/Synthetix_0/SynthetixState';
@@ -43,7 +43,6 @@ import {
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 
 import { strToBytes } from './lib/util';
-import { escrowContracts } from './lib/escrow-contracts';
 
 import { log } from '@graphprotocol/graph-ts';
 
@@ -107,10 +106,7 @@ function trackSNXHolder(
 ): void {
   let holder = account.toHex();
   // ignore escrow accounts
-  if (
-    escrowContracts.get(`escrow-${dataSource.network()}`) == holder ||
-    escrowContracts.get(`rewardEscrow-${dataSource.network()}`) == holder
-  ) {
+  if (isEscrow(holder, dataSource.network())) {
     return;
   }
   let existingSNXHolder = SNXHolder.load(holder);
@@ -231,10 +227,7 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   let account = event.transaction.from;
 
   // ignore escrow accounts
-  if (
-    escrowContracts.get(`escrow-${dataSource.network()}`) == account.toHex() ||
-    escrowContracts.get(`rewardEscrow-${dataSource.network()}`) == account.toHex()
-  ) {
+  if (isEscrow(account.toHex(), dataSource.network())) {
     return;
   }
 
