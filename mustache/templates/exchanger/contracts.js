@@ -1,3 +1,52 @@
+
+const snx = require('synthetix')
+
+const contractsToLoad = {
+  'Exchanger': { type: 'exchanger', version: 0 },
+  'ProxyERC20': { type: 'synthetix', target: 'Synthetix', version: 0 }
+}
+
+const filterContractsToLoad = name => !!contractsToLoad[name]
+
+const exports2 = Object.values(
+  snx.getVersions({
+    network: 'mainnet',
+  })
+)
+.filter(version => {
+  if(!version.block) {
+    console.error(version.tag + ' is missing `block`')
+    return false
+  }
+  return true
+})
+.map(({ contracts, block }) => {
+  // Filter only contracts we track.
+  return Object.entries(contracts)
+    .filter(([contractName,]) => !!contractsToLoad[contractName])
+    .map(([ contractName, contract ]) => {
+      const { address } = contract
+
+      let info = contractsToLoad[contractName]
+      let name = info.target ? info.target : contractName
+      if (info.version > 0) {
+        name += `_v${info.version}`
+      }
+      info.version += 1
+
+      return {
+        prod: block,
+        test: null,
+        type: info.type,
+        name: `${name}`,
+        address: `'${address}'`,
+      }
+    })
+})
+.flat()
+
+// console.log(exports2)
+
 module.exports = [
   {
     prod: 10557958,
