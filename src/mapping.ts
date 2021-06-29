@@ -245,7 +245,7 @@ function trackSNXHolder(
   snxHolder.save();
 }
 
-function trackDebtSnapshot(event: ethereum.Event): void {
+function trackDebt(event: ethereum.Event): void {
   let snxContract = event.transaction.to as Address;
   let account = event.transaction.from;
 
@@ -264,6 +264,17 @@ function trackDebtSnapshot(event: ethereum.Event): void {
     entity.balanceOf = synthetix.balanceOf(account);
     entity.collateral = synthetix.collateral(account);
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
+
+    # also record debt status
+    let resolver = Resolver.bind(synthetix.resolver());
+    let issuer = IssuerContract.bind(resolver.getAddress('Issuer'));
+
+    let debtStatusEntity = new DebtStatus();
+    debtStatusEntity.timestamp = event.block.timestamp;
+    debtStatusEntity.debtEntry = issuer.lastDebtEntry();
+    debtStatusEntity.totalIssuedSynths = synthetix.totalIssuedSynthsExcludeEtherCollateral();
+    debtStatusEntity.debtRatio = debtStatusEntity.totalIssuedSynths.div(debtStatusEntity.debtEntry);
+    debtStatusEntity.save();
   }
   // Use bytes32
   else if (event.block.number > v2100UpgradeBlock) {
@@ -471,7 +482,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   }
 
   // update Debt snapshot history
-  trackDebtSnapshot(event);
+  trackDebt(event);
 }
 
 export function handleBurnedSynths(event: BurnedEvent): void {
@@ -549,7 +560,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   // update SNX holder details
   trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
   // update Debt snapshot history
-  trackDebtSnapshot(event);
+  trackDebt(event);
 }
 
 export function handleFeesClaimed(event: FeesClaimedEvent): void {
