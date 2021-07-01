@@ -12,5 +12,5 @@ if [ "all" == $network ]; then
         SNX_NETWORK=$i $GRAPH deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN synthetixio-team/$i-$subgraph subgraphs/$subgraph.js
     done
 else
-    SNX_NETWORK=$network $GRAPH deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $token synthetixio-team/$network-$subgraph subgraphs/$subgraph.js
+    SNX_NETWORK=$network npx $GRAPH deploy --node $GRAPH_NODE_URL --ipfs $IPFS_NODE_URL --access-token $token synthetixio-team/$network-$subgraph subgraphs/$subgraph.js
 fi
