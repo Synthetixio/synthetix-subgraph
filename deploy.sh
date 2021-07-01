@@ -2,7 +2,7 @@
 network=$1
 subgraph=$2
 token=$THEGRAPH_SNX_ACCESS_TOKEN
-networks='mainnet optimism kovan optimism-kovan'
+networks='mainnet optimism kovan optimism-kovan optimism-local'
 
 GRAPH=${GRAPH:-graph}
 
