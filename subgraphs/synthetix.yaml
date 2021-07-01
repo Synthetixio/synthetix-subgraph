@@ -137,8 +137,6 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
-        - name: Issuer
-          file: ../abis/Issuer.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -177,8 +175,6 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
-        - name: Issuer
-          file: ../abis/Issuer.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -217,8 +213,6 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
-        - name: Issuer
-          file: ../abis/Issuer.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -257,8 +251,6 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
-        - name: Issuer
-          file: ../abis/Issuer.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -297,8 +289,6 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
-        - name: Issuer
-          file: ../abis/Issuer.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth
@@ -336,8 +326,6 @@ dataSources:
           file: ../abis/AddressResolver.json
         - name: SynthetixState
           file: ../abis/SynthetixState.json
-        - name: Issuer
-          file: ../abis/Issuer.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransferSynth

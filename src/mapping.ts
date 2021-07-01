@@ -7,7 +7,7 @@ import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID } from './common';
+import { sUSD32, sUSD4, getTimeID, toDecimal } from './common';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
@@ -33,6 +33,7 @@ import {
   ContractUpdated,
   SNXHolder,
   DebtSnapshot,
+  DebtState,
   SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
@@ -265,16 +266,19 @@ function trackDebt(event: ethereum.Event): void {
     entity.collateral = synthetix.collateral(account);
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
 
-    # also record debt status
-    let resolver = Resolver.bind(synthetix.resolver());
-    let issuer = IssuerContract.bind(resolver.getAddress('Issuer'));
+    let resolver = AddressResolver.bind(synthetix.resolver());
+    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
 
-    let debtStatusEntity = new DebtStatus();
-    debtStatusEntity.timestamp = event.block.timestamp;
-    debtStatusEntity.debtEntry = issuer.lastDebtEntry();
-    debtStatusEntity.totalIssuedSynths = synthetix.totalIssuedSynthsExcludeEtherCollateral();
-    debtStatusEntity.debtRatio = debtStatusEntity.totalIssuedSynths.div(debtStatusEntity.debtEntry);
-    debtStatusEntity.save();
+    let debtStateEntity = new DebtState(synthetixState.debtLedgerLength().toString());
+    debtStateEntity.timestamp = event.block.timestamp;
+    debtStateEntity.debtEntry = toDecimal(synthetixState.lastDebtLedgerEntry());
+
+    let issuedSynths = synthetix.totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
+
+    debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths);
+      
+    debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
+    debtStateEntity.save();
   }
   // Use bytes32
   else if (event.block.number > v2100UpgradeBlock) {
