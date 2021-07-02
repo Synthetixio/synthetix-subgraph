@@ -246,6 +246,42 @@ function trackSNXHolder(
   snxHolder.save();
 }
 
+export function trackGlobalDebt(block: ethereum.Block): void {
+
+  let timeSlot = block.timestamp.minus(block.timestamp.mod(BigInt.fromI32(900)));
+
+  let curDebtState = DebtState.load(timeSlot.toString());
+
+  if(curDebtState == null) {
+    // this is tmp because this will be refactored soon anyway 
+    let resolver = AddressResolver.bind(Address.fromHexString('0x4e3b31eb0e5cb73641ee1e65e7dcefe520ba3ef2') as Address);
+
+    let synthetixStateAddress = resolver.try_getAddress(strToBytes('SynthetixState', 32));
+
+    if(synthetixStateAddress.reverted) {
+      return;
+    }
+
+    let synthetixState = SynthetixState.bind(synthetixStateAddress.value);
+
+    let synthetix = SNX.bind(Address.fromHexString('0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f') as Address);
+    let issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
+
+    if(issuedSynths.reverted) {
+      issuedSynths = synthetix.try_totalIssuedSynths(strToBytes('sUSD', 32))
+    }
+  
+    let debtStateEntity = new DebtState(timeSlot.toString());
+
+    debtStateEntity.timestamp = block.timestamp;
+    debtStateEntity.debtEntry = toDecimal(synthetixState.lastDebtLedgerEntry());
+    debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
+      
+    debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
+    debtStateEntity.save();
+  }
+}
+
 function trackDebt(event: ethereum.Event): void {
   let snxContract = event.transaction.to as Address;
   let account = event.transaction.from;
@@ -257,7 +293,7 @@ function trackDebt(event: ethereum.Event): void {
 
   let entity = new DebtSnapshot(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   entity.block = event.block.number;
-  entity.timestamp = event.block.timestamp;
+  entity.timestamp = event.block.timestamp.minus(event.block.timestamp.mod(BigInt.fromI32(900)));
   entity.account = account;
 
   if (event.block.number > v219UpgradeBlock) {
@@ -265,20 +301,6 @@ function trackDebt(event: ethereum.Event): void {
     entity.balanceOf = synthetix.balanceOf(account);
     entity.collateral = synthetix.collateral(account);
     entity.debtBalanceOf = synthetix.debtBalanceOf(account, sUSD32);
-
-    let resolver = AddressResolver.bind(synthetix.resolver());
-    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
-
-    let debtStateEntity = new DebtState(synthetixState.debtLedgerLength().toString());
-    debtStateEntity.timestamp = event.block.timestamp;
-    debtStateEntity.debtEntry = toDecimal(synthetixState.lastDebtLedgerEntry());
-
-    let issuedSynths = synthetix.totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
-
-    debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths);
-      
-    debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
-    debtStateEntity.save();
   }
   // Use bytes32
   else if (event.block.number > v2100UpgradeBlock) {
@@ -619,6 +641,10 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
     snxHolder.claims = snxHolder.claims.plus(BigInt.fromI32(1));
     snxHolder.save();
   }
+}
+
+export function handleBlock(block: ethereum.Block): void {
+  trackGlobalDebt(block);
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {

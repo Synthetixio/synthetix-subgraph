@@ -106,6 +106,8 @@ dataSources:
       eventHandlers:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
+      blockHandlers:
+        - handler: handleBlock
 
   #  Handle Transfer on current, but deprecated, ProxysUSD
   - kind: ethereum/contract
