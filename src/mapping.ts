@@ -644,7 +644,10 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 }
 
 export function handleBlock(block: ethereum.Block): void {
-  trackGlobalDebt(block);
+  if(block.number.mod(BigInt.fromI32(25)).equals(BigInt.fromI32(0))) {
+    trackGlobalDebt(block);
+  }
+
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
