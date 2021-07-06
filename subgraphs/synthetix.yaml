@@ -103,6 +103,12 @@ dataSources:
       abis:
         - name: Proxy
           file: ../abis/Proxy.json
+        - name: AddressResolver
+          file: ../abis/AddressResolver.json
+        - name: SynthetixState
+          file: ../abis/SynthetixState.json
+        - name: Synthetix
+          file: ../abis/Synthetix.json
       eventHandlers:
         - event: TargetUpdated(address)
           handler: handleProxyTargetUpdated
