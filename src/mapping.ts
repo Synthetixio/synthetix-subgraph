@@ -7,7 +7,7 @@ import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID } from './common';
+import { sUSD32, sUSD4, getTimeID, strToBytes } from './common';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
@@ -44,8 +44,6 @@ import {
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
-
-import { strToBytes } from './common';
 
 import { log } from '@graphprotocol/graph-ts';
 
