@@ -19,6 +19,7 @@ Synthetix has eleven bundled subgraps, all generated from this one repository:
 9. **Liquidations**: Tracks protocol liquidations: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-liquidations
 10. **Limit Orders**: Tracks limit orders: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-limit-orders
 11. **Chainlink**: Tracks chainlink rates: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-chainlink
+12. **Wallet Delegation**: Tracks which wallets have been authorised for delegation: https://thegraph.com/explorer/subgraph/synthetixio-team/synthetix-delegation
 
 ## To run and deploy locally
 
