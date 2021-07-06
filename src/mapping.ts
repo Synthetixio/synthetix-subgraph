@@ -7,7 +7,7 @@ import { Synthetix4 } from '../generated/Synthetix/Synthetix4';
 
 import { AddressResolver } from '../generated/Synthetix/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID, toDecimal } from './common';
+import { sUSD32, sUSD4, getTimeID, strToBytes, toDecimal } from './common';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/Synthetix/SynthetixState';
@@ -45,8 +45,6 @@ import {
 } from '../generated/schema';
 
 import { store, BigInt, Address, ethereum, Bytes } from '@graphprotocol/graph-ts';
-
-import { strToBytes } from './common';
 
 import { log } from '@graphprotocol/graph-ts';
 
@@ -247,18 +245,17 @@ function trackSNXHolder(
 }
 
 export function trackGlobalDebt(block: ethereum.Block): void {
-
   let timeSlot = block.timestamp.minus(block.timestamp.mod(BigInt.fromI32(900)));
 
   let curDebtState = DebtState.load(timeSlot.toString());
 
-  if(curDebtState == null) {
-    // this is tmp because this will be refactored soon anyway 
+  if (curDebtState == null) {
+    // this is tmp because this will be refactored soon anyway
     let resolver = AddressResolver.bind(Address.fromHexString('0x4e3b31eb0e5cb73641ee1e65e7dcefe520ba3ef2') as Address);
 
     let synthetixStateAddress = resolver.try_getAddress(strToBytes('SynthetixState', 32));
 
-    if(synthetixStateAddress.reverted) {
+    if (synthetixStateAddress.reverted) {
       return;
     }
 
@@ -267,16 +264,16 @@ export function trackGlobalDebt(block: ethereum.Block): void {
     let synthetix = SNX.bind(Address.fromHexString('0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f') as Address);
     let issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
 
-    if(issuedSynths.reverted) {
-      issuedSynths = synthetix.try_totalIssuedSynths(strToBytes('sUSD', 32))
+    if (issuedSynths.reverted) {
+      issuedSynths = synthetix.try_totalIssuedSynths(strToBytes('sUSD', 32));
     }
-  
+
     let debtStateEntity = new DebtState(timeSlot.toString());
 
     debtStateEntity.timestamp = block.timestamp;
     debtStateEntity.debtEntry = toDecimal(synthetixState.lastDebtLedgerEntry());
     debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
-      
+
     debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
     debtStateEntity.save();
   }

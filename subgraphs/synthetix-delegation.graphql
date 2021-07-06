@@ -1,0 +1,10 @@
+# Delegated wallet information
+type DelegatedWallet @entity {
+  id: ID! # authoriser-delegate
+  authoriser: Bytes!
+  delegate: Bytes!
+  canMint: Boolean
+  canBurn: Boolean
+  canClaim: Boolean
+  canExchange: Boolean
+}
