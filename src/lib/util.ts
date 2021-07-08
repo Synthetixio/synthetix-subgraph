@@ -27,6 +27,7 @@ export function strToBytes(string: string, length: i32 = 32): Bytes {
 
 export let sUSD32 = strToBytes('sUSD', 32);
 export let sUSD4 = strToBytes('sUSD', 4);
+export let etherUnits = new BigDecimal(BigInt.fromI32(10).pow(18));
 
 export function getTimeID(timestampI32: i32, num: i32): string {
   let id = timestampI32 / num;
