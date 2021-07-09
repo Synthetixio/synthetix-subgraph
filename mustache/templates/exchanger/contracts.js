@@ -56,10 +56,24 @@ module.exports = [
     address: "'0x585fD19eBa8F1a81F37C5eb322FD4b8D911367e8'",
   },
   {
+    prod: 12733161,
+    test: null,
+    type: 'exchanger',
+    name: 'Exchanger_v9',
+    address: "'0x613c773c7a1D85D2F1DCC051B0573D33470762Eb'",
+  },
+  {
     prod: 10782000,
     test: null,
     type: 'synthetix',
-    name: 'Synthetix',
+    name: 'SynthetixV1',
+    address: "'0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'",
+  },
+  {
+    prod: 12733161,
+    test: null,
+    type: 'synthetix',
+    name: 'SynthetixV2',
     address: "'0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'",
   },
 ];
