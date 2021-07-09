@@ -3,7 +3,8 @@ import {
   ExchangeEntryAppended as ExchangeEntryAppendedEvent,
 } from '../generated/subgraphs/exchanger/Exchanger_0/Exchanger';
 
-import { ExchangeTracking as ExchangeTrackingEvent } from '../generated/subgraphs/exchanger/Synthetix_0/Synthetix';
+import { ExchangeTracking as ExchangeTrackingEventV2 } from '../generated/subgraphs/exchanger/Synthetix_0/Synthetix';
+import { ExchangeTracking as ExchangeTrackingEventV1 } from '../generated/subgraphs/exchanger/SynthetixOldTracking/SynthetixOldTracking';
 
 import {
   ExchangeEntrySettled,
@@ -157,29 +158,80 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
   }
 }
 
-export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
+export function handleExchangeTrackingV1(event: ExchangeTrackingEventV1): void {
   let txHash = event.transaction.hash.toHex();
-  let synth = event.params.toCurrencyKey.toString();
-  let latestRate = LatestRate.load(synth);
-  if (latestRate == null) {
+  let exchangePartnerID = event.params.trackingCode.toString();
+
+  let tempEntity = TemporaryExchangePartnerTracker.load(txHash);
+
+  if (tempEntity == null) {
+    tempEntity = createTempEntity(txHash);
+    tempEntity.partner = exchangePartnerID;
+    tempEntity.save();
+    return;
+  }
+
+  if (tempEntity != null && (tempEntity.usdVolume == null || tempEntity.usdFees == null)) {
     log.error(
-      'handleExchangeTracking rate missing for volume partner trade with synth: {}, and amount: {} in tx hash: {}',
-      [synth, event.params.toAmount.toString(), txHash],
+      'handleExchangeTracking tempEntity exists but the volume and/ or rebate is null for txhash: {}, partner: {}',
+      [txHash, exchangePartnerID],
     );
     return;
   }
-  let exchangePartnerID = event.params.trackingCode.toString();
 
   let exchangePartner = ExchangePartner.load(exchangePartnerID);
   if (exchangePartner == null) {
     exchangePartner = loadNewExchangePartner(exchangePartnerID);
   }
-  let tradeSizeUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate.rate);
-  // let feeSizeUSD = toDecimal(event.params.fee);
-  let feeSizeUSD = toDecimal(new BigInt(1));
+  updateExchangePartner(
+    exchangePartner as ExchangePartner,
+    tempEntity.usdVolume as BigDecimal,
+    tempEntity.usdFees as BigDecimal,
+  );
 
-  exchangePartner.usdVolume = exchangePartner.usdVolume.plus(tradeSizeUSD);
-  exchangePartner.usdFees = exchangePartner.usdFees.plus(feeSizeUSD);
+  let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
+  let dailyExchangePartnerID = dayID + '-' + exchangePartnerID;
+  let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
+  if (dailyExchangePartner == null) {
+    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, dayID);
+  }
+
+  updateDailyExchangePartner(
+    dailyExchangePartner as DailyExchangePartner,
+    tempEntity.usdVolume as BigDecimal,
+    tempEntity.usdFees as BigDecimal,
+  );
+
+  resetTempEntity(txHash);
+}
+
+export function handleExchangeTrackingV2(event: ExchangeTrackingEventV2): void {
+  let txHash = event.transaction.hash.toHex();
+  let synth = event.params.toCurrencyKey.toString();
+  let latestRate = LatestRate.load(synth);
+  if (latestRate == null) {
+    log.error(
+      'handleExchangeEntryAppended rate missing for volume partner trade with synth: {}, and amount: {} in tx hash: {}',
+      [synth, event.params.toAmount.toString(), txHash],
+    );
+    return;
+  }
+
+  let exchangePartnerID = event.params.trackingCode.toString();
+  let exchangePartner = ExchangePartner.load(exchangePartnerID);
+  if (exchangePartner == null) {
+    exchangePartner = loadNewExchangePartner(exchangePartnerID);
+  }
+
+  let usdVolume = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate.rate);
+
+  let fee = new BigDecimal(event.params.fee);
+  let usdFee = fee.div(etherUnits);
+
+  updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFee);
+
+  exchangePartner.usdVolume = exchangePartner.usdVolume.plus(usdVolume);
+  exchangePartner.usdFees = exchangePartner.usdFees.plus(usdFee);
   exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
   exchangePartner.save();
 
@@ -190,8 +242,5 @@ export function handleExchangeTracking(event: ExchangeTrackingEvent): void {
     dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, dayID);
   }
 
-  dailyExchangePartner.usdVolume = dailyExchangePartner.usdVolume.plus(tradeSizeUSD);
-  dailyExchangePartner.usdFees = dailyExchangePartner.usdFees.plus(feeSizeUSD);
-  dailyExchangePartner.trades = dailyExchangePartner.trades.plus(BigInt.fromI32(1));
-  dailyExchangePartner.save();
+  updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFee);
 }

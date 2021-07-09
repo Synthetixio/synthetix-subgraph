@@ -3,16 +3,16 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_owner",
+        "name": "_associatedContract",
         "type": "address"
       }
     ],
-    "name": "nominateNewOwner",
+    "name": "setAssociatedContract",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x1627540c"
+    "signature": "0x52f445ca"
   },
   {
     "constant": true,
@@ -33,17 +33,36 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "contract Proxyable",
-        "name": "_target",
+        "name": "_owner",
         "type": "address"
       }
     ],
-    "name": "setTarget",
+    "name": "nominateOwner",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x776d1a01"
+    "signature": "0x5b94db27"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x70a08231"
   },
   {
     "constant": false,
@@ -71,77 +90,11 @@
     "signature": "0x8da5cb5b"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "callData",
-        "type": "bytes"
-      },
-      {
-        "name": "numTopics",
-        "type": "uint256"
-      },
-      {
-        "name": "topic1",
-        "type": "bytes32"
-      },
-      {
-        "name": "topic2",
-        "type": "bytes32"
-      },
-      {
-        "name": "topic3",
-        "type": "bytes32"
-      },
-      {
-        "name": "topic4",
-        "type": "bytes32"
-      }
-    ],
-    "name": "_emit",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x907dff97"
-  },
-  {
     "constant": true,
     "inputs": [],
-    "name": "useDELEGATECALL",
+    "name": "associatedContract",
     "outputs": [
       {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x95578ebd"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "value",
-        "type": "bool"
-      }
-    ],
-    "name": "setUseDELEGATECALL",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xbefff6af"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "target",
-    "outputs": [
-      {
-        "internalType": "contract Proxyable",
         "name": "",
         "type": "address"
       }
@@ -149,12 +102,82 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function",
-    "signature": "0xd4b83992"
+    "signature": "0xaefc4ccb"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "setBalanceOf",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xb46310f6"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "tokenOwner",
+        "type": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "setAllowance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xda46098c"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "allowance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xdd62ed3e"
   },
   {
     "inputs": [
       {
         "name": "_owner",
+        "type": "address"
+      },
+      {
+        "name": "_associatedContract",
         "type": "address"
       }
     ],
@@ -163,23 +186,17 @@
     "type": "constructor"
   },
   {
-    "payable": true,
-    "stateMutability": "payable",
-    "type": "fallback"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract Proxyable",
-        "name": "newTarget",
+        "name": "_associatedContract",
         "type": "address"
       }
     ],
-    "name": "TargetUpdated",
+    "name": "AssociatedContractUpdated",
     "type": "event",
-    "signature": "0x814250a3b8c79fcbe2ead2c131c952a278491c8f4322a79fe84b5040a810373e"
+    "signature": "0x73f20cff579e8a4086fa607db83867595f1b6a798e718c0bfa0b94a404128e03"
   },
   {
     "anonymous": false,
