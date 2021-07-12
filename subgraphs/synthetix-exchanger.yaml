@@ -197,12 +197,58 @@ dataSources:
         - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
           handler: handleExchangeEntryAppended
   - kind: ethereum/contract
-    name: Synthetix
+    name: Exchanger_v9
+    network: mainnet
+    source:
+      address: '0x613c773c7a1D85D2F1DCC051B0573D33470762Eb'
+      abi: Exchanger
+      startBlock: 12733161
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanger-mapping.ts
+      entities:
+        - ExchangeEntrySettled
+        - ExchangeEntryAppended
+        - TemporaryExchangePartnerTracker
+      abis:
+        - name: Exchanger
+          file: ../abis/Exchanger.json
+      eventHandlers:
+        - event: ExchangeEntrySettled(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntrySettled
+        - event: ExchangeEntryAppended(indexed address,bytes32,uint256,bytes32,uint256,uint256,uint256,uint256)
+          handler: handleExchangeEntryAppended
+  - kind: ethereum/contract
+    name: SynthetixV1
+    network: mainnet
+    source:
+      address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'
+      abi: SynthetixOldTracking
+      startBlock: 10782000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ../src/exchanger-mapping.ts
+      entities:
+        - DailyExchangePartner
+        - ExchangePartner
+        - TemporaryExchangePartnerTracker
+      abis:
+        - name: SynthetixOldTracking
+          file: ../abis/Synthetix_oldTracking.json
+      eventHandlers:
+        - event: ExchangeTracking(indexed bytes32,bytes32,uint256)
+          handler: handleExchangeTrackingV1
+  - kind: ethereum/contract
+    name: SynthetixV2
     network: mainnet
     source:
       address: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F'
       abi: Synthetix
-      startBlock: 10782000
+      startBlock: 12733161
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -216,8 +262,8 @@ dataSources:
         - name: Synthetix
           file: ../abis/Synthetix.json
       eventHandlers:
-        - event: ExchangeTracking(indexed bytes32,bytes32,uint256)
-          handler: handleExchangeTracking
+        - event: ExchangeTracking(indexed bytes32,bytes32,uint256,uint256)
+          handler: handleExchangeTrackingV2
   - kind: ethereum/contract
     name: ExchangeRates_v231
     network: mainnet

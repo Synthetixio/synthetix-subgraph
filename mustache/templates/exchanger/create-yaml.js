@@ -34,20 +34,36 @@ module.exports = {
       mappingFile: '../src/exchanger-mapping.ts',
       startBlock: createStartBlock(startBlocks, env, universalTestBlock),
       address,
-      abi: 'Synthetix',
+      abi: name === 'SynthetixV1' ? 'SynthetixOldTracking' : 'Synthetix',
       entities: ['DailyExchangePartner', 'ExchangePartner', 'TemporaryExchangePartnerTracker'],
-      abis: [
-        {
-          name: 'Synthetix',
-          path: '../abis/Synthetix.json',
-        },
-      ],
-      events: [
-        {
-          event: 'ExchangeTracking(indexed bytes32,bytes32,uint256)',
-          handler: 'handleExchangeTracking',
-        },
-      ],
+      abis:
+        name === 'SynthetixV1'
+          ? [
+              {
+                name: 'SynthetixOldTracking',
+                path: '../abis/Synthetix_oldTracking.json',
+              },
+            ]
+          : [
+              {
+                name: 'Synthetix',
+                path: '../abis/Synthetix.json',
+              },
+            ],
+      events:
+        name === 'SynthetixV1'
+          ? [
+              {
+                event: 'ExchangeTracking(indexed bytes32,bytes32,uint256)',
+                handler: 'handleExchangeTrackingV1',
+              },
+            ]
+          : [
+              {
+                event: 'ExchangeTracking(indexed bytes32,bytes32,uint256,uint256)',
+                handler: 'handleExchangeTrackingV2',
+              },
+            ],
     });
     return Contracts.map(({ prod, test, type, name, address }) => {
       const startBlocks = { prod, test, exchanger: null };
