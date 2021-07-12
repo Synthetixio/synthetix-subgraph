@@ -1,12 +1,12 @@
 // The latest Synthetix and event invocations
-import { Synthetix32 as SNX } from '../generated/subgraphs/global-debt/Synthetix_0/Synthetix32';
 
-import { AddressResolver } from '../generated/subgraphs/global-debt/Synthetix_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/global-debt/ProxyERC20_0/AddressResolver';
+import { Synthetix as SNX } from '../generated/subgraphs/global-debt/ProxyERC20_0/Synthetix';
+import { SynthetixState } from '../generated/subgraphs/global-debt/ProxyERC20_0/SynthetixState';
 
 import { strToBytes, toDecimal } from './lib/util';
 
 // SynthetixState has not changed ABI since deployment
-import { SynthetixState } from '../generated/subgraphs/global-debt/Synthetix_0/SynthetixState';
 
 import { DebtState } from '../generated/subgraphs/global-debt/schema';
 
@@ -44,5 +44,11 @@ export function trackGlobalDebt(block: ethereum.Block): void {
 
     debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
     debtStateEntity.save();
+  }
+}
+
+export function handleBlock(block: ethereum.Block): void {
+  if (block.number.mod(BigInt.fromI32(25)).equals(BigInt.fromI32(0))) {
+    trackGlobalDebt(block);
   }
 }
