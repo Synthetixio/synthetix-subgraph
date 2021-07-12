@@ -1,7 +1,7 @@
 import { RatesUpdated as RatesUpdatedEvent } from '../generated/subgraphs/rates/ExchangeRates_13/ExchangeRates';
 import { AnswerUpdated as AnswerUpdatedEvent } from '../generated/subgraphs/rates/templates/Aggregator/Aggregator';
 
-import { FifteenMinuteSNXPrice, DailySNXPrice, RateUpdate } from '../generated/subgraphs/rates/schema';
+import { FifteenMinuteSNXPrice, DailySNXPrice, RateUpdate, DailyCandle } from '../generated/subgraphs/rates/schema';
 
 import { addDollar, addLatestRateFromDecimal, calculateInverseRate } from './fragments/latest-rates';
 
@@ -10,6 +10,30 @@ export { handleAggregatorAdded, handleInverseConfigured, handleInverseFrozen } f
 import { BigDecimal, BigInt, Bytes, dataSource } from '@graphprotocol/graph-ts';
 import { toDecimal, ZERO_ADDRESS } from './lib/util';
 import { strToBytes } from './lib/helpers';
+
+function updateDailyCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void {
+  let dayID = timestamp.toI32() / 86400;
+  let newCandle = DailyCandle.load(dayID.toString() + '-' + synth);
+  if (newCandle == null) {
+    newCandle = new DailyCandle(dayID.toString() + '-' + synth);
+    newCandle.synth = synth;
+    newCandle.open = rate;
+    newCandle.high = rate;
+    newCandle.low = rate;
+    newCandle.close = rate;
+    newCandle.timestamp = timestamp;
+    newCandle.save();
+    return;
+  }
+  if (newCandle.low > rate) {
+    newCandle.low = rate;
+  }
+  if (newCandle.high < rate) {
+    newCandle.high = rate;
+  }
+  newCandle.close = rate;
+  newCandle.save();
+}
 
 function loadDailySNXPrice(id: string): DailySNXPrice {
   let newDailySNXPrice = new DailySNXPrice(id);
@@ -103,6 +127,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
 
   addRateUpdate(strToBytes(currencyKey), event.block.number, event.block.timestamp, rate);
   addLatestRateFromDecimal(currencyKey, rate, event.address);
+  updateDailyCandle(event.block.timestamp, currencyKey, rate);
 }
 
 export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
@@ -120,4 +145,5 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
     inverseRate as BigDecimal,
   );
   addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate as BigDecimal, event.address);
+  updateDailyCandle(event.block.timestamp, context.getString('currencyKey'), inverseRate as BigDecimal);
 }
