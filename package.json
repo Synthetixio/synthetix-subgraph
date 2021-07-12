@@ -43,7 +43,7 @@
     "build:liquidations": "graph build subgraphs/synthetix-liquidations.yaml",
     "build:shorts": "graph build subgraphs/synthetix-shorts.yaml",
     "build:delegation": "graph build subgraphs/synthetix-delegation.yaml",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN_TEST",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ --access-token $THEGRAPH_SNX_ACCESS_TOKEN",
     "deploy:snx": "npm run deploy -- synthetixio-team/synthetix subgraphs/synthetix.yaml",
     "deploy:chainlink": "npm run deploy -- synthetixio-team/synthetix-chainlink subgraphs/synthetix-chainlink.yaml",
     "deploy:optimism-bridge": "npm run deploy -- synthetixio-team/synthetix-optimism-bridge subgraphs/synthetix-optimism-bridge.yaml",
