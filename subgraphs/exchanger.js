@@ -47,13 +47,44 @@ getContractDeployments('Exchanger').forEach((a, i) => {
 
 // add synthetix (only the new contracts)
 getContractDeployments('ProxyERC20').forEach((a, i) => {
+  if (i === 0 && (getCurrentNetwork() !== 'optimism' || getCurrentNetwork() !== 'optimism-kovan')) {
+    manifest.push({
+      kind: 'ethereum/contract',
+      name: 'SynthetixOldTracking',
+      network: getCurrentNetwork(),
+      source: {
+        address: a.address,
+        startBlock: a.startBlock,
+        abi: 'SynthetixOldTracking',
+      },
+      mapping: {
+        kind: 'ethereum/events',
+        apiVersion: '0.0.4',
+        language: 'wasm/assemblyscript',
+        file: '../src/exchanger.ts',
+        entities: ['DailyExchangePartner', 'ExchangePartner', 'TemporaryExchangePartnerTracker'],
+        abis: [
+          {
+            name: 'SynthetixOldTracking',
+            file: '../abis/Synthetix_oldTracking.json',
+          },
+        ],
+        eventHandlers: [
+          {
+            event: 'ExchangeTracking(indexed bytes32,bytes32,uint256)',
+            handler: 'handleExchangeTrackingV1',
+          },
+        ],
+      },
+    });
+  }
   manifest.push({
     kind: 'ethereum/contract',
     name: `Synthetix_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
-      startBlock: a.startBlock,
+      startBlock: i === 0 && getCurrentNetwork() === 'mainnet' ? 12733161 : a.startBlock,
       abi: 'Synthetix',
     },
     mapping: {
@@ -70,8 +101,8 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
       ],
       eventHandlers: [
         {
-          event: 'ExchangeTracking(indexed bytes32,bytes32,uint256)',
-          handler: 'handleExchangeTracking',
+          event: 'ExchangeTracking(indexed bytes32,bytes32,uint256,uint256)',
+          handler: 'handleExchangeTrackingV2',
         },
       ],
     },
