@@ -10,6 +10,40 @@ function getCurrentSubgraph() {
   return process.env['SUBGRAPH'];
 }
 
+function mockVersions(network = undefined) {
+  if (network !== 'local-ovm') throw new Error('versions.json mock unimplemented for ' + network);
+
+  // versions.json doesn't exist for the local environments, as it
+  // doesn't make sense. Here we mock it.
+  const versionName = 'latest';
+  const deployment = require(`synthetix/publish/deployed/${network}/deployment.json`);
+
+  const contracts = Object.entries(deployment.targets)
+    .map(([contractName, target]) => {
+      const { address } = target;
+      return {
+        [contractName]: {
+          address,
+          status: 'current',
+          keccak256: '',
+        },
+      };
+    })
+    .reduce((prev, curr) => Object.assign(prev, curr), {});
+
+  return {
+    [versionName]: {
+      tag: '',
+      fulltag: '',
+      release: '',
+      network: network,
+      date: new Date().toISOString(),
+      commit: '',
+      contracts,
+    },
+  };
+}
+
 function getReleaseInfo(file, network = undefined) {
   const net = network || getCurrentNetwork() || 'mainnet';
 
@@ -20,6 +54,12 @@ function getReleaseInfo(file, network = undefined) {
     return require('synthetix/publish/deployed/mainnet-ovm/' + file);
   } else if (net === 'optimism-kovan') {
     return require('synthetix/publish/deployed/kovan-ovm/' + file);
+  } else if (net === 'optimism-local') {
+    if (file === 'versions') {
+      return mockVersions('local-ovm');
+    } else {
+      return require('synthetix/publish/deployed/local-ovm/' + file);
+    }
   }
 
   return info;
@@ -27,11 +67,11 @@ function getReleaseInfo(file, network = undefined) {
 
 function estimateBlock(date) {
   const blockInfo = values(getReleaseInfo('versions'))
-    .filter(v => v.block && v.date)
-    .map(v => [v.block, v.date]);
+    .filter((v) => v.block && v.date)
+    .map((v) => [v.block, v.date]);
 
   // find the release immediately after the specified time
-  const idx = sortedIndexBy(blockInfo, [0, date], v => v[1]);
+  const idx = sortedIndexBy(blockInfo, [0, date], (v) => v[1]);
 
   const numDate = new Date(date).getTime();
 
@@ -124,7 +164,7 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
   return addressInfo;
 }
 
-const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism'];
+const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism', 'optimism-local'];
 
 module.exports = {
   getCurrentNetwork,
