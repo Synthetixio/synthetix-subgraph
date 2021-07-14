@@ -29,11 +29,6 @@ export let sUSD32 = strToBytes('sUSD', 32);
 export let sUSD4 = strToBytes('sUSD', 4);
 export let etherUnits = new BigDecimal(BigInt.fromI32(10).pow(18));
 
-export function getTimeID(timestampI32: i32, num: i32): string {
-  let id = timestampI32 / num;
-  return id.toString();
-}
-
 export function isEscrow(holder: string, network: string): boolean {
   if (network == 'mainnet') {
     return escrowContracts.get('escrow-mainnet') == holder || escrowContracts.get('rewardEscrow-mainnet') == holder;

@@ -22,7 +22,7 @@ program.action(async () => {
         ) || {};
       if (name) {
         console.log(yellow(`Note: Found multidimensional array in ABI and stripping it: ${source}.${name}`));
-        abi = abi.filter(entry => entry.name !== name);
+        abi = abi.filter((entry) => entry.name !== name);
       }
 
       return [source, { abi }];

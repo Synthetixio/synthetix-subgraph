@@ -5,6 +5,9 @@ import { LatestRate } from '../../generated/subgraphs/rates/schema';
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
 
+export let FIFTEEN_MINUTE_SECONDS = BigInt.fromI32(900);
+export let DAY_SECONDS = BigInt.fromI32(86400);
+
 export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
   let precision = BigInt.fromI32(10)
     .pow(<u8>decimals)
@@ -26,9 +29,9 @@ export function strToBytes(string: string, length: i32 = 32): Bytes {
 
 export let sUSD32 = strToBytes('sUSD', 32);
 
-export function getTimeID(timestampI32: i32, num: i32): string {
-  let id = timestampI32 / num;
-  return id.toString();
+export function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
+  let remainder = timestamp.mod(num);
+  return timestamp.minus(remainder);
 }
 
 export let etherUnits = new BigDecimal(BigInt.fromI32(10).pow(18));

@@ -7,7 +7,8 @@ import { Synthetix4 } from '../generated/subgraphs/general/Synthetix_0/Synthetix
 
 import { AddressResolver } from '../generated/subgraphs/general/Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, getTimeID, toDecimal, ZERO_ADDRESS, isEscrow } from './lib/util';
+import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, isEscrow } from './lib/util';
+import { getTimeID } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/subgraphs/general/Synthetix_0/SynthetixState';
@@ -45,6 +46,7 @@ import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphproto
 import { strToBytes } from './lib/util';
 
 import { log } from '@graphprotocol/graph-ts';
+import { DAY_SECONDS } from './lib/helpers';
 
 let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -375,7 +377,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
-    let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
+    let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
     if (totalIssued.reverted) {
@@ -385,9 +387,9 @@ export function handleIssuedSynths(event: IssuedEvent): void {
       return;
     }
 
-    let dailyIssuedEntity = DailyIssued.load(dayId);
+    let dailyIssuedEntity = DailyIssued.load(timestamp.toString());
     if (dailyIssuedEntity == null) {
-      dailyIssuedEntity = new DailyIssued(dayId);
+      dailyIssuedEntity = new DailyIssued(timestamp.toString());
       dailyIssuedEntity.value = toDecimal(event.params.value);
     } else {
       dailyIssuedEntity.value = dailyIssuedEntity.value.plus(toDecimal(event.params.value));
@@ -473,7 +475,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
-    let dayId = getTimeID(event.block.timestamp.toI32(), 86400);
+    let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
     let synthetix = SNX.bind(event.transaction.to as Address);
     let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
     if (totalIssued.reverted) {
@@ -483,9 +485,9 @@ export function handleBurnedSynths(event: BurnedEvent): void {
       return;
     }
 
-    let dailyBurnedEntity = DailyBurned.load(dayId);
+    let dailyBurnedEntity = DailyBurned.load(timestamp.toString());
     if (dailyBurnedEntity == null) {
-      dailyBurnedEntity = new DailyBurned(dayId);
+      dailyBurnedEntity = new DailyBurned(timestamp.toString());
       dailyBurnedEntity.value = toDecimal(event.params.value);
     } else {
       dailyBurnedEntity.value = dailyBurnedEntity.value.plus(toDecimal(event.params.value));
