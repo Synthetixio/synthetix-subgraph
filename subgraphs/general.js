@@ -1,6 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-const { getContractDeployments, NETWORKS } = require('./utils/network');
+const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
 const manifest = [];

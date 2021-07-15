@@ -15,7 +15,7 @@ import {
   TemporaryExchangePartnerTracker,
 } from '../generated/subgraphs/exchanger/schema';
 
-import { getTimeID, getUSDAmountFromAssetAmount, toDecimal, etherUnits } from './lib/helpers';
+import { getTimeID, getUSDAmountFromAssetAmount, toDecimal, etherUnits, DAY_SECONDS } from './lib/helpers';
 
 import { BigInt, log, BigDecimal, dataSource } from '@graphprotocol/graph-ts';
 
@@ -79,10 +79,10 @@ function updateDailyExchangePartner(
   dailyExchangePartner.save();
 }
 
-function loadNewDailyExchangePartner(id: string, partnerID: string, dayID: string): DailyExchangePartner {
+function loadNewDailyExchangePartner(id: string, partnerID: string, timestamp: BigInt): DailyExchangePartner {
   let newDailyExchangePartner = new DailyExchangePartner(id);
   newDailyExchangePartner.partner = partnerID;
-  newDailyExchangePartner.dayID = dayID;
+  newDailyExchangePartner.timestamp = timestamp;
   newDailyExchangePartner.usdVolume = new BigDecimal(BigInt.fromI32(0));
   newDailyExchangePartner.usdFees = new BigDecimal(BigInt.fromI32(0));
   newDailyExchangePartner.trades = BigInt.fromI32(0);
@@ -140,12 +140,12 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
       }
       updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFees);
 
-      let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-      let dailyExchangePartnerID = dayID + '-' + tempEntity.partner;
+      let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
+      let dailyExchangePartnerID = timestamp.toString() + '-' + tempEntity.partner;
       let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
 
       if (dailyExchangePartner == null) {
-        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner, dayID);
+        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner, timestamp);
       }
 
       updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFees);
@@ -189,11 +189,11 @@ export function handleExchangeTrackingV1(event: ExchangeTrackingEventV1): void {
     tempEntity.usdFees as BigDecimal,
   );
 
-  let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-  let dailyExchangePartnerID = dayID + '-' + exchangePartnerID;
+  let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
+  let dailyExchangePartnerID = timestamp.toString() + '-' + exchangePartnerID;
   let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
   if (dailyExchangePartner == null) {
-    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, dayID);
+    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, timestamp);
   }
 
   updateDailyExchangePartner(
@@ -235,11 +235,11 @@ export function handleExchangeTrackingV2(event: ExchangeTrackingEventV2): void {
   exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
   exchangePartner.save();
 
-  let dayID = getTimeID(event.block.timestamp.toI32(), 86400);
-  let dailyExchangePartnerID = dayID + '-' + exchangePartnerID;
+  let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
+  let dailyExchangePartnerID = timestamp.toString() + '-' + exchangePartnerID;
   let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
   if (dailyExchangePartner == null) {
-    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, dayID);
+    dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, timestamp);
   }
 
   updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFee);

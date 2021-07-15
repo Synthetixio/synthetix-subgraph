@@ -80,7 +80,7 @@ type SynthHolder @entity {
 }
 
 type DailyIssued @entity {
-  " dayId of the measurement "
+  " unix timestamp at beginning of day of the measurement "
   id: ID!
 
   " amount issued "
@@ -91,7 +91,7 @@ type DailyIssued @entity {
 }
 
 type DailyBurned @entity {
-  " dayId of the measurement "
+  " unix timestamp at beginning of day of the measurement "
   id: ID!
 
   " amount burned "
@@ -153,7 +153,7 @@ type TotalActiveStaker @entity {
 }
 
 type TotalDailyActiveStaker @entity {
-  " dayID relevant to this statistic "
+  " unix timestamp at beginning of day relevant to this statistic "
   id: ID!
 
   " number of stakers seen on this day "

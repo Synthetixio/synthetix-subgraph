@@ -23,7 +23,14 @@ import {
 
 import { BigDecimal, BigInt, dataSource, log } from '@graphprotocol/graph-ts';
 
-import { getUSDAmountFromAssetAmount, etherUnits, getLatestRate } from './lib/helpers';
+import {
+  getUSDAmountFromAssetAmount,
+  etherUnits,
+  getLatestRate,
+  DAY_SECONDS,
+  getTimeID,
+  FIFTEEN_MINUTE_SECONDS,
+} from './lib/helpers';
 import { toDecimal } from './lib/util';
 
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
@@ -95,20 +102,21 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.network = 'mainnet';
   entity.save();
 
-  let timestamp = event.block.timestamp.toI32();
-
-  let dayID = timestamp / 86400;
-  let fifteenMinuteID = timestamp / 900;
+  let dayTimestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
+  let fifteenMinuteTimestamp = getTimeID(event.block.timestamp, FIFTEEN_MINUTE_SECONDS);
 
   let total = Total.load('mainnet') || populateAggregatedTotalEntity(new Total('mainnet'));
-  let dailyTotal = DailyTotal.load(dayID.toString()) || populateAggregatedTotalEntity(new DailyTotal(dayID.toString()));
+  let dailyTotal =
+    DailyTotal.load(dayTimestamp.toString()) || populateAggregatedTotalEntity(new DailyTotal(dayTimestamp.toString()));
   let fifteenMinuteTotal =
-    FifteenMinuteTotal.load(fifteenMinuteID.toString()) ||
-    populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteID.toString()));
+    FifteenMinuteTotal.load(fifteenMinuteTimestamp.toString()) ||
+    populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteTimestamp.toString()));
 
   let existingExchanger = Exchanger.load(account.toHex());
-  let existingDailyExchanger = DailyExchanger.load(dayID.toString() + '-' + account.toHex());
-  let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(fifteenMinuteID.toString() + '-' + account.toHex());
+  let existingDailyExchanger = DailyExchanger.load(dayTimestamp.toString() + '-' + account.toHex());
+  let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(
+    fifteenMinuteTimestamp.toString() + '-' + account.toHex(),
+  );
 
   if (existingExchanger == null) {
     let exchanger = new Exchanger(account.toHex());
@@ -116,12 +124,12 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   }
 
   if (existingDailyExchanger == null) {
-    let dailyExchanger = new DailyExchanger(dayID.toString() + '-' + account.toHex());
+    let dailyExchanger = new DailyExchanger(dayTimestamp.toString() + '-' + account.toHex());
     dailyExchanger.save();
   }
 
   if (existingFifteenMinuteExchanger == null) {
-    let fifteenMinuteExchanger = new FifteenMinuteExchanger(fifteenMinuteID.toString() + '-' + account.toHex());
+    let fifteenMinuteExchanger = new FifteenMinuteExchanger(fifteenMinuteTimestamp.toString() + '-' + account.toHex());
     fifteenMinuteExchanger.save();
   }
 
