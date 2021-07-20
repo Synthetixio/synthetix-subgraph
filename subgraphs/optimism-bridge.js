@@ -5,7 +5,7 @@ const manifest = [];
 getContractDeployments('SynthetixBridgeToOptimism').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `SynthetixBridgeToOptimism_${i}`,
+    name: `optimismBridge_SynthetixBridgeToOptimism_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,

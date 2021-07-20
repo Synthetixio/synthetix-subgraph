@@ -156,6 +156,9 @@ type TotalDailyActiveStaker @entity {
   " unix timestamp at beginning of day relevant to this statistic "
   id: ID!
 
+  " unix timestamp as a BigInt (so it can be filtered) "
+  timestamp: BigInt!
+
   " number of stakers seen on this day "
   count: BigInt!
 }

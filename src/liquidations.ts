@@ -1,14 +1,14 @@
-import { Synthetix32 } from '../generated/subgraphs/liquidations/Liquidations_0/Synthetix32';
+import { Synthetix32 } from '../generated/subgraphs/liquidations/liquidations_Liquidations_0/Synthetix32';
 
-import { AddressResolver } from '../generated/subgraphs/liquidations/Liquidations_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/liquidations/liquidations_Liquidations_0/AddressResolver';
 
 import {
   AccountFlaggedForLiquidation as AccountFlaggedForLiquidationEvent,
   AccountRemovedFromLiquidation as AccountRemovedFromLiquidationEvent,
   Liquidations,
-} from '../generated/subgraphs/liquidations/Liquidations_0/Liquidations';
+} from '../generated/subgraphs/liquidations/liquidations_Liquidations_0/Liquidations';
 
-import { AccountLiquidated as AccountLiquidatedEvent } from '../generated/subgraphs/liquidations/Synthetix_0/Synthetix';
+import { AccountLiquidated as AccountLiquidatedEvent } from '../generated/subgraphs/liquidations/liquidations_Synthetix_0/Synthetix';
 
 import {
   AccountFlaggedForLiquidation,

@@ -10,7 +10,7 @@ const manifest = [];
 getContractDeployments('EtherCollateral').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `EtherCollateral_${i}`,
+    name: `loans_EtherCollateral_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
@@ -50,7 +50,7 @@ getContractDeployments('EtherCollateral').forEach((a, i) => {
 getContractDeployments('EtherCollateralsUSD').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `EtherCollateralsUSD_${i}`,
+    name: `loans_EtherCollateralsUSD_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,

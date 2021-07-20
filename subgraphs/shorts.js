@@ -14,7 +14,7 @@ const manifest = clone(latestRates.dataSources);
 getContractDeployments('CollateralShort').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `CollateralShort_${i}`,
+    name: `shorts_CollateralShort_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,

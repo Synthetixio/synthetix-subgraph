@@ -3,7 +3,7 @@ const { values, last, sortedIndexBy } = require('lodash');
 const BLOCK_SAFETY_OFFSET = 8640;
 
 function getCurrentNetwork() {
-  return process.env['SNX_NETWORK'];
+  return process.env['SNX_NETWORK'] || 'mainnet';
 }
 
 function getCurrentSubgraph() {
@@ -11,7 +11,7 @@ function getCurrentSubgraph() {
 }
 
 function getReleaseInfo(file, network = undefined) {
-  const net = network || getCurrentNetwork() || 'mainnet';
+  const net = network || getCurrentNetwork();
 
   let info = null;
   if (net === 'mainnet' || net === 'kovan') {
@@ -95,29 +95,37 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
   for (const info of values(versionInfo)) {
     const contractInfo = info.contracts[contractName];
     if (contractInfo) {
-      const theBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
+      if ((network || getCurrentNetwork()).match('optimism') != null) {
+        addressInfo.push({
+          address: contractInfo.address,
+          // with the regenesis, assume all contracts are basically deployed on the first block (doesn't hurt anything if they were deployed later)
+          startBlock: 0,
+        });
+      } else {
+        const theBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
 
-      if (theBlock < startBlock) {
-        prevInfo = { address: contractInfo.address, startBlock };
-        continue;
+        if (theBlock < startBlock) {
+          prevInfo = { address: contractInfo.address, startBlock };
+          continue;
+        }
+
+        if (prevInfo) {
+          addressInfo.push(prevInfo);
+          prevInfo = null;
+        }
+
+        if (theBlock >= endBlock) break;
+
+        if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
+
+        const cushionStartBlock =
+          theBlock - BLOCK_SAFETY_OFFSET * 2 > 0 ? theBlock - BLOCK_SAFETY_OFFSET * 2 : theBlock - BLOCK_SAFETY_OFFSET;
+
+        addressInfo.push({
+          address: contractInfo.address,
+          startBlock: cushionStartBlock,
+        });
       }
-
-      if (prevInfo) {
-        addressInfo.push(prevInfo);
-        prevInfo = null;
-      }
-
-      if (theBlock >= endBlock) break;
-
-      if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
-
-      const cushionStartBlock =
-        theBlock - BLOCK_SAFETY_OFFSET * 2 > 0 ? theBlock - BLOCK_SAFETY_OFFSET * 2 : theBlock - BLOCK_SAFETY_OFFSET;
-
-      addressInfo.push({
-        address: contractInfo.address,
-        startBlock: cushionStartBlock,
-      });
     }
   }
 

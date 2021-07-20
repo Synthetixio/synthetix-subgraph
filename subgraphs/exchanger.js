@@ -11,7 +11,7 @@ const manifest = clone(latestRatesManifests.dataSources);
 getContractDeployments('Exchanger').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `Exchanger_${i}`,
+    name: `exchanger_Exchanger_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
@@ -50,7 +50,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
   if (i === 0 && (getCurrentNetwork() !== 'optimism' || getCurrentNetwork() !== 'optimism-kovan')) {
     manifest.push({
       kind: 'ethereum/contract',
-      name: 'SynthetixOldTracking',
+      name: 'exchanger_SynthetixOldTracking',
       network: getCurrentNetwork(),
       source: {
         address: a.address,
@@ -80,7 +80,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
   }
   manifest.push({
     kind: 'ethereum/contract',
-    name: `Synthetix_${i}`,
+    name: `exchanger_Synthetix_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,

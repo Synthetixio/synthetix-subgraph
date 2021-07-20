@@ -15,7 +15,7 @@ import {
   InteractionDelayUpdated as InteractionDelayUpdatedEvent,
   ManagerUpdated as ManagerUpdatedEvent,
   CanOpenLoansUpdated as CanOpenLoansUpdatedEvent,
-} from '../generated/subgraphs/shorts/CollateralShort_0/CollateralShort';
+} from '../generated/subgraphs/shorts/shorts_CollateralShort_0/CollateralShort';
 
 import {
   Short,

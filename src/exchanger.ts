@@ -1,10 +1,10 @@
 import {
   ExchangeEntrySettled as ExchangeEntrySettledEvent,
   ExchangeEntryAppended as ExchangeEntryAppendedEvent,
-} from '../generated/subgraphs/exchanger/Exchanger_0/Exchanger';
+} from '../generated/subgraphs/exchanger/exchanger_Exchanger_0/Exchanger';
 
-import { ExchangeTracking as ExchangeTrackingEventV2 } from '../generated/subgraphs/exchanger/Synthetix_0/Synthetix';
-import { ExchangeTracking as ExchangeTrackingEventV1 } from '../generated/subgraphs/exchanger/SynthetixOldTracking/SynthetixOldTracking';
+import { ExchangeTracking as ExchangeTrackingEventV2 } from '../generated/subgraphs/exchanger/exchanger_Synthetix_0/Synthetix';
+import { ExchangeTracking as ExchangeTrackingEventV1 } from '../generated/subgraphs/exchanger/exchanger_SynthetixOldTracking/SynthetixOldTracking';
 
 import {
   ExchangeEntrySettled,

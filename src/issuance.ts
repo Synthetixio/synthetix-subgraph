@@ -1,28 +1,34 @@
 // The latest Synthetix and event invocations
-import { Synthetix as SNX, Transfer as SNXTransferEvent } from '../generated/subgraphs/general/Synthetix_0/Synthetix';
+import {
+  Synthetix as SNX,
+  Transfer as SNXTransferEvent,
+} from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix';
 
-import { Synthetix32 } from '../generated/subgraphs/general/Synthetix_0/Synthetix32';
+import { Synthetix32 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix32';
 
-import { Synthetix4 } from '../generated/subgraphs/general/Synthetix_0/Synthetix4';
+import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix4';
 
-import { AddressResolver } from '../generated/subgraphs/general/Synthetix_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/issuance/issuance_Synthetix_0/AddressResolver';
 
 import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, isEscrow } from './lib/util';
 import { getTimeID } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
-import { SynthetixState } from '../generated/subgraphs/general/Synthetix_0/SynthetixState';
+import { SynthetixState } from '../generated/subgraphs/issuance/issuance_Synthetix_0/SynthetixState';
 
-import { Vested as VestedEvent, RewardEscrow } from '../generated/subgraphs/general/RewardEscrow_0/RewardEscrow';
+import {
+  Vested as VestedEvent,
+  RewardEscrow,
+} from '../generated/subgraphs/issuance/issuance_RewardEscrow_0/RewardEscrow';
 
 import {
   Synth,
   Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
-} from '../generated/subgraphs/general/SynthsUSD_0/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/general/FeePool_0/FeePool';
-import { FeePoolv217 } from '../generated/subgraphs/general/FeePool_0/FeePoolv217';
+} from '../generated/subgraphs/issuance/issuance_SynthsUSD_0/Synth';
+import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePool';
+import { FeePoolv217 } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePoolv217';
 
 import {
   Synthetix,
@@ -39,7 +45,7 @@ import {
   ActiveStaker,
   DailyIssued,
   DailyBurned,
-} from '../generated/subgraphs/general/schema';
+} from '../generated/subgraphs/issuance/schema';
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 
@@ -591,7 +597,7 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     }
   }
 
-  let dayID = timestamp.toI32() / 86400;
+  let dayTimestamp = getTimeID(timestamp, DAY_SECONDS);
 
   let totalActiveStaker = TotalActiveStaker.load('1');
   let activeStaker = ActiveStaker.load(account.toHex());
@@ -616,9 +622,9 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   }
 
   // Once a day we stor the total number of active stakers in an entity that is easy to query for charts
-  let totalDailyActiveStaker = TotalDailyActiveStaker.load(dayID.toString());
+  let totalDailyActiveStaker = TotalDailyActiveStaker.load(dayTimestamp.toString());
   if (totalDailyActiveStaker == null) {
-    updateTotalDailyActiveStaker(dayID.toString(), totalActiveStaker.count);
+    updateTotalDailyActiveStaker(dayTimestamp, totalActiveStaker.count);
   }
 }
 
@@ -628,8 +634,9 @@ function loadTotalActiveStaker(): TotalActiveStaker {
   return newActiveStaker;
 }
 
-function updateTotalDailyActiveStaker(id: string, count: BigInt): void {
-  let newTotalDailyActiveStaker = new TotalDailyActiveStaker(id);
+function updateTotalDailyActiveStaker(timestamp: BigInt, count: BigInt): void {
+  let newTotalDailyActiveStaker = new TotalDailyActiveStaker(timestamp.toString());
+  newTotalDailyActiveStaker.timestamp = timestamp;
   newTotalDailyActiveStaker.count = count;
   newTotalDailyActiveStaker.save();
 }

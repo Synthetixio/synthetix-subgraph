@@ -2,9 +2,11 @@ import {
   SynthExchange as SynthExchangeEvent,
   ExchangeReclaim as ExchangeReclaimEvent,
   ExchangeRebate as ExchangeRebateEvent,
-} from '../generated/subgraphs/exchanges/Synthetix_0/Synthetix';
+} from '../generated/subgraphs/exchanges/exchanges_Synthetix_0/Synthetix';
 
-import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subgraphs/exchanges/SystemSettings_0/SystemSettings';
+import { ExchangeRates } from '../generated/subgraphs/exchanges/ExchangeRates_13/ExchangeRates';
+
+import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subgraphs/exchanges/exchanges_SystemSettings_0/SystemSettings';
 
 import {
   Total,
@@ -21,7 +23,7 @@ import {
   ExchangeFee,
 } from '../generated/subgraphs/exchanges/schema';
 
-import { BigDecimal, BigInt, dataSource, log } from '@graphprotocol/graph-ts';
+import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
 
 import {
   getUSDAmountFromAssetAmount,
@@ -30,8 +32,12 @@ import {
   DAY_SECONDS,
   getTimeID,
   FIFTEEN_MINUTE_SECONDS,
+  strToBytes,
 } from './lib/helpers';
-import { toDecimal } from './lib/util';
+import { toDecimal, ZERO_ADDRESS } from './lib/util';
+import { addDollar, addProxyAggregator } from './fragments/latest-rates';
+import { Synthetix } from '../generated/subgraphs/rates/ChainlinkMultisig/Synthetix';
+import { AddressResolver } from '../generated/subgraphs/rates/ChainlinkMultisig/AddressResolver';
 
 let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -69,14 +75,42 @@ function trackTotals<T extends AggregatedTotalEntity>(
   entity.save();
 }
 
+function addMissingSynthRate(currencyBytes: Bytes): BigDecimal {
+  if (currencyBytes.toString() == 'sUSD' || currencyBytes.toString() == 'nUSD') {
+    addDollar('sUSD');
+    addDollar('nUSD');
+    return toDecimal(BigInt.fromI32(1));
+  }
+
+  let snx = Synthetix.bind(dataSource.address());
+  let resolver = AddressResolver.bind(snx.resolver());
+  let exchangeRatesContract = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates')));
+
+  let aggregatorResult = exchangeRatesContract.aggregators(currencyBytes);
+
+  if (aggregatorResult.equals(ZERO_ADDRESS)) {
+    throw new Error('aggregator does not exist in exchange rates for synth ' + currencyBytes.toString());
+  }
+
+  addProxyAggregator(currencyBytes.toString(), aggregatorResult);
+
+  return toDecimal(exchangeRatesContract.rateForCurrency(currencyBytes));
+}
+
 export function handleSynthExchange(event: SynthExchangeEvent): void {
   let txHash = event.transaction.hash.toHex();
-  let latestFromRate = getLatestRate(event.params.fromCurrencyKey.toString(), txHash);
-  let latestToRate = getLatestRate(event.params.toCurrencyKey.toString(), txHash);
+  let fromCurrencyKey = event.params.fromCurrencyKey.toString();
+  let toCurrencyKey = event.params.toCurrencyKey.toString();
+  let latestFromRate = getLatestRate(fromCurrencyKey, txHash);
+  let latestToRate = getLatestRate(toCurrencyKey, txHash);
 
-  if (latestFromRate == null || latestToRate == null) {
-    log.error('handleSynthExchange has an issue in tx hash: {}', [txHash]);
-    return;
+  // may need to add new aggregator (this can happen on optimism)
+  if (latestFromRate == null) {
+    latestFromRate = addMissingSynthRate(event.params.fromCurrencyKey);
+  }
+
+  if (latestToRate == null) {
+    latestToRate = addMissingSynthRate(event.params.fromCurrencyKey);
   }
 
   let account = event.transaction.from;
@@ -89,9 +123,11 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.account = event.params.account;
   entity.from = account;
   entity.fromCurrencyKey = event.params.fromCurrencyKey;
+  entity.fromSynth = fromCurrencyKey;
   entity.fromAmount = toDecimal(event.params.fromAmount);
   entity.fromAmountInUSD = fromAmountInUSD;
   entity.toCurrencyKey = event.params.toCurrencyKey;
+  entity.toSynth = toCurrencyKey;
   entity.toAmount = toDecimal(event.params.toAmount);
   entity.toAmountInUSD = toAmountInUSD;
   entity.toAddress = event.params.toAddress;
@@ -99,7 +135,6 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   entity.timestamp = event.block.timestamp;
   entity.block = event.block.number;
   entity.gasPrice = event.transaction.gasPrice;
-  entity.network = 'mainnet';
   entity.save();
 
   let dayTimestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
@@ -111,6 +146,9 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let fifteenMinuteTotal =
     FifteenMinuteTotal.load(fifteenMinuteTimestamp.toString()) ||
     populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteTimestamp.toString()));
+
+  dailyTotal.timestamp = dayTimestamp;
+  fifteenMinuteTotal.timestamp = fifteenMinuteTimestamp;
 
   let existingExchanger = Exchanger.load(account.toHex());
   let existingDailyExchanger = DailyExchanger.load(dayTimestamp.toString() + '-' + account.toHex());
