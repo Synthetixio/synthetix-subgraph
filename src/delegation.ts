@@ -1,9 +1,9 @@
 import {
   Approval as DelegateApprovalEvent,
   WithdrawApproval as DelegateWithdrawApprovalEvent,
-} from '../generated/DelegateApprovals_0/DelegateApprovals';
+} from '../generated/subgraphs/delegation/delegation_DelegateApprovals_0/DelegateApprovals';
 
-import { DelegatedWallet } from '../generated/schema';
+import { DelegatedWallet } from '../generated/subgraphs/delegation/schema';
 
 import { strToBytes } from './lib/util';
 import { Address, Bytes } from '@graphprotocol/graph-ts';

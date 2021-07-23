@@ -11,8 +11,8 @@ if (getCurrentNetwork() == 'mainnet') {
   manifest.push(
     {
       kind: 'ethereum/contract',
-      name: 'Synthetix4_viaOldProxy',
-      network: 'mainnet',
+      name: 'exchanges_Synthetix4_viaOldProxy',
+      network: getCurrentNetwork(),
       source: {
         address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f',
         abi: 'Synthetix4',
@@ -40,8 +40,8 @@ if (getCurrentNetwork() == 'mainnet') {
     },
     {
       kind: 'ethereum/contract',
-      name: 'Synthetix_viaOldProxy',
-      network: 'mainnet',
+      name: 'exchanges_Synthetix_viaOldProxy',
+      network: getCurrentNetwork(),
       source: {
         address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f',
         abi: 'Synthetix',
@@ -97,7 +97,7 @@ if (getCurrentNetwork() == 'mainnet') {
 getContractDeployments('ProxyERC20').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `Synthetix_${i}`,
+    name: `exchanges_Synthetix_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
@@ -131,6 +131,10 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
           name: 'ExchangeRates',
           file: '../abis/ExchangeRates.json',
         },
+        {
+          name: 'AggregatorProxy',
+          file: '../abis/AggregatorProxy.json',
+        },
       ],
       eventHandlers: [
         {
@@ -153,7 +157,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
 getContractDeployments('SystemSettings').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `SystemSettings_${i}`,
+    name: `exchanges_SystemSettings_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,

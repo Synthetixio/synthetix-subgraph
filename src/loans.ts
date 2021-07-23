@@ -2,14 +2,14 @@ import {
   LoanCreated as LoanCreatedEvent,
   LoanClosed as LoanClosedEvent,
   LoanLiquidated as LoanLiquidatedEvent,
-} from '../generated/subgraphs/loans/EtherCollateral_0/EtherCollateral';
+} from '../generated/subgraphs/loans/loans_EtherCollateral_0/EtherCollateral';
 
 import {
   LoanPartiallyLiquidated as LoanPartiallyLiquidatedEvent,
   CollateralDeposited as CollateralDepositedEvent,
   CollateralWithdrawn as CollateralWithdrawnEvent,
   LoanRepaid as LoanRepaidEvent,
-} from '../generated/subgraphs/loans/EtherCollateralsUSD_0/EtherCollateralsUSD';
+} from '../generated/subgraphs/loans/loans_EtherCollateralsUSD_0/EtherCollateralsUSD';
 
 import {
   Loan,

@@ -10,7 +10,7 @@ module.exports = {
     {
       kind: 'ethereum/contract',
       name: 'GrantsDAO',
-      network: 'mainnet',
+      network: getCurrentNetwork(),
       source: {
         address: '0x86626e1bbbd0ce95ed52e0c5e19f371a6640b591',
         abi: 'GrantsDAO',

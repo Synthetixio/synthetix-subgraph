@@ -84,7 +84,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
   });
 });
 
-if (getCurrentNetwork() === 'mainnet') {
+if (getCurrentNetwork() === 'mainnet' || getCurrentNetwork() == 'kovan') {
   // hack for chainlink, tracking of aggregator address changes
   exchangeRatesManifests.push({
     kind: 'ethereum/contract',
@@ -131,6 +131,37 @@ if (getCurrentNetwork() === 'mainnet') {
         {
           event: 'ExecutionSuccess(bytes32,uint256)',
           handler: 'handleChainlinkUpdate',
+        },
+      ],
+    },
+  });
+}
+
+const proxyTemplates = [];
+for (const proxyTemplateName of ['AggregatorProxy', 'SynthAggregatorProxy', 'InverseAggregatorProxy']) {
+  proxyTemplates.push({
+    kind: 'ethereum/contract',
+    name: proxyTemplateName,
+    network: getCurrentNetwork(),
+    source: {
+      abi: 'AggregatorProxy',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.4',
+      language: 'wasm/assemblyscript',
+      file: '../src/fragments/latest-rates.ts',
+      entities: [],
+      abis: [
+        {
+          name: 'AggregatorProxy',
+          file: '../abis/AggregatorProxy.json',
+        },
+      ],
+      eventHandlers: [
+        {
+          event: 'AggregatorConfirmed(indexed address,indexed address)',
+          handler: 'handleAggregatorProxyAddressUpdated',
         },
       ],
     },
@@ -248,5 +279,5 @@ const inverseAggregatorTemplate = {
 
 module.exports = {
   dataSources: exchangeRatesManifests,
-  templates: [aggregatorTemplate, synthAggregatorTemplate, inverseAggregatorTemplate],
+  templates: [...proxyTemplates, aggregatorTemplate, synthAggregatorTemplate, inverseAggregatorTemplate],
 };

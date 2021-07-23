@@ -5,7 +5,7 @@ const manifest = [];
 getContractDeployments('DelegateApprovals').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `DelegateApprovals_${i}`,
+    name: `delegation_DelegateApprovals_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,

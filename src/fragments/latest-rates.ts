@@ -5,11 +5,22 @@ import {
   InversePriceFrozen,
   ExchangeRates,
 } from '../../generated/subgraphs/rates/ExchangeRates_13/ExchangeRates';
-import { AggregatorProxy } from '../../generated/subgraphs/rates/ExchangeRates_13/AggregatorProxy';
+
+import {
+  AggregatorProxy as AggregatorProxyContract,
+  AggregatorConfirmed as AggregatorConfirmedEvent,
+} from '../../generated/subgraphs/rates/ExchangeRates_13/AggregatorProxy';
 
 import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/rates/templates/Aggregator/Aggregator';
 
-import { Aggregator, SynthAggregator, InverseAggregator } from '../../generated/subgraphs/rates/templates';
+import {
+  AggregatorProxy,
+  SynthAggregatorProxy,
+  InverseAggregatorProxy,
+  Aggregator,
+  SynthAggregator,
+  InverseAggregator,
+} from '../../generated/subgraphs/rates/templates';
 import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/rates/schema';
 
 import {
@@ -54,21 +65,42 @@ export function addDollar(dollarID: string): void {
   dollarRate.save();
 }
 
-function addAggregator(currencyKey: string, aggregatorAddress: Address): void {
-  // check to see if the aggregator given is actually a proxy
-  let possibleProxy = AggregatorProxy.bind(aggregatorAddress);
-  let tryAggregator = possibleProxy.try_aggregator();
-  let trueAggregatorAddress = !tryAggregator.reverted ? tryAggregator.value : aggregatorAddress;
+export function addProxyAggregator(currencyKey: string, aggregatorProxyAddress: Address): void {
+  let proxy = AggregatorProxyContract.bind(aggregatorProxyAddress);
+  let underlyingAggregator = proxy.try_aggregator();
 
+  if (!underlyingAggregator.reverted) {
+    let context = new DataSourceContext();
+    context.setString('currencyKey', currencyKey);
+
+    log.info('adding proxy aggregator for synth {}', [currencyKey]);
+
+    if (currencyKey.startsWith('s')) {
+      SynthAggregatorProxy.createWithContext(aggregatorProxyAddress, context);
+    } else if (currencyKey.startsWith('i')) {
+      InverseAggregatorProxy.createWithContext(aggregatorProxyAddress, context);
+    } else {
+      AggregatorProxy.createWithContext(aggregatorProxyAddress, context);
+    }
+
+    addAggregator(currencyKey, underlyingAggregator.value);
+  } else {
+    addAggregator(currencyKey, aggregatorProxyAddress);
+  }
+}
+
+export function addAggregator(currencyKey: string, aggregatorAddress: Address): void {
   // check current aggregator address, and don't add again if its same
   let latestRate = LatestRate.load(currencyKey);
 
+  log.info('adding aggregator for synth {}', [currencyKey]);
+
   if (latestRate != null) {
-    if (trueAggregatorAddress.equals(latestRate.aggregator)) {
+    if (aggregatorAddress.equals(latestRate.aggregator)) {
       return;
     }
 
-    latestRate.aggregator = trueAggregatorAddress;
+    latestRate.aggregator = aggregatorAddress;
     latestRate.save();
   }
 
@@ -76,11 +108,11 @@ function addAggregator(currencyKey: string, aggregatorAddress: Address): void {
   context.setString('currencyKey', currencyKey);
 
   if (currencyKey.startsWith('s')) {
-    SynthAggregator.createWithContext(trueAggregatorAddress, context);
+    SynthAggregator.createWithContext(aggregatorAddress, context);
   } else if (currencyKey.startsWith('i')) {
-    InverseAggregator.createWithContext(trueAggregatorAddress, context);
+    InverseAggregator.createWithContext(aggregatorAddress, context);
   } else {
-    Aggregator.createWithContext(trueAggregatorAddress, context);
+    Aggregator.createWithContext(aggregatorAddress, context);
   }
 }
 
@@ -104,7 +136,12 @@ export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal
 }
 
 export function handleAggregatorAdded(event: AggregatorAddedEvent): void {
-  addAggregator(event.params.currencyKey.toString(), event.params.aggregator);
+  addProxyAggregator(event.params.currencyKey.toString(), event.params.aggregator);
+}
+
+export function handleAggregatorProxyAddressUpdated(event: AggregatorConfirmedEvent): void {
+  let context = dataSource.context();
+  addAggregator(context.getString('currencyKey'), event.params.latest);
 }
 
 export function handleRatesUpdated(event: RatesUpdatedEvent): void {

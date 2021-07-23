@@ -1,8 +1,8 @@
 // The latest Synthetix and event invocations
 
-import { AddressResolver } from '../generated/subgraphs/global-debt/ProxyERC20_0/AddressResolver';
-import { Synthetix as SNX } from '../generated/subgraphs/global-debt/ProxyERC20_0/Synthetix';
-import { SynthetixState } from '../generated/subgraphs/global-debt/ProxyERC20_0/SynthetixState';
+import { AddressResolver } from '../generated/subgraphs/global-debt/globalDebt_ProxyERC20_0/AddressResolver';
+import { Synthetix as SNX } from '../generated/subgraphs/global-debt/globalDebt_ProxyERC20_0/Synthetix';
+import { SynthetixState } from '../generated/subgraphs/global-debt/globalDebt_ProxyERC20_0/SynthetixState';
 
 import { strToBytes, toDecimal } from './lib/util';
 
@@ -10,7 +10,7 @@ import { strToBytes, toDecimal } from './lib/util';
 
 import { DebtState } from '../generated/subgraphs/global-debt/schema';
 
-import { BigInt, Address, ethereum } from '@graphprotocol/graph-ts';
+import { BigInt, Address, ethereum, dataSource } from '@graphprotocol/graph-ts';
 
 export function trackGlobalDebt(block: ethereum.Block): void {
   let timeSlot = block.timestamp.minus(block.timestamp.mod(BigInt.fromI32(900)));
@@ -29,7 +29,7 @@ export function trackGlobalDebt(block: ethereum.Block): void {
 
     let synthetixState = SynthetixState.bind(synthetixStateAddress.value);
 
-    let synthetix = SNX.bind(Address.fromHexString('0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f') as Address);
+    let synthetix = SNX.bind(dataSource.address());
     let issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
 
     if (issuedSynths.reverted) {
@@ -39,7 +39,10 @@ export function trackGlobalDebt(block: ethereum.Block): void {
     let debtStateEntity = new DebtState(timeSlot.toString());
 
     debtStateEntity.timestamp = block.timestamp;
-    debtStateEntity.debtEntry = toDecimal(synthetixState.lastDebtLedgerEntry());
+
+    // debt entry represents percentage ownership of the "first" snx staker. It must be inverted to make sense of issued/burnt
+    debtStateEntity.debtEntry = toDecimal(BigInt.fromI32(1), 27).div(toDecimal(synthetixState.lastDebtLedgerEntry()));
+
     debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
 
     debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);

@@ -5,7 +5,7 @@ const manifest = [];
 getContractDeployments('ProxyERC20').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `ProxyERC20_${i}`,
+    name: `globalDebt_ProxyERC20_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
