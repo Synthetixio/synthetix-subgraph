@@ -5,6 +5,7 @@ export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
 
 export let ZERO_ADDRESS = Address.fromHexString('0x0000000000000000000000000000000000000000') as Address;
+export let FEE_ADDRESS = Address.fromHexString('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef') as Address;
 
 export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
   let precision = BigInt.fromI32(10)

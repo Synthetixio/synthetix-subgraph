@@ -68,15 +68,20 @@ type DebtSnapshot @entity {
   debtBalanceOf: BigDecimal
 }
 
-type SynthHolder @entity {
-  " address of the holder + the synth "
+type SynthBalance @entity {
+  " timestamp + account + synth "
   id: ID!
-
-  " currencyKey of the synth "
+  amount: BigInt!
+  account: Bytes!
+  timestamp: BigInt!
   synth: String!
+}
 
-  " units of the synth held in wei "
-  balanceOf: BigDecimal!
+" we dont query this entity but only use it to store aggregate data we need during syncing "
+type AggregateSynthBalance @entity {
+  " account + synth "
+  id: ID!
+  amount: BigInt!
 }
 
 type DailyIssued @entity {

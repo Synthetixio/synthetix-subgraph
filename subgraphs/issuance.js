@@ -1,5 +1,4 @@
-const { getContractDeployments } = require('./utils/network');
-const { getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, getReleaseInfo } = require('./utils/network');
 
 const manifest = [];
 
@@ -176,7 +175,7 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
         apiVersion: '0.0.4',
         language: 'wasm/assemblyscript',
         file: '../src/issuance.ts',
-        entities: ['Transfer', 'Issued', 'Burned'],
+        entities: ['Issued', 'Burned', 'DailyIssued', 'DailyBurned'],
         abis: [
           {
             name: 'Synth',
@@ -205,16 +204,48 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
         ],
         eventHandlers: [
           {
-            event: 'Transfer(indexed address,indexed address,uint256)',
-            handler: 'handleTransferSynth',
-          },
-          {
             event: 'Issued(indexed address,uint256)',
             handler: 'handleIssuedSynths',
           },
           {
             event: 'Burned(indexed address,uint256)',
             handler: 'handleBurnedSynths',
+          },
+        ],
+      },
+    });
+  });
+}
+
+const synths = getReleaseInfo('synths');
+
+for (const { name } of synths) {
+  getContractDeployments('Proxy' + name).forEach((a, i) => {
+    manifest.push({
+      kind: 'ethereum/contract',
+      name: `transfer_Synth${name}_${i}`,
+      network: getCurrentNetwork(),
+      source: {
+        address: a.address,
+        startBlock: a.startBlock,
+        abi: 'Synth',
+      },
+      mapping: {
+        kind: 'ethereum/events',
+        apiVersion: '0.0.4',
+        language: 'wasm/assemblyscript',
+        file: '../src/issuance.ts',
+        entities: ['SynthBalance', 'AggregateSynthBalance'],
+        abis: [
+          {
+            name: 'Synth',
+            file: '../abis/Synth.json',
+          },
+        ],
+        eventHandlers: [
+          {
+            event: 'Transfer(indexed address,indexed address,uint256)',
+            handler: 'handleTransferSynth',
           },
         ],
       },

@@ -10,7 +10,7 @@ import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0
 
 import { AddressResolver } from '../generated/subgraphs/issuance/issuance_Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, isEscrow } from './lib/util';
+import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, FEE_ADDRESS, isEscrow, ZERO } from './lib/util';
 import { getTimeID } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
@@ -37,7 +37,6 @@ import {
   Issuer,
   SNXHolder,
   DebtSnapshot,
-  SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
   TotalActiveStaker,
@@ -45,6 +44,8 @@ import {
   ActiveStaker,
   DailyIssued,
   DailyBurned,
+  SynthBalance,
+  AggregateSynthBalance,
 } from '../generated/subgraphs/issuance/schema';
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
@@ -285,33 +286,55 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   }
 }
 
-function trackSynthHolder(contract: Synth, source: string, account: Address): void {
-  let entityID = account.toHex() + '-' + source;
-  let entity = SynthHolder.load(entityID);
-  if (entity == null) {
-    entity = new SynthHolder(entityID);
+function trackSynthHolder(
+  contract: Synth,
+  synth: string,
+  account: Address,
+  timestamp: BigInt,
+  value: BigInt,
+  isOutbound: boolean,
+): void {
+  let totalBalance = ZERO;
+  let aggregateSynthBalanceID = account.toHex() + '-' + synth;
+  let aggregateSynthBalance = AggregateSynthBalance.load(aggregateSynthBalanceID);
+
+  if (aggregateSynthBalance == null) {
+    let newAggregateSynthBalance = new AggregateSynthBalance(aggregateSynthBalanceID);
+    newAggregateSynthBalance.amount = contract.balanceOf(account);
+    totalBalance = contract.balanceOf(account);
+    newAggregateSynthBalance.save();
+  } else {
+    totalBalance = isOutbound ? aggregateSynthBalance.amount.minus(value) : aggregateSynthBalance.amount.plus(value);
+    aggregateSynthBalance.amount = totalBalance;
+    aggregateSynthBalance.save();
   }
-  entity.synth = source;
-  entity.balanceOf = toDecimal(contract.balanceOf(account));
-  entity.save();
+
+  let newBalanceID = timestamp.toString() + '-' + account.toHex() + '-' + synth;
+  let newBalance = new SynthBalance(newBalanceID);
+  newBalance.account = account;
+  newBalance.timestamp = timestamp;
+  newBalance.synth = synth;
+  newBalance.amount = totalBalance;
+
+  newBalance.save();
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
   let contract = Synth.bind(event.address);
-  let source = 'sUSD';
+  let synth = 'sUSD';
   if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
     // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
     let currencyKeyTry = contract.try_currencyKey();
     if (!currencyKeyTry.reverted) {
-      source = currencyKeyTry.value.toString();
+      synth = currencyKeyTry.value.toString();
     }
   }
 
-  if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
-    trackSynthHolder(contract, source, event.params.from);
+  if (event.params.from.toHex() != ZERO_ADDRESS.toHex() && event.params.from.toHex() != FEE_ADDRESS.toHex()) {
+    trackSynthHolder(contract, synth, event.params.from, event.block.timestamp, event.params.value, true);
   }
-  if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
-    trackSynthHolder(contract, source, event.params.to);
+  if (event.params.to.toHex() != ZERO_ADDRESS.toHex() && event.params.to.toHex() != FEE_ADDRESS.toHex()) {
+    trackSynthHolder(contract, synth, event.params.to, event.block.timestamp, event.params.value, false);
   }
 }
 
