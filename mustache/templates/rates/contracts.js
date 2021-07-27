@@ -1155,4 +1155,20 @@ module.exports = [
     address: "'0xDfd03BfC3465107Ce570a0397b247F546a42D0fA'",
     proxyAddress: "'0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c'",
   },
+  {
+    prod: 12742735,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorAAVE_5',
+    address: "'0xe3f0dEdE4B499c07e12475087AB1A084b5F93bc0'",
+    proxyAddress: "'0x547a514d5e3769680Ce22B2361c10Ea13619e8a9'",
+  },
+  {
+    prod: 12742719,
+    test: null,
+    type: 'aggregator',
+    name: 'AggregatorYFI_5',
+    address: "'0x8a4D74003870064d41D4f84940550911FBfCcF04'",
+    proxyAddress: "'0xA027702dbb89fbd58938e4324ac03B58d812b0E1'",
+  },
 ];
