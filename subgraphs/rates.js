@@ -18,8 +18,6 @@ templates.find((v) => v.name == 'Aggregator').mapping.file = '../src/rates.ts';
 templates.find((v) => v.name == 'InverseAggregator').mapping.file = '../src/rates.ts';
 templates.find((v) => v.name == 'SynthAggregator').mapping.file = '../src/rates.ts';
 
-console.log('templates', templates);
-
 module.exports = {
   specVersion: '0.0.2',
   description: 'Synthetix Rates API',
