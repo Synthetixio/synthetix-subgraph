@@ -3,7 +3,8 @@ const { clone } = require('lodash');
 const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
-const latestRates = require('./fragments/latest-rates');
+// use rates instead of latest rates because rates is incomplete on optimisms
+const latestRates = require('./rates');
 
 const manifest = clone(latestRates.dataSources);
 
