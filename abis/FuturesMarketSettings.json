@@ -1,0 +1,765 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_resolver",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor",
+    "signature": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
+      }
+    ],
+    "name": "CacheUpdated",
+    "type": "event",
+    "signature": "0x88a93678a3692f6789d9546fc621bf7234b101ddb7d4fe479455112831b8aa68"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "sUSD",
+        "type": "uint256"
+      }
+    ],
+    "name": "LiquidationFeeUpdated",
+    "type": "event",
+    "signature": "0x1a35ca75fc5ab34ae3487b3507e7453b6e4c15a69f2392939fbbcf8f64558ad1"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "minMargin",
+        "type": "uint256"
+      }
+    ],
+    "name": "MinInitialMarginUpdated",
+    "type": "event",
+    "signature": "0xf5958b2492f4eeb807d26adb1e05d927402a2b27ec6b67e98a76def8bf9fbb99"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oldOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnerChanged",
+    "type": "event",
+    "signature": "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnerNominated",
+    "type": "event",
+    "signature": "0x906a1c6bd7e3091ea86693dd029a831c19049ce77f1dce2ce0bab1cacbabce22"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "asset",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "parameter",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "ParameterUpdated",
+    "type": "event",
+    "signature": "0xb1e024a1aed9a1f08ef2258cedd5c544e48dcb5befc1ec2aa0ff9ea60997d14f"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "acceptOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x79ba5097"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "closureFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x2c1108f3"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "isResolverCached",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x2af64bd3"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "liquidationFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xa36a3630"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "makerFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x3da61cf8"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "maxFundingRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xfb54bfc8"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "maxFundingRateDelta",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x269f42a3"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "maxFundingRateSkew",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x12d13047"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "maxLeverage",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x0730bf53"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "maxMarketValue",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xd9b102e2"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "minInitialMargin",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x8f20f2ea"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "nominateNewOwner",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x1627540c"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "nominatedOwner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x53a47bb7"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x8da5cb5b"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "parameters",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_takerFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_makerFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_closureFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxLeverage",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxMarketValue",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRateSkew",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRateDelta",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x02506804"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "rebuildCache",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x74185360"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "resolver",
+    "outputs": [
+      {
+        "internalType": "contract AddressResolver",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x04f3bcec"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "resolverAddressesRequired",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "addresses",
+        "type": "bytes32[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x899ffef4"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_closureFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setClosureFee",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x8a6b5f66"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_sUSD",
+        "type": "uint256"
+      }
+    ],
+    "name": "setLiquidationFee",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xfef0bec8"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_makerFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMakerFee",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x0b1ccf80"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxFundingRate",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xaacb3d4d"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRateDelta",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxFundingRateDelta",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x9e931651"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRateSkew",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxFundingRateSkew",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x1e47cad8"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxLeverage",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxLeverage",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xa61fd348"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxMarketValue",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxMarketValue",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x633026dd"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_minMargin",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMinInitialMargin",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x20edcdb8"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_takerFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_makerFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_closureFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxLeverage",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxMarketValue",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRate",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRateSkew",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxFundingRateDelta",
+        "type": "uint256"
+      }
+    ],
+    "name": "setParameters",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xaee081ec"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_takerFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTakerFee",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x381bc187"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_baseAsset",
+        "type": "bytes32"
+      }
+    ],
+    "name": "takerFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x8c3556e9"
+  }
+]
