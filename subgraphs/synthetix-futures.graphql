@@ -1,0 +1,19 @@
+type FuturesMarket @entity {
+  id: ID!
+  asset: Bytes!
+}
+
+type FuturesPosition @entity {
+  id: ID!
+  lastTxHash: Bytes!
+  timestamp: BigInt!
+  market: Bytes!
+  asset: Bytes!
+  account: Bytes!
+  isOpen: Boolean!
+  isLiquidated: Boolean!
+  size: BigInt!
+  margin: BigInt!
+  entryPrice: BigInt!
+  exitPrice: BigInt
+}
