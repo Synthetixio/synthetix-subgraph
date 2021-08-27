@@ -3,7 +3,7 @@ network=$1
 subgraph=$2
 networks='mainnet optimism kovan optimism-kovan'
 
-GRAPH=${GRAPH:-graph}
+GRAPH=${GRAPH:-node_modules/.bin/graph}
 
 # only need to run the same codegen once for all networks
 SNX_NETWORK=mainnet SUBGRAPH=$subgraph $GRAPH codegen subgraphs/rates.js -o generated/subgraphs/rates

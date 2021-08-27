@@ -9,7 +9,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     network: getCurrentNetwork(),
     source: {
       address: a.address,
-      startBlock: a.startBlock,
+      startBlock: getCurrentNetwork() === 'mainnet' ? Math.max(10000000, a.startBlock) : a.startBlock,
       abi: 'Proxy',
     },
     mapping: {
