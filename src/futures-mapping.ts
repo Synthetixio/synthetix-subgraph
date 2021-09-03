@@ -11,7 +11,7 @@ import {
   FuturesMarket as FuturesMarketContract,
 } from '../generated/templates/FuturesMarket/FuturesMarket';
 
-import { FuturesMarket as FuturesMarketEntity, FuturesPosition } from '../generated/schema';
+import { FuturesMarket as FuturesMarketEntity, FuturesPosition, FuturesTrade } from '../generated/schema';
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
@@ -34,6 +34,14 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   let positionId = proxyAddress.toHex() + '-' + event.params.id.toHex();
   let marketEntity = FuturesMarketEntity.load(proxyAddress.toHex());
   let positionEntity = FuturesPosition.load(positionId);
+  if (event.params.tradeSize.isZero() == false) {
+    let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+    tradeEntity.timestamp = event.block.timestamp;
+    tradeEntity.account = event.params.account;
+    tradeEntity.size = event.params.tradeSize;
+    tradeEntity.asset = marketEntity.asset;
+    tradeEntity.save();
+  }
   if (positionEntity == null) {
     positionEntity = new FuturesPosition(positionId);
     positionEntity.market = proxyAddress;
@@ -43,6 +51,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.isOpen = true;
     positionEntity.size = event.params.size;
     positionEntity.entryPrice = event.params.lastPrice;
+    positionEntity.margin = event.params.margin;
   }
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
@@ -50,8 +59,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   } else {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.size = event.params.size;
+    positionEntity.margin = event.params.margin;
   }
-  positionEntity.margin = event.params.margin;
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
   positionEntity.save();

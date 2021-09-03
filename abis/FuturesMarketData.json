@@ -241,11 +241,6 @@
                 "type": "uint256"
               },
               {
-                "internalType": "uint256",
-                "name": "currentRoundId",
-                "type": "uint256"
-              },
-              {
                 "internalType": "bool",
                 "name": "invalid",
                 "type": "bool"
@@ -389,11 +384,6 @@
               {
                 "internalType": "uint256",
                 "name": "price",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "currentRoundId",
                 "type": "uint256"
               },
               {
@@ -669,58 +659,6 @@
                 "type": "uint256"
               },
               {
-                "internalType": "int256",
-                "name": "leverage",
-                "type": "int256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "fee",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "minPrice",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "maxPrice",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct IFuturesMarket.Order",
-            "name": "order",
-            "type": "tuple"
-          },
-          {
-            "internalType": "int256",
-            "name": "orderSize",
-            "type": "int256"
-          },
-          {
-            "internalType": "bool",
-            "name": "orderPending",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "canConfirmOrder",
-            "type": "bool"
-          },
-          {
-            "internalType": "enum IFuturesMarket.Status",
-            "name": "orderStatus",
-            "type": "uint8"
-          },
-          {
-            "components": [
-              {
-                "internalType": "uint256",
-                "name": "id",
-                "type": "uint256"
-              },
-              {
                 "internalType": "uint256",
                 "name": "margin",
                 "type": "uint256"
@@ -763,6 +701,11 @@
           {
             "internalType": "uint256",
             "name": "remainingMargin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "accessibleMargin",
             "type": "uint256"
           },
           {
@@ -812,58 +755,6 @@
                 "type": "uint256"
               },
               {
-                "internalType": "int256",
-                "name": "leverage",
-                "type": "int256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "fee",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "minPrice",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "maxPrice",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct IFuturesMarket.Order",
-            "name": "order",
-            "type": "tuple"
-          },
-          {
-            "internalType": "int256",
-            "name": "orderSize",
-            "type": "int256"
-          },
-          {
-            "internalType": "bool",
-            "name": "orderPending",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "canConfirmOrder",
-            "type": "bool"
-          },
-          {
-            "internalType": "enum IFuturesMarket.Status",
-            "name": "orderStatus",
-            "type": "uint8"
-          },
-          {
-            "components": [
-              {
-                "internalType": "uint256",
-                "name": "id",
-                "type": "uint256"
-              },
-              {
                 "internalType": "uint256",
                 "name": "margin",
                 "type": "uint256"
@@ -906,6 +797,11 @@
           {
             "internalType": "uint256",
             "name": "remainingMargin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "accessibleMargin",
             "type": "uint256"
           },
           {

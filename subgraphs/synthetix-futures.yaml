@@ -8,7 +8,7 @@ dataSources:
     name: FuturesMarketManager
     network: optimism-kovan
     source:
-      address: '0xc911d13e789f629F0e3Fa046582032ec63eF1d39'
+      address: '0x3f1289dB63C4b5ed0f10cc04b86575c186D18841'
       abi: FuturesMarketManager
       startBlock: 40931
     mapping:
@@ -42,11 +42,12 @@ templates:
       entities:
         - FuturesMarket
         - FuturesPosition
+        - FuturesTrade
       abis:
         - name: FuturesMarket
           file: ../abis/FuturesMarket.json
       eventHandlers:
-        - event: PositionModified(indexed uint256,indexed address,uint256,int256,uint256,uint256)
+        - event: PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)
           handler: handlePositionModified
         - event: PositionLiquidated(indexed uint256,indexed address,indexed address,int256,uint256,uint256)
           handler: handlePositionLiquidated
