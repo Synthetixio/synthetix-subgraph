@@ -3,6 +3,14 @@ type FuturesMarket @entity {
   asset: Bytes!
 }
 
+type FuturesTrade @entity {
+  id: ID!
+  timestamp: BigInt!
+  account: Bytes!
+  size: BigInt!
+  asset: Bytes!
+}
+
 type FuturesPosition @entity {
   id: ID!
   lastTxHash: Bytes!

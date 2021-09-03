@@ -85,96 +85,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "OrderCancelled",
-    "type": "event",
-    "signature": "0xc0362da6f2ff36b382b34aec0814f6b3cdf89f5ef282a1d1f114d0c0b036d596"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "name": "OrderConfirmed",
-    "type": "event",
-    "signature": "0xd9153bed9da362a771596f693014f5226ba4b890b57155e405c1d3b58b180aaf"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "leverage",
-        "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "minPrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "maxPrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "OrderSubmitted",
-    "type": "event",
-    "signature": "0x53f0cf6372d0489816502ea53c5bb63a67d7643b6c458cd6e5535f6bc83a9a84"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "address",
         "name": "oldOwner",
@@ -278,6 +188,12 @@
       },
       {
         "indexed": false,
+        "internalType": "int256",
+        "name": "tradeSize",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "lastPrice",
         "type": "uint256"
@@ -287,11 +203,17 @@
         "internalType": "uint256",
         "name": "fundingIndex",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
       }
     ],
     "name": "PositionModified",
     "type": "event",
-    "signature": "0x2b335a165dbb63eeab66ea5955dd178d41b56c42d482d28eaf407c209e19c408"
+    "signature": "0x930fd93131df035ac630ef616ad4212af6370377bf327e905c2724cd01d95097"
   },
   {
     "anonymous": false,
@@ -316,6 +238,33 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0x79ba5097"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "accessibleMargin",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "marginAccessible",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "invalid",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x785cdeec"
   },
   {
     "constant": true,
@@ -390,28 +339,6 @@
         "type": "address"
       }
     ],
-    "name": "canConfirmOrder",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xffc97ea5"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
     "name": "canLiquidate",
     "outputs": [
       {
@@ -428,16 +355,6 @@
   {
     "constant": false,
     "inputs": [],
-    "name": "cancelOrder",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x6a816548"
-  },
-  {
-    "constant": false,
-    "inputs": [],
     "name": "closePosition",
     "outputs": [],
     "payable": false,
@@ -449,17 +366,22 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "minPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxPrice",
+        "type": "uint256"
       }
     ],
-    "name": "confirmOrder",
+    "name": "closePositionWithPriceBounds",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x7ee9e2d8"
+    "signature": "0x36b266be"
   },
   {
     "constant": true,
@@ -503,22 +425,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x7cc35728"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "currentRoundId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "roundId",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9cbe5efd"
   },
   {
     "constant": true,
@@ -771,6 +677,48 @@
     "signature": "0xd67bdd25"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "sizeDelta",
+        "type": "int256"
+      }
+    ],
+    "name": "modifyPosition",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x2f07449f"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "sizeDelta",
+        "type": "int256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "modifyPositionWithPriceBounds",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x5aad6220"
+  },
+  {
     "constant": true,
     "inputs": [
       {
@@ -871,7 +819,7 @@
       },
       {
         "internalType": "int256",
-        "name": "leverage",
+        "name": "sizeDelta",
         "type": "int256"
       }
     ],
@@ -892,156 +840,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x8e4bdfbb"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "int256",
-        "name": "marginDelta",
-        "type": "int256"
-      },
-      {
-        "internalType": "int256",
-        "name": "leverage",
-        "type": "int256"
-      }
-    ],
-    "name": "orderFeeWithMarginDelta",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "invalid",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x1e524c23"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "orderPending",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "pending",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xdf41f8ef"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "orderSize",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "size",
-        "type": "int256"
-      },
-      {
-        "internalType": "bool",
-        "name": "invalid",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x52f9bf0d"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "orderStatus",
-    "outputs": [
-      {
-        "internalType": "enum IFuturesMarket.Status",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x2c43c418"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "orders",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "int256",
-        "name": "leverage",
-        "type": "int256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minPrice",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxPrice",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xf40e8471"
   },
   {
     "constant": true,
@@ -1151,6 +949,58 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x55f57510"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "sizeDelta",
+        "type": "int256"
+      },
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "postTradeDetails",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "margin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int256",
+        "name": "size",
+        "type": "int256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "liqPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum IFuturesMarket.Status",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x996c61ad"
   },
   {
     "constant": true,
@@ -1333,48 +1183,6 @@
     "inputs": [
       {
         "internalType": "int256",
-        "name": "leverage",
-        "type": "int256"
-      }
-    ],
-    "name": "submitOrder",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x4118397c"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "int256",
-        "name": "leverage",
-        "type": "int256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minPrice",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxPrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "submitOrderWithPriceBounds",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xaefbefd6"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "int256",
         "name": "marginDelta",
         "type": "int256"
       }
@@ -1385,58 +1193,6 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0x88a3c848"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "int256",
-        "name": "marginDelta",
-        "type": "int256"
-      },
-      {
-        "internalType": "int256",
-        "name": "leverage",
-        "type": "int256"
-      }
-    ],
-    "name": "transferMarginAndSubmitOrder",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x5caae338"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "int256",
-        "name": "marginDelta",
-        "type": "int256"
-      },
-      {
-        "internalType": "int256",
-        "name": "leverage",
-        "type": "int256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minPrice",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxPrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "transferMarginAndSubmitOrderWithPriceBounds",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xe5aab8ef"
   },
   {
     "constant": true,
