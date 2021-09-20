@@ -1,0 +1,24 @@
+type Synth @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+type SynthBalance @entity {
+  " timestamp + account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  account: Bytes!
+  timestamp: BigInt!
+  synth: Synth
+}
+
+" we dont query this entity but only use it to store aggregate data we need during syncing "
+type LatestSynthBalance @entity {
+  " account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  account: Bytes!
+  timestamp: BigInt!
+  synth: Synth
+}

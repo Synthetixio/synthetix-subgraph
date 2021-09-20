@@ -68,22 +68,6 @@ type DebtSnapshot @entity {
   debtBalanceOf: BigDecimal
 }
 
-type SynthBalance @entity {
-  " timestamp + account + synth "
-  id: ID!
-  amount: BigInt!
-  account: Bytes!
-  timestamp: BigInt!
-  synth: String!
-}
-
-" we dont query this entity but only use it to store aggregate data we need during syncing "
-type AggregateSynthBalance @entity {
-  " account + synth "
-  id: ID!
-  amount: BigInt!
-}
-
 type DailyIssued @entity {
   " unix timestamp at beginning of day of the measurement "
   id: ID!
@@ -170,4 +154,29 @@ type TotalDailyActiveStaker @entity {
 
 type ActiveStaker @entity {
   id: ID!
+}
+
+type Synth @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+type SynthBalance @entity {
+  " timestamp + account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  account: Bytes!
+  timestamp: BigInt!
+  synth: Synth
+}
+
+" we dont query this entity but only use it to store aggregate data we need during syncing "
+type LatestSynthBalance @entity {
+  " account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  account: Bytes!
+  timestamp: BigInt!
+  synth: Synth
 }

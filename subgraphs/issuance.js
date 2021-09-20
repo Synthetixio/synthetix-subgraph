@@ -1,4 +1,6 @@
-const { getContractDeployments, getCurrentNetwork, getReleaseInfo } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+
+const balances = require('./fragments/balances');
 
 const manifest = [];
 
@@ -217,41 +219,7 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
   });
 }
 
-const synths = getReleaseInfo('synths');
-
-for (const { name } of synths) {
-  getContractDeployments('Proxy' + name).forEach((a, i) => {
-    manifest.push({
-      kind: 'ethereum/contract',
-      name: `transfer_Synth${name}_${i}`,
-      network: getCurrentNetwork(),
-      source: {
-        address: a.address,
-        startBlock: a.startBlock,
-        abi: 'Synth',
-      },
-      mapping: {
-        kind: 'ethereum/events',
-        apiVersion: '0.0.4',
-        language: 'wasm/assemblyscript',
-        file: '../src/issuance.ts',
-        entities: ['SynthBalance', 'AggregateSynthBalance'],
-        abis: [
-          {
-            name: 'Synth',
-            file: '../abis/Synth.json',
-          },
-        ],
-        eventHandlers: [
-          {
-            event: 'Transfer(indexed address,indexed address,uint256)',
-            handler: 'handleTransferSynth',
-          },
-        ],
-      },
-    });
-  });
-}
+manifest.push(...balances.dataSources);
 
 module.exports = {
   specVersion: '0.0.2',
