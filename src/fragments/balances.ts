@@ -10,22 +10,16 @@ import { FEE_ADDRESS, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/util';
 
 function trackSynthHolder(synthAddress: Address, account: Address, timestamp: BigInt, value: BigDecimal): void {
   let totalBalance = toDecimal(ZERO);
-  let aggregateSynthBalanceID = account.toHex() + '-' + synthAddress.toHex();
-  let aggregateSynthBalance = LatestSynthBalance.load(aggregateSynthBalanceID);
+  let latestBalanceID = account.toHex() + '-' + synthAddress.toHex();
+  let oldSynthBalance = LatestSynthBalance.load(latestBalanceID);
 
-  if (aggregateSynthBalance == null) {
-    totalBalance = value;
-    if (dataSource.network() != 'mainnet') {
-      totalBalance = toDecimal(SynthContract.bind(synthAddress).balanceOf(account));
-    }
+  if (oldSynthBalance == null || oldSynthBalance.timestamp.equals(timestamp)) {
+    totalBalance = toDecimal(SynthContract.bind(synthAddress).balanceOf(account));
   } else {
-    aggregateSynthBalance.amount = totalBalance;
-    aggregateSynthBalance.save();
-
-    totalBalance = aggregateSynthBalance.amount.plus(value);
+    totalBalance = oldSynthBalance.amount.plus(value);
   }
 
-  let newLatestBalance = new LatestSynthBalance(aggregateSynthBalanceID);
+  let newLatestBalance = new LatestSynthBalance(latestBalanceID);
   newLatestBalance.account = account;
   newLatestBalance.timestamp = timestamp;
   newLatestBalance.synth = synthAddress.toHex();
@@ -42,7 +36,17 @@ function trackSynthHolder(synthAddress: Address, account: Address, timestamp: Bi
 }
 
 export function handleAddSynth(event: SynthAdded): void {
-  let newSynth = new Synth(event.params.synth.toHex());
+  let synthAddress = event.params.synth.toHex();
+
+  // the address associated with the issuer may not be the proxy
+  let synthBackContract = SynthContract.bind(event.params.synth);
+  let proxyQuery = synthBackContract.try_proxy();
+
+  if (!proxyQuery.reverted) {
+    synthAddress = proxyQuery.value.toHex();
+  }
+
+  let newSynth = new Synth(synthAddress);
   newSynth.name = event.params.currencyKey.toString();
   newSynth.symbol = event.params.currencyKey.toString();
   newSynth.save();
@@ -54,9 +58,9 @@ export function handleRemoveSynth(_: SynthRemoved): void {
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
   if (event.params.from.toHex() != ZERO_ADDRESS.toHex() && event.params.from.toHex() != FEE_ADDRESS.toHex()) {
-    trackSynthHolder(event.address, event.params.from, event.block.timestamp, toDecimal(event.params.value));
+    trackSynthHolder(event.address, event.params.from, event.block.timestamp, toDecimal(event.params.value).neg());
   }
   if (event.params.to.toHex() != ZERO_ADDRESS.toHex() && event.params.to.toHex() != FEE_ADDRESS.toHex()) {
-    trackSynthHolder(event.address, event.params.to, event.block.timestamp, toDecimal(event.params.value).neg());
+    trackSynthHolder(event.address, event.params.to, event.block.timestamp, toDecimal(event.params.value));
   }
 }
