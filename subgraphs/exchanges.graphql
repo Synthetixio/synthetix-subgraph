@@ -79,14 +79,11 @@ type FifteenMinuteTotal @entity {
 " Tracks this event from the Synthetix.sol contract "
 type SynthExchange @entity {
   id: ID!
-  account: Bytes! # address
-  from: Bytes! # address
-  fromCurrencyKey: Bytes! # bytes4
-  fromSynth: String! # human readable from synth name
+  account: Exchanger! # address
+  from: Synth!
+  to: Synth!
   fromAmount: BigDecimal! # uint256
   fromAmountInUSD: BigDecimal! # from Amount including fees
-  toCurrencyKey: Bytes! # bytes4
-  toSynth: String! # human readable to synth name
   toAmount: BigDecimal! # uint256
   toAmountInUSD: BigDecimal! # to Amount without fees
   feesInUSD: BigDecimal!
@@ -99,7 +96,7 @@ type SynthExchange @entity {
 " Tracks this event from the Synthetix.sol contract "
 type ExchangeReclaim @entity {
   id: ID!
-  account: Bytes! # address
+  account: Exchanger! # address
   currencyKey: Bytes! # bytes4
   amount: BigDecimal! # uint256
   amountInUSD: BigDecimal! # uint256
@@ -111,7 +108,7 @@ type ExchangeReclaim @entity {
 " Tracks this event from the Synthetix.sol contract "
 type ExchangeRebate @entity {
   id: ID!
-  account: Bytes! # address
+  account: Exchanger!
   currencyKey: Bytes! # bytes4
   amount: BigDecimal! # uint256
   amountInUSD: BigDecimal! # uint256
@@ -122,7 +119,23 @@ type ExchangeRebate @entity {
 
 " An individual Exchanger "
 type Exchanger @entity {
+  " hex address in lowercase "
   id: ID!
+
+  " when the user first exchanged "
+  firstSeen: BigInt!
+
+  " nubmer of trades by account "
+  trades: BigInt!
+
+  " synth value exchanged in USD units by account "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units from account "
+  totalFeesGeneratedInUSD: BigDecimal!
+
+  " balances "
+  balances: [LatestSynthBalance!]! @derivedFrom(field: "account")
 }
 
 " An individual Exchanger Post Archernar "
@@ -174,4 +187,29 @@ type LatestRate @entity {
 
   " Address of the aggregator which produces current result "
   aggregator: Bytes!
+}
+
+type Synth @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+type SynthBalance @entity {
+  " timestamp + account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  account: Exchanger!
+  timestamp: BigInt!
+  synth: Synth
+}
+
+" we dont query this entity but only use it to store aggregate data we need during syncing "
+type LatestSynthBalance @entity {
+  " account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  account: Exchanger!
+  timestamp: BigInt!
+  synth: Synth
 }

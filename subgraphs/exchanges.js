@@ -4,8 +4,10 @@ const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
 const latestRates = require('./fragments/latest-rates');
+const balances = require('./fragments/balances');
 
 const manifest = clone(latestRates.dataSources);
+manifest.push(...balances.dataSources);
 
 if (getCurrentNetwork() == 'mainnet') {
   manifest.push(
