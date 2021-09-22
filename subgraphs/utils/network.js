@@ -109,11 +109,6 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
           continue;
         }
 
-        if (prevInfo) {
-          addressInfo.push(prevInfo);
-          prevInfo = null;
-        }
-
         if (theBlock >= endBlock) break;
 
         if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
@@ -127,6 +122,10 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
         });
       }
     }
+  }
+
+  if (prevInfo) {
+    addressInfo.push(prevInfo);
   }
 
   return addressInfo;

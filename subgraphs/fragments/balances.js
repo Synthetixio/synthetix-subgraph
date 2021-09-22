@@ -23,6 +23,10 @@ getContractDeployments('Issuer').forEach((a, i) => {
           name: 'Issuer',
           file: '../abis/Issuer.json',
         },
+        {
+          name: 'Synth',
+          file: '../abis/Synth.json',
+        },
       ],
       eventHandlers: [
         {

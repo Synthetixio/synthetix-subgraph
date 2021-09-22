@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, dataSource } from '@graphprotocol/graph-ts';
+import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts';
 import {
   Synth as SynthContract,
   Transfer as SynthTransferEvent,
@@ -41,13 +41,14 @@ export function handleAddSynth(event: SynthAdded): void {
   // the address associated with the issuer may not be the proxy
   let synthBackContract = SynthContract.bind(event.params.synth);
   let proxyQuery = synthBackContract.try_proxy();
+  let nameQuery = synthBackContract.try_name();
 
   if (!proxyQuery.reverted) {
     synthAddress = proxyQuery.value.toHex();
   }
 
   let newSynth = new Synth(synthAddress);
-  newSynth.name = event.params.currencyKey.toString();
+  newSynth.name = nameQuery.reverted ? event.params.currencyKey.toString() : nameQuery.value;
   newSynth.symbol = event.params.currencyKey.toString();
   newSynth.save();
 }
