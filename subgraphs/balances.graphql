@@ -1,4 +1,11 @@
+type SynthByCurrencyKey @entity {
+  " currency key "
+  id: ID!
+  proxyAddress: Bytes!
+}
+
 type Synth @entity {
+  " lowercase address of the proxy contract for the synth "
   id: ID!
   name: String!
   symbol: String!
@@ -8,7 +15,8 @@ type SynthBalance @entity {
   " timestamp + account + synth address "
   id: ID!
   amount: BigDecimal!
-  account: Bytes!
+  address: Bytes!
+  account: String! # using a string here because its ID compatible
   timestamp: BigInt!
   synth: Synth
 }
@@ -18,7 +26,8 @@ type LatestSynthBalance @entity {
   " account + synth address "
   id: ID!
   amount: BigDecimal!
-  account: Bytes!
+  address: Bytes!
+  account: String! # using a string here because its ID compatible
   timestamp: BigInt!
   synth: Synth
 }

@@ -156,6 +156,12 @@ type ActiveStaker @entity {
   id: ID!
 }
 
+type SynthByCurrencyKey @entity {
+  " currency key "
+  id: ID!
+  proxyAddress: Bytes!
+}
+
 type Synth @entity {
   id: ID!
   name: String!
@@ -166,7 +172,8 @@ type SynthBalance @entity {
   " timestamp + account + synth address "
   id: ID!
   amount: BigDecimal!
-  account: Bytes!
+  address: Bytes!
+  account: String!
   timestamp: BigInt!
   synth: Synth
 }
@@ -176,7 +183,8 @@ type LatestSynthBalance @entity {
   " account + synth address "
   id: ID!
   amount: BigDecimal!
-  account: Bytes!
+  address: Bytes!
+  account: String!
   timestamp: BigInt!
   synth: Synth
 }

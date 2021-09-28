@@ -10,17 +10,12 @@ import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subg
 
 import {
   Total,
-  PostArchernarTotal,
-  DailyTotal,
-  FifteenMinuteTotal,
   SynthExchange,
   Exchanger,
-  PostArchernarExchanger,
-  DailyExchanger,
-  FifteenMinuteExchanger,
   ExchangeReclaim,
   ExchangeRebate,
   ExchangeFee,
+  SynthByCurrencyKey,
 } from '../generated/subgraphs/exchanges/schema';
 
 import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
@@ -33,46 +28,89 @@ import {
   getTimeID,
   FIFTEEN_MINUTE_SECONDS,
   strToBytes,
+  ZERO,
+  YEAR_SECONDS,
 } from './lib/helpers';
 import { toDecimal, ZERO_ADDRESS } from './lib/util';
 import { addDollar, addProxyAggregator } from './fragments/latest-rates';
-import { Synthetix } from '../generated/subgraphs/rates/ChainlinkMultisig/Synthetix';
-import { AddressResolver } from '../generated/subgraphs/rates/ChainlinkMultisig/AddressResolver';
+import { Synthetix } from '../generated/subgraphs/latest-rates/ChainlinkMultisig/Synthetix';
+import { AddressResolver } from '../generated/subgraphs/latest-rates/ChainlinkMultisig/AddressResolver';
 
-let v219 = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
+const MAX_MAGNITUDE = 10;
 
-interface AggregatedTotalEntity {
-  trades: BigInt;
-  exchangers: BigInt;
-  exchangeUSDTally: BigDecimal;
-  totalFeesGeneratedInUSD: BigDecimal;
-  save: () => void;
+function populateAggregatedTotalEntity(
+  timestamp: BigInt,
+  period: BigInt,
+  bucketMagnitude: BigInt,
+  synth: string | null,
+): Total {
+  let id = timestamp.toString() + '-' + bucketMagnitude.toString() + '-' + synth + '-' + period.toString();
+
+  let entity = Total.load(id);
+
+  if (entity != null) {
+    return entity!;
+  }
+
+  entity = new Total(id);
+  entity.timestamp = timestamp;
+  entity.period = period;
+  entity.bucketMagnitude = bucketMagnitude;
+  entity.synth = synth;
+
+  entity.trades = ZERO;
+  entity.exchangers = ZERO;
+  entity.exchangeUSDTally = new BigDecimal(ZERO);
+  entity.totalFeesGeneratedInUSD = new BigDecimal(ZERO);
+
+  return entity!;
 }
 
-function populateAggregatedTotalEntity<T extends AggregatedTotalEntity>(entity: T): T {
-  entity.trades = BigInt.fromI32(0);
-  entity.exchangers = BigInt.fromI32(0);
-  entity.exchangeUSDTally = new BigDecimal(BigInt.fromI32(0));
-  entity.totalFeesGeneratedInUSD = new BigDecimal(BigInt.fromI32(0));
-  return entity;
-}
-
-function trackTotals<T extends AggregatedTotalEntity>(
-  entity: T,
-  existingExchanger: boolean,
+function trackTotals(
+  entity: Total,
+  account: Address,
+  actualTimestamp: BigInt,
   amountInUSD: BigDecimal,
   feesInUSD: BigDecimal,
 ): void {
-  entity.trades = entity.trades.plus(BigInt.fromI32(1));
+  let exchangerId = account.toHex();
 
-  if (!existingExchanger) entity.exchangers = entity.exchangers.plus(BigInt.fromI32(1));
+  if (entity.period != ZERO) {
+    exchangerId = account.toHex() + '-' + entity.id;
+  }
+
+  let exchanger = Exchanger.load(exchangerId);
+
+  if (exchanger == null) {
+    entity.exchangers = entity.exchangers.plus(BigInt.fromI32(1));
+
+    exchanger = new Exchanger(exchangerId);
+    exchanger.firstSeen = actualTimestamp;
+    exchanger.timestamp = entity.timestamp;
+    exchanger.period = entity.period;
+    exchanger.bucketMagnitude = entity.bucketMagnitude;
+    exchanger.synth = entity.synth;
+
+    exchanger.trades = ZERO;
+    exchanger.exchangeUSDTally = new BigDecimal(ZERO);
+    exchanger.totalFeesGeneratedInUSD = new BigDecimal(ZERO);
+  }
+
+  exchanger.lastSeen = actualTimestamp;
+
+  entity.trades = entity.trades.plus(BigInt.fromI32(1));
+  exchanger.trades = exchanger.trades.plus(BigInt.fromI32(1));
 
   if (amountInUSD && feesInUSD) {
     entity.exchangeUSDTally = entity.exchangeUSDTally.plus(amountInUSD);
     entity.totalFeesGeneratedInUSD = entity.totalFeesGeneratedInUSD.plus(feesInUSD);
+
+    exchanger.exchangeUSDTally = exchanger.exchangeUSDTally.plus(amountInUSD);
+    exchanger.totalFeesGeneratedInUSD = exchanger.totalFeesGeneratedInUSD.plus(feesInUSD);
   }
 
   entity.save();
+  exchanger.save();
 }
 
 function addMissingSynthRate(currencyBytes: Bytes): BigDecimal {
@@ -113,84 +151,79 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
     latestToRate = addMissingSynthRate(event.params.fromCurrencyKey);
   }
 
-  let account = event.transaction.from;
+  let account = event.params.account;
   let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.fromAmount, latestFromRate);
   let toAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestToRate);
 
   let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
 
-  let entity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  entity.account = event.params.account;
-  entity.from = account;
-  entity.fromCurrencyKey = event.params.fromCurrencyKey;
-  entity.fromSynth = fromCurrencyKey;
-  entity.fromAmount = toDecimal(event.params.fromAmount);
-  entity.fromAmountInUSD = fromAmountInUSD;
-  entity.toCurrencyKey = event.params.toCurrencyKey;
-  entity.toSynth = toCurrencyKey;
-  entity.toAmount = toDecimal(event.params.toAmount);
-  entity.toAmountInUSD = toAmountInUSD;
-  entity.toAddress = event.params.toAddress;
-  entity.feesInUSD = feesInUSD;
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.gasPrice = event.transaction.gasPrice;
-  entity.save();
-
-  let dayTimestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
-  let fifteenMinuteTimestamp = getTimeID(event.block.timestamp, FIFTEEN_MINUTE_SECONDS);
-
-  let total = Total.load('mainnet') || populateAggregatedTotalEntity(new Total('mainnet'));
-  let dailyTotal =
-    DailyTotal.load(dayTimestamp.toString()) || populateAggregatedTotalEntity(new DailyTotal(dayTimestamp.toString()));
-  let fifteenMinuteTotal =
-    FifteenMinuteTotal.load(fifteenMinuteTimestamp.toString()) ||
-    populateAggregatedTotalEntity(new FifteenMinuteTotal(fifteenMinuteTimestamp.toString()));
-
-  dailyTotal.timestamp = dayTimestamp;
-  fifteenMinuteTotal.timestamp = fifteenMinuteTimestamp;
-
-  let existingExchanger = Exchanger.load(account.toHex());
-  let existingDailyExchanger = DailyExchanger.load(dayTimestamp.toString() + '-' + account.toHex());
-  let existingFifteenMinuteExchanger = FifteenMinuteExchanger.load(
-    fifteenMinuteTimestamp.toString() + '-' + account.toHex(),
-  );
-
-  if (existingExchanger == null) {
-    let exchanger = new Exchanger(account.toHex());
-    exchanger.save();
+  if (feesInUSD.lt(toDecimal(ZERO))) {
+    let DEFAULT_FEE = toDecimal(BigInt.fromI32(3), 3);
+    // this is an edge case. we can get pretty close to accurate by use of best guess of 30 bp
+    feesInUSD = fromAmountInUSD.times(DEFAULT_FEE);
   }
 
-  if (existingDailyExchanger == null) {
-    let dailyExchanger = new DailyExchanger(dayTimestamp.toString() + '-' + account.toHex());
-    dailyExchanger.save();
-  }
+  let fromSynth = SynthByCurrencyKey.load(fromCurrencyKey);
+  let toSynth = SynthByCurrencyKey.load(toCurrencyKey);
 
-  if (existingFifteenMinuteExchanger == null) {
-    let fifteenMinuteExchanger = new FifteenMinuteExchanger(fifteenMinuteTimestamp.toString() + '-' + account.toHex());
-    fifteenMinuteExchanger.save();
-  }
+  let fromSynthAddress = fromSynth != null ? fromSynth.proxyAddress : ZERO_ADDRESS;
+  let toSynthAddress = toSynth != null ? toSynth.proxyAddress : ZERO_ADDRESS;
 
-  if (dataSource.network() == 'mainnet' && event.block.number > v219) {
-    let postArchernarTotal =
-      PostArchernarTotal.load('mainnet') || populateAggregatedTotalEntity(new PostArchernarTotal('mainnet'));
-    let existingPostArchernarExchanger = PostArchernarExchanger.load(account.toHex());
-    if (existingPostArchernarExchanger == null) {
-      let postArchernarExchanger = new PostArchernarExchanger(account.toHex());
-      postArchernarExchanger.save();
+  let eventEntity = new SynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  eventEntity.account = account.toHex();
+  eventEntity.fromSynth = fromSynthAddress.toHex();
+  eventEntity.toSynth = toSynthAddress.toHex();
+  eventEntity.fromAmount = toDecimal(event.params.fromAmount);
+  eventEntity.fromAmountInUSD = fromAmountInUSD;
+  eventEntity.toAmount = toDecimal(event.params.toAmount);
+  eventEntity.toAmountInUSD = toAmountInUSD;
+  eventEntity.toAddress = event.params.toAddress;
+  eventEntity.feesInUSD = feesInUSD;
+  eventEntity.timestamp = event.block.timestamp;
+  eventEntity.gasPrice = event.transaction.gasPrice;
+  eventEntity.save();
+
+  let synthOpts: (string | null)[] = [null, fromSynthAddress.toHex(), toSynthAddress.toHex()];
+
+  let periods: BigInt[] = [
+    YEAR_SECONDS,
+    YEAR_SECONDS.div(BigInt.fromI32(4)),
+    YEAR_SECONDS.div(BigInt.fromI32(12)),
+    DAY_SECONDS.times(BigInt.fromI32(7)),
+    DAY_SECONDS,
+    FIFTEEN_MINUTE_SECONDS,
+    ZERO,
+  ];
+
+  for (let s = 0; s < synthOpts.length; s++) {
+    let synth = synthOpts[s];
+
+    for (let p = 0; p < periods.length; p++) {
+      let period = periods[p];
+      let startTimestamp = period == ZERO ? ZERO : getTimeID(event.block.timestamp, period);
+
+      for (let m = 0; m < MAX_MAGNITUDE; m++) {
+        let mag = new BigDecimal(BigInt.fromI32(<i32>Math.floor(Math.pow(10, m))));
+        if (fromAmountInUSD.lt(mag)) {
+          break;
+        }
+
+        trackTotals(
+          populateAggregatedTotalEntity(startTimestamp, period, BigInt.fromI32(m), synth),
+          account,
+          event.block.timestamp,
+          fromAmountInUSD,
+          feesInUSD,
+        );
+      }
     }
-    trackTotals(postArchernarTotal, !!existingPostArchernarExchanger, fromAmountInUSD, feesInUSD);
   }
-
-  trackTotals(total, !!existingExchanger, fromAmountInUSD, feesInUSD);
-  trackTotals(dailyTotal, !!existingDailyExchanger, fromAmountInUSD, feesInUSD);
-  trackTotals(fifteenMinuteTotal, !!existingFifteenMinuteExchanger, fromAmountInUSD, feesInUSD);
 }
 
 export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
   let txHash = event.transaction.hash.toHex();
   let entity = new ExchangeReclaim(txHash + '-' + event.logIndex.toString());
-  entity.account = event.params.account;
+  entity.account = event.params.account.toHex();
   entity.amount = toDecimal(event.params.amount);
   entity.currencyKey = event.params.currencyKey;
   entity.timestamp = event.block.timestamp;
@@ -209,7 +242,7 @@ export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
 export function handleExchangeRebate(event: ExchangeRebateEvent): void {
   let txHash = event.transaction.hash.toHex();
   let entity = new ExchangeRebate(txHash + '-' + event.logIndex.toString());
-  entity.account = event.params.account;
+  entity.account = event.params.account.toHex();
   entity.amount = toDecimal(event.params.amount);
   entity.currencyKey = event.params.currencyKey;
   entity.timestamp = event.block.timestamp;

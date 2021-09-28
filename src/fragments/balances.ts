@@ -1,14 +1,53 @@
-import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts';
+import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 import {
   Synth as SynthContract,
   Transfer as SynthTransferEvent,
-} from '../../generated/subgraphs/issuance/balances_SynthsUSD_0/Synth';
-import { SynthAdded, SynthRemoved } from '../../generated/subgraphs/issuance/balances_Issuer_0/Issuer';
+} from '../../generated/subgraphs/balances/balances_SynthsUSD_0/Synth';
 
-import { Synth, SynthBalance, LatestSynthBalance } from '../../generated/subgraphs/issuance/schema';
+import { Synth, SynthBalance, LatestSynthBalance, SynthByCurrencyKey } from '../../generated/subgraphs/balances/schema';
 import { FEE_ADDRESS, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/util';
 
+export function registerSynth(synthAddress: Address): void {
+  // the address associated with the issuer may not be the proxy
+  let synthBackContract = SynthContract.bind(synthAddress);
+  let proxyQuery = synthBackContract.try_proxy();
+  let nameQuery = synthBackContract.try_name();
+  let symbolQuery = synthBackContract.try_symbol();
+
+  if (symbolQuery.reverted) {
+    log.warning('tried to save invalid synth {}', [synthAddress.toHex()]);
+    return;
+  }
+
+  if (!proxyQuery.reverted) {
+    synthAddress = proxyQuery.value;
+  }
+
+  let newSynth = new Synth(synthAddress.toHex());
+  newSynth.name = nameQuery.reverted ? symbolQuery.value : nameQuery.value;
+  newSynth.symbol = symbolQuery.value;
+  newSynth.save();
+
+  // symbol is same as currencyKey
+  let newSynthByCurrencyKey = new SynthByCurrencyKey(symbolQuery.value);
+  newSynthByCurrencyKey.proxyAddress = synthAddress;
+  newSynthByCurrencyKey.save();
+
+  // legacy sUSD contract uses wrong name
+  if (symbolQuery.value == 'nUSD') {
+    let newSynthByCurrencyKey = new SynthByCurrencyKey('sUSD');
+    newSynthByCurrencyKey.proxyAddress = synthAddress;
+    newSynthByCurrencyKey.save();
+  }
+}
+
 function trackSynthHolder(synthAddress: Address, account: Address, timestamp: BigInt, value: BigDecimal): void {
+  let synth = Synth.load(synthAddress.toHex());
+
+  if (synth == null) {
+    registerSynth(synthAddress);
+  }
+
   let totalBalance = toDecimal(ZERO);
   let latestBalanceID = account.toHex() + '-' + synthAddress.toHex();
   let oldSynthBalance = LatestSynthBalance.load(latestBalanceID);
@@ -20,7 +59,8 @@ function trackSynthHolder(synthAddress: Address, account: Address, timestamp: Bi
   }
 
   let newLatestBalance = new LatestSynthBalance(latestBalanceID);
-  newLatestBalance.account = account;
+  newLatestBalance.address = account;
+  newLatestBalance.account = account.toHex();
   newLatestBalance.timestamp = timestamp;
   newLatestBalance.synth = synthAddress.toHex();
   newLatestBalance.amount = totalBalance;
@@ -28,33 +68,12 @@ function trackSynthHolder(synthAddress: Address, account: Address, timestamp: Bi
 
   let newBalanceID = timestamp.toString() + '-' + account.toHex() + '-' + synthAddress.toHex();
   let newBalance = new SynthBalance(newBalanceID);
-  newBalance.account = account;
+  newBalance.address = account;
+  newBalance.account = account.toHex();
   newBalance.timestamp = timestamp;
   newBalance.synth = synthAddress.toHex();
   newBalance.amount = totalBalance;
   newBalance.save();
-}
-
-export function handleAddSynth(event: SynthAdded): void {
-  let synthAddress = event.params.synth.toHex();
-
-  // the address associated with the issuer may not be the proxy
-  let synthBackContract = SynthContract.bind(event.params.synth);
-  let proxyQuery = synthBackContract.try_proxy();
-  let nameQuery = synthBackContract.try_name();
-
-  if (!proxyQuery.reverted) {
-    synthAddress = proxyQuery.value.toHex();
-  }
-
-  let newSynth = new Synth(synthAddress);
-  newSynth.name = nameQuery.reverted ? event.params.currencyKey.toString() : nameQuery.value;
-  newSynth.symbol = event.params.currencyKey.toString();
-  newSynth.save();
-}
-
-export function handleRemoveSynth(_: SynthRemoved): void {
-  // do nothing
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {

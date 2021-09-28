@@ -2,7 +2,7 @@ const { getContractDeployments, getCurrentNetwork, getReleaseInfo } = require('.
 
 const synthsManifests = [];
 
-getContractDeployments('Issuer').forEach((a, i) => {
+/*getContractDeployments('Issuer').forEach((a, i) => {
   synthsManifests.push({
     kind: 'ethereum/contract',
     name: `balances_Issuer_${i}`,
@@ -40,7 +40,7 @@ getContractDeployments('Issuer').forEach((a, i) => {
       ],
     },
   });
-});
+});*/
 
 const synths = getReleaseInfo('synths');
 

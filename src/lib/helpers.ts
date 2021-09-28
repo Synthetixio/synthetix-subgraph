@@ -1,12 +1,13 @@
 import { BigDecimal, BigInt, Bytes, ByteArray, log } from '@graphprotocol/graph-ts';
 
-import { LatestRate } from '../../generated/subgraphs/rates/schema';
+import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
 
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
 
 export let FIFTEEN_MINUTE_SECONDS = BigInt.fromI32(900);
 export let DAY_SECONDS = BigInt.fromI32(86400);
+export let YEAR_SECONDS = BigInt.fromI32(31556736);
 
 export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
   let precision = BigInt.fromI32(10)

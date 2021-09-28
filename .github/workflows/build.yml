@@ -1,0 +1,40 @@
+name: Publish Subgraphs
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+
+jobs:
+  build:
+    name: Update synthetix in contracts-interface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          registry-url: 'https://registry.npmjs.org'
+      - name: npm ci
+        run: |
+          npm ci
+      - name: build
+        run: |
+          ./build.sh build all all
+  deploy:
+    name: Update synthetix in contracts-interface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          registry-url: 'https://registry.npmjs.org'
+      - name: npm ci
+        run: |
+          npm ci
+      - name: build
+        run: |
+          GRAPH_TOKEN=${{ secrets.GRAPH_TOKEN }} ./build.sh deploy all all

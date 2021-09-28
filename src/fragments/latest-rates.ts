@@ -4,14 +4,14 @@ import {
   InversePriceConfigured,
   InversePriceFrozen,
   ExchangeRates,
-} from '../../generated/subgraphs/rates/ExchangeRates_13/ExchangeRates';
+} from '../../generated/subgraphs/latest-rates/ExchangeRates_13/ExchangeRates';
 
 import {
   AggregatorProxy as AggregatorProxyContract,
   AggregatorConfirmed as AggregatorConfirmedEvent,
-} from '../../generated/subgraphs/rates/ExchangeRates_13/AggregatorProxy';
+} from '../../generated/subgraphs/latest-rates/ExchangeRates_13/AggregatorProxy';
 
-import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/rates/templates/Aggregator/Aggregator';
+import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/latest-rates/templates/Aggregator/Aggregator';
 
 import {
   AggregatorProxy,
@@ -20,8 +20,8 @@ import {
   Aggregator,
   SynthAggregator,
   InverseAggregator,
-} from '../../generated/subgraphs/rates/templates';
-import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/rates/schema';
+} from '../../generated/subgraphs/latest-rates/templates';
+import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/latest-rates/schema';
 
 import {
   BigDecimal,
@@ -34,10 +34,10 @@ import {
   Bytes,
 } from '@graphprotocol/graph-ts';
 import { etherUnits, strToBytes, toDecimal } from '../lib/helpers';
-import { ProxyERC20 } from '../../generated/subgraphs/rates/ChainlinkMultisig/ProxyERC20';
-import { Synthetix } from '../../generated/subgraphs/rates/ChainlinkMultisig/Synthetix';
-import { ExecutionSuccess } from '../../generated/subgraphs/rates/ChainlinkMultisig/GnosisSafe';
-import { AddressResolver } from '../../generated/subgraphs/rates/ChainlinkMultisig/AddressResolver';
+import { ProxyERC20 } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/ProxyERC20';
+import { Synthetix } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/Synthetix';
+import { ExecutionSuccess } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/GnosisSafe';
+import { AddressResolver } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/AddressResolver';
 import { ZERO_ADDRESS } from '../lib/util';
 
 export function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
