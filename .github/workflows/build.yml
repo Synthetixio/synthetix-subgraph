@@ -1,11 +1,14 @@
 name: Publish Subgraphs
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version'
-        required: true
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
 
 jobs:
   build:
@@ -26,6 +29,7 @@ jobs:
   deploy:
     name: Update synthetix in contracts-interface
     runs-on: ubuntu-latest
+    if: false
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
