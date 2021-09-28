@@ -1,4 +1,4 @@
-name: Publish Subgraphs
+name: Build
 
 on:
   push:
