@@ -245,7 +245,7 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
       let aggregatorAddress = ratesContract.try_aggregators(aggregatorKey.value);
 
       if (!aggregatorAddress.reverted) {
-        addAggregator(aggregatorKey.value.toString(), aggregatorAddress.value);
+        addProxyAggregator(aggregatorKey.value.toString(), aggregatorAddress.value);
       }
     }
   } while (!aggregatorKey.reverted);

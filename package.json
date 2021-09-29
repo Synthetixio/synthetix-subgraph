@@ -19,8 +19,9 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "git://github.com/graphprotocol/graph-cli.git#14fb300393a72645a879f9c0af78b2a67c0e448a",
+    "@graphprotocol/graph-cli": "0.21.0",
     "@graphprotocol/graph-ts": "0.18.1",
+    "@graphprotocol/indexer-cli": "^0.17.0",
     "chalk": "2.4.2",
     "commander": "2.20.0",
     "mustache": "4.1.0",

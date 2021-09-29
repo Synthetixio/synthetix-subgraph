@@ -10,7 +10,7 @@ import { strToBytes, toDecimal } from './lib/util';
 
 import { DebtState } from '../generated/subgraphs/global-debt/schema';
 
-import { BigInt, Address, ethereum, dataSource } from '@graphprotocol/graph-ts';
+import { BigInt, Address, ethereum, dataSource, log } from '@graphprotocol/graph-ts';
 
 export function trackGlobalDebt(block: ethereum.Block): void {
   let timeSlot = block.timestamp.minus(block.timestamp.mod(BigInt.fromI32(900)));
@@ -34,6 +34,11 @@ export function trackGlobalDebt(block: ethereum.Block): void {
 
     if (issuedSynths.reverted) {
       issuedSynths = synthetix.try_totalIssuedSynths(strToBytes('sUSD', 32));
+      if (issuedSynths.reverted) {
+        // for some reason this can happen (not sure how)
+        log.debug('failed to get issued synths (skip', []);
+        return;
+      }
     }
 
     let debtStateEntity = new DebtState(timeSlot.toString());
@@ -41,7 +46,7 @@ export function trackGlobalDebt(block: ethereum.Block): void {
     debtStateEntity.timestamp = block.timestamp;
 
     // debt entry represents percentage ownership of the "first" snx staker. It must be inverted to make sense of issued/burnt
-    debtStateEntity.debtEntry = toDecimal(BigInt.fromI32(1), 27).div(toDecimal(synthetixState.lastDebtLedgerEntry()));
+    debtStateEntity.debtEntry = toDecimal(BigInt.fromI32(1), 0).div(toDecimal(synthetixState.lastDebtLedgerEntry()));
 
     debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
 
