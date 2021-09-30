@@ -22,7 +22,7 @@ if (getCurrentNetwork() == 'mainnet') {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.4',
+        apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/exchanges.ts',
         entities: ['SynthExchange'],
@@ -51,7 +51,7 @@ if (getCurrentNetwork() == 'mainnet') {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.4',
+        apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/exchanges.ts',
         entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate'],
@@ -108,7 +108,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/exchanges.ts',
       entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate'],
@@ -168,7 +168,7 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/exchanges.ts',
       entities: ['SystemSettings'],

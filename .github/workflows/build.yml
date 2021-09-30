@@ -25,6 +25,7 @@ jobs:
           npm ci
       - name: build
         run: |
+          node prepare-abis
           ./build.sh build all all
   deploy:
     name: Update synthetix in contracts-interface
@@ -39,6 +40,6 @@ jobs:
       - name: npm ci
         run: |
           npm ci
-      - name: build
+      - name: deploy
         run: |
           GRAPH_TOKEN=${{ secrets.GRAPH_TOKEN }} ./build.sh deploy all all

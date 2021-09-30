@@ -20,7 +20,7 @@ getContractDeployments('Exchanger').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/exchanger.ts',
       entities: ['ExchangeEntrySettled', 'ExchangeEntryAppended', 'TemporaryExchangePartnerTracker'],
@@ -59,7 +59,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.4',
+        apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/exchanger.ts',
         entities: ['DailyExchangePartner', 'ExchangePartner', 'TemporaryExchangePartnerTracker'],
@@ -89,7 +89,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/exchanger.ts',
       entities: ['DailyExchangePartner', 'ExchangePartner', 'TemporaryExchangePartnerTracker'],

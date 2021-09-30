@@ -35,7 +35,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
       entities: ['LatestRate', 'InversePricingInfo'],
@@ -97,7 +97,7 @@ if (getCurrentNetwork() === 'mainnet' || getCurrentNetwork() == 'kovan') {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
       entities: [],
@@ -148,7 +148,7 @@ for (const proxyTemplateName of ['AggregatorProxy', 'SynthAggregatorProxy', 'Inv
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
       entities: [],
@@ -177,7 +177,7 @@ const aggregatorTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.4',
+    apiVersion: '0.0.5',
     language: 'wasm/assemblyscript',
     file: '../src/fragments/latest-rates.ts',
     entities: ['LatestRates'],
@@ -213,7 +213,7 @@ const synthAggregatorTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.4',
+    apiVersion: '0.0.5',
     language: 'wasm/assemblyscript',
     file: '../src/fragments/latest-rates.ts',
     entities: ['LatestRates'],
@@ -250,7 +250,7 @@ const inverseAggregatorTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.4',
+    apiVersion: '0.0.5',
     language: 'wasm/assemblyscript',
     file: '../src/fragments/latest-rates.ts',
     entities: ['LatestRates'],
