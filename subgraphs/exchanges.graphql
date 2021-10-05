@@ -58,6 +58,9 @@ type Total @entity {
   " number of trades completed over period "
   trades: BigInt!
 
+  " number of unique traders who were first seen in this period "
+  newExchangers: BigInt!
+
   " number of unique traders seen over period "
   exchangers: BigInt!
 

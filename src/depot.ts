@@ -9,7 +9,7 @@ import {
   Exchange as ExchangeEvent,
 } from '../generated/subgraphs/depot/Depot_0/Depot';
 import { UserAction, ClearedDeposit, Exchange } from '../generated/subgraphs/depot/schema';
-import { toDecimal } from './lib/util';
+import { toDecimal } from './lib/helpers';
 
 function createUserAction(event: ethereum.Event): UserAction {
   let entity = new UserAction(event.transaction.hash.toHex() + '-' + event.logIndex.toString());

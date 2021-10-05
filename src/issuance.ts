@@ -10,7 +10,8 @@ import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0
 
 import { AddressResolver } from '../generated/subgraphs/issuance/issuance_Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, isEscrow } from './lib/util';
+import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS } from './lib/helpers';
+import { isEscrow } from './lib/util';
 import { getTimeID } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
@@ -23,7 +24,6 @@ import {
 
 import {
   Synth,
-  Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/subgraphs/issuance/issuance_SynthsUSD_0/Synth';
@@ -48,7 +48,7 @@ import {
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 
-import { strToBytes } from './lib/util';
+import { strToBytes } from './lib/helpers';
 
 import { log } from '@graphprotocol/graph-ts';
 import { DAY_SECONDS } from './lib/helpers';

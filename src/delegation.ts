@@ -5,7 +5,7 @@ import {
 
 import { DelegatedWallet } from '../generated/subgraphs/delegation/schema';
 
-import { strToBytes } from './lib/util';
+import { strToBytes } from './lib/helpers';
 import { Address, Bytes } from '@graphprotocol/graph-ts';
 
 function setDelegateApproval(authoriser: Address, delegate: Address, action: Bytes, isApproval: boolean): void {

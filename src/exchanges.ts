@@ -22,7 +22,6 @@ import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphproto
 
 import {
   getUSDAmountFromAssetAmount,
-  etherUnits,
   getLatestRate,
   DAY_SECONDS,
   getTimeID,
@@ -31,7 +30,7 @@ import {
   ZERO,
   YEAR_SECONDS,
 } from './lib/helpers';
-import { toDecimal, ZERO_ADDRESS } from './lib/util';
+import { toDecimal, ZERO_ADDRESS } from './lib/helpers';
 import { addDollar, addProxyAggregator } from './fragments/latest-rates';
 import { Synthetix } from '../generated/subgraphs/latest-rates/ChainlinkMultisig/Synthetix';
 import { AddressResolver } from '../generated/subgraphs/latest-rates/ChainlinkMultisig/AddressResolver';
@@ -60,6 +59,7 @@ function populateAggregatedTotalEntity(
 
   entity.trades = ZERO;
   entity.exchangers = ZERO;
+  entity.newExchangers = ZERO;
   entity.exchangeUSDTally = new BigDecimal(ZERO);
   entity.totalFeesGeneratedInUSD = new BigDecimal(ZERO);
 
@@ -79,7 +79,12 @@ function trackTotals(
     exchangerId = account.toHex() + '-' + entity.id;
   }
 
+  let globalExchanger = Exchanger.load(account.toHex());
   let exchanger = Exchanger.load(exchangerId);
+
+  if (globalExchanger == null) {
+    entity.newExchangers = entity.newExchangers.plus(BigInt.fromI32(1));
+  }
 
   if (exchanger == null) {
     entity.exchangers = entity.exchangers.plus(BigInt.fromI32(1));
@@ -262,7 +267,6 @@ export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
   let currencyKey = event.params.synthKey.toString();
 
   let entity = new ExchangeFee(currencyKey);
-  entity.fee = new BigDecimal(event.params.newExchangeFeeRate);
-  entity.fee = entity.fee.div(etherUnits);
+  entity.fee = toDecimal(event.params.newExchangeFeeRate);
   entity.save();
 }

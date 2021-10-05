@@ -15,7 +15,7 @@ import {
 
 import { Account, Member, Proposal, SystemInfo, Vote, Tribute } from '../generated/subgraphs/grantsdao/schema';
 
-import { toDecimal, ZERO, ONE } from './lib/util';
+import { toDecimal, ZERO, ONE } from './lib/helpers';
 
 export function handleNewProposal(event: NewProposal): void {
   let dao = GrantsDAO.bind(event.address);

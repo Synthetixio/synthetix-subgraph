@@ -5,7 +5,7 @@ import {
 } from '../../generated/subgraphs/balances/balances_SynthsUSD_0/Synth';
 
 import { Synth, SynthBalance, LatestSynthBalance, SynthByCurrencyKey } from '../../generated/subgraphs/balances/schema';
-import { FEE_ADDRESS, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/util';
+import { FEE_ADDRESS, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/helpers';
 
 export function registerSynth(synthAddress: Address): void {
   // the address associated with the issuer may not be the proxy
