@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 network=$1
 subgraph=$2
 token=$THEGRAPH_SNX_ACCESS_TOKEN
