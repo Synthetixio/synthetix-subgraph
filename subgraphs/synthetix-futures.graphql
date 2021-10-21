@@ -9,6 +9,7 @@ type FuturesTrade @entity {
   account: Bytes!
   size: BigInt!
   asset: Bytes!
+  price: BigInt!
 }
 
 type FuturesPosition @entity {
@@ -24,4 +25,12 @@ type FuturesPosition @entity {
   margin: BigInt!
   entryPrice: BigInt!
   exitPrice: BigInt
+}
+
+type FuturesStat @entity {
+  id: ID!
+  account: Bytes!
+  pnl: BigInt!
+  liquidations: BigInt!
+  totalTrades: BigInt!
 }

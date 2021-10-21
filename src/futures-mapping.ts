@@ -1,4 +1,4 @@
-import { store, Address } from '@graphprotocol/graph-ts';
+import { store, Address, BigInt } from '@graphprotocol/graph-ts';
 import {
   MarketAdded as MarketAddedEvent,
   MarketRemoved as MarketRemovedEvent,
@@ -11,7 +11,10 @@ import {
   FuturesMarket as FuturesMarketContract,
 } from '../generated/templates/FuturesMarket/FuturesMarket';
 
-import { FuturesMarket as FuturesMarketEntity, FuturesPosition, FuturesTrade } from '../generated/schema';
+import { FuturesMarket as FuturesMarketEntity, FuturesPosition, FuturesTrade, FuturesStat } from '../generated/schema';
+import { ZERO } from './common';
+
+let ETHER = BigInt.fromI32(10).pow(18);
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
@@ -32,14 +35,25 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.transaction.to as Address);
   let proxyAddress = futuresMarketContract.proxy();
   let positionId = proxyAddress.toHex() + '-' + event.params.id.toHex();
+  let statId = event.params.account.toHex();
   let marketEntity = FuturesMarketEntity.load(proxyAddress.toHex());
   let positionEntity = FuturesPosition.load(positionId);
+  let statEntity = FuturesStat.load(statId);
+  if (statEntity == null) {
+    statEntity = new FuturesStat(statId);
+    statEntity.account = event.params.account;
+    statEntity.pnl = ZERO;
+    statEntity.liquidations = ZERO;
+    statEntity.totalTrades = ZERO;
+  }
   if (event.params.tradeSize.isZero() == false) {
     let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
     tradeEntity.timestamp = event.block.timestamp;
     tradeEntity.account = event.params.account;
     tradeEntity.size = event.params.tradeSize;
+    tradeEntity.price = event.params.lastPrice;
     tradeEntity.asset = marketEntity.asset;
+    statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     tradeEntity.save();
   }
   if (positionEntity == null) {
@@ -56,6 +70,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
     positionEntity.exitPrice = futuresMarketContract.assetPrice().value0;
+    statEntity.pnl = statEntity.pnl.plus(
+      positionEntity.size.times(positionEntity.exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
+    );
   } else {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.size = event.params.size;
@@ -64,6 +81,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
   positionEntity.save();
+  statEntity.save();
 }
 
 export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
@@ -71,6 +89,10 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   let proxyAddress = futuresMarketContract.proxy();
   let positionId = proxyAddress.toHex() + '-' + event.params.id.toHex();
   let positionEntity = FuturesPosition.load(positionId);
+  let statId = event.params.account.toHex();
+  let statEntity = FuturesStat.load(statId);
+  statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
+  statEntity.save();
   positionEntity.isLiquidated = true;
   positionEntity.save();
 }
