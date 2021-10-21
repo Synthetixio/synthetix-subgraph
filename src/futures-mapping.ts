@@ -11,10 +11,19 @@ import {
   FuturesMarket as FuturesMarketContract,
 } from '../generated/templates/FuturesMarket/FuturesMarket';
 
-import { FuturesMarket as FuturesMarketEntity, FuturesPosition, FuturesTrade, FuturesStat } from '../generated/schema';
+import {
+  FuturesMarket as FuturesMarketEntity,
+  FuturesPosition,
+  FuturesTrade,
+  FuturesStat,
+  FuturesCumulativeStat,
+  FuturesOneMinStat,
+} from '../generated/schema';
 import { ZERO } from './common';
 
 let ETHER = BigInt.fromI32(10).pow(18);
+let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
+let SINGLE_INDEX = '0';
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
@@ -55,7 +64,28 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.asset = marketEntity.asset;
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     tradeEntity.save();
+
+    let cumulativeEntity = getCumulativeEntity();
+
+    let volume = tradeEntity.size.times(tradeEntity.price);
+    cumulativeEntity.totalTrades = cumulativeEntity.totalTrades.plus(BigInt.fromI32(1));
+    cumulativeEntity.totalVolume = cumulativeEntity.totalVolume.plus(volume);
+    cumulativeEntity.averageVolume = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
+
+    let timestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
+    let oneMinStat = FuturesOneMinStat.load(timestamp.toString());
+    if (oneMinStat == null) {
+      oneMinStat = new FuturesOneMinStat(timestamp.toString());
+      oneMinStat.trades = BigInt.fromI32(1);
+      oneMinStat.volume = volume;
+    } else {
+      oneMinStat.trades = oneMinStat.trades.plus(BigInt.fromI32(1));
+      oneMinStat.volume = oneMinStat.volume.plus(volume);
+    }
+    oneMinStat.save();
+    cumulativeEntity.save();
   }
+
   if (positionEntity == null) {
     positionEntity = new FuturesPosition(positionId);
     positionEntity.market = proxyAddress;
@@ -95,4 +125,25 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   statEntity.save();
   positionEntity.isLiquidated = true;
   positionEntity.save();
+
+  let cumulativeEntity = getCumulativeEntity();
+  cumulativeEntity.totalLiquidations = cumulativeEntity.totalLiquidations.plus(BigInt.fromI32(1));
+  cumulativeEntity.save();
+}
+
+function getCumulativeEntity(): FuturesCumulativeStat {
+  let cumulativeEntity = FuturesCumulativeStat.load(SINGLE_INDEX);
+  if (cumulativeEntity == null) {
+    cumulativeEntity = new FuturesCumulativeStat(SINGLE_INDEX);
+    cumulativeEntity.totalLiquidations = ZERO;
+    cumulativeEntity.totalTrades = ZERO;
+    cumulativeEntity.totalVolume = ZERO;
+    cumulativeEntity.averageVolume = ZERO;
+  }
+  return cumulativeEntity as FuturesCumulativeStat;
+}
+
+function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
+  let remainder = timestamp.mod(num);
+  return timestamp.minus(remainder);
 }
