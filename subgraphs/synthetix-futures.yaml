@@ -8,9 +8,8 @@ dataSources:
     name: FuturesMarketManager
     network: optimism-kovan
     source:
-      address: '0x3f1289dB63C4b5ed0f10cc04b86575c186D18841'
+      address: '0xcB3bfb094006F06B46a8C156A72D681A9FCdf43e'
       abi: FuturesMarketManager
-      startBlock: 40931
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
