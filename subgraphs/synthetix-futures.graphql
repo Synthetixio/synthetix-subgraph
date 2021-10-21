@@ -30,7 +30,9 @@ type FuturesPosition @entity {
 type FuturesStat @entity {
   id: ID!
   account: Bytes!
+  feesPaid: BigInt!
   pnl: BigInt!
+  pnlWithFeesPaid: BigInt!
   liquidations: BigInt!
   totalTrades: BigInt!
 }

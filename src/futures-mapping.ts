@@ -42,7 +42,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   if (statEntity == null) {
     statEntity = new FuturesStat(statId);
     statEntity.account = event.params.account;
+    statEntity.feesPaid = ZERO;
     statEntity.pnl = ZERO;
+    statEntity.pnlWithFeesPaid = ZERO;
     statEntity.liquidations = ZERO;
     statEntity.totalTrades = ZERO;
   }
@@ -78,6 +80,11 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.size = event.params.size;
     positionEntity.margin = event.params.margin;
   }
+
+  //Calc fees paid to exchange and include in PnL
+  statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
+  statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
+
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
   positionEntity.save();
