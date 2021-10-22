@@ -43,6 +43,8 @@ type FuturesCumulativeStat @entity {
   totalTrades: BigInt!
   totalVolume: BigInt!
   averageVolume: BigInt!
+  totalPnL: BigInt!
+  totalPnLWithFeesPaid: BigInt!
 }
 
 type FuturesOneMinStat @entity {
