@@ -68,7 +68,10 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     tradeEntity.save();
 
-    let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER);
+    let volume = tradeEntity.size
+      .times(tradeEntity.price)
+      .div(ETHER)
+      .abs();
     cumulativeEntity.totalTrades = cumulativeEntity.totalTrades.plus(BigInt.fromI32(1));
     cumulativeEntity.totalVolume = cumulativeEntity.totalVolume.plus(volume);
     cumulativeEntity.averageTradeSize = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
