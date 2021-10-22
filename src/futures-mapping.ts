@@ -79,7 +79,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       oneMinStat = new FuturesOneMinStat(timestamp.toString());
       oneMinStat.trades = BigInt.fromI32(1);
       oneMinStat.volume = volume;
-      timestamp = event.block.timestamp;
+      oneMinStat.timestamp = event.block.timestamp;
     } else {
       oneMinStat.trades = oneMinStat.trades.plus(BigInt.fromI32(1));
       oneMinStat.volume = oneMinStat.volume.plus(volume);
