@@ -71,7 +71,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER);
     cumulativeEntity.totalTrades = cumulativeEntity.totalTrades.plus(BigInt.fromI32(1));
     cumulativeEntity.totalVolume = cumulativeEntity.totalVolume.plus(volume);
-    cumulativeEntity.averageVolume = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
+    cumulativeEntity.averageTradeSize = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
 
     let timestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
     let oneMinStat = FuturesOneMinStat.load(timestamp.toString());
@@ -145,9 +145,9 @@ function getCumulativeEntity(): FuturesCumulativeStat {
     cumulativeEntity.totalLiquidations = ZERO;
     cumulativeEntity.totalTrades = ZERO;
     cumulativeEntity.totalVolume = ZERO;
-    cumulativeEntity.averageVolume = ZERO;
     cumulativeEntity.totalPnL = ZERO;
     cumulativeEntity.totalPnLWithFeesPaid = ZERO;
+    cumulativeEntity.averageTradeSize = ZERO;
   }
   return cumulativeEntity as FuturesCumulativeStat;
 }
