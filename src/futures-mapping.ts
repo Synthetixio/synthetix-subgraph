@@ -102,6 +102,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.pnl = statEntity.pnl.plus(
       positionEntity.size.times(positionEntity.exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
     );
+    cumulativeEntity.totalPnL = cumulativeEntity.totalPnL.plus(statEntity.pnl);
   } else {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.size = event.params.size;
@@ -111,6 +112,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   //Calc fees paid to exchange and include in PnL
   statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
+  cumulativeEntity.totalPnLWithFeesPaid.minus(statEntity.feesPaid);
 
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
@@ -143,6 +145,8 @@ function getCumulativeEntity(): FuturesCumulativeStat {
     cumulativeEntity.totalTrades = ZERO;
     cumulativeEntity.totalVolume = ZERO;
     cumulativeEntity.averageVolume = ZERO;
+    cumulativeEntity.totalPnL = ZERO;
+    cumulativeEntity.totalPnLWithFeesPaid = ZERO;
   }
   return cumulativeEntity as FuturesCumulativeStat;
 }
