@@ -31,6 +31,9 @@ export function handleMarketAdded(event: MarketAddedEvent): void {
   FuturesMarket.create(proxyAddress);
   let marketEntity = new FuturesMarketEntity(proxyAddress.toHex());
   marketEntity.asset = event.params.asset;
+  let marketStats = getOrCreateMarketStats(event.params.asset.toHex());
+  marketStats.save();
+  marketEntity.marketStats = marketStats.id;
   marketEntity.save();
 }
 
@@ -48,7 +51,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   let marketEntity = FuturesMarketEntity.load(proxyAddress.toHex());
   let positionEntity = FuturesPosition.load(positionId);
   let statEntity = FuturesStat.load(statId);
-  let cumulativeEntity = getCumulativeEntity();
+  let cumulativeEntity = getOrCreateCumulativeEntity();
+
   if (statEntity == null) {
     statEntity = new FuturesStat(statId);
     statEntity.account = event.params.account;
@@ -88,6 +92,12 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       oneMinStat.volume = oneMinStat.volume.plus(volume);
     }
     oneMinStat.save();
+
+    let marketStats = getOrCreateMarketStats(marketEntity.asset.toHex());
+    marketStats.totalTrades = marketStats.totalTrades.plus(BigInt.fromI32(1));
+    marketStats.totalVolume = marketStats.totalVolume.plus(volume);
+    marketStats.averageTradeSize = marketStats.totalVolume.div(marketStats.totalTrades);
+    marketStats.save();
   }
   if (positionEntity == null) {
     positionEntity = new FuturesPosition(positionId);
@@ -106,7 +116,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.pnl = statEntity.pnl.plus(
       positionEntity.size.times(positionEntity.exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
     );
-    cumulativeEntity.totalPnL = cumulativeEntity.totalPnL.plus(statEntity.pnl);
   } else {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.size = event.params.size;
@@ -116,7 +125,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   //Calc fees paid to exchange and include in PnL
   statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
-  cumulativeEntity.totalPnLWithFeesPaid.minus(statEntity.feesPaid);
 
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
@@ -136,20 +144,34 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   statEntity.save();
   positionEntity.isLiquidated = true;
   positionEntity.save();
-  let cumulativeEntity = getCumulativeEntity();
+  let cumulativeEntity = getOrCreateCumulativeEntity();
   cumulativeEntity.totalLiquidations = cumulativeEntity.totalLiquidations.plus(BigInt.fromI32(1));
   cumulativeEntity.save();
+
+  let marketStats = getOrCreateMarketStats(positionEntity.asset.toHex());
+  marketStats.totalLiquidations = marketStats.totalLiquidations.plus(BigInt.fromI32(1));
+  marketStats.save();
 }
 
-function getCumulativeEntity(): FuturesCumulativeStat {
+function getOrCreateCumulativeEntity(): FuturesCumulativeStat {
   let cumulativeEntity = FuturesCumulativeStat.load(SINGLE_INDEX);
   if (cumulativeEntity == null) {
     cumulativeEntity = new FuturesCumulativeStat(SINGLE_INDEX);
     cumulativeEntity.totalLiquidations = ZERO;
     cumulativeEntity.totalTrades = ZERO;
     cumulativeEntity.totalVolume = ZERO;
-    cumulativeEntity.totalPnL = ZERO;
-    cumulativeEntity.totalPnLWithFeesPaid = ZERO;
+    cumulativeEntity.averageTradeSize = ZERO;
+  }
+  return cumulativeEntity as FuturesCumulativeStat;
+}
+
+function getOrCreateMarketStats(asset: string): FuturesCumulativeStat {
+  let cumulativeEntity = FuturesCumulativeStat.load(asset);
+  if (cumulativeEntity == null) {
+    cumulativeEntity = new FuturesCumulativeStat(asset);
+    cumulativeEntity.totalLiquidations = ZERO;
+    cumulativeEntity.totalTrades = ZERO;
+    cumulativeEntity.totalVolume = ZERO;
     cumulativeEntity.averageTradeSize = ZERO;
   }
   return cumulativeEntity as FuturesCumulativeStat;

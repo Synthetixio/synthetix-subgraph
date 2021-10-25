@@ -1,6 +1,7 @@
 type FuturesMarket @entity {
   id: ID!
   asset: Bytes!
+  marketStats: FuturesCumulativeStat!
 }
 
 type FuturesTrade @entity {
@@ -42,8 +43,6 @@ type FuturesCumulativeStat @entity {
   totalLiquidations: BigInt!
   totalTrades: BigInt!
   totalVolume: BigInt!
-  totalPnL: BigInt!
-  totalPnLWithFeesPaid: BigInt!
   averageTradeSize: BigInt!
 }
 
