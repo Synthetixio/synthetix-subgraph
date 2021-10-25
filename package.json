@@ -18,7 +18,7 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.22.2",
+    "@graphprotocol/graph-cli": "https://github.com/graphprotocol/graph-cli#otavio/fs-bug-fix",
     "@graphprotocol/graph-ts": "0.22.1",
     "chalk": "4.1.2",
     "commander": "8.2.0",

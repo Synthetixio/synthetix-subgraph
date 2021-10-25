@@ -13,7 +13,7 @@ GRAPH=${GRAPH:-node_modules/.bin/graph}
 
 # only need to run the same codegen once for all networks
 
-node ./codegen
+node ./prepare-abis
 
 all_subgraphs=$(ls subgraphs | grep .js)
 
