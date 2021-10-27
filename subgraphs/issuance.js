@@ -222,6 +222,45 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
   });
 }
 
+getContractDeployments('ProxyERC20').forEach((a, i) => {
+  manifest.push({
+    kind: 'ethereum/contract',
+    name: `issuance_ProxyERC20_${i}`,
+    network: getCurrentNetwork(),
+    source: {
+      address: a.address,
+      startBlock: getCurrentNetwork() === 'mainnet' ? Math.max(10000000, a.startBlock) : a.startBlock,
+      abi: 'Proxy',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.4',
+      language: 'wasm/assemblyscript',
+      file: '../src/issuance.ts',
+      entities: ['DebtState'],
+      abis: [
+        {
+          name: 'Proxy',
+          file: '../abis/Proxy.json',
+        },
+        {
+          name: 'AddressResolver',
+          file: '../abis/AddressResolver.json',
+        },
+        {
+          name: 'SynthetixState',
+          file: '../abis/SynthetixState.json',
+        },
+        {
+          name: 'Synthetix',
+          file: '../abis/Synthetix.json',
+        },
+      ],
+      blockHandlers: [{ handler: 'handleBlock' }],
+    },
+  });
+});
+
 module.exports = {
   specVersion: '0.0.2',
   description: 'Synthetix API',
