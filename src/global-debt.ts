@@ -11,6 +11,7 @@ import { strToBytes, toDecimal } from './lib/util';
 import { DebtState } from '../generated/subgraphs/global-debt/schema';
 
 import { BigInt, Address, ethereum, dataSource, log } from '@graphprotocol/graph-ts';
+import { contracts } from '../generated/contracts';
 
 export function trackGlobalDebt(block: ethereum.Block): void {
   let timeSlot = block.timestamp.minus(block.timestamp.mod(BigInt.fromI32(900)));
@@ -18,8 +19,10 @@ export function trackGlobalDebt(block: ethereum.Block): void {
   let curDebtState = DebtState.load(timeSlot.toString());
 
   if (curDebtState == null) {
-    // this is tmp because this will be refactored soon anyway
-    let resolver = AddressResolver.bind(Address.fromHexString('0x4e3b31eb0e5cb73641ee1e65e7dcefe520ba3ef2') as Address);
+    let addressResolverAddress = Address.fromHexString(
+      contracts.get('addressresolver-' + dataSource.network()),
+    ) as Address;
+    let resolver = AddressResolver.bind(addressResolverAddress);
 
     let synthetixStateAddress = resolver.try_getAddress(strToBytes('SynthetixState', 32));
 
@@ -30,14 +33,18 @@ export function trackGlobalDebt(block: ethereum.Block): void {
     let synthetixState = SynthetixState.bind(synthetixStateAddress.value);
 
     let synthetix = SNX.bind(dataSource.address());
-    let issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
+    let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));
 
     if (issuedSynths.reverted) {
-      issuedSynths = synthetix.try_totalIssuedSynths(strToBytes('sUSD', 32));
+      issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
+
       if (issuedSynths.reverted) {
-        // for some reason this can happen (not sure how)
-        log.debug('failed to get issued synths (skip', []);
-        return;
+        issuedSynths = synthetix.try_totalIssuedSynths(strToBytes('sUSD', 32));
+        if (issuedSynths.reverted) {
+          // for some reason this can happen (not sure how)
+          log.debug('failed to get issued synths (skip', []);
+          return;
+        }
       }
     }
 

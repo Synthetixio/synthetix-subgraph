@@ -10,7 +10,7 @@ import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0
 
 import { AddressResolver } from '../generated/subgraphs/issuance/issuance_Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, isEscrow } from './lib/util';
+import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, isEscrow, ZERO } from './lib/util';
 import { getTimeID } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
@@ -53,6 +53,7 @@ import { strToBytes } from './lib/util';
 
 import { log } from '@graphprotocol/graph-ts';
 import { DAY_SECONDS } from './lib/helpers';
+import { contracts } from '../generated/contracts';
 
 let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -249,6 +250,17 @@ function trackDebtSnapshot(event: ethereum.Event): void {
     entity.balanceOf = toDecimal(synthetix.balanceOf(account));
     entity.collateral = toDecimal(synthetix.collateral(account));
     entity.debtBalanceOf = toDecimal(synthetix.debtBalanceOf(account, sUSD32));
+    let addressResolverAddress = Address.fromHexString(
+      contracts.get('addressresolver-' + dataSource.network()),
+    ) as Address;
+    let resolver = AddressResolver.bind(addressResolverAddress);
+    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
+    let issuanceData = synthetixState.issuanceData(account);
+    entity.initialDebtOwnership = toDecimal(issuanceData.value0);
+    let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+    if (!debtLedgerTry.reverted) {
+      entity.debtEntryAtIndex = debtLedgerTry.value;
+    }
   }
   // Use bytes32
   else if (event.block.number > v2100UpgradeBlock) {
@@ -256,6 +268,18 @@ function trackDebtSnapshot(event: ethereum.Event): void {
     entity.balanceOf = toDecimal(synthetix.balanceOf(account));
     entity.collateral = toDecimal(synthetix.collateral(account));
     entity.debtBalanceOf = toDecimal(synthetix.debtBalanceOf(account, sUSD32));
+
+    let addressResolverAddress = Address.fromHexString(
+      contracts.get('addressresolver-' + dataSource.network()),
+    ) as Address;
+    let resolver = AddressResolver.bind(addressResolverAddress);
+    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
+    let issuanceData = synthetixState.issuanceData(account);
+    entity.initialDebtOwnership = toDecimal(issuanceData.value0);
+    let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+    if (!debtLedgerTry.reverted) {
+      entity.debtEntryAtIndex = debtLedgerTry.value;
+    }
     // Use bytes4
   } else {
     let synthetix = Synthetix4.bind(snxContract); // not the correct ABI/contract for pre v2 but should suffice
@@ -271,6 +295,8 @@ function trackDebtSnapshot(event: ethereum.Event): void {
     if (!debtBalanceOfTry.reverted) {
       entity.debtBalanceOf = toDecimal(debtBalanceOfTry.value);
     }
+
+    entity.initialDebtOwnership = toDecimal(ZERO);
   }
 
   entity.save();
@@ -385,12 +411,17 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
-    if (totalIssued.reverted) {
-      log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
-        event.transaction.hash.toHex(),
-      ]);
-      return;
+
+    let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));
+    if (issuedSynths.reverted) {
+      issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
+      if (issuedSynths.reverted) {
+        // for some reason this can happen (not sure how)
+        log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+          event.transaction.hash.toHex(),
+        ]);
+        return;
+      }
     }
 
     let dailyIssuedEntity = DailyIssued.load(timestamp.toString());
@@ -400,7 +431,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
     } else {
       dailyIssuedEntity.value = dailyIssuedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyIssuedEntity.totalDebt = toDecimal(totalIssued.value);
+    dailyIssuedEntity.totalDebt = toDecimal(issuedSynths.value);
     dailyIssuedEntity.save();
   }
 
@@ -483,12 +514,16 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
-    if (totalIssued.reverted) {
-      log.debug('Reverted burned try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
-        event.transaction.hash.toHex(),
-      ]);
-      return;
+    let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));
+    if (issuedSynths.reverted) {
+      issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
+      if (issuedSynths.reverted) {
+        // for some reason this can happen (not sure how)
+        log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+          event.transaction.hash.toHex(),
+        ]);
+        return;
+      }
     }
 
     let dailyBurnedEntity = DailyBurned.load(timestamp.toString());
@@ -498,7 +533,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     } else {
       dailyBurnedEntity.value = dailyBurnedEntity.value.plus(toDecimal(event.params.value));
     }
-    dailyBurnedEntity.totalDebt = toDecimal(totalIssued.value);
+    dailyBurnedEntity.totalDebt = toDecimal(issuedSynths.value);
     dailyBurnedEntity.save();
   }
 
@@ -612,6 +647,7 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     totalActiveStaker.count = totalActiveStaker.count.minus(BigInt.fromI32(1));
     totalActiveStaker.save();
     store.remove('ActiveStaker', account.toHex());
+    ``;
     // else if you are minting and have not been accounted for as being active, add one
     // and create a new active staker entity
   } else if (!isBurn && activeStaker == null) {

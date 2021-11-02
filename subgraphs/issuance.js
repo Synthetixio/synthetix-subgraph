@@ -26,7 +26,7 @@ for (const contractName of ['Synthetix', 'ERC20']) {
         abis: [
           {
             name: 'Synthetix',
-            file: '../abis/Synthetix.json',
+            file: '../abis/SynthetixGlobalDebt.json',
           },
           {
             name: 'Synthetix4',
@@ -123,7 +123,7 @@ getContractDeployments('RewardEscrow').forEach((a, i) => {
         },
         {
           name: 'Synthetix',
-          file: '../abis/Synthetix.json',
+          file: '../abis/SynthetixGlobalDebt.json',
         },
         {
           name: 'Synthetix4',
@@ -184,7 +184,7 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
           },
           {
             name: 'Synthetix',
-            file: '../abis/Synthetix.json',
+            file: '../abis/SynthetixGlobalDebt.json',
           },
           {
             name: 'Synthetix4',
