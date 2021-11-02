@@ -1,12 +1,10 @@
 import { BigDecimal, BigInt, Bytes, ByteArray, log, Address } from '@graphprotocol/graph-ts';
 
-import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
-
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
 
-export let ZERO_ADDRESS = Address.fromHexString('0x0000000000000000000000000000000000000000') as Address;
-export let FEE_ADDRESS = Address.fromHexString('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef') as Address;
+export let ZERO_ADDRESS = changetype<Address>(Address.fromHexString('0x0000000000000000000000000000000000000000'));
+export let FEE_ADDRESS = changetype<Address>(Address.fromHexString('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef'));
 
 export let FIFTEEN_MINUTE_SECONDS = BigInt.fromI32(900);
 export let DAY_SECONDS = BigInt.fromI32(86400);
@@ -20,7 +18,6 @@ export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
   return value.divDecimal(precision);
 }
 
-// Extrapolated from ByteArray.fromUTF8
 export function strToBytes(str: string, length: i32 = 32): Bytes {
   return Bytes.fromByteArray(Bytes.fromUTF8(str));
 }
