@@ -14,7 +14,10 @@ for (const contractName of ['Synthetix', 'ERC20']) {
       network: getCurrentNetwork(),
       source: {
         address: a.address,
-        startBlock: a.address.toLowerCase() === HISTORICAL_PROXY_SYNTHETIX ? OVERWRITE_HISTORICAL_BLOCK : a.startBlock,
+        startBlock: Math.max(
+          parseInt(process.env.SNX_START_BLOCK || '0'),
+          a.address.toLowerCase() === HISTORICAL_PROXY_SYNTHETIX ? OVERWRITE_HISTORICAL_BLOCK : a.startBlock,
+        ),
         abi: 'Synthetix',
       },
       mapping: {
@@ -26,7 +29,7 @@ for (const contractName of ['Synthetix', 'ERC20']) {
         abis: [
           {
             name: 'Synthetix',
-            file: '../abis/Synthetix.json',
+            file: '../abis/SynthetixGlobalDebt.json',
           },
           {
             name: 'Synthetix4',
@@ -123,7 +126,7 @@ getContractDeployments('RewardEscrow').forEach((a, i) => {
         },
         {
           name: 'Synthetix',
-          file: '../abis/Synthetix.json',
+          file: '../abis/SynthetixGlobalDebt.json',
         },
         {
           name: 'Synthetix4',
@@ -184,7 +187,7 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
           },
           {
             name: 'Synthetix',
-            file: '../abis/Synthetix.json',
+            file: '../abis/SynthetixGlobalDebt.json',
           },
           {
             name: 'Synthetix4',

@@ -66,6 +66,12 @@ type DebtSnapshot @entity {
 
   " sUSD of debt as of last event "
   debtBalanceOf: BigDecimal
+
+  " sUSD debt portion a user had at last index "
+  initialDebtOwnership: BigDecimal
+
+  " debt entry when `initialDebtOwnership` applies"
+  debtEntryAtIndex: BigInt
 }
 
 type SynthHolder @entity {

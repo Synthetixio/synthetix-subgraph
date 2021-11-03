@@ -105,8 +105,8 @@ program.action(async () => {
     );
   }
 
-  console.log(cyan('Creating escrow contracts...'));
-  await execSync(`node ./scripts/helpers/create-escrow-contracts`);
+  console.log(cyan('Creating contracts...'));
+  await execSync(`node ./scripts/helpers/create-contracts`);
 
   if (response.subgraph !== 'rates' && fs.existsSync(`./generated/subgraphs/${response.subgraph}/ChainlinkMultisig`)) {
     console.log(cyan('Moving ChainlinkMultisig...'));
