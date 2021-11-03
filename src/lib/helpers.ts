@@ -1,6 +1,7 @@
 import { BigDecimal, BigInt, Bytes, ByteArray, log } from '@graphprotocol/graph-ts';
 
 import { LatestRate } from '../../generated/subgraphs/rates/schema';
+import { initFeed } from '../fragments/latest-rates';
 
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
@@ -42,11 +43,13 @@ export function getUSDAmountFromAssetAmount(amount: BigInt, rate: BigDecimal): B
   return formattedDecimalAmount.times(rate);
 }
 
-export function getLatestRate(synth: string, txHash: string): BigDecimal {
+export function getLatestRate(synth: string, txHash: string): BigDecimal | null {
   let latestRate = LatestRate.load(synth);
   if (latestRate == null) {
-    log.error('latest rate missing for synth: {}, in tx hash: {}', [synth, txHash]);
-    return null;
+    log.warning('latest rate missing for synth: {}, in tx hash: {}', [synth, txHash]);
+
+    // load feed for the first time, and use contract call to get rate
+    return initFeed(synth);
   }
   return latestRate.rate;
 }
