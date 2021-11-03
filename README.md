@@ -79,3 +79,5 @@ Here’s an example of ...
 To build and deploy the subgraphs, run `npm run deploy` for the CLI. You will have the option to update the Synthetix contract ABIs, build the updated subgraph, and deploy to the hosted service and/or decentralized network.
 
 The CLI automatically generates the main subgraph, which is composed of the other subgraph in the `subgraphs` directory. You can also use the CLI to deploy the component subgraphs to the hosted service for faster development and testing.
+
+All of the prompts in the CLI can be provided via options. For more information, run `npm run deploy -- --help`.
