@@ -1623,6 +1623,27 @@
         "type": "bytes32"
       }
     ],
+    "name": "totalIssuedSynthsExcludeEtherCollateral",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "currencyKey",
+        "type": "bytes32"
+      }
+    ],
     "name": "totalIssuedSynthsExcludeOtherCollateral",
     "outputs": [
       {
