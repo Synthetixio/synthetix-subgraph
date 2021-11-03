@@ -254,7 +254,6 @@ function trackDebtSnapshot(event: ethereum.Event): void {
       contracts.get('addressresolver-' + dataSource.network()),
     ) as Address;
     let resolver = AddressResolver.bind(addressResolverAddress);
-    log.info('THE ADDRESS RESOLVE ' + addressResolverAddress.toHexString(), []);
     let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
     let issuanceData = synthetixState.issuanceData(account);
     entity.initialDebtOwnership = toDecimal(issuanceData.value0);
