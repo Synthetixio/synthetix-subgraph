@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const program = require('commander');
 const { sortBy } = require('lodash');
-const { getContractDeployments, NETWORKS } = require('./subgraphs/utils/network');
+const { getContractDeployments, NETWORKS } = require('../../subgraphs/utils/network');
 
 program.action(async () => {
   const newLine = '\n';
@@ -36,7 +36,7 @@ program.action(async () => {
   }
 
   escrowContractsContent += readOnlyComment;
-  const targetFile = path.join(__dirname, './src/lib', 'escrow-contracts.ts');
+  const targetFile = path.join(__dirname, '../../src/lib', 'escrow-contracts.ts');
   fs.writeFileSync(targetFile, escrowContractsContent, 'utf8');
 });
 

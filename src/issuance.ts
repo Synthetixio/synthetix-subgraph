@@ -385,9 +385,9 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    let totalIssued = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(sUSD32);
     if (totalIssued.reverted) {
-      log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+      log.debug('Reverted issued try_totalIssuedSynthsExcludeOtherCollateral for hash: {}', [
         event.transaction.hash.toHex(),
       ]);
       return;
@@ -483,9 +483,9 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
     let synthetix = SNX.bind(event.transaction.to as Address);
-    let totalIssued = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(sUSD32);
+    let totalIssued = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(sUSD32);
     if (totalIssued.reverted) {
-      log.debug('Reverted burned try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+      log.debug('Reverted burned try_totalIssuedSynthsExcludeOtherCollateral for hash: {}', [
         event.transaction.hash.toHex(),
       ]);
       return;

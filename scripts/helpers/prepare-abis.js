@@ -8,7 +8,7 @@ const program = require('commander');
 const snx = require('synthetix');
 
 program.action(async () => {
-  const abiPath = path.join(__dirname, 'abis');
+  const abiPath = path.join(__dirname, '../../abis');
   const sources = snx.getSource({ network: 'mainnet' });
 
   const doesEntryHaveMultidimensionalArrays = ({ type }) => /\[[0-9]*\]\[[0-9]*\]/.test(type);

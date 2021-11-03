@@ -30,7 +30,7 @@ export function trackGlobalDebt(block: ethereum.Block): void {
     let synthetixState = SynthetixState.bind(synthetixStateAddress.value);
 
     let synthetix = SNX.bind(dataSource.address());
-    let issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
+    let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));
 
     if (issuedSynths.reverted) {
       issuedSynths = synthetix.try_totalIssuedSynths(strToBytes('sUSD', 32));
