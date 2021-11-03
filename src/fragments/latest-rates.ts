@@ -34,10 +34,11 @@ import {
   Bytes,
 } from '@graphprotocol/graph-ts';
 import { strToBytes, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/helpers';
-import { ProxyERC20 } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/ProxyERC20';
-import { Synthetix } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/Synthetix';
-import { ExecutionSuccess } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/GnosisSafe';
-import { AddressResolver } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/AddressResolver';
+import { ProxyERC20 } from '../../generated/subgraphs/rates/ChainlinkMultisig/ProxyERC20';
+import { Synthetix } from '../../generated/subgraphs/rates/ChainlinkMultisig/Synthetix';
+import { ExecutionSuccess } from '../../generated/subgraphs/rates/ChainlinkMultisig/GnosisSafe';
+import { AddressResolver } from '../../generated/subgraphs/rates/ChainlinkMultisig/AddressResolver';
+import { contracts } from '../../generated/contracts';
 
 export function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
   let decimalRate = toDecimal(rate);
@@ -132,6 +133,28 @@ export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal
   inverseRate = inversePricingInfo.upperLimit.gt(inverseRate) ? inverseRate : inversePricingInfo.upperLimit;
 
   return inverseRate;
+}
+
+export function initFeed(currencyKey: string): BigDecimal | null {
+  let addressResolverAddress = Address.fromHexString(
+    contracts.get('addressresolver-' + dataSource.network()),
+  ) as Address;
+  let resolver = AddressResolver.bind(addressResolverAddress);
+  let er = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
+
+  let aggregatorAddress = er.try_aggregators(strToBytes(currencyKey, 32));
+
+  if (!aggregatorAddress.reverted) {
+    addProxyAggregator(currencyKey, aggregatorAddress.value);
+
+    let r = er.try_rateForCurrency(strToBytes(currencyKey, 32));
+
+    if (!r.reverted) {
+      return toDecimal(r.value);
+    }
+  }
+
+  return null;
 }
 
 export function handleAggregatorAdded(event: AggregatorAddedEvent): void {

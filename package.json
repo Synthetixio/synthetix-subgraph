@@ -18,12 +18,13 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "https://github.com/graphprotocol/graph-cli#otavio/fs-bug-fix",
+    "@graphprotocol/graph-cli": "0.23.1",
     "@graphprotocol/graph-ts": "0.22.1",
+    "@graphprotocol/indexer-cli": "^0.17.0",
     "chalk": "4.1.2",
     "commander": "8.2.0",
     "mustache": "4.2.0",
-    "synthetix": "2.50.1-ovm-alpha"
+    "synthetix": "2.52.1-ovm"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.32.0",

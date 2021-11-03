@@ -29,6 +29,18 @@ getContractDeployments('CollateralShort').forEach((a, i) => {
       entities: ['Short', 'ShortLiquidation', 'ShortCollateralChange', 'ShortLoanChange'],
       abis: [
         {
+          name: 'AddressResolver',
+          file: '../abis/AddressResolver.json',
+        },
+        {
+          name: 'ExchangeRates',
+          file: '../abis/ExchangeRates.json',
+        },
+        {
+          name: 'AggregatorProxy',
+          file: '../abis/AggregatorProxy.json',
+        },
+        {
           name: 'CollateralShort',
           file: '../abis/CollateralShort.json',
         },

@@ -28,7 +28,7 @@ import {
 
 import { BigInt, Bytes, log, Address, BigDecimal } from '@graphprotocol/graph-ts';
 
-import { strToBytes, toDecimal, getLatestRate } from './lib/helpers';
+import { strToBytes, toDecimal, getLatestRate, ZERO } from './lib/helpers';
 
 function saveContractLevelUpdate(
   txHash: string,
@@ -56,6 +56,10 @@ function addContractData(
   blockNumber: BigInt,
 ): ShortContract {
   let collateralShortContract = CollateralShortContract.bind(contractAddress);
+  let issueFeeRate = collateralShortContract.try_issueFeeRate();
+  let maxLoans = collateralShortContract.try_maxLoansPerAccount();
+  let interactionDelay = collateralShortContract.try_interactionDelay();
+
   let shortContractEntity = ShortContract.load(contractAddress.toHex());
   if (shortContractEntity == null) {
     shortContractEntity = new ShortContract(contractAddress.toHex());
@@ -63,7 +67,7 @@ function addContractData(
       txHash,
       logIndex,
       'issueFeeRate',
-      collateralShortContract.issueFeeRate().toString(),
+      !issueFeeRate.reverted ? issueFeeRate.value.toString() : '0',
       timestamp,
       blockNumber,
       shortContractEntity as ShortContract,
@@ -71,9 +75,9 @@ function addContractData(
   }
   shortContractEntity.minCratio = collateralShortContract.minCratio();
   shortContractEntity.minCollateral = toDecimal(collateralShortContract.minCollateral());
-  shortContractEntity.maxLoansPerAccount = collateralShortContract.maxLoansPerAccount();
-  shortContractEntity.issueFeeRate = toDecimal(collateralShortContract.issueFeeRate());
-  shortContractEntity.interactionDelay = collateralShortContract.interactionDelay();
+  shortContractEntity.maxLoansPerAccount = !maxLoans.reverted ? maxLoans.value : ZERO;
+  shortContractEntity.issueFeeRate = toDecimal(!issueFeeRate.reverted ? issueFeeRate.value : ZERO);
+  shortContractEntity.interactionDelay = !interactionDelay.reverted ? interactionDelay.value : ZERO;
   shortContractEntity.manager = collateralShortContract.manager();
   shortContractEntity.canOpenLoans = collateralShortContract.canOpenLoans();
   shortContractEntity.save();
@@ -188,7 +192,8 @@ function saveLoanChangeEntity(
   shortEntity: Short,
 ): void {
   let shortLoanChangeEntity = new ShortLoanChange(txHash + '-' + logIndex);
-  shortLoanChangeEntity.rate = getLatestRate(shortEntity.synthBorrowed.toString(), txHash);
+  let rate = getLatestRate(shortEntity.synthBorrowed.toString(), txHash);
+  shortLoanChangeEntity.rate = rate ? (rate as BigDecimal) : toDecimal(ZERO);
   shortLoanChangeEntity.isRepayment = isRepayment;
   shortLoanChangeEntity.amount = amount;
   shortLoanChangeEntity.loanAfter = amountAfter;

@@ -1,4 +1,4 @@
-const { values, last, sortedIndexBy } = require('lodash');
+const { values, reverse, sortedIndexBy } = require('lodash');
 
 const BLOCK_SAFETY_OFFSET = 8640;
 
@@ -89,46 +89,46 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
 
   const addressInfo = [];
 
-  let prevInfo = null;
+  let lastStartBlock = null;
 
   // search for contract deployments
-  for (const info of values(versionInfo)) {
+  for (const info of reverse(values(versionInfo))) {
     const contractInfo = info.contracts[contractName];
     if (contractInfo) {
       if ((network || getCurrentNetwork()).match('optimism') != null) {
         addressInfo.push({
           address: contractInfo.address,
           // with the regenesis, assume all contracts are basically deployed on the first block (doesn't hurt anything if they were deployed later)
-          startBlock: 0,
+          startBlock: startBlock,
+          endBlock: null,
         });
       } else {
-        const theBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
+        const contractStartBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
 
-        if (theBlock < startBlock) {
-          prevInfo = { address: contractInfo.address, startBlock };
-          continue;
+        if (contractStartBlock >= endBlock) break;
+
+        if (contractStartBlock < startBlock) {
+          addressInfo.push({ address: contractInfo.address, startBlock, endBlock: lastStartBlock });
+          break;
+        } else {
+          const cushionStartBlock =
+            contractStartBlock - BLOCK_SAFETY_OFFSET * 2 > 0
+              ? contractStartBlock - BLOCK_SAFETY_OFFSET * 2
+              : contractStartBlock - BLOCK_SAFETY_OFFSET;
+
+          addressInfo.push({
+            address: contractInfo.address,
+            startBlock: cushionStartBlock,
+            endBlock: lastStartBlock,
+          });
+
+          lastStartBlock = contractStartBlock;
         }
-
-        if (theBlock >= endBlock) break;
-
-        if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
-
-        const cushionStartBlock =
-          theBlock - BLOCK_SAFETY_OFFSET * 2 > 0 ? theBlock - BLOCK_SAFETY_OFFSET * 2 : theBlock - BLOCK_SAFETY_OFFSET;
-
-        addressInfo.push({
-          address: contractInfo.address,
-          startBlock: cushionStartBlock,
-        });
       }
     }
   }
 
-  if (prevInfo) {
-    addressInfo.push(prevInfo);
-  }
-
-  return addressInfo;
+  return reverse(addressInfo);
 }
 
 const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism'];
