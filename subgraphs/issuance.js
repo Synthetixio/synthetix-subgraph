@@ -1,5 +1,6 @@
-const { getContractDeployments } = require('./utils/network');
-const { getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+
+const balances = require('./fragments/balances');
 
 const manifest = [];
 
@@ -22,7 +23,7 @@ for (const contractName of ['Synthetix', 'ERC20']) {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.4',
+        apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/issuance.ts',
         entities: ['SNXTransfer'],
@@ -71,7 +72,7 @@ getContractDeployments('ProxyFeePool').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/issuance.ts',
       entities: ['FeesClaimed', 'SNXHolder'],
@@ -115,7 +116,7 @@ getContractDeployments('RewardEscrow').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/issuance.ts',
       entities: ['RewardEscrowHolder', 'SNXHolder'],
@@ -176,10 +177,10 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.4',
+        apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/issuance.ts',
-        entities: ['Transfer', 'Issued', 'Burned'],
+        entities: ['Issued', 'Burned', 'DailyIssued', 'DailyBurned'],
         abis: [
           {
             name: 'Synth',
@@ -208,10 +209,6 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
         ],
         eventHandlers: [
           {
-            event: 'Transfer(indexed address,indexed address,uint256)',
-            handler: 'handleTransferSynth',
-          },
-          {
             event: 'Issued(indexed address,uint256)',
             handler: 'handleIssuedSynths',
           },
@@ -224,6 +221,8 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
     });
   });
 }
+
+manifest.push(...balances.dataSources);
 
 module.exports = {
   specVersion: '0.0.2',

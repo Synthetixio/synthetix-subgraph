@@ -23,7 +23,7 @@ getContractDeployments('CollateralShort').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/shorts.ts',
       entities: ['Short', 'ShortLiquidation', 'ShortCollateralChange', 'ShortLoanChange'],

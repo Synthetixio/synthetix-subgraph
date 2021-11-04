@@ -4,7 +4,7 @@ import { AddressResolver } from '../generated/subgraphs/global-debt/globalDebt_P
 import { Synthetix as SNX } from '../generated/subgraphs/global-debt/globalDebt_ProxyERC20_0/Synthetix';
 import { SynthetixState } from '../generated/subgraphs/global-debt/globalDebt_ProxyERC20_0/SynthetixState';
 
-import { strToBytes, toDecimal } from './lib/util';
+import { strToBytes, toDecimal } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
 

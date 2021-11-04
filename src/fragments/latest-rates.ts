@@ -4,14 +4,14 @@ import {
   InversePriceConfigured,
   InversePriceFrozen,
   ExchangeRates,
-} from '../../generated/subgraphs/rates/ExchangeRates_13/ExchangeRates';
+} from '../../generated/subgraphs/latest-rates/ExchangeRates_13/ExchangeRates';
 
 import {
   AggregatorProxy as AggregatorProxyContract,
   AggregatorConfirmed as AggregatorConfirmedEvent,
-} from '../../generated/subgraphs/rates/ExchangeRates_13/AggregatorProxy';
+} from '../../generated/subgraphs/latest-rates/ExchangeRates_13/AggregatorProxy';
 
-import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/rates/templates/Aggregator/Aggregator';
+import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/latest-rates/templates/Aggregator/Aggregator';
 
 import {
   AggregatorProxy,
@@ -20,8 +20,8 @@ import {
   Aggregator,
   SynthAggregator,
   InverseAggregator,
-} from '../../generated/subgraphs/rates/templates';
-import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/rates/schema';
+} from '../../generated/subgraphs/latest-rates/templates';
+import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/latest-rates/schema';
 
 import {
   BigDecimal,
@@ -33,17 +33,16 @@ import {
   ethereum,
   Bytes,
 } from '@graphprotocol/graph-ts';
-import { etherUnits, strToBytes, toDecimal } from '../lib/helpers';
+import { strToBytes, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/rates/ChainlinkMultisig/Synthetix';
 import { ExecutionSuccess } from '../../generated/subgraphs/rates/ChainlinkMultisig/GnosisSafe';
 import { AddressResolver } from '../../generated/subgraphs/rates/ChainlinkMultisig/AddressResolver';
-import { ZERO_ADDRESS } from '../lib/util';
 import { contracts } from '../../generated/contracts';
 
 export function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
-  let decimalRate = new BigDecimal(rate);
-  addLatestRateFromDecimal(synth, decimalRate.div(etherUnits), aggregator);
+  let decimalRate = toDecimal(rate);
+  addLatestRateFromDecimal(synth, decimalRate, aggregator);
 }
 
 export function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggregator: Address): void {
@@ -117,16 +116,16 @@ export function addAggregator(currencyKey: string, aggregatorAddress: Address): 
   }
 }
 
-export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal): BigDecimal | null {
+export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal): BigDecimal {
   // since this is inverse pricing, we have to get the latest token information and then apply it to the rate
   let inversePricingInfo = InversePricingInfo.load(currencyKey);
 
   if (inversePricingInfo == null) {
     log.warning(`Missing inverse pricing info for asset {}`, [currencyKey]);
-    return null;
+    return toDecimal(ZERO);
   }
 
-  if (inversePricingInfo.frozen) return null;
+  if (inversePricingInfo.frozen) return toDecimal(ZERO);
 
   let inverseRate = inversePricingInfo.entryPoint.times(new BigDecimal(BigInt.fromI32(2))).minus(beforeRate);
 
@@ -183,13 +182,9 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
 
 export function handleInverseConfigured(event: InversePriceConfigured): void {
   let entity = new InversePricingInfo(event.params.currencyKey.toString());
-  entity.entryPoint = new BigDecimal(event.params.entryPoint);
-  entity.lowerLimit = new BigDecimal(event.params.lowerLimit);
-  entity.upperLimit = new BigDecimal(event.params.upperLimit);
-
-  entity.entryPoint = entity.entryPoint.div(etherUnits);
-  entity.lowerLimit = entity.lowerLimit.div(etherUnits);
-  entity.upperLimit = entity.upperLimit.div(etherUnits);
+  entity.entryPoint = toDecimal(event.params.entryPoint);
+  entity.lowerLimit = toDecimal(event.params.lowerLimit);
+  entity.upperLimit = toDecimal(event.params.upperLimit);
 
   entity.frozen = false;
 
@@ -222,7 +217,7 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
 
   let inverseRate = calculateInverseRate(context.getString('currencyKey'), toDecimal(rate));
 
-  if (inverseRate == null) return;
+  if (inverseRate.equals(toDecimal(ZERO))) return;
 
   addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate as BigDecimal, event.address);
 }
