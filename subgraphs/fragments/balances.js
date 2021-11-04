@@ -2,6 +2,7 @@ const { getContractDeployments, getCurrentNetwork, getReleaseInfo } = require('.
 
 const synthsManifests = [];
 
+// TODO: added for possible future case of needing to handle these events with templated data source
 /*getContractDeployments('Issuer').forEach((a, i) => {
   synthsManifests.push({
     kind: 'ethereum/contract',
