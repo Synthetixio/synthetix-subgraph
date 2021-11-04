@@ -16,7 +16,7 @@ import {
   AccountLiquidated,
 } from '../generated/subgraphs/liquidations/schema';
 
-import { strToBytes, toDecimal } from './lib/util';
+import { strToBytes, toDecimal } from './lib/helpers';
 
 export function handleAccountFlaggedForLiquidation(event: AccountFlaggedForLiquidationEvent): void {
   let liquidationsContract = Liquidations.bind(event.address);

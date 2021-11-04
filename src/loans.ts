@@ -21,7 +21,7 @@ import {
 } from '../generated/subgraphs/loans/schema';
 
 import { log } from '@graphprotocol/graph-ts';
-import { toDecimal } from './lib/util';
+import { toDecimal } from './lib/helpers';
 
 function addLoanEntity(event: LoanCreatedEvent, collateralMinted: string): Loan {
   let loanEntity = new Loan(event.params.loanID.toHex() + '-' + collateralMinted);

@@ -1,105 +1,23 @@
-# Synthentix is an aggregation entity
-# Total synth exchanges in aggregate
-type Total @entity {
-  " 'mainnet' always "
-  id: ID!
-
-  " number of trades completed over period "
-  trades: BigInt!
-
-  " number of unique traders seen over period "
-  exchangers: BigInt!
-
-  " synth value exchanged in USD units "
-  exchangeUSDTally: BigDecimal!
-
-  " synth value received in fees in USD units "
-  totalFeesGeneratedInUSD: BigDecimal!
-}
-
-type PostArchernarTotal @entity {
-  " 'mainnet' always "
-  id: ID!
-
-  " number of trades completed over period "
-  trades: BigInt!
-
-  " number of unique traders seen over period "
-  exchangers: BigInt!
-
-  " synth value exchanged in USD units "
-  exchangeUSDTally: BigDecimal!
-
-  " synth value received in fees in USD units "
-  totalFeesGeneratedInUSD: BigDecimal!
-}
-
-# Total synth exchanges per day
-type DailyTotal @entity {
-  " numeric, incrementing timestamp "
-  id: ID!
-
-  " timestamp of the beginning of the day this represents "
-  timestamp: BigInt!
-
-  " number of trades completed over period "
-  trades: BigInt!
-
-  " number of unique traders seen over period "
-  exchangers: BigInt!
-
-  " synth value exchanged in USD units "
-  exchangeUSDTally: BigDecimal!
-
-  " synth value received in fees in USD units "
-  totalFeesGeneratedInUSD: BigDecimal!
-}
-
-# Total synth exchanges per 15 minute period
-type FifteenMinuteTotal @entity {
-  " numeric, incrementing time period "
-  id: ID!
-
-  " timestamp of the beginning of the period this represents "
-  timestamp: BigInt!
-
-  " number of trades completed over period "
-  trades: BigInt!
-
-  " number of unique traders seen over period "
-  exchangers: BigInt!
-
-  " synth value exchanged in USD units "
-  exchangeUSDTally: BigDecimal!
-
-  " synth value received in fees in USD units "
-  totalFeesGeneratedInUSD: BigDecimal!
-}
-
 " Tracks this event from the Synthetix.sol contract "
 type SynthExchange @entity {
   id: ID!
-  account: Bytes! # address
-  from: Bytes! # address
-  fromCurrencyKey: Bytes! # bytes4
-  fromSynth: String! # human readable from synth name
+  account: Exchanger! # address
+  fromSynth: Synth
+  toSynth: Synth
   fromAmount: BigDecimal! # uint256
   fromAmountInUSD: BigDecimal! # from Amount including fees
-  toCurrencyKey: Bytes! # bytes4
-  toSynth: String! # human readable to synth name
   toAmount: BigDecimal! # uint256
   toAmountInUSD: BigDecimal! # to Amount without fees
   feesInUSD: BigDecimal!
   toAddress: Bytes! # address
   timestamp: BigInt!
   gasPrice: BigInt!
-  block: BigInt!
 }
 
 " Tracks this event from the Synthetix.sol contract "
 type ExchangeReclaim @entity {
   id: ID!
-  account: Bytes! # address
+  account: Exchanger! # address
   currencyKey: Bytes! # bytes4
   amount: BigDecimal! # uint256
   amountInUSD: BigDecimal! # uint256
@@ -111,7 +29,7 @@ type ExchangeReclaim @entity {
 " Tracks this event from the Synthetix.sol contract "
 type ExchangeRebate @entity {
   id: ID!
-  account: Bytes! # address
+  account: Exchanger!
   currencyKey: Bytes! # bytes4
   amount: BigDecimal! # uint256
   amountInUSD: BigDecimal! # uint256
@@ -120,24 +38,76 @@ type ExchangeRebate @entity {
   block: BigInt!
 }
 
-" An individual Exchanger "
+# Aggrgeations of the synth exchanges by various time/volume groupings
+type Total @entity {
+  " $timestamp-$period-$bucketMagnitude-$synth "
+  id: ID!
+
+  " timestamp of the beginning of the time period this represents "
+  timestamp: BigInt!
+
+  " number of seconds the data covers after `timestamp` "
+  period: BigInt!
+
+  " minimum power of 10 (in from USD value) the trade must be. ex, 2 means $100 or higher) "
+  bucketMagnitude: BigInt!
+
+  " synth to filter by "
+  synth: Synth
+
+  " number of trades completed over period "
+  trades: BigInt!
+
+  " number of unique traders who were first seen in this period "
+  newExchangers: BigInt!
+
+  " number of unique traders seen over period "
+  exchangers: BigInt!
+
+  " synth value exchanged in USD units "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units "
+  totalFeesGeneratedInUSD: BigDecimal!
+}
+
+" An individual Exchanger aggregated by various time groupings "
 type Exchanger @entity {
+  " hex address in lowercase (and for non global: hex address in lowercase-$timestamp-$period-$bucketMagnitude-$synth "
   id: ID!
-}
 
-" An individual Exchanger Post Archernar "
-type PostArchernarExchanger @entity {
-  id: ID!
-}
+  " timestamp of the beginning of the time period this represents, or 0 for no period filter "
+  timestamp: BigInt!
 
-" An individual Exchanger seen during a day "
-type DailyExchanger @entity {
-  id: ID!
-}
+  " number of seconds the data covers after `timestamp`, or 0 for no period filter "
+  period: BigInt!
 
-" An individual Exchanger seen during a fifteen minute period "
-type FifteenMinuteExchanger @entity {
-  id: ID!
+  " minimum power of 10 (in from USD value) the trade must be. ex, 2 means $100 or higher) "
+  bucketMagnitude: BigInt!
+
+  " synth to filter by "
+  synth: Synth
+
+  " when the user first exchanged "
+  firstSeen: BigInt!
+
+  " when the user last exchanged "
+  lastSeen: BigInt!
+
+  " nubmer of trades by account "
+  trades: BigInt!
+
+  " synth value exchanged in USD units by account "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units from account "
+  totalFeesGeneratedInUSD: BigDecimal!
+
+  " balances "
+  balances: [LatestSynthBalance!]! @derivedFrom(field: "account")
+
+  " exchanges "
+  exchanges: [SynthExchange!]! @derivedFrom(field: "account")
 }
 
 type ExchangeFee @entity {
@@ -230,4 +200,37 @@ type LatestRate @entity {
 
   " Address of the aggregator which produces current result "
   aggregator: Bytes!
+}
+
+type SynthByCurrencyKey @entity {
+  " currency key "
+  id: ID!
+  proxyAddress: Bytes!
+}
+
+type Synth @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+type SynthBalance @entity {
+  " timestamp + account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  address: Bytes!
+  account: Exchanger
+  timestamp: BigInt!
+  synth: Synth
+}
+
+" we dont query this entity but only use it to store aggregate data we need during syncing "
+type LatestSynthBalance @entity {
+  " account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  address: Bytes!
+  account: Exchanger
+  timestamp: BigInt!
+  synth: Synth
 }

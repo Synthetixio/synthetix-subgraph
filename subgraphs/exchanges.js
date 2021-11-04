@@ -3,10 +3,11 @@ const { clone } = require('lodash');
 const { getContractDeployments } = require('./utils/network');
 const { getCurrentNetwork } = require('./utils/network');
 
-// use rates instead of latest rates because rates is incomplete on optimisms
-const latestRates = require('./rates');
+const latestRates = require('./fragments/latest-rates');
+const balances = require('./fragments/balances');
 
 const manifest = clone(latestRates.dataSources);
+manifest.push(...balances.dataSources);
 
 if (getCurrentNetwork() == 'mainnet') {
   manifest.push(
@@ -21,7 +22,7 @@ if (getCurrentNetwork() == 'mainnet') {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.4',
+        apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/exchanges.ts',
         entities: ['SynthExchange'],
@@ -50,7 +51,7 @@ if (getCurrentNetwork() == 'mainnet') {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.4',
+        apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/exchanges.ts',
         entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate'],
@@ -107,7 +108,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/exchanges.ts',
       entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate'],
@@ -167,7 +168,7 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/exchanges.ts',
       entities: ['SystemSettings'],

@@ -10,7 +10,8 @@ import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0
 
 import { AddressResolver } from '../generated/subgraphs/issuance/issuance_Synthetix_0/AddressResolver';
 
-import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, isEscrow, ZERO } from './lib/util';
+import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, ZERO } from './lib/helpers';
+import { isEscrow } from './lib/util';
 import { getTimeID } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
@@ -23,7 +24,6 @@ import {
 
 import {
   Synth,
-  Transfer as SynthTransferEvent,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/subgraphs/issuance/issuance_SynthsUSD_0/Synth';
@@ -37,7 +37,6 @@ import {
   Issuer,
   SNXHolder,
   DebtSnapshot,
-  SynthHolder,
   RewardEscrowHolder,
   FeesClaimed,
   TotalActiveStaker,
@@ -49,7 +48,7 @@ import {
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
 
-import { strToBytes } from './lib/util';
+import { strToBytes } from './lib/helpers';
 
 import { log } from '@graphprotocol/graph-ts';
 import { DAY_SECONDS } from './lib/helpers';
@@ -308,36 +307,6 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   }
   if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
     trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
-  }
-}
-
-function trackSynthHolder(contract: Synth, source: string, account: Address): void {
-  let entityID = account.toHex() + '-' + source;
-  let entity = SynthHolder.load(entityID);
-  if (entity == null) {
-    entity = new SynthHolder(entityID);
-  }
-  entity.synth = source;
-  entity.balanceOf = toDecimal(contract.balanceOf(account));
-  entity.save();
-}
-
-export function handleTransferSynth(event: SynthTransferEvent): void {
-  let contract = Synth.bind(event.address);
-  let source = 'sUSD';
-  if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
-    // sUSD contract didn't have the "currencyKey" field prior to the v2 (multicurrency) release
-    let currencyKeyTry = contract.try_currencyKey();
-    if (!currencyKeyTry.reverted) {
-      source = currencyKeyTry.value.toString();
-    }
-  }
-
-  if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
-    trackSynthHolder(contract, source, event.params.from);
-  }
-  if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
-    trackSynthHolder(contract, source, event.params.to);
   }
 }
 
