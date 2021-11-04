@@ -27,7 +27,7 @@ type LatestSynthBalance @entity {
   id: ID!
   amount: BigDecimal!
   address: Bytes!
-  account: String! # using a string here because its ID compatible
+  account: Exchanger
   timestamp: BigInt!
   synth: Synth
 }

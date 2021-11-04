@@ -91,7 +91,6 @@ program.action(async () => {
   console.log(cyan('Running The Graph’s codegen...'));
   for (let i = 0; i < SUBGRAPH_CHOICES.length; i++) {
     const subgraph = SUBGRAPH_CHOICES[i];
-    // This also catches the top-level items that will have the fragments render
     await execSync(
       `SNX_NETWORK=mainnet SUBGRAPH=${subgraph} ./node_modules/.bin/graph codegen ./subgraphs/${subgraph}.js -o ./generated/subgraphs/${subgraph}`,
     );
