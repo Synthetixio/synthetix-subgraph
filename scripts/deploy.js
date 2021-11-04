@@ -21,7 +21,8 @@ program
   .option('-t --team <value>', 'The Graph team name')
   .option('-a --access-token <value>', 'The Graph access token')
   .option('-n --network <value>', 'Network to deploy on for the hosted service')
-  .option('-d, --deploy-decentralized [value]', 'Deploy to the decentralized network', parseBoolean);
+  .option('-d, --deploy-decentralized [value]', 'Deploy to the decentralized network', parseBoolean)
+  .option('-v, --version-label [value]', 'Version label for the deployment to the decentralized network');
 
 program.action(async () => {
   const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
@@ -165,8 +166,20 @@ program.action(async () => {
   );
 
   if (response.deployDecentralized) {
+    response = await inquirer.prompt(
+      [
+        {
+          message: 'What version label should be used for this release?',
+          name: 'versionLabel',
+        },
+      ],
+      OPTIONS,
+    );
+
     console.log('Deploying to decentralized network...');
-    await execSync(`npx graph deploy --studio abc123 --version-label 123 --access-token  abc ./subgraphs/main.js`);
+    await execSync(
+      `npx graph deploy --studio ${response.team} --version-label ${response.versionLabel} --access-token  ${response.access_token} ./subgraphs/main.js`,
+    );
     console.log(green('Successfully deployed to decentralized network.'));
   }
 });
