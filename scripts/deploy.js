@@ -166,11 +166,13 @@ program.action(async () => {
   );
 
   if (response.deployDecentralized) {
+    const { version: defaultVersion } = require('../node_modules/synthetix/package.json');
     response = await inquirer.prompt(
       [
         {
           message: 'What version label should be used for this release?',
           name: 'versionLabel',
+          default: defaultVersion,
         },
       ],
       OPTIONS,
