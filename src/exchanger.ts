@@ -38,7 +38,7 @@ export function handleExchangeEntrySettled(event: ExchangeEntrySettledEvent): vo
 }
 
 function createTempEntity(id: string): TemporaryExchangePartnerTracker {
-  let newTempEntity = new TemporaryExchangePartnerTracker(id);
+  let newTempEntity = new TemporaryExchangePartnerTracker(id)!;
   newTempEntity.usdVolume = new BigDecimal(BigInt.fromI32(0));
   newTempEntity.usdFees = new BigDecimal(BigInt.fromI32(0));
   newTempEntity.partner = null;
@@ -46,7 +46,7 @@ function createTempEntity(id: string): TemporaryExchangePartnerTracker {
 }
 
 function resetTempEntity(txHash: string): void {
-  let tempEntity = TemporaryExchangePartnerTracker.load(txHash);
+  let tempEntity = TemporaryExchangePartnerTracker.load(txHash)!;
   tempEntity.usdVolume = new BigDecimal(BigInt.fromI32(0));
   tempEntity.usdFees = new BigDecimal(BigInt.fromI32(0));
   tempEntity.partner = null;
@@ -133,18 +133,18 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
     let usdFees = getFeeUSDFromVolume(usdVolume, event.params.exchangeFeeRate);
 
     if (tempEntity.partner != null) {
-      let exchangePartner = ExchangePartner.load(tempEntity.partner);
+      let exchangePartner = ExchangePartner.load(tempEntity.partner!);
       if (exchangePartner == null) {
-        exchangePartner = loadNewExchangePartner(tempEntity.partner);
+        exchangePartner = loadNewExchangePartner(tempEntity.partner!);
       }
       updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFees);
 
       let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
-      let dailyExchangePartnerID = timestamp.toString() + '-' + tempEntity.partner;
+      let dailyExchangePartnerID = timestamp.toString() + '-' + tempEntity.partner!;
       let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
 
       if (dailyExchangePartner == null) {
-        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner, timestamp);
+        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner!, timestamp);
       }
 
       updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFees);
