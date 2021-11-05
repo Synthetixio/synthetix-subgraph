@@ -1,7 +1,5 @@
 # Synthetix Subgraph
 
-[![CircleCI](https://circleci.com/gh/Synthetixio/synthetix-subgraph.svg?style=svg)](https://circleci.com/gh/Synthetixio/synthetix-subgraph)
-
 ## Overview
 
 [The Graph](https://thegraph.com/) is a decentralized protocol for indexing and querying data. Subgraphs define the data The Graph will index and how it will be stored. This data is then provided via a GraphQL API.
@@ -30,10 +28,9 @@ To abstract interacting with The Graph’s hosted service directly, Synthetix ma
 
 ### Query the hosted service directly
 
-Here’s an example of ...
+This code snippet demonstrates how to retrieve all exchanges that occured in the last 24 hours:
 
 ```javascript
-// Fetch all Exchanges in the last 24hrs s
 (async () => {
   const ts = Math.floor(Date.now() / 1e3);
   const oneDayAgo = ts - 3600 * 24;
@@ -72,7 +69,7 @@ Here’s an example of ...
 })();
 ```
 
-> Note: due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/data` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination
+*Due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/data` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination*
 
 ## Build and Deploy
 
