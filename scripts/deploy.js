@@ -44,7 +44,10 @@ program.action(async () => {
   }
 
   console.log(cyan('Generating the main subgraph...'));
-  response = await inquirer.prompt([{ name: 'generateMain', type: 'confirm', message: 'Continue?' }], OPTIONS);
+  response = await inquirer.prompt(
+    [{ name: 'generateMain', type: 'confirm', message: 'Continue?' }],
+    Object.assign(OPTIONS, response),
+  );
   if (response.generateMain) {
     // We merge using this strategy to avoid duplicates from the fragments
     let typesArray = [];
@@ -83,7 +86,7 @@ program.action(async () => {
         name: 'accessToken',
       },
     ],
-    OPTIONS,
+    Object.assign(OPTIONS, response),
   );
 
   console.log(gray('Executing prebuild steps:'));
@@ -116,7 +119,7 @@ program.action(async () => {
         choices: ['All', 'None', new inquirer.Separator(), ...NETWORK_CHOICES],
       },
     ],
-    OPTIONS,
+    Object.assign(OPTIONS, response),
   );
 
   const networkPrefix = (network) => {
@@ -161,7 +164,7 @@ program.action(async () => {
         type: 'confirm',
       },
     ],
-    OPTIONS,
+    Object.assign(OPTIONS, response),
   );
 
   if (response.deployDecentralized) {
@@ -174,7 +177,7 @@ program.action(async () => {
           default: defaultVersion,
         },
       ],
-      OPTIONS,
+      Object.assign(OPTIONS, response),
     );
 
     console.log('Deploying to decentralized network...');
