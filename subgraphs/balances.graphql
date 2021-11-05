@@ -21,7 +21,60 @@ type SynthBalance @entity {
   synth: Synth
 }
 
-" we dont query this entity but only use it to store aggregate data we need during syncing "
+" we dont query these entities but only use it to store aggregate data we need during syncing "
+type SynthExchange @entity {
+  id: ID!
+  account: Exchanger! # address
+  fromSynth: Synth
+  toSynth: Synth
+  fromAmount: BigDecimal! # uint256
+  fromAmountInUSD: BigDecimal! # from Amount including fees
+  toAmount: BigDecimal! # uint256
+  toAmountInUSD: BigDecimal! # to Amount without fees
+  feesInUSD: BigDecimal!
+  toAddress: Bytes! # address
+  timestamp: BigInt!
+  gasPrice: BigInt!
+}
+
+type Exchanger @entity {
+  " hex address in lowercase (and for non global: hex address in lowercase-$timestamp-$period-$bucketMagnitude-$synth "
+  id: ID!
+
+  " timestamp of the beginning of the time period this represents, or 0 for no period filter "
+  timestamp: BigInt!
+
+  " number of seconds the data covers after `timestamp`, or 0 for no period filter "
+  period: BigInt!
+
+  " minimum power of 10 (in from USD value) the trade must be. ex, 2 means $100 or higher) "
+  bucketMagnitude: BigInt!
+
+  " synth to filter by "
+  synth: Synth
+
+  " when the user first exchanged "
+  firstSeen: BigInt!
+
+  " when the user last exchanged "
+  lastSeen: BigInt!
+
+  " nubmer of trades by account "
+  trades: BigInt!
+
+  " synth value exchanged in USD units by account "
+  exchangeUSDTally: BigDecimal!
+
+  " synth value received in fees in USD units from account "
+  totalFeesGeneratedInUSD: BigDecimal!
+
+  " balances "
+  balances: [LatestSynthBalance!]! @derivedFrom(field: "account")
+
+  " exchanges "
+  exchanges: [SynthExchange!]! @derivedFrom(field: "account")
+}
+
 type LatestSynthBalance @entity {
   " account + synth address "
   id: ID!

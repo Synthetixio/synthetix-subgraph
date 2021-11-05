@@ -213,3 +213,14 @@ type Synth @entity {
   name: String!
   symbol: String!
 }
+
+" we dont query this entity but only use it to store aggregate data we need during syncing "
+type LatestSynthBalance @entity {
+  " account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  address: Bytes!
+  account: Exchanger
+  timestamp: BigInt!
+  synth: Synth
+}

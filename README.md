@@ -2,7 +2,7 @@
 
 ## Overview
 
-[The Graph](https://thegraph.com/) is a decentralized protocol for indexing and querying data. Subgraphs define the data The Graph will index and how it will be stored. This data is then provided via a GraphQL API.
+[The Graph](https://thegraph.com/) is a decentralized protocol for indexing and querying data on the Ethereum blockchain. Subgraphs define the data The Graph will index and how it will be stored. This data is then provided via a GraphQL API.
 
 The Graph currently consists of a hosted service and a decentralized network. In the future, the hosted service will be gradually sunset after the decentralized network achieves feature parity.
 
@@ -69,7 +69,7 @@ This code snippet demonstrates how to retrieve all exchanges that occured in the
 })();
 ```
 
-*Due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/data` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination*
+_Due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/data` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination_
 
 ## Build and Deploy
 
