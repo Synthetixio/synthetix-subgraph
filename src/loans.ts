@@ -49,9 +49,11 @@ export function handleLoanCreatedsUSD(event: LoanCreatedEvent): void {
 function closeLoan(event: LoanClosedEvent, collateralMinted: string): void {
   let loanEntity = Loan.load(event.params.loanID.toHex() + '-' + collateralMinted);
 
-  loanEntity.isOpen = false;
-  loanEntity.closedAt = event.block.timestamp;
-  loanEntity.save();
+  if (loanEntity) {
+    loanEntity.isOpen = false;
+    loanEntity.closedAt = event.block.timestamp;
+    loanEntity.save();
+  }
 }
 
 export function handleLoanClosedEther(event: LoanClosedEvent): void {

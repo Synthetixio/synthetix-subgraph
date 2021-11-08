@@ -170,7 +170,7 @@ export function handleExchangeTrackingV1(event: ExchangeTrackingEventV1): void {
     return;
   }
 
-  if (tempEntity != null && (tempEntity.usdVolume == null || tempEntity.usdFees == null)) {
+  if (tempEntity != null && (!tempEntity.usdVolume || !tempEntity.usdFees)) {
     log.error(
       'handleExchangeTracking tempEntity exists but the volume and/ or rebate is null for txhash: {}, partner: {}',
       [txHash, exchangePartnerID],

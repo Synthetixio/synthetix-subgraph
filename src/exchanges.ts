@@ -43,7 +43,7 @@ function populateAggregatedTotalEntity(
   bucketMagnitude: BigInt,
   synth: string | null,
 ): Total {
-  let id = timestamp.toString() + '-' + bucketMagnitude.toString() + '-' + synth + '-' + period.toString();
+  let id = timestamp.toString() + '-' + bucketMagnitude.toString() + '-' + (synth as String) + '-' + period.toString();
 
   let entity = Total.load(id);
 
@@ -148,11 +148,11 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let latestToRate = getLatestRate(toCurrencyKey, txHash);
 
   // may need to add new aggregator (this can happen on optimism)
-  if (latestFromRate == null) {
+  if (!latestFromRate) {
     latestFromRate = addMissingSynthRate(event.params.fromCurrencyKey);
   }
 
-  if (latestToRate == null) {
+  if (!latestToRate) {
     latestToRate = addMissingSynthRate(event.params.fromCurrencyKey);
   }
 
@@ -236,7 +236,7 @@ export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   let latestRate = getLatestRate(event.params.currencyKey.toString(), txHash);
 
-  if (latestRate == null) {
+  if (!latestRate) {
     log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);
     return;
   }
@@ -255,7 +255,7 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   let latestRate = getLatestRate(event.params.currencyKey.toString(), txHash);
 
-  if (latestRate == null) {
+  if (!latestRate) {
     log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);
     return;
   }

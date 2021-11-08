@@ -212,7 +212,7 @@ function trackSNXHolder(
   }
 
   if (
-    (existingSNXHolder == null && snxHolder.balanceOf.gt(toDecimal(BigInt.fromI32(0)))) ||
+    (existingSNXHolder == null && snxHolder.balanceOf!.gt(toDecimal(BigInt.fromI32(0)))) ||
     (existingSNXHolder != null &&
       existingSNXHolder.balanceOf == toDecimal(BigInt.fromI32(0)) &&
       snxHolder.balanceOf > toDecimal(BigInt.fromI32(0)))
@@ -421,10 +421,10 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   // now update SNXHolder to increment the number of claims
   let snxHolder = SNXHolder.load(entity.account.toHexString());
   if (snxHolder != null) {
-    if (snxHolder.mints == null) {
+    if (!snxHolder.mints) {
       snxHolder.mints = BigInt.fromI32(0);
     }
-    snxHolder.mints = snxHolder.mints.plus(BigInt.fromI32(1));
+    snxHolder.mints = snxHolder.mints!.plus(BigInt.fromI32(1));
     snxHolder.save();
   }
 
@@ -568,10 +568,10 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
   // now update SNXHolder to increment the number of claims
   let snxHolder = SNXHolder.load(entity.account.toHexString());
   if (snxHolder != null) {
-    if (snxHolder.claims == null) {
+    if (!snxHolder.claims) {
       snxHolder.claims = BigInt.fromI32(0);
     }
-    snxHolder.claims = snxHolder.claims.plus(BigInt.fromI32(1));
+    snxHolder.claims = snxHolder.claims!.plus(BigInt.fromI32(1));
     snxHolder.save();
   }
 }
