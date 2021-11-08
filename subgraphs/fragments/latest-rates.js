@@ -30,7 +30,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
     network: getCurrentNetwork(),
     source: {
       address: ca.address,
-      startBlock,
+      startBlock: Math.max(parseInt(process.env.SNX_START_BLOCK || '0'), startBlock),
       abi: 'ExchangeRates',
     },
     mapping: {
@@ -92,7 +92,7 @@ if (getCurrentNetwork() === 'mainnet' || getCurrentNetwork() == 'kovan') {
     network: getCurrentNetwork(),
     source: {
       address: '0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca',
-      startBlock: 10500000,
+      startBlock: Math.max(parseInt(process.env.SNX_START_BLOCK || '0'), 10500000),
       abi: 'GnosisSafe',
     },
     mapping: {
