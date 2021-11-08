@@ -20,10 +20,11 @@
     "@graphprotocol/graph-cli": "0.23.1",
     "@graphprotocol/graph-ts": "0.23.1",
     "@graphprotocol/indexer-cli": "^0.18.2",
+    "@graphql-tools/merge": "^8.2.1",
     "chalk": "4.1.2",
     "commander": "8.2.0",
     "mustache": "4.2.0",
-    "synthetix": "2.52.1-ovm"
+    "synthetix": "^2.52.1-ovm"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.32.0",

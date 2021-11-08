@@ -43,9 +43,15 @@ function populateAggregatedTotalEntity(
   bucketMagnitude: BigInt,
   synth: string | null,
 ): Total {
-  
-  const synthName = synth as String
-  let id = timestamp.toString() + '-' + bucketMagnitude.toString() + '-' + (synthName.length ? synthName : 'null') + '-' + period.toString();
+  const synthName = synth as String;
+  let id =
+    timestamp.toString() +
+    '-' +
+    bucketMagnitude.toString() +
+    '-' +
+    (synthName.length ? synthName : 'null') +
+    '-' +
+    period.toString();
 
   let entity = Total.load(id);
 

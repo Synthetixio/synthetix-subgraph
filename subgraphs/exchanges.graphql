@@ -220,7 +220,7 @@ type LatestSynthBalance @entity {
   id: ID!
   amount: BigDecimal!
   address: Bytes!
-  account: String
+  account: String!
   timestamp: BigInt!
   synth: Synth
 }
