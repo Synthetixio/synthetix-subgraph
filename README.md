@@ -6,11 +6,11 @@
 
 The Graph currently consists of a hosted service and a decentralized network. In the future, the hosted service will be gradually sunset after the decentralized network achieves feature parity.
 
-Synthetix currently publishes its subgraph to the hosted service and the decentralized network.
+Synthetix currently maintains one official subgraph per network. Only mainnet is on the Graph Decentralized net.
 
 ### Hosted Service
 
-The Synthetix subgraph is available on the hosted service on **[mainnet]()**, **[optimism]()**, **[kovan]()**, and **[optimism-kovan]()**
+The Synthetix subgraph is available on the hosted service on **[mainnet](https://thegraph.com/hosted-service/subgraph/synthetixio-team/main)**, **[optimism](https://thegraph.com/hosted-service/subgraph/synthetixio-team/optimism-main)**, **[kovan](https://thegraph.com/hosted-service/subgraph/synthetixio-team/kovan-main)**, and **[optimism-kovan](https://thegraph.com/hosted-service/subgraph/synthetixio-team/optimism-kovan-main)**
 
 **⚠️ Using subgraphs with the hosted service may introduce breaking changes.** The Synthetix subgraphs are under active development. Because The Graph does not currently support pinning subgraph versions on the hosted service, these subgraphs should be used with caution.
 
@@ -69,7 +69,7 @@ This code snippet demonstrates how to retrieve all exchanges that occured in the
 })();
 ```
 
-_Due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/data` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination_
+_Due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/queries` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination_
 
 ## Build and Deploy
 
