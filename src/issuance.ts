@@ -245,13 +245,24 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 
   if (dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
-    entity.balanceOf = toDecimal(synthetix.balanceOf(account));
+    let try_balanceOf = synthetix.try_balanceOf(account);
+    if (try_balanceOf.reverted) {
+      return;
+    }
+    entity.balanceOf = toDecimal(try_balanceOf.value);
+
     entity.collateral = toDecimal(synthetix.collateral(account));
-    entity.debtBalanceOf = toDecimal(synthetix.debtBalanceOf(account, sUSD32));
-    let addressResolverAddress = Address.fromHexString(
-      contracts.get('addressresolver-' + dataSource.network()),
-    ) as Address;
+    let collateralTry = synthetix.try_collateral(account);
+    if (!collateralTry.reverted) {
+      entity.collateral = toDecimal(collateralTry.value);
+    }
+    let debtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD32);
+
+    let addressResolverAddress = changetype<Address>(
+      Address.fromHexString(contracts.get('addressresolver-' + dataSource.network())),
+    );
     let resolver = AddressResolver.bind(addressResolverAddress);
+
     let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
     let issuanceData = synthetixState.issuanceData(account);
     entity.initialDebtOwnership = toDecimal(issuanceData.value0);
@@ -263,9 +274,19 @@ function trackDebtSnapshot(event: ethereum.Event): void {
   // Use bytes32
   else if (event.block.number > v2100UpgradeBlock) {
     let synthetix = Synthetix32.bind(snxContract);
-    entity.balanceOf = toDecimal(synthetix.balanceOf(account));
-    entity.collateral = toDecimal(synthetix.collateral(account));
-    entity.debtBalanceOf = toDecimal(synthetix.debtBalanceOf(account, sUSD32));
+    let try_balanceOf = synthetix.try_balanceOf(account);
+    if (try_balanceOf.reverted) {
+      return;
+    }
+    entity.balanceOf = toDecimal(try_balanceOf.value);
+    let collateralTry = synthetix.try_collateral(account);
+    if (!collateralTry.reverted) {
+      entity.collateral = toDecimal(collateralTry.value);
+    }
+    let debtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD4);
+    if (!debtBalanceOfTry.reverted) {
+      entity.debtBalanceOf = toDecimal(debtBalanceOfTry.value);
+    }
 
     let addressResolverAddress = Address.fromHexString(
       contracts.get('addressresolver-' + dataSource.network()),
@@ -326,6 +347,9 @@ export function handleRewardVestEvent(event: VestedEvent): void {
 }
 
 export function handleIssuedSynths(event: IssuedEvent): void {
+  // update Debt snapshot history
+  trackDebtSnapshot(event);
+
   // We need to figure out if this was generated from a call to Synthetix.issueSynths, issueMaxSynths or any earlier
   // versions.
 
@@ -428,11 +452,34 @@ export function handleIssuedSynths(event: IssuedEvent): void {
     snxHolder.save();
   }
 
-  // update Debt snapshot history
-  trackDebtSnapshot(event);
+  // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
+  if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
+    let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
+    let synthetix = SNX.bind(event.transaction.to as Address);
+    let totalIssued = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(sUSD32);
+    if (totalIssued.reverted) {
+      log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
+        event.transaction.hash.toHex(),
+      ]);
+      return;
+    }
+
+    let dailyIssuedEntity = DailyIssued.load(timestamp.toString());
+    if (dailyIssuedEntity == null) {
+      dailyIssuedEntity = new DailyIssued(timestamp.toString());
+      dailyIssuedEntity.value = toDecimal(event.params.value);
+    } else {
+      dailyIssuedEntity.value = dailyIssuedEntity.value.plus(toDecimal(event.params.value));
+    }
+    dailyIssuedEntity.totalDebt = toDecimal(totalIssued.value);
+    dailyIssuedEntity.save();
+  }
 }
 
 export function handleBurnedSynths(event: BurnedEvent): void {
+  // update Debt snapshot history
+  trackDebtSnapshot(event);
+
   // We need to figure out if this was generated from a call to Synthetix.burnSynths, burnSynthsToTarget or any earlier
   // versions.
 
@@ -478,6 +525,18 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     entity.source = 'sUSD';
   }
 
+  entity.timestamp = event.block.timestamp;
+  entity.block = event.block.number;
+  entity.gasPrice = event.transaction.gasPrice;
+  entity.save();
+
+  if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
+    trackActiveStakers(event, true);
+  }
+
+  // update SNX holder details
+  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
+
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
@@ -504,20 +563,6 @@ export function handleBurnedSynths(event: BurnedEvent): void {
     dailyBurnedEntity.totalDebt = toDecimal(issuedSynths.value);
     dailyBurnedEntity.save();
   }
-
-  entity.timestamp = event.block.timestamp;
-  entity.block = event.block.number;
-  entity.gasPrice = event.transaction.gasPrice;
-  entity.save();
-
-  if (dataSource.network() != 'mainnet' || event.block.number > v200UpgradeBlock) {
-    trackActiveStakers(event, true);
-  }
-
-  // update SNX holder details
-  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
-  // update Debt snapshot history
-  trackDebtSnapshot(event);
 }
 
 export function handleFeesClaimed(event: FeesClaimedEvent): void {

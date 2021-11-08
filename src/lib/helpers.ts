@@ -1,6 +1,5 @@
-import { BigDecimal, BigInt, Bytes, Address, log } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, Bytes, ByteArray, log, Address } from '@graphprotocol/graph-ts';
 
-import { contracts } from '../../generated/contracts';
 import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
 import { initFeed } from '../fragments/latest-rates';
 
