@@ -1,6 +1,6 @@
-import { BigDecimal, BigInt, Bytes, ByteArray, log } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, Bytes, ByteArray, log, Address } from '@graphprotocol/graph-ts';
 
-import { LatestRate } from '../../generated/subgraphs/rates/schema';
+import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
 import { initFeed } from '../fragments/latest-rates';
 
 export let ZERO = BigInt.fromI32(0);
