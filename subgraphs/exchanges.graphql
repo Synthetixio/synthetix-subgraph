@@ -104,7 +104,7 @@ type Exchanger @entity {
   totalFeesGeneratedInUSD: BigDecimal!
 
   " balances "
-  balances: [LatestSynthBalance!]! @derivedFrom(field: "account")
+  balances: [LatestSynthBalance!]!
 
   " exchanges "
   exchanges: [SynthExchange!]! @derivedFrom(field: "account")
@@ -214,23 +214,13 @@ type Synth @entity {
   symbol: String!
 }
 
-type SynthBalance @entity {
-  " timestamp + account + synth address "
-  id: ID!
-  amount: BigDecimal!
-  address: Bytes!
-  account: Exchanger
-  timestamp: BigInt!
-  synth: Synth
-}
-
 " we dont query this entity but only use it to store aggregate data we need during syncing "
 type LatestSynthBalance @entity {
   " account + synth address "
   id: ID!
   amount: BigDecimal!
   address: Bytes!
-  account: Exchanger
+  account: String!
   timestamp: BigInt!
   synth: Synth
 }

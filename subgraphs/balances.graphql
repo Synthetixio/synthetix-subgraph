@@ -21,13 +21,13 @@ type SynthBalance @entity {
   synth: Synth
 }
 
-" we dont query this entity but only use it to store aggregate data we need during syncing "
+" we dont query these entities but only use it to store aggregate data we need during syncing "
 type LatestSynthBalance @entity {
   " account + synth address "
   id: ID!
   amount: BigDecimal!
   address: Bytes!
-  account: String! # using a string here because its ID compatible
+  account: String!
   timestamp: BigInt!
   synth: Synth
 }

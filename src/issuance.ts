@@ -11,8 +11,7 @@ import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0
 import { AddressResolver } from '../generated/subgraphs/issuance/issuance_Synthetix_0/AddressResolver';
 
 import { sUSD32, sUSD4, toDecimal, ZERO_ADDRESS, ZERO } from './lib/helpers';
-import { isEscrow } from './lib/util';
-import { getTimeID } from './lib/helpers';
+import { getTimeID, isEscrow } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
 import { SynthetixState } from '../generated/subgraphs/issuance/issuance_Synthetix_0/SynthetixState';

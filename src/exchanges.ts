@@ -43,12 +43,20 @@ function populateAggregatedTotalEntity(
   bucketMagnitude: BigInt,
   synth: string | null,
 ): Total {
-  let id = timestamp.toString() + '-' + bucketMagnitude.toString() + '-' + synth + '-' + period.toString();
+  const synthName = synth as String;
+  let id =
+    timestamp.toString() +
+    '-' +
+    bucketMagnitude.toString() +
+    '-' +
+    (synthName.length ? synthName : 'null') +
+    '-' +
+    period.toString();
 
   let entity = Total.load(id);
 
   if (entity != null) {
-    return entity!;
+    return entity;
   }
 
   entity = new Total(id);
@@ -63,7 +71,7 @@ function populateAggregatedTotalEntity(
   entity.exchangeUSDTally = new BigDecimal(ZERO);
   entity.totalFeesGeneratedInUSD = new BigDecimal(ZERO);
 
-  return entity!;
+  return entity;
 }
 
 function trackTotals(
@@ -148,11 +156,11 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let latestToRate = getLatestRate(toCurrencyKey, txHash);
 
   // may need to add new aggregator (this can happen on optimism)
-  if (latestFromRate == null) {
+  if (!latestFromRate) {
     latestFromRate = addMissingSynthRate(event.params.fromCurrencyKey);
   }
 
-  if (latestToRate == null) {
+  if (!latestToRate) {
     latestToRate = addMissingSynthRate(event.params.fromCurrencyKey);
   }
 
@@ -236,7 +244,7 @@ export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   let latestRate = getLatestRate(event.params.currencyKey.toString(), txHash);
 
-  if (latestRate == null) {
+  if (!latestRate) {
     log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);
     return;
   }
@@ -255,7 +263,7 @@ export function handleExchangeRebate(event: ExchangeRebateEvent): void {
   entity.gasPrice = event.transaction.gasPrice;
   let latestRate = getLatestRate(event.params.currencyKey.toString(), txHash);
 
-  if (latestRate == null) {
+  if (!latestRate) {
     log.error('handleExchangeReclaim has an issue in tx hash: {}', [txHash]);
     return;
   }

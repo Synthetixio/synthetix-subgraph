@@ -174,17 +174,7 @@ type Synth @entity {
   symbol: String!
 }
 
-type SynthBalance @entity {
-  " timestamp + account + synth address "
-  id: ID!
-  amount: BigDecimal!
-  address: Bytes!
-  account: String!
-  timestamp: BigInt!
-  synth: Synth
-}
-
-" we dont query this entity but only use it to store aggregate data we need during syncing "
+" we dont query these entities but only use it to store aggregate data we need during syncing "
 type LatestSynthBalance @entity {
   " account + synth address "
   id: ID!

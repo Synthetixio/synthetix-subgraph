@@ -1,14 +1,12 @@
-const includedSubgraphs = [
-  'delegation',
-  'exchanger',
-  'exchanges',
-  'global-debt',
-  'issuance',
-  'liquidations',
-  'loans',
-  'rates',
-  'shorts',
-];
+const fs = require('fs');
+const path = require('path');
+
+const includedSubgraphs = fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
+  if (val.endsWith('.js') && val !== 'main.js') {
+    acc.push(val.slice(0, -3));
+  }
+  return acc;
+}, []);
 
 const dataSources = {};
 const templates = {};
@@ -29,10 +27,10 @@ for (const included of includedSubgraphs) {
 
 module.exports = {
   specVersion: '0.0.2',
-  description: 'Synthetix Mega Subgraph',
+  description: 'Synthetix Subgraph',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './mega.graphql',
+    file: './main.graphql',
   },
   dataSources: Object.values(dataSources),
   templates: Object.values(templates),

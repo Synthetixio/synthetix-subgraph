@@ -46,7 +46,7 @@ function createTempEntity(id: string): TemporaryExchangePartnerTracker {
 }
 
 function resetTempEntity(txHash: string): void {
-  let tempEntity = TemporaryExchangePartnerTracker.load(txHash);
+  let tempEntity = TemporaryExchangePartnerTracker.load(txHash)!;
   tempEntity.usdVolume = new BigDecimal(BigInt.fromI32(0));
   tempEntity.usdFees = new BigDecimal(BigInt.fromI32(0));
   tempEntity.partner = null;
@@ -133,18 +133,18 @@ export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): 
     let usdFees = getFeeUSDFromVolume(usdVolume, event.params.exchangeFeeRate);
 
     if (tempEntity.partner != null) {
-      let exchangePartner = ExchangePartner.load(tempEntity.partner);
+      let exchangePartner = ExchangePartner.load(tempEntity.partner!);
       if (exchangePartner == null) {
-        exchangePartner = loadNewExchangePartner(tempEntity.partner);
+        exchangePartner = loadNewExchangePartner(tempEntity.partner!);
       }
       updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFees);
 
       let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
-      let dailyExchangePartnerID = timestamp.toString() + '-' + tempEntity.partner;
+      let dailyExchangePartnerID = timestamp.toString() + '-' + tempEntity.partner!;
       let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
 
       if (dailyExchangePartner == null) {
-        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner, timestamp);
+        dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, tempEntity.partner!, timestamp);
       }
 
       updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFees);
@@ -170,7 +170,7 @@ export function handleExchangeTrackingV1(event: ExchangeTrackingEventV1): void {
     return;
   }
 
-  if (tempEntity != null && (tempEntity.usdVolume == null || tempEntity.usdFees == null)) {
+  if (tempEntity != null && (!tempEntity.usdVolume || !tempEntity.usdFees)) {
     log.error(
       'handleExchangeTracking tempEntity exists but the volume and/ or rebate is null for txhash: {}, partner: {}',
       [txHash, exchangePartnerID],
