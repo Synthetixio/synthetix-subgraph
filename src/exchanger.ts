@@ -15,7 +15,7 @@ import {
   TemporaryExchangePartnerTracker,
 } from '../generated/subgraphs/exchanger/schema';
 
-import { getTimeID, getUSDAmountFromAssetAmount, toDecimal, etherUnits, DAY_SECONDS } from './lib/helpers';
+import { getTimeID, getUSDAmountFromAssetAmount, toDecimal, DAY_SECONDS } from './lib/helpers';
 
 import { BigInt, log, BigDecimal, dataSource } from '@graphprotocol/graph-ts';
 
@@ -90,9 +90,8 @@ function loadNewDailyExchangePartner(id: string, partnerID: string, timestamp: B
 }
 
 function getFeeUSDFromVolume(volume: BigDecimal, feeRate: BigInt): BigDecimal {
-  let decimalFee = new BigDecimal(feeRate);
-  let formattedDecimalFee = decimalFee.div(etherUnits);
-  return volume.times(formattedDecimalFee);
+  let decimalFee = toDecimal(feeRate);
+  return volume.times(decimalFee);
 }
 
 export function handleExchangeEntryAppended(event: ExchangeEntryAppendedEvent): void {
@@ -225,13 +224,12 @@ export function handleExchangeTrackingV2(event: ExchangeTrackingEventV2): void {
 
   let usdVolume = getUSDAmountFromAssetAmount(event.params.toAmount, latestRate.rate);
 
-  let fee = new BigDecimal(event.params.fee);
-  let usdFee = fee.div(etherUnits);
+  let fee = toDecimal(event.params.fee);
 
-  updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, usdFee);
+  updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, fee);
 
   exchangePartner.usdVolume = exchangePartner.usdVolume.plus(usdVolume);
-  exchangePartner.usdFees = exchangePartner.usdFees.plus(usdFee);
+  exchangePartner.usdFees = exchangePartner.usdFees.plus(fee);
   exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
   exchangePartner.save();
 
@@ -242,5 +240,5 @@ export function handleExchangeTrackingV2(event: ExchangeTrackingEventV2): void {
     dailyExchangePartner = loadNewDailyExchangePartner(dailyExchangePartnerID, exchangePartnerID, timestamp);
   }
 
-  updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, usdFee);
+  updateDailyExchangePartner(dailyExchangePartner as DailyExchangePartner, usdVolume, fee);
 }

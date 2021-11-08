@@ -9,12 +9,12 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     network: getCurrentNetwork(),
     source: {
       address: a.address,
-      startBlock: getCurrentNetwork() === 'mainnet' ? Math.max(10000000, a.startBlock) : a.startBlock,
+      startBlock: getCurrentNetwork() === 'mainnet' ? Math.max(13000000, a.startBlock) : a.startBlock,
       abi: 'Proxy',
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.4',
+      apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/global-debt.ts',
       entities: ['DebtState'],
@@ -33,7 +33,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
         },
         {
           name: 'Synthetix',
-          file: '../abis/Synthetix.json',
+          file: '../abis/SynthetixGlobalDebt.json',
         },
       ],
       blockHandlers: [{ handler: 'handleBlock' }],

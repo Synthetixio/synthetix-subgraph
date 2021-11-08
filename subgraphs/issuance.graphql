@@ -66,17 +66,12 @@ type DebtSnapshot @entity {
 
   " sUSD of debt as of last event "
   debtBalanceOf: BigDecimal
-}
 
-type SynthHolder @entity {
-  " address of the holder + the synth "
-  id: ID!
+  " sUSD debt portion a user had at last index "
+  initialDebtOwnership: BigDecimal
 
-  " currencyKey of the synth "
-  synth: String!
-
-  " units of the synth held in wei "
-  balanceOf: BigDecimal!
+  " debt entry when `initialDebtOwnership` applies"
+  debtEntryAtIndex: BigInt
 }
 
 type DailyIssued @entity {
@@ -165,4 +160,37 @@ type TotalDailyActiveStaker @entity {
 
 type ActiveStaker @entity {
   id: ID!
+}
+
+type SynthByCurrencyKey @entity {
+  " currency key "
+  id: ID!
+  proxyAddress: Bytes!
+}
+
+type Synth @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+}
+
+type SynthBalance @entity {
+  " timestamp + account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  address: Bytes!
+  account: String!
+  timestamp: BigInt!
+  synth: Synth
+}
+
+" we dont query this entity but only use it to store aggregate data we need during syncing "
+type LatestSynthBalance @entity {
+  " account + synth address "
+  id: ID!
+  amount: BigDecimal!
+  address: Bytes!
+  account: String!
+  timestamp: BigInt!
+  synth: Synth
 }
