@@ -104,7 +104,7 @@ type Exchanger @entity {
   totalFeesGeneratedInUSD: BigDecimal!
 
   " balances "
-  balances: [LatestSynthBalance!]! @derivedFrom(field: "account")
+  balances: [LatestSynthBalance!]!
 
   " exchanges "
   exchanges: [SynthExchange!]! @derivedFrom(field: "account")

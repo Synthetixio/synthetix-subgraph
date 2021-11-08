@@ -2,6 +2,7 @@ import { BigDecimal, BigInt, Bytes, ByteArray, log, Address } from '@graphprotoc
 
 import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
 import { initFeed } from '../fragments/latest-rates';
+import { contracts } from '../../generated/contracts';
 
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);

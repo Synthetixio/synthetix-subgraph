@@ -56,7 +56,7 @@ function populateAggregatedTotalEntity(
   let entity = Total.load(id);
 
   if (entity != null) {
-    return entity!;
+    return entity;
   }
 
   entity = new Total(id);
@@ -71,7 +71,7 @@ function populateAggregatedTotalEntity(
   entity.exchangeUSDTally = new BigDecimal(ZERO);
   entity.totalFeesGeneratedInUSD = new BigDecimal(ZERO);
 
-  return entity!;
+  return entity;
 }
 
 function trackTotals(

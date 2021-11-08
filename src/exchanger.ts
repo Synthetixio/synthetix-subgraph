@@ -38,7 +38,7 @@ export function handleExchangeEntrySettled(event: ExchangeEntrySettledEvent): vo
 }
 
 function createTempEntity(id: string): TemporaryExchangePartnerTracker {
-  let newTempEntity = new TemporaryExchangePartnerTracker(id)!;
+  let newTempEntity = new TemporaryExchangePartnerTracker(id);
   newTempEntity.usdVolume = new BigDecimal(BigInt.fromI32(0));
   newTempEntity.usdFees = new BigDecimal(BigInt.fromI32(0));
   newTempEntity.partner = null;
