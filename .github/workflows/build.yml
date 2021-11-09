@@ -25,21 +25,4 @@ jobs:
           npm ci
       - name: build
         run: |
-          node prepare-abis
-          ./build.sh build all all
-  deploy:
-    name: Update synthetix in contracts-interface
-    runs-on: ubuntu-latest
-    if: false
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          registry-url: 'https://registry.npmjs.org'
-      - name: npm ci
-        run: |
-          npm ci
-      - name: deploy
-        run: |
-          GRAPH_TOKEN=${{ secrets.GRAPH_TOKEN }} ./build.sh deploy all all
+          node scripts/deploy.js --build-only -s main -n mainnet
