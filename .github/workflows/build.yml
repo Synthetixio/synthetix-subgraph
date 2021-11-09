@@ -34,6 +34,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-alpine-node-
         continue-on-error: true
+      # issue with github actions, see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
       - run: npm ci
       - run: npm run lint
       - name: build
