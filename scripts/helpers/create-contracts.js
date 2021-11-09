@@ -40,7 +40,7 @@ for (const network of ['mainnet', 'mainnet-ovm', 'kovan', 'kovan-ovm']) {
   for (const vers of _.reverse(_.values(versions))) {
     for (const c in vers.contracts) {
       genTs.push(
-        `if (contractName === '${c}') return changetype<Address>(Address.fromHexString('${
+        `if (contractName == '${c}') return changetype<Address>(Address.fromHexString('${
           vers.contracts[c].address || '0x0'
         }'));`,
       );
