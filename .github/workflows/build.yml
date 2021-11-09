@@ -20,6 +20,11 @@ jobs:
         with:
           node-version: '14'
           registry-url: 'https://registry.npmjs.org'
+      # issue with github actions, see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
       - name: npm ci
         run: |
           npm ci
