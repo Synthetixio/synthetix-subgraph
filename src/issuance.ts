@@ -51,7 +51,7 @@ import { strToBytes } from './lib/helpers';
 
 import { log } from '@graphprotocol/graph-ts';
 import { DAY_SECONDS } from './lib/helpers';
-import { contracts } from '../generated/contracts';
+import { getContractDeployment } from '../generated/addresses';
 
 let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -257,10 +257,15 @@ function trackDebtSnapshot(event: ethereum.Event): void {
       entity.collateral = toDecimal(collateralTry.value);
     }
     let debtBalanceOfTry = synthetix.try_debtBalanceOf(account, sUSD32);
+    if (!debtBalanceOfTry.reverted) {
+      entity.debtBalanceOf = toDecimal(debtBalanceOfTry.value);
+    }
 
-    let addressResolverAddress = changetype<Address>(
-      Address.fromHexString(contracts.get('addressresolver-' + dataSource.network())),
-    );
+    let addressResolverAddress = getContractDeployment(
+      'AddressResolver',
+      dataSource.network(),
+      BigInt.fromI32(1000000000),
+    )!;
     let resolver = AddressResolver.bind(addressResolverAddress);
 
     let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
@@ -288,9 +293,11 @@ function trackDebtSnapshot(event: ethereum.Event): void {
       entity.debtBalanceOf = toDecimal(debtBalanceOfTry.value);
     }
 
-    let addressResolverAddress = Address.fromHexString(
-      contracts.get('addressresolver-' + dataSource.network()),
-    ) as Address;
+    let addressResolverAddress = getContractDeployment(
+      'AddressResolver',
+      dataSource.network(),
+      BigInt.fromI32(1000000000),
+    )!;
     let resolver = AddressResolver.bind(addressResolverAddress);
     let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
     let issuanceData = synthetixState.issuanceData(account);

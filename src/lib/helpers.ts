@@ -1,8 +1,8 @@
-import { BigDecimal, BigInt, Bytes, ByteArray, log, Address } from '@graphprotocol/graph-ts';
+import { BigDecimal, BigInt, Bytes, ByteArray, log, Address, dataSource } from '@graphprotocol/graph-ts';
 
 import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
 import { initFeed } from '../fragments/latest-rates';
-import { contracts } from '../../generated/contracts';
+import { getContractDeployment } from '../../generated/addresses';
 
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
@@ -51,14 +51,9 @@ export function getLatestRate(synth: string, txHash: string): BigDecimal | null 
 }
 
 export function isEscrow(holder: string, network: string): boolean {
-  if (network == 'mainnet') {
-    return contracts.get('escrow-mainnet') == holder || contracts.get('rewardEscrow-mainnet') == holder;
-  } else if (network == 'kovan') {
-    return contracts.get('escrow-kovan') == holder || contracts.get('rewardEscrow-kovan') == holder;
-  } else if (network == 'optimism') {
-    return contracts.get('escrow-optimism') == holder || contracts.get('rewardEscrow-optimism') == holder;
-  } else if (network == 'optimism-kovan') {
-    return contracts.get('escrow-optimism-kovan') == holder || contracts.get('rewardEscrow-optimism-kovan') == holder;
-  }
-  return false;
+  return (
+    getContractDeployment('SynthetixEscrow', dataSource.network(), BigInt.fromI32(1000000000))!.toHexString() ==
+      holder ||
+    getContractDeployment('RewardEscrow', dataSource.network(), BigInt.fromI32(1000000000))!.toHexString() == holder
+  );
 }

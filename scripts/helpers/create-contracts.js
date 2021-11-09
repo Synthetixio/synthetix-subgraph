@@ -1,73 +1,55 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const fs = require('fs');
 
+const _ = require('lodash');
+
 try {
   fs.mkdirSync(__dirname + '/../../generated/');
   /* eslint-disable no-empty */
 } catch {}
 
-const genTs = ['export const versions = {'];
+const genTs = [];
+
+genTs.push(`
+import { BigInt, Address } from "@graphprotocol/graph-ts";
+
+interface ContractInfo { address: string };
+
+export function getContractDeployment(contractName: string, network: string, block: BigInt): Address | null {
+`);
 
 for (const network of ['mainnet', 'mainnet-ovm', 'kovan', 'kovan-ovm']) {
   const versions = require(`synthetix/publish/deployed/${network}/versions.json`);
 
-  genTs.push(`'${network}': ${JSON.stringify(versions)},`);
+  let networkName;
+  switch (network) {
+    case 'mainnet':
+    case 'kovan':
+      networkName = network;
+    case 'mainnet-ovm':
+      networkName = 'optimism';
+    case 'kovan-ovm':
+      networkName = 'kovan-optimism';
+  }
+
+  genTs.push(`if (network == '${networkName}') {`);
+
+  for (const v in versions) {
+    const name = `${networkName}${v.replace(/\.|-/g, '_')}Version`;
+    for (const c in versions[v].contracts) {
+      genTs.push(
+        `if (contractName === '${c}') return changetype<Address>(Address.fromHexString('${
+          versions[v].contracts[c].address || '0x0'
+        }'));`,
+      );
+    }
+  }
+
+  genTs.push(`}`);
 }
 
-genTs.push('};');
-
 genTs.push(`
-
-export function getContractDeployments(contractName, network: string, startBlock: number = 0, endBlock: number = Number.MAX_VALUE) {
-    startBlock = Math.max(startBlock, process.env['SNX_START_BLOCK'] || 0);
-  
-    const versionInfo = versions[network];
-  
-    const addressInfo = [];
-  
-    let prevInfo = null;
-  
-    // search for contract deployments
-    for (const info of values(versionInfo)) {
-      const contractInfo = info.contracts[contractName];
-      if (contractInfo) {
-        if ((network || getCurrentNetwork()).match('optimism') != null) {
-          addressInfo.push({
-            address: contractInfo.address,
-            // with the regenesis, assume all contracts are basically deployed on the first block (doesn't hurt anything if they were deployed later)
-            startBlock: 0,
-          });
-        }
-        else {
-  
-          const theBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
-  
-          if (theBlock < startBlock) {
-            prevInfo = { address: contractInfo.address, startBlock };
-            continue;
-          }
-    
-          if (prevInfo) {
-            addressInfo.push(prevInfo);
-            prevInfo = null;
-          }
-    
-          if (theBlock >= endBlock) break;
-    
-          if (addressInfo.length) last(addressInfo).endBlock = theBlock + BLOCK_SAFETY_OFFSET;
-    
-          const cushionStartBlock =
-            theBlock - BLOCK_SAFETY_OFFSET * 2 > 0 ? theBlock - BLOCK_SAFETY_OFFSET * 2 : theBlock - BLOCK_SAFETY_OFFSET;
-    
-          addressInfo.push({
-            address: contractInfo.address,
-            startBlock: cushionStartBlock,
-          });
-        }
-      }
-    }
-  
-    return addressInfo;
+    return null;
 }
 `);
 

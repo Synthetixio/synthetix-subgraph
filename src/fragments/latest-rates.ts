@@ -38,7 +38,7 @@ import { ProxyERC20 } from '../../generated/subgraphs/latest-rates/ChainlinkMult
 import { Synthetix } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/Synthetix';
 import { ExecutionSuccess } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/GnosisSafe';
 import { AddressResolver } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/AddressResolver';
-import { contracts } from '../../generated/contracts';
+import { getContractDeployment } from '../../generated/addresses';
 
 export function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
   let decimalRate = toDecimal(rate);
@@ -136,9 +136,11 @@ export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal
 }
 
 export function initFeed(currencyKey: string): BigDecimal | null {
-  let addressResolverAddress = changetype<Address>(
-    Address.fromHexString(contracts.get('addressresolver-' + dataSource.network())),
-  );
+  let addressResolverAddress = getContractDeployment(
+    'AddressResolver',
+    dataSource.network(),
+    BigInt.fromI32(1000000000),
+  )!;
   let resolver = AddressResolver.bind(addressResolverAddress);
   let er = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
 
@@ -225,12 +227,14 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
 // required to rescan all aggregator addresses whenever chainlink settings are updated. This is because of an issue where the chainlink aggregator proxy
 // does not contain an event to track when the aggregator addresses are updated, which means we must scan them manually when it makes sense to do so
 export function handleChainlinkUpdate(event: ExecutionSuccess): void {
-  let synthetixProxyContract = ProxyERC20.bind(
-    changetype<Address>(Address.fromHexString('0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f')),
-  );
-  let synthetixAddress = synthetixProxyContract.try_target();
+  let addressResolverAddress = getContractDeployment(
+    'AddressResolver',
+    dataSource.network(),
+    BigInt.fromI32(1000000000),
+  )!;
+  //let synthetixAddress = synthetixProxyContract.try_target();
 
-  if (synthetixAddress.reverted) {
+  /*if (synthetixAddress.reverted) {
     log.warning('snx base contract not available', []);
     return;
   }
@@ -242,9 +246,9 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
   if (resolverAddress.reverted) {
     log.warning('snx resolver not available', []);
     return;
-  }
+  }*/
 
-  let resolverContract = AddressResolver.bind(resolverAddress.value);
+  let resolverContract = AddressResolver.bind(addressResolverAddress);
   let ratesAddress = resolverContract.try_getAddress(strToBytes('ExchangeRates'));
 
   if (ratesAddress.reverted) {

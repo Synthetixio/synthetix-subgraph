@@ -38,8 +38,6 @@ program.action(async () => {
   }, []);
   const OPTIONS = program.opts();
 
-  console.log(OPTIONS);
-
   if (OPTIONS.updateSynthetix) {
     console.log(cyan('Updating the Synthetix package and contract ABIs...'));
     await exec(`npm install synthetix@${OPTIONS.updateSynthetix == true ? 'latest' : OPTIONS.updateSynthetix}`);
@@ -84,8 +82,6 @@ program.action(async () => {
     ...(await inquirer.prompt(inquiries, OPTIONS)),
     ...OPTIONS,
   };
-
-  console.log(settings);
 
   if (settings.subgraph == 'main') {
     console.log('Generating the main subgraph...');
