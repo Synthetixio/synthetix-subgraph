@@ -3,6 +3,7 @@ const fs = require('fs');
 
 try {
   fs.mkdirSync(__dirname + '/../../generated/');
+  /* eslint-disable no-empty */
 } catch {}
 
 const genTs = ['export const versions = {'];
@@ -70,4 +71,4 @@ export function getContractDeployments(contractName, network: string, startBlock
 }
 `);
 
-fs.writeFileSync(__dirname + `/../../generated/addresses.ts`, genTs.join('\n'));
+fs.writeFileSync(__dirname + '/../../generated/addresses.ts', genTs.join('\n'));

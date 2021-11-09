@@ -660,7 +660,7 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
     totalActiveStaker.count = totalActiveStaker.count.minus(BigInt.fromI32(1));
     totalActiveStaker.save();
     store.remove('ActiveStaker', account.toHex());
-    ``;
+    ('');
     // else if you are minting and have not been accounted for as being active, add one
     // and create a new active staker entity
   } else if (!isBurn && activeStaker == null) {

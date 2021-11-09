@@ -121,7 +121,7 @@ export function calculateInverseRate(currencyKey: string, beforeRate: BigDecimal
   let inversePricingInfo = InversePricingInfo.load(currencyKey);
 
   if (inversePricingInfo == null) {
-    log.warning(`Missing inverse pricing info for asset {}`, [currencyKey]);
+    log.warning('Missing inverse pricing info for asset {}', [currencyKey]);
     return toDecimal(ZERO);
   }
 
