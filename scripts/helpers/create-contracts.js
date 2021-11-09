@@ -47,7 +47,7 @@ for (const network of ['mainnet', 'mainnet-ovm', 'kovan', 'kovan-ovm']) {
     }
   }
 
-  genTs.push(`}`);
+  genTs.push('}');
 }
 
 genTs.push(`
