@@ -1,14 +1,14 @@
 import { DataSourceContext, dataSource, Address, BigDecimal } from '@graphprotocol/graph-ts';
 import { Wrapper } from '../generated/subgraphs/wrapper/schema';
-import { WrapperTemplate } from '../../generated/subgraphs/wrapper/templates';
+import { WrapperTemplate } from '../generated/subgraphs/wrapper/templates';
 import { getUSDAmountFromAssetAmount, getLatestRate, strToBytes } from './lib/helpers';
 import { contracts } from '../generated/contracts';
-import { AddressResolver } from '../generated/subgraphs/wrapper/wrapper_ProxyERC20_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/wrapper/systemSettings_0/AddressResolver';
 import { ethereum } from '@graphprotocol/graph-ts/chain/ethereum';
 
-function handleWrapperCreated(token: string, currencyKey: string, wrapperAddress: string): void {
+function handleWrapperCreated(token: Address, currencyKey: string, wrapperAddress: Address): void {
   let context = new DataSourceContext();
-  context.setString('wrapperAddress', wrapperAddress);
+  context.setString('wrapperAddress', wrapperAddress.toString());
 
   let wrapper = WrapperTemplate.createWithContext(wrapperAddress, context);
   wrapper.tokenAddress = token;
@@ -26,12 +26,14 @@ function handleMinted(
   let context = dataSource.context();
   let wrapperAddress = context.getString('wrapperAddress');
   let wrapper = Wrapper.load(wrapperAddress);
+
   wrapper.amount += amountIn;
 
   let txHash = transaction.hash.toHex();
   let latestRate = getLatestRate(wrapperAddress, txHash);
   let amountInUSD = getUSDAmountFromAssetAmount(wrapper.amount, latestRate);
   wrapper.amountInUSD = amountInUSD;
+
   wrapper.save();
 }
 
@@ -45,12 +47,14 @@ function handleBurned(
   let context = dataSource.context();
   let wrapperAddress = context.getString('wrapperAddress');
   let wrapper = Wrapper.load(wrapperAddress);
+
   wrapper.amount -= amountIn;
 
   let txHash = transaction.hash.toHex();
   let latestRate = getLatestRate(wrapperAddress, txHash);
   let amountInUSD = getUSDAmountFromAssetAmount(wrapper.amount, latestRate);
   wrapper.amountInUSD = amountInUSD;
+
   wrapper.save();
 }
 

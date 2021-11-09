@@ -124,6 +124,10 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
           name: 'SystemSettings',
           file: '../abis/SystemSettings.json',
         },
+        {
+          name: 'AddressResolver',
+          file: '../abis/AddressResolver.json',
+        },
       ],
       eventHandlers: [
         {

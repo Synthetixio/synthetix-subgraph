@@ -705,7 +705,7 @@ type ShortContractUpdate @entity {
 }
 
 type Wrapper @entity {
-  " currency key "
+  " wrapper address "
   id: ID!
   " address of wrapped token, null if ETH"
   tokenAddress: String!
