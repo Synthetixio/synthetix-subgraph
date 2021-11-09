@@ -26,20 +26,22 @@ for (const network of ['mainnet', 'mainnet-ovm', 'kovan', 'kovan-ovm']) {
     case 'mainnet':
     case 'kovan':
       networkName = network;
+      break;
     case 'mainnet-ovm':
       networkName = 'optimism';
+      break;
     case 'kovan-ovm':
       networkName = 'kovan-optimism';
+      break;
   }
 
   genTs.push(`if (network == '${networkName}') {`);
 
-  for (const v in versions) {
-    const name = `${networkName}${v.replace(/\.|-/g, '_')}Version`;
-    for (const c in versions[v].contracts) {
+  for (const vers of _.reverse(_.values(versions))) {
+    for (const c in vers.contracts) {
       genTs.push(
         `if (contractName === '${c}') return changetype<Address>(Address.fromHexString('${
-          versions[v].contracts[c].address || '0x0'
+          vers.contracts[c].address || '0x0'
         }'));`,
       );
     }
