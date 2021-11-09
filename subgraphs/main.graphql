@@ -703,3 +703,16 @@ type ShortContractUpdate @entity {
   " the block the short contract was udpated at "
   blockNumber: BigInt!
 }
+
+type Wrapper @entity {
+  " currency key "
+  id: ID!
+  " address of wrapped token, null if ETH"
+  tokenAddress: String!
+  " the current amount of synths minted by this wrapper"
+  amount: BigDecimal!
+  " the current amount of synths minted by this wrapper in USD"
+  amountInUSD: BigDecimal!
+  " the maximum amount of synths that can be minted by this wrapper"
+  maxAmount: BigDecimal!
+}

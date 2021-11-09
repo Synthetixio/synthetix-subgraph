@@ -1,0 +1,16 @@
+type Wrapper @entity {
+  " wrapper address "
+  id: ID!
+
+  " address of wrapped token, null if ETH"
+  tokenAddress: String!
+
+  " the current amount of synths minted by this wrapper"
+  amount: BigDecimal!
+
+  " the current amount of synths minted by this wrapper in USD"
+  amountInUSD: BigDecimal!
+
+  " the maximum amount of synths that can be minted by this wrapper"
+  maxAmount: BigDecimal!
+}
