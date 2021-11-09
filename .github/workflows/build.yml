@@ -40,7 +40,8 @@ jobs:
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       - run: npm ci
-      - run: npm run lint
       - name: build
         run: |
           node scripts/deploy.js --build-only -s main -n mainnet
+      # lint happens after build because it depends on some of the codegen
+      - run: npm run lint
