@@ -43,7 +43,7 @@ function populateAggregatedTotalEntity(
   bucketMagnitude: BigInt,
   synth: string | null,
 ): Total {
-  const synthName = synth as String;
+  const synthName = synth as string;
   let id =
     timestamp.toString() +
     '-' +

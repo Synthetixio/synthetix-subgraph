@@ -9,7 +9,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:import/errors',
     'plugin:@typescript-eslint/recommended', // Uses the recommended rules from the @typescript-eslint/eslint-plugin
-    'prettier/@typescript-eslint', // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
 
@@ -33,7 +32,7 @@ module.exports = {
   rules: {
     quotes: ['error', 'single'],
     'import/no-unresolved': 2,
-    'no-undef': 2,
+    'no-undef': 0,
     'prefer-const': 0,
     semi: ['error', 'always'],
     'no-console': 0,

@@ -20,26 +20,28 @@ jobs:
         with:
           node-version: '14'
           registry-url: 'https://registry.npmjs.org'
-      - name: npm ci
-        run: |
-          npm ci
+      - name: Set npm cache directory
+        run: npm config set cache .npm-cache --global
+        continue-on-error: true
+
+      - name: Cache node modules
+        uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
+        with:
+          path: |
+            .npm-cache
+            node_modules
+          key: ${{ runner.os }}-alpine-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-alpine-node-
+        continue-on-error: true
+      # issue with github actions, see https://github.com/actions/setup-node/issues/214#issuecomment-810829250
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
+      - run: npm ci
       - name: build
         run: |
-          node prepare-abis
-          ./build.sh build all all
-  deploy:
-    name: Update synthetix in contracts-interface
-    runs-on: ubuntu-latest
-    if: false
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          registry-url: 'https://registry.npmjs.org'
-      - name: npm ci
-        run: |
-          npm ci
-      - name: deploy
-        run: |
-          GRAPH_TOKEN=${{ secrets.GRAPH_TOKEN }} ./build.sh deploy all all
+          node scripts/deploy.js --build-only -s main -n mainnet
+      # lint happens after build because it depends on some of the codegen
+      - run: npm run lint

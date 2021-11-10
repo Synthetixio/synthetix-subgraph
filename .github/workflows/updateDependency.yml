@@ -1,0 +1,39 @@
+name: Publish Subgraphs
+
+on:
+  workflow_dispatch:
+    inputs:
+      synthetix_version:
+        description: 'Synthetix Repo upstream version (empty for `latest`)'
+        required: true
+      subgraph_version:
+        description: 'Subgraph Repo new version (empty for `patch`)'
+        default: patch
+
+jobs:
+  update_version:
+    name: Update synthetix in contracts-interface
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          registry-url: 'https://registry.npmjs.org'
+      - name: resolve version
+        run: |
+          export theversion="patch"
+          if [ -n "${{ github.event.inputs.monorepo_version }}" ]; then export theversion="${{ github.event.inputs.monorepo_version }}"; fi
+          echo "Resolved version $theversion"
+          echo "new_version=$theversion" >> $GITHUB_ENV
+      - name: set synthetix version
+        run: npm install --save synthetix@$new_version
+      - name: update ABIs
+        run: node scripts/helpers/prepare-abis.js
+      - run: npm version ${{ github.event.inputs.subgraph_version }}
+      - name: push new branch & pr
+        run: |
+          export VERSION=v$(jq .version < package.json)
+          gco -b $VERSION
+          git push origin $VERSION
+          gh pr create --title "$VERSION" --body "This is an automated release. Fix any errors that occur with the build, as it will be using updated ABIs. Once merged, official subgraphs should be deployed."
