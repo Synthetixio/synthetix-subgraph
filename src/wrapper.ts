@@ -79,7 +79,7 @@ function handleBurned(
 }
 
 function handleWrapperMaxTokenAmountUpdated(wrapperAddress: Address, maxTokenAmount: BigDecimal): void {
-  let wrapper = Wrapper.load(wrapperAddress);
+  let wrapper = Wrapper.load(wrapperAddress.toString());
   wrapper.maxAmount = maxTokenAmount;
   wrapper.save();
 }
@@ -93,8 +93,18 @@ function handleEtherWrapperMaxETHUpdated(maxETH: BigDecimal): void {
   if (etherWrapperAddress.reverted) {
     return;
   }
+  let wrapperAddress = etherWrapperAddress.value.toString();
 
-  let wrapper = Wrapper.load(etherWrapperAddress.value);
+  let wrapper = Wrapper.load(wrapperAddress);
+  // Create the EtherWrapper entity if necessary
+  if (!wrapper) {
+    let context = new DataSourceContext();
+    context.setString('wrapperAddress', wrapperAddress);
+    wrapper = WrapperTemplate.createWithContext(wrapperAddress, context);
+    wrapper.tokenAddress = token;
+    wrapper.currencyKey = currencyKey;
+  }
+
   wrapper.maxAmount = maxETH;
   wrapper.save();
 }
