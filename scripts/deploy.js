@@ -180,7 +180,7 @@ program.action(async () => {
             default: defaultVersion,
           },
         ],
-        Object.assign(OPTIONS, settings),
+        settings,
       );
 
       console.log('Deploying to decentralized network...');
