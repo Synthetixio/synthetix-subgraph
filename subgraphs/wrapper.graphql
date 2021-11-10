@@ -13,6 +13,9 @@ type Wrapper @entity {
 
   " the maximum amount of synths that can be minted by this wrapper"
   maxAmount: BigDecimal!
+
+  " the currency key of this wrapper "
+  currencyKey: Bytes!
 }
 
 type Mint @entity {
@@ -30,6 +33,12 @@ type Mint @entity {
 
   " total amount added to the wrapper "
   amountIn: BigDecimal!
+
+  " the currency key of this wrapper "
+  currencyKey: Bytes!
+
+  " the timestamp of the block that includes this event "
+  timestamp: BigInt!
 }
 
 type Burn @entity {
@@ -47,6 +56,12 @@ type Burn @entity {
 
   " total amount removed from the wrapper "
   amountOut: BigDecimal!
+
+  " the currency key of this wrapper "
+  currencyKey: Bytes!
+
+  " the timestamp of the block that includes this event "
+  timestamp: BigInt!
 }
 
 " we dont query this entity but only use it to store aggregate data we need during syncing "

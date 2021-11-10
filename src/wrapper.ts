@@ -101,7 +101,6 @@ function handleEtherWrapperMaxETHUpdated(maxETH: BigDecimal): void {
     let context = new DataSourceContext();
     context.setString('wrapperAddress', wrapperAddress);
     wrapper = WrapperTemplate.createWithContext(wrapperAddress, context);
-    wrapper.tokenAddress = token;
     wrapper.currencyKey = currencyKey;
   }
 
