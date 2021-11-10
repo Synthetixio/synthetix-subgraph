@@ -1,7 +1,7 @@
-const { clone, merge } = require('lodash');
+const { clone } = require('lodash');
 const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
 const latestRates = require('./fragments/latest-rates');
-const manifest = clone(latestRates.dataSources);
+let manifest = clone(latestRates.dataSources);
 
 getContractDeployments('WrapperFactory').forEach((a, i) => {
   manifest.push({
@@ -47,7 +47,7 @@ const wrapperTemplate = {
     apiVersion: '0.0.5',
     language: 'wasm/assemblyscript',
     file: '../src/wrapper.ts',
-    entities: ['Wrapper'],
+    entities: ['Wrapper', 'Mint', 'Burn'],
     abis: [
       {
         name: 'Wrapper',
@@ -141,6 +141,14 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
       ],
     },
   });
+});
+
+// To speed up indexing, start at the first deployment of the EtherWrapper, rather than LatestRates or SystemSettings
+// Probably don't want to keep this because of the main subgraph?
+const masterStartBlock = getContractDeployments('EtherWrapper')[0].startBlock;
+manifest = manifest.map((ds) => {
+  ds.source.startBlock = Math.max(ds.source.startBlock, masterStartBlock);
+  return ds;
 });
 
 module.exports = {

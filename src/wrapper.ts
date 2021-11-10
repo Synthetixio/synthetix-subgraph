@@ -1,5 +1,5 @@
 import { DataSourceContext, dataSource, Address, BigDecimal } from '@graphprotocol/graph-ts';
-import { Wrapper } from '../generated/subgraphs/wrapper/schema';
+import { Wrapper, Mint, Burn } from '../generated/subgraphs/wrapper/schema';
 import { WrapperTemplate } from '../generated/subgraphs/wrapper/templates';
 import { getUSDAmountFromAssetAmount, getLatestRate, strToBytes } from './lib/helpers';
 import { contracts } from '../generated/contracts';
@@ -22,12 +22,22 @@ function handleMinted(
   fee: BigDecimal,
   amountIn: number,
   transaction: ethereum.Transaction,
+  logIndex: BigInt,
 ): void {
+  // Create Mint
+  let mintEntity = new Mint(transaction.hash.toHex() + '-' + logIndex.toString());
+  mintEntity.account = account.toHex();
+  mintEntity.principal = principal;
+  mintEntity.fee = fee;
+  mintEntity.amountIn = amountIn;
+  mintEntity.save();
+
+  // Update Wrapper
   let context = dataSource.context();
   let wrapperAddress = context.getString('wrapperAddress');
   let wrapper = Wrapper.load(wrapperAddress);
 
-  wrapper.amount += amountIn;
+  wrapper.amount += principal;
 
   let txHash = transaction.hash.toHex();
   let latestRate = getLatestRate(wrapperAddress, txHash);
@@ -43,7 +53,17 @@ function handleBurned(
   fee: BigDecimal,
   amountIn: number,
   transaction: ethereum.Transaction,
+  logIndex: BigInt,
 ): void {
+  // Create Burn
+  let burnEntity = new Burn(transaction.hash.toHex() + '-' + logIndex.toString());
+  burnEntity.account = account.toHex();
+  burnEntity.principal = principal;
+  burnEntity.fee = fee;
+  burnEntity.amountOut = amountIn;
+  burnEntity.save();
+
+  // Update Wrapper
   let context = dataSource.context();
   let wrapperAddress = context.getString('wrapperAddress');
   let wrapper = Wrapper.load(wrapperAddress);
