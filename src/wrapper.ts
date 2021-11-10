@@ -1,7 +1,7 @@
 import { DataSourceContext, dataSource, Address, BigDecimal } from '@graphprotocol/graph-ts';
 import { Wrapper, Mint, Burn } from '../generated/subgraphs/wrapper/schema';
 import { WrapperTemplate } from '../generated/subgraphs/wrapper/templates';
-import { getUSDAmountFromAssetAmount, getLatestRate, strToBytes } from './lib/helpers';
+import { getUSDAmountFromAssetAmount, getLatestRate, strToBytes, toDecimal } from './lib/helpers';
 import { contracts } from '../generated/contracts';
 import { AddressResolver } from '../generated/subgraphs/wrapper/systemSettings_0/AddressResolver';
 import { ethereum } from '@graphprotocol/graph-ts/chain/ethereum';
@@ -12,7 +12,7 @@ function handleWrapperCreated(token: Address, currencyKey: string, wrapperAddres
 
   let wrapper = WrapperTemplate.createWithContext(wrapperAddress, context);
   wrapper.tokenAddress = token;
-  wrapper.currencyKey = currencyKey;
+  wrapper.currencyKey = strToBytes(currencyKey, 4);
   wrapper.save();
 }
 
@@ -20,8 +20,9 @@ function handleMinted(
   account: Address,
   principal: BigDecimal,
   fee: BigDecimal,
-  amountIn: number,
+  amountIn: BigDecimal,
   transaction: ethereum.Transaction,
+  block: ethereum.Block,
   logIndex: BigInt,
 ): void {
   // Create Mint
@@ -30,6 +31,7 @@ function handleMinted(
   mintEntity.principal = principal;
   mintEntity.fee = fee;
   mintEntity.amountIn = amountIn;
+  mintEntity.timestamp = block.timestamp;
   mintEntity.save();
 
   // Update Wrapper
@@ -38,6 +40,7 @@ function handleMinted(
   let wrapper = Wrapper.load(wrapperAddress);
 
   wrapper.amount += principal;
+  wrapper.totalFees += fee;
 
   let txHash = transaction.hash.toHex();
   let latestRate = getLatestRate(wrapperAddress, txHash);
@@ -53,6 +56,7 @@ function handleBurned(
   fee: BigDecimal,
   amountIn: number,
   transaction: ethereum.Transaction,
+  block: ethereum.Block,
   logIndex: BigInt,
 ): void {
   // Create Burn
@@ -61,6 +65,7 @@ function handleBurned(
   burnEntity.principal = principal;
   burnEntity.fee = fee;
   burnEntity.amountOut = amountIn;
+  burnEntity.timestamp = block.timestamp;
   burnEntity.save();
 
   // Update Wrapper
@@ -69,6 +74,7 @@ function handleBurned(
   let wrapper = Wrapper.load(wrapperAddress);
 
   wrapper.amount -= amountIn;
+  wrapper.totalFees += fee;
 
   let txHash = transaction.hash.toHex();
   let latestRate = getLatestRate(wrapperAddress, txHash);
@@ -101,7 +107,7 @@ function handleEtherWrapperMaxETHUpdated(maxETH: BigDecimal): void {
     let context = new DataSourceContext();
     context.setString('wrapperAddress', wrapperAddress);
     wrapper = WrapperTemplate.createWithContext(wrapperAddress, context);
-    wrapper.currencyKey = currencyKey;
+    wrapper.currencyKey = strToBytes('ETH', 4);
   }
 
   wrapper.maxAmount = maxETH;
