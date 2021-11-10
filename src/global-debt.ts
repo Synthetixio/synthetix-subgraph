@@ -11,7 +11,7 @@ import { strToBytes, toDecimal } from './lib/helpers';
 import { DebtState } from '../generated/subgraphs/global-debt/schema';
 
 import { BigInt, Address, ethereum, dataSource, log } from '@graphprotocol/graph-ts';
-import { contracts } from '../generated/contracts';
+import { getContractDeployment } from '../generated/addresses';
 
 export function trackGlobalDebt(block: ethereum.Block): void {
   let timeSlot = block.timestamp.minus(block.timestamp.mod(BigInt.fromI32(900)));
@@ -19,18 +19,8 @@ export function trackGlobalDebt(block: ethereum.Block): void {
   let curDebtState = DebtState.load(timeSlot.toString());
 
   if (curDebtState == null) {
-    let addressResolverAddress = Address.fromHexString(
-      contracts.get('addressresolver-' + dataSource.network()),
-    ) as Address;
-    let resolver = AddressResolver.bind(addressResolverAddress);
-
-    let synthetixStateAddress = resolver.try_getAddress(strToBytes('SynthetixState', 32));
-
-    if (synthetixStateAddress.reverted) {
-      return;
-    }
-
-    let synthetixState = SynthetixState.bind(synthetixStateAddress.value);
+    let synthetixStateAddress = getContractDeployment('SynthetixState', dataSource.network(), block.number)!;
+    let synthetixState = SynthetixState.bind(synthetixStateAddress);
 
     let synthetix = SNX.bind(dataSource.address());
     let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));

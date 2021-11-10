@@ -9,7 +9,7 @@
     "snxData": "bin.js"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint src/ scripts/ subgraphs/",
     "prepare": "husky install",
     "deploy": "node ./scripts/deploy.js"
   },
@@ -23,6 +23,7 @@
     "@graphql-tools/merge": "^8.2.1",
     "chalk": "4.1.2",
     "commander": "8.2.0",
+    "eslint-config-prettier": "^8.3.0",
     "mustache": "4.2.0",
     "synthetix": "^2.52.1-ovm"
   },
@@ -30,7 +31,6 @@
     "@typescript-eslint/eslint-plugin": "4.32.0",
     "@typescript-eslint/parser": "4.32.0",
     "eslint": "7.32.0",
-    "eslint-config-prettier": "8.3.0",
     "eslint-import-resolver-typescript": "2.5.0",
     "eslint-plugin-import": "2.24.2",
     "eslint-plugin-prettier": "4.0.0",
