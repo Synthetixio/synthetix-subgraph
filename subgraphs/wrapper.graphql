@@ -71,6 +71,23 @@ type Burn @entity {
 }
 
 " we dont query this entity but only use it to store aggregate data we need during syncing "
+type InversePricingInfo @entity {
+  " Name of inverse synth. E.g. iETH "
+  id: ID!
+
+  " whether or not this inverse synth has been frozen "
+  frozen: Boolean!
+
+  " configured upper limit "
+  upperLimit: BigDecimal!
+
+  " configured lower limit "
+  lowerLimit: BigDecimal!
+
+  " matching price point with long synth "
+  entryPoint: BigDecimal!
+}
+
 type LatestRate @entity {
   " Name of synth. E.g. sUSD "
   id: ID!

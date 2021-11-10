@@ -27,7 +27,7 @@ getContractDeployments('WrapperFactory').forEach((a, i) => {
       ],
       eventHandlers: [
         {
-          event: 'WrapperCreated(indexed address token, bytes32 indexed currencyKey, address wrapperAddress)',
+          event: 'WrapperCreated(indexed address,indexed bytes32,address)',
           handler: 'handleWrapperCreated',
         },
       ],
@@ -52,6 +52,14 @@ const wrapperTemplate = {
       {
         name: 'Wrapper',
         file: '../abis/Wrapper.json',
+      },
+      {
+        name: 'AddressResolver',
+        file: '../abis/AddressResolver.json',
+      },
+      {
+        name: 'ExchangeRates',
+        file: '../abis/ExchangeRates.json',
       },
     ],
     eventHandlers: [
@@ -87,6 +95,14 @@ getContractDeployments('EtherWrapper').forEach((a, i) => {
         {
           name: 'EtherWrapper',
           file: '../abis/EtherWrapper.json',
+        },
+        {
+          name: 'AddressResolver',
+          file: '../abis/AddressResolver.json',
+        },
+        {
+          name: 'ExchangeRates',
+          file: '../abis/ExchangeRates.json',
         },
       ],
       eventHandlers: [
@@ -159,5 +175,5 @@ module.exports = {
     file: './wrapper.graphql',
   },
   dataSources: manifest,
-  templates: [wrapperTemplate],
+  templates: latestRates.templates.concat([wrapperTemplate]),
 };
