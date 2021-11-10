@@ -39,11 +39,13 @@ function handleMinted(
   let wrapperAddress = context.getString('wrapperAddress');
   let wrapper = Wrapper.load(wrapperAddress);
 
-  wrapper.amount += principal;
-  wrapper.totalFees += fee;
-
   let txHash = transaction.hash.toHex();
   let latestRate = getLatestRate(wrapperAddress, txHash);
+
+  wrapper.amount += principal;
+  wrapper.totalFees += fee;
+  wrapper.totalFeesInUSD += getUSDAmountFromAssetAmount(wrapper.amount, fee);
+
   let amountInUSD = getUSDAmountFromAssetAmount(wrapper.amount, latestRate);
   wrapper.amountInUSD = amountInUSD;
 
@@ -73,11 +75,13 @@ function handleBurned(
   let wrapperAddress = context.getString('wrapperAddress');
   let wrapper = Wrapper.load(wrapperAddress);
 
-  wrapper.amount -= amountIn;
-  wrapper.totalFees += fee;
-
   let txHash = transaction.hash.toHex();
   let latestRate = getLatestRate(wrapperAddress, txHash);
+
+  wrapper.amount -= amountIn;
+  wrapper.totalFees += fee;
+  wrapper.totalFeesInUSD += getUSDAmountFromAssetAmount(wrapper.amount, fee);
+
   let amountInUSD = getUSDAmountFromAssetAmount(wrapper.amount, latestRate);
   wrapper.amountInUSD = amountInUSD;
 
