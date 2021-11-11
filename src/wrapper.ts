@@ -53,16 +53,14 @@ export function handleMinted(event: MintedEvent): void {
   }
 
   if (wrapper) {
+    wrapper.amount = wrapper.amount.plus(toDecimal(event.params.amountIn));
+    wrapper.totalFees = wrapper.totalFees.plus(toDecimal(event.params.fee));
+
     let txHash = event.transaction.hash.toString();
     let latestRate = getLatestRate(wrapper.currencyKey, txHash);
-
-    wrapper.amount += toDecimal(event.params.amountIn);
-    wrapper.totalFees += toDecimal(event.params.fee);
-
     if (latestRate) {
-      let amountInUSD = getUSDAmountFromAssetAmount(event.params.amountIn, latestRate);
-      wrapper.amountInUSD = amountInUSD;
-      wrapper.totalFeesInUSD += amountInUSD;
+      wrapper.amountInUSD = wrapper.amount.times(latestRate);
+      wrapper.totalFeesInUSD = wrapper.totalFees.times(latestRate);
     }
 
     wrapper.save();
@@ -84,16 +82,14 @@ export function handleBurned(event: BurnedEvent): void {
   let wrapper = Wrapper.load(event.address.toHexString());
 
   if (wrapper) {
+    wrapper.amount = wrapper.amount.minus(toDecimal(event.params.amountIn));
+    wrapper.totalFees = wrapper.totalFees.plus(toDecimal(event.params.fee));
+
     let txHash = event.transaction.hash.toHexString();
     let latestRate = getLatestRate(wrapper.currencyKey, txHash);
-
-    wrapper.amount -= toDecimal(event.params.amountIn);
-    wrapper.totalFees += toDecimal(event.params.fee);
-
     if (latestRate) {
-      let amountInUSD = getUSDAmountFromAssetAmount(event.params.amountIn, latestRate);
-      wrapper.amountInUSD = amountInUSD;
-      wrapper.totalFeesInUSD += amountInUSD;
+      wrapper.amountInUSD = wrapper.amount.times(latestRate);
+      wrapper.totalFeesInUSD = wrapper.totalFees.times(latestRate);
     }
 
     wrapper.save();
