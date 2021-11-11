@@ -2,7 +2,7 @@ type Wrapper @entity {
   " wrapper address "
   id: ID!
 
-  " address of wrapped token, null if ETH"
+  " address of wrapped token, empty if ETH"
   tokenAddress: String!
 
   " the current amount of synths minted by this wrapper"
@@ -40,9 +40,6 @@ type Mint @entity {
   " total amount added to the wrapper "
   amountIn: BigDecimal!
 
-  " the currency key of this wrapper "
-  currencyKey: Bytes!
-
   " the timestamp of the block that includes this event "
   timestamp: BigInt!
 }
@@ -62,9 +59,6 @@ type Burn @entity {
 
   " total amount removed from the wrapper "
   amountOut: BigDecimal!
-
-  " the currency key of this wrapper "
-  currencyKey: Bytes!
 
   " the timestamp of the block that includes this event "
   timestamp: BigInt!

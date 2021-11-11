@@ -1,4 +1,4 @@
-import { dataSource, Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts';
+import { dataSource, BigInt, DataSourceContext } from '@graphprotocol/graph-ts';
 import { Wrapper, Mint, Burn } from '../generated/subgraphs/wrapper/schema';
 import { WrapperTemplate } from '../generated/subgraphs/wrapper/templates';
 import { getUSDAmountFromAssetAmount, getLatestRate, strToBytes, toDecimal } from './lib/helpers';
@@ -14,21 +14,17 @@ import {
 } from '../generated/subgraphs/wrapper/systemSettings_0/SystemSettings';
 import { WrapperCreated as WrapperCreatedEvent } from '../generated/subgraphs/wrapper/wrapperFactory_0/WrapperFactory';
 
-import { log } from '@graphprotocol/graph-ts';
-
 export function handleWrapperCreated(event: WrapperCreatedEvent): void {
-  let wrapper = Wrapper.load(event.params.wrapperAddress.toString());
-  if (wrapper) {
-    wrapper.tokenAddress = event.params.token.toString();
-    wrapper.currencyKey = event.params.currencyKey;
-    wrapper.save();
-  }
+  let context = new DataSourceContext();
+  context.setString('tokenAddress', event.params.token.toHexString());
+  context.setBytes('currencyKey', event.params.currencyKey);
+  WrapperTemplate.createWithContext(event.params.wrapperAddress, context);
 }
 
 export function handleMinted(event: MintedEvent): void {
   // Create Mint
   let mintEntity = new Mint(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-  mintEntity.account = event.params.account.toHex();
+  mintEntity.account = event.params.account.toHexString();
   mintEntity.principal = toDecimal(event.params.principal);
   mintEntity.fee = toDecimal(event.params.fee);
   mintEntity.amountIn = toDecimal(event.params.amountIn);
@@ -38,12 +34,21 @@ export function handleMinted(event: MintedEvent): void {
   // Update Wrapper
   let wrapper = Wrapper.load(event.address.toHexString());
 
-  // if !wrapper, instantiate it, we know it's the ETH wrapper
+  // If there isn't a wrapper yet at this address, it's the ETH wrapper, and needs to be instantiated.
   if (!wrapper) {
     wrapper = new Wrapper(event.address.toHexString());
     if (wrapper) {
       wrapper.currencyKey = strToBytes('ETH', 4);
     }
+  }
+
+  // Assign values from context
+  let context = dataSource.context();
+  let tokenAddress = context.getString('tokenAddress');
+  let currencyKey = context.getBytes('currencyKey');
+  if (tokenAddress && tokenAddress.length) {
+    wrapper.tokenAddress = tokenAddress;
+    wrapper.currencyKey = currencyKey;
   }
 
   if (wrapper) {
@@ -114,7 +119,7 @@ export function handleEtherWrapperMaxETHUpdated(event: EtherWrapperMaxETHUpdated
   }
   let wrapperAddress = etherWrapperAddress.value;
 
-  let wrapper = Wrapper.load(wrapperAddress.toString());
+  let wrapper = Wrapper.load(wrapperAddress.toHexString());
   if (wrapper) {
     wrapper.maxAmount = toDecimal(event.params.maxETH);
     wrapper.save();

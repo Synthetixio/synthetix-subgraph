@@ -61,6 +61,10 @@ const wrapperTemplate = {
         name: 'ExchangeRates',
         file: '../abis/ExchangeRates.json',
       },
+      {
+        name: 'AggregatorProxy',
+        file: '../abis/AggregatorProxy.json',
+      },
     ],
     eventHandlers: [
       {
@@ -103,6 +107,10 @@ getContractDeployments('EtherWrapper').forEach((a, i) => {
         {
           name: 'ExchangeRates',
           file: '../abis/ExchangeRates.json',
+        },
+        {
+          name: 'AggregatorProxy',
+          file: '../abis/AggregatorProxy.json',
         },
       ],
       eventHandlers: [
@@ -157,14 +165,6 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
       ],
     },
   });
-});
-
-// To speed up indexing, start at the first deployment of the EtherWrapper, rather than LatestRates or SystemSettings
-// Probably don't want to keep this because of the main subgraph?
-const masterStartBlock = getContractDeployments('EtherWrapper')[0].startBlock;
-manifest = manifest.map((ds) => {
-  ds.source.startBlock = Math.max(ds.source.startBlock, masterStartBlock);
-  return ds;
 });
 
 module.exports = {
