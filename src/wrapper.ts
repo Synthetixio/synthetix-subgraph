@@ -1,7 +1,7 @@
 import { dataSource, BigInt, DataSourceContext } from '@graphprotocol/graph-ts';
 import { Wrapper, WrapperMint, WrapperBurn } from '../generated/subgraphs/wrapper/schema';
 import { WrapperTemplate } from '../generated/subgraphs/wrapper/templates';
-import { getUSDAmountFromAssetAmount, getLatestRate, strToBytes, toDecimal } from './lib/helpers';
+import { getLatestRate, strToBytes, toDecimal } from './lib/helpers';
 import { getContractDeployment } from '../generated/addresses';
 import { AddressResolver } from '../generated/subgraphs/wrapper/systemSettings_0/AddressResolver';
 import {
@@ -82,7 +82,7 @@ export function handleBurned(event: BurnedEvent): void {
   let wrapper = Wrapper.load(event.address.toHexString());
 
   if (wrapper) {
-    wrapper.amount = wrapper.amount.minus(toDecimal(event.params.amountIn));
+    wrapper.amount = wrapper.amount.minus(toDecimal(event.params.principal));
     wrapper.totalFees = wrapper.totalFees.plus(toDecimal(event.params.fee));
 
     let txHash = event.transaction.hash.toHexString();
