@@ -1,5 +1,5 @@
 import { dataSource, BigInt, DataSourceContext } from '@graphprotocol/graph-ts';
-import { Wrapper, Mint, Burn } from '../generated/subgraphs/wrapper/schema';
+import { Wrapper, WrapperMint, WrapperBurn } from '../generated/subgraphs/wrapper/schema';
 import { WrapperTemplate } from '../generated/subgraphs/wrapper/templates';
 import { getUSDAmountFromAssetAmount, getLatestRate, strToBytes, toDecimal } from './lib/helpers';
 import { getContractDeployment } from '../generated/addresses';
@@ -17,18 +17,19 @@ import { WrapperCreated as WrapperCreatedEvent } from '../generated/subgraphs/wr
 export function handleWrapperCreated(event: WrapperCreatedEvent): void {
   let context = new DataSourceContext();
   context.setString('tokenAddress', event.params.token.toHexString());
-  context.setBytes('currencyKey', event.params.currencyKey);
+  context.setString('currencyKey', event.params.currencyKey.toString());
   WrapperTemplate.createWithContext(event.params.wrapperAddress, context);
 }
 
 export function handleMinted(event: MintedEvent): void {
   // Create Mint
-  let mintEntity = new Mint(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let mintEntity = new WrapperMint(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   mintEntity.account = event.params.account.toHexString();
   mintEntity.principal = toDecimal(event.params.principal);
   mintEntity.fee = toDecimal(event.params.fee);
   mintEntity.amountIn = toDecimal(event.params.amountIn);
   mintEntity.timestamp = event.block.timestamp;
+  mintEntity.wrapperAddress = event.address.toHexString();
   mintEntity.save();
 
   // Update Wrapper
@@ -38,14 +39,14 @@ export function handleMinted(event: MintedEvent): void {
   if (!wrapper) {
     wrapper = new Wrapper(event.address.toHexString());
     if (wrapper) {
-      wrapper.currencyKey = strToBytes('ETH', 4);
+      wrapper.currencyKey = 'ETH';
     }
   }
 
   // Assign values from context
   let context = dataSource.context();
   let tokenAddress = context.getString('tokenAddress');
-  let currencyKey = context.getBytes('currencyKey');
+  let currencyKey = context.getString('currencyKey');
   if (tokenAddress && tokenAddress.length) {
     wrapper.tokenAddress = tokenAddress;
     wrapper.currencyKey = currencyKey;
@@ -53,13 +54,13 @@ export function handleMinted(event: MintedEvent): void {
 
   if (wrapper) {
     let txHash = event.transaction.hash.toString();
-    let latestRate = getLatestRate(wrapper.currencyKey.toString(), txHash);
+    let latestRate = getLatestRate(wrapper.currencyKey, txHash);
 
-    wrapper.amount += toDecimal(event.params.principal);
+    wrapper.amount += toDecimal(event.params.amountIn);
     wrapper.totalFees += toDecimal(event.params.fee);
 
     if (latestRate) {
-      let amountInUSD = getUSDAmountFromAssetAmount(event.params.principal, latestRate);
+      let amountInUSD = getUSDAmountFromAssetAmount(event.params.amountIn, latestRate);
       wrapper.amountInUSD = amountInUSD;
       wrapper.totalFeesInUSD += amountInUSD;
     }
@@ -70,26 +71,27 @@ export function handleMinted(event: MintedEvent): void {
 
 export function handleBurned(event: BurnedEvent): void {
   // Create Burn
-  let burnEntity = new Burn(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  let burnEntity = new WrapperBurn(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
   burnEntity.account = event.params.account.toHex();
   burnEntity.principal = toDecimal(event.params.principal);
   burnEntity.fee = toDecimal(event.params.fee);
   burnEntity.amountOut = toDecimal(event.params.amountIn);
   burnEntity.timestamp = event.block.timestamp;
+  burnEntity.wrapperAddress = event.address.toHexString();
   burnEntity.save();
 
   // Update Wrapper
   let wrapper = Wrapper.load(event.address.toHexString());
 
   if (wrapper) {
-    let txHash = event.transaction.hash.toString();
-    let latestRate = getLatestRate(wrapper.currencyKey.toString(), txHash);
+    let txHash = event.transaction.hash.toHexString();
+    let latestRate = getLatestRate(wrapper.currencyKey, txHash);
 
     wrapper.amount -= toDecimal(event.params.amountIn);
     wrapper.totalFees += toDecimal(event.params.fee);
 
     if (latestRate) {
-      let amountInUSD = getUSDAmountFromAssetAmount(event.params.principal, latestRate);
+      let amountInUSD = getUSDAmountFromAssetAmount(event.params.amountIn, latestRate);
       wrapper.amountInUSD = amountInUSD;
       wrapper.totalFeesInUSD += amountInUSD;
     }

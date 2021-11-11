@@ -47,7 +47,7 @@ const wrapperTemplate = {
     apiVersion: '0.0.5',
     language: 'wasm/assemblyscript',
     file: '../src/wrapper.ts',
-    entities: ['Wrapper', 'Mint', 'Burn'],
+    entities: ['Wrapper', 'WrapperMint', 'WrapperBurn'],
     abis: [
       {
         name: 'Wrapper',
