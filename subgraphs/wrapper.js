@@ -35,7 +35,7 @@ getContractDeployments('WrapperFactory').forEach((a, i) => {
   });
 });
 
-const wrapperTemplate = {
+let wrapperTemplate = {
   kind: 'ethereum/contract',
   name: 'WrapperTemplate',
   network: getCurrentNetwork(),
@@ -166,6 +166,25 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
     },
   });
 });
+
+// We manually add the ETH and DAI Wrappers when indexing Optimism
+// because the WrapperFactory events that would generate them
+// were lost in the regenesis on 11/11/21.
+if (getCurrentNetwork() == 'optimism') {
+  let daiWrapper = clone(wrapperTemplate);
+  daiWrapper.name = 'daiWrapper';
+  let daiSource = clone(daiWrapper.source);
+  daiSource.address = '0xad32aA4Bff8b61B4aE07E3BA437CF81100AF0cD7';
+  daiWrapper.source = daiSource;
+  manifest.push(daiWrapper);
+
+  let ethWrapper = clone(wrapperTemplate);
+  ethWrapper.name = 'ethWrapper';
+  let ethSource = clone(ethWrapper.source);
+  ethSource.address = '0x6202A3B0bE1D222971E93AaB084c6E584C29DB70';
+  ethWrapper.source = ethSource;
+  manifest.push(ethWrapper);
+}
 
 module.exports = {
   specVersion: '0.0.2',
