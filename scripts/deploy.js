@@ -126,9 +126,13 @@ program.action(async () => {
 
         console.log(cyan(`Building subgraph for network ${network}...`));
 
-        await exec(
-          `SNX_NETWORK=${network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
-        );
+        try {
+          await exec(
+            `SNX_NETWORK=${network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
+          );
+        } catch {
+          process.exit(1);
+        }
 
         if (!settings.buildOnly) {
           await exec(
@@ -141,9 +145,13 @@ program.action(async () => {
       }
     } else {
       console.log(cyan(`Building subgraph for network ${settings.network}...`));
-      await exec(
-        `SNX_NETWORK=${settings.network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${settings.network}/subgraphs/${settings.subgraph}`,
-      );
+      try {
+        await exec(
+          `SNX_NETWORK=${settings.network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${settings.network}/subgraphs/${settings.subgraph}`,
+        );
+      } catch {
+        process.exit(1);
+      }
 
       if (!settings.buildOnly) {
         await exec(
