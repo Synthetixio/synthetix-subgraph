@@ -31,7 +31,7 @@ for (const network of ['mainnet', 'mainnet-ovm', 'kovan', 'kovan-ovm']) {
       networkName = 'optimism';
       break;
     case 'kovan-ovm':
-      networkName = 'kovan-optimism';
+      networkName = 'optimism-kovan';
       break;
   }
 
