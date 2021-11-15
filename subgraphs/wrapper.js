@@ -6,7 +6,7 @@ let manifest = clone(latestRates.dataSources);
 getContractDeployments('WrapperFactory').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `wrapperFactory_${i}`,
+    name: `WrapperFactory_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
@@ -82,7 +82,7 @@ let wrapperTemplate = {
 getContractDeployments('EtherWrapper').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `etherWrapper_${i}`,
+    name: `EtherWrapper_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
@@ -130,7 +130,7 @@ getContractDeployments('EtherWrapper').forEach((a, i) => {
 getContractDeployments('SystemSettings').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `systemSettings_${i}`,
+    name: `SystemSettings_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
