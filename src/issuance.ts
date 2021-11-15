@@ -73,7 +73,7 @@ function getMetadata(): Synthetix {
     synthetix.save();
   }
 
-  return synthetix as Synthetix;
+  return synthetix;
 }
 
 function incrementMetadata(field: string): void {
@@ -230,7 +230,7 @@ function trackSNXHolder(
 }
 
 function trackDebtSnapshot(event: ethereum.Event): void {
-  let snxContract = event.transaction.to as Address;
+  let snxContract = event.transaction.to!;
   let account = event.transaction.from;
 
   // ignore escrow accounts
@@ -380,7 +380,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   functions.set('0x187cba25', 'issueNomins(uint256)'); // legacy
 
   // so take the first four bytes of input
-  let input = event.transaction.input.subarray(0, 4) as Bytes;
+  let input = changetype<Bytes>(event.transaction.input.subarray(0, 4));
 
   // and for any function calls that don't match our mapping, we ignore them
   if (!functions.has(input.toHexString())) {
@@ -409,7 +409,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
-    let synthetix = SNX.bind(event.transaction.to as Address);
+    let synthetix = SNX.bind(event.transaction.to!);
 
     let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));
     if (issuedSynths.reverted) {
@@ -447,7 +447,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   trackIssuer(event.transaction.from);
 
   // update SNX holder details
-  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
+  trackSNXHolder(event.transaction.to!, event.transaction.from, event.block, event.transaction);
 
   // now update SNXHolder to increment the number of claims
   let snxHolder = SNXHolder.load(entity.account.toHexString());
@@ -462,7 +462,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
-    let synthetix = SNX.bind(event.transaction.to as Address);
+    let synthetix = SNX.bind(event.transaction.to!);
     let totalIssued = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(sUSD32);
     if (totalIssued.reverted) {
       log.debug('Reverted issued try_totalIssuedSynthsExcludeEtherCollateral for hash: {}', [
@@ -506,7 +506,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   functions.set('0x3253ccdf', 'burnNomins(uint256');
 
   // so take the first four bytes of input
-  let input = event.transaction.input.subarray(0, 4) as Bytes;
+  let input = changetype<Bytes>(event.transaction.input.subarray(0, 4));
 
   // and for any function calls that don't match our mapping, we ignore them
   if (!functions.has(input.toHexString())) {
@@ -542,12 +542,12 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   }
 
   // update SNX holder details
-  trackSNXHolder(event.transaction.to as Address, event.transaction.from, event.block, event.transaction);
+  trackSNXHolder(event.transaction.to!, event.transaction.from, event.block, event.transaction);
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
     let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
-    let synthetix = SNX.bind(event.transaction.to as Address);
+    let synthetix = SNX.bind(event.transaction.to!);
     let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));
     if (issuedSynths.reverted) {
       issuedSynths = synthetix.try_totalIssuedSynthsExcludeEtherCollateral(strToBytes('sUSD', 32));
@@ -631,7 +631,7 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
   let account = event.transaction.from;
   let timestamp = event.block.timestamp;
-  let snxContract = event.transaction.to as Address;
+  let snxContract = event.transaction.to!;
   let accountDebtBalance = BigInt.fromI32(0);
 
   if (dataSource.network() != 'mainnet' || event.block.number > v2100UpgradeBlock) {
