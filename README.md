@@ -14,6 +14,8 @@ The Synthetix subgraph is available on the hosted service on **[mainnet](https:/
 
 **⚠️ Using subgraphs with the hosted service may introduce breaking changes.** The Synthetix subgraphs are under active development. Because The Graph does not currently support pinning subgraph versions on the hosted service, these subgraphs should be used with caution.
 
+Note that data queried from the optimism network may be incomplete due the regenesis on 11/11/21.
+
 ### The Graph Network
 
 The subgraph can also be found on The Graph’s decentralized network **[here](https://thegraph.com/explorer/subgraph?id=0xde910777c787903f78c89e7a0bf7f4c435cbb1fe-0&view=Overview)**.
