@@ -3,7 +3,7 @@ import { Wrapper, WrapperMint, WrapperBurn } from '../generated/subgraphs/wrappe
 import { WrapperTemplate } from '../generated/subgraphs/wrapper/templates';
 import { getLatestRate, strToBytes, toDecimal } from './lib/helpers';
 import { getContractDeployment } from '../generated/addresses';
-import { AddressResolver } from '../generated/subgraphs/wrapper/systemSettings_0/AddressResolver';
+import { AddressResolver } from '../generated/subgraphs/wrapper/SystemSettings_0/AddressResolver';
 import {
   Burned as BurnedEvent,
   Minted as MintedEvent,
@@ -11,8 +11,8 @@ import {
 import {
   WrapperMaxTokenAmountUpdated as WrapperMaxTokenAmountUpdatedEvent,
   EtherWrapperMaxETHUpdated as EtherWrapperMaxETHUpdatedEvent,
-} from '../generated/subgraphs/wrapper/systemSettings_0/SystemSettings';
-import { WrapperCreated as WrapperCreatedEvent } from '../generated/subgraphs/wrapper/wrapperFactory_0/WrapperFactory';
+} from '../generated/subgraphs/wrapper/SystemSettings_0/SystemSettings';
+import { WrapperCreated as WrapperCreatedEvent } from '../generated/subgraphs/wrapper/WrapperFactory_0/WrapperFactory';
 
 export function handleWrapperCreated(event: WrapperCreatedEvent): void {
   let context = new DataSourceContext();
