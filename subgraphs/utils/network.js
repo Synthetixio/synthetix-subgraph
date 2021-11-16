@@ -103,7 +103,12 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
           endBlock: null,
         });
       } else {
-        const contractStartBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
+        let contractStartBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
+
+        // Relevant information is missing from the kovan versions.json file, so we hardcode a minimum here
+        if (network == 'kovan' || getCurrentNetwork() == 'kovan') {
+          contractStartBlock = Math.max(contractStartBlock, 10412700);
+        }
 
         if (contractStartBlock >= endBlock) break;
 
