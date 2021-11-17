@@ -251,7 +251,6 @@ function trackDebtSnapshot(event: ethereum.Event): void {
     }
     entity.balanceOf = toDecimal(try_balanceOf.value);
 
-    entity.collateral = toDecimal(synthetix.collateral(account));
     let collateralTry = synthetix.try_collateral(account);
     if (!collateralTry.reverted) {
       entity.collateral = toDecimal(collateralTry.value);
@@ -267,13 +266,15 @@ function trackDebtSnapshot(event: ethereum.Event): void {
       BigInt.fromI32(1000000000),
     )!;
     let resolver = AddressResolver.bind(addressResolverAddress);
-
-    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
-    let issuanceData = synthetixState.issuanceData(account);
-    entity.initialDebtOwnership = toDecimal(issuanceData.value0);
-    let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
-    if (!debtLedgerTry.reverted) {
-      entity.debtEntryAtIndex = debtLedgerTry.value;
+    let synthetixStateAddressTry = resolver.try_getAddress(strToBytes('SynthetixState', 32));
+    if (!synthetixStateAddressTry.reverted) {
+      let synthetixState = SynthetixState.bind(synthetixStateAddressTry.value);
+      let issuanceData = synthetixState.issuanceData(account);
+      entity.initialDebtOwnership = toDecimal(issuanceData.value0);
+      let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+      if (!debtLedgerTry.reverted) {
+        entity.debtEntryAtIndex = debtLedgerTry.value;
+      }
     }
   }
   // Use bytes32
@@ -636,7 +637,10 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
 
   if (dataSource.network() != 'mainnet' || event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
-    accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
+    let accountDebtBalanceTry = synthetix.try_debtBalanceOf(account, sUSD32);
+    if (!accountDebtBalanceTry.reverted) {
+      accountDebtBalance = accountDebtBalanceTry.value;
+    }
   } else if (event.block.number > v200UpgradeBlock) {
     let synthetix = Synthetix4.bind(snxContract);
     let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
