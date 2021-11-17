@@ -637,7 +637,10 @@ function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {
 
   if (dataSource.network() != 'mainnet' || event.block.number > v2100UpgradeBlock) {
     let synthetix = SNX.bind(snxContract);
-    accountDebtBalance = synthetix.debtBalanceOf(account, sUSD32);
+    let accountDebtBalanceTry = synthetix.try_debtBalanceOf(account, sUSD32);
+    if (!accountDebtBalanceTry.reverted) {
+      accountDebtBalance = accountDebtBalanceTry.value;
+    }
   } else if (event.block.number > v200UpgradeBlock) {
     let synthetix = Synthetix4.bind(snxContract);
     let accountDebt = synthetix.try_debtBalanceOf(account, sUSD4);
