@@ -151,6 +151,10 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
           event: 'ExchangeRebate(indexed address,bytes32,uint256)',
           handler: 'handleExchangeRebate',
         },
+        {
+          event: 'AtomicSynthExchange(indexed address,bytes32,uint256,bytes32,uint256,address)',
+          handler: 'handleAtomicSynthExchange',
+        },
       ],
     },
   });
