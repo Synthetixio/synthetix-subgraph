@@ -1,5 +1,6 @@
 import {
   SynthExchange as SynthExchangeEvent,
+  AtomicSynthExchange as AtomicSynthExchangeEvent,
   ExchangeReclaim as ExchangeReclaimEvent,
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/subgraphs/exchanges/exchanges_Synthetix_0/Synthetix';
@@ -11,6 +12,7 @@ import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subg
 import {
   Total,
   SynthExchange,
+  AtomicSynthExchange,
   Exchanger,
   ExchangeReclaim,
   ExchangeRebate,
@@ -224,6 +226,56 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
       }
     }
   }
+}
+
+export function handleAtomicSynthExchange(event: AtomicSynthExchangeEvent): void {
+  let txHash = event.transaction.hash.toHex();
+  let fromCurrencyKey = event.params.fromCurrencyKey.toString();
+  let toCurrencyKey = event.params.toCurrencyKey.toString();
+  let latestFromRate = getLatestRate(fromCurrencyKey, txHash);
+  let latestToRate = getLatestRate(toCurrencyKey, txHash);
+
+  // may need to add new aggregator (this can happen on optimism)
+  if (!latestFromRate) {
+    latestFromRate = addMissingSynthRate(event.params.fromCurrencyKey);
+  }
+
+  if (!latestToRate) {
+    latestToRate = addMissingSynthRate(event.params.fromCurrencyKey);
+  }
+
+  let account = event.params.account;
+  let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.fromAmount, latestFromRate);
+  let toAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestToRate);
+
+  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
+
+  if (feesInUSD.lt(toDecimal(ZERO))) {
+    let DEFAULT_FEE = toDecimal(BigInt.fromI32(3), 3);
+    // this is an edge case. we can get pretty close to accurate by use of best guess of 30 bp
+    feesInUSD = fromAmountInUSD.times(DEFAULT_FEE);
+  }
+
+  let fromSynth = SynthByCurrencyKey.load(fromCurrencyKey);
+  let toSynth = SynthByCurrencyKey.load(toCurrencyKey);
+
+  let fromSynthAddress = fromSynth != null ? fromSynth.proxyAddress : ZERO_ADDRESS;
+  let toSynthAddress = toSynth != null ? toSynth.proxyAddress : ZERO_ADDRESS;
+
+  let eventEntity = new AtomicSynthExchange(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+  eventEntity.account = account.toHex();
+  eventEntity.fromSynth = fromSynthAddress.toHex();
+  eventEntity.toSynth = toSynthAddress.toHex();
+  eventEntity.fromAmount = toDecimal(event.params.fromAmount);
+  eventEntity.fromAmountInUSD = fromAmountInUSD;
+  eventEntity.toAmount = toDecimal(event.params.toAmount);
+  eventEntity.toAmountInUSD = toAmountInUSD;
+  eventEntity.toAddress = event.params.toAddress;
+  eventEntity.feesInUSD = feesInUSD;
+  eventEntity.timestamp = event.block.timestamp;
+  eventEntity.gasPrice = event.transaction.gasPrice;
+  eventEntity.save();
+  // Note that we do not update tracked totals here because atomic exchanges also emit standard SynthExchange events
 }
 
 export function handleExchangeReclaim(event: ExchangeReclaimEvent): void {
