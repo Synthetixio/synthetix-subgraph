@@ -31,6 +31,26 @@ if (getCurrentNetwork() == 'mainnet') {
             name: 'Synthetix4',
             file: '../abis/Synthetix_bytes4.json',
           },
+          {
+            name: 'Synthetix32',
+            file: '../abis/Synthetix_bytes32.json',
+          },
+          {
+            name: 'Synthetix',
+            file: '../abis/Synthetix.json',
+          },
+          {
+            name: 'AddressResolver',
+            file: '../abis/AddressResolver.json',
+          },
+          {
+            name: 'ExchangeRates',
+            file: '../abis/ExchangeRates.json',
+          },
+          {
+            name: 'AggregatorProxy',
+            file: '../abis/AggregatorProxy.json',
+          },
         ],
         eventHandlers: [
           {

@@ -129,18 +129,23 @@ function addMissingSynthRate(currencyBytes: Bytes): BigDecimal {
   }
 
   let snx = Synthetix.bind(dataSource.address());
-  let resolver = AddressResolver.bind(snx.resolver());
-  let exchangeRatesContract = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates')));
+  let snxResolver = snx.try_resolver();
+  if (!snxResolver.reverted) {
+    let resolver = AddressResolver.bind(snxResolver.value);
+    let exchangeRatesContract = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates')));
 
-  let aggregatorResult = exchangeRatesContract.aggregators(currencyBytes);
+    let aggregatorResult = exchangeRatesContract.aggregators(currencyBytes);
 
-  if (aggregatorResult.equals(ZERO_ADDRESS)) {
-    throw new Error('aggregator does not exist in exchange rates for synth ' + currencyBytes.toString());
+    if (aggregatorResult.equals(ZERO_ADDRESS)) {
+      throw new Error('aggregator does not exist in exchange rates for synth ' + currencyBytes.toString());
+    }
+
+    addProxyAggregator(currencyBytes.toString(), aggregatorResult);
+
+    return toDecimal(exchangeRatesContract.rateForCurrency(currencyBytes));
+  } else {
+    return new BigDecimal(new BigInt(0));
   }
-
-  addProxyAggregator(currencyBytes.toString(), aggregatorResult);
-
-  return toDecimal(exchangeRatesContract.rateForCurrency(currencyBytes));
 }
 
 export function handleSynthExchange(event: SynthExchangeEvent): void {

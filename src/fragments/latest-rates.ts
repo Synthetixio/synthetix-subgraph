@@ -142,17 +142,21 @@ export function initFeed(currencyKey: string): BigDecimal | null {
     BigInt.fromI32(1000000000),
   )!;
   let resolver = AddressResolver.bind(addressResolverAddress);
-  let er = ExchangeRates.bind(resolver.getAddress(strToBytes('ExchangeRates', 32)));
+  let exchangeRateAddressTry = resolver.try_getAddress(strToBytes('ExchangeRates', 32));
 
-  let aggregatorAddress = er.try_aggregators(strToBytes(currencyKey, 32));
+  if (!exchangeRateAddressTry.reverted) {
+    let er = ExchangeRates.bind(exchangeRateAddressTry.value);
 
-  if (!aggregatorAddress.reverted) {
-    addProxyAggregator(currencyKey, aggregatorAddress.value);
+    let aggregatorAddress = er.try_aggregators(strToBytes(currencyKey, 32));
 
-    let r = er.try_rateForCurrency(strToBytes(currencyKey, 32));
+    if (!aggregatorAddress.reverted) {
+      addProxyAggregator(currencyKey, aggregatorAddress.value);
 
-    if (!r.reverted) {
-      return toDecimal(r.value);
+      let r = er.try_rateForCurrency(strToBytes(currencyKey, 32));
+
+      if (!r.reverted) {
+        return toDecimal(r.value);
+      }
     }
   }
 
