@@ -300,12 +300,16 @@ function trackDebtSnapshot(event: ethereum.Event): void {
       BigInt.fromI32(1000000000),
     )!;
     let resolver = AddressResolver.bind(addressResolverAddress);
-    let synthetixState = SynthetixState.bind(resolver.getAddress(strToBytes('SynthetixState', 32)));
-    let issuanceData = synthetixState.issuanceData(account);
-    entity.initialDebtOwnership = toDecimal(issuanceData.value0);
-    let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
-    if (!debtLedgerTry.reverted) {
-      entity.debtEntryAtIndex = debtLedgerTry.value;
+
+    let synthetixStateAddressTry = resolver.try_getAddress(strToBytes('SynthetixState', 32));
+    if (!synthetixStateAddressTry.reverted) {
+      let synthetixState = SynthetixState.bind(synthetixStateAddressTry.value);
+      let issuanceData = synthetixState.issuanceData(account);
+      entity.initialDebtOwnership = toDecimal(issuanceData.value0);
+      let debtLedgerTry = synthetixState.try_debtLedger(issuanceData.value1);
+      if (!debtLedgerTry.reverted) {
+        entity.debtEntryAtIndex = debtLedgerTry.value;
+      }
     }
     // Use bytes4
   } else {
