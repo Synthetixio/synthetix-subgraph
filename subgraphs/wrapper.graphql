@@ -98,3 +98,19 @@ type LatestRate @entity {
   " Address of the aggregator which produces current result "
   aggregator: Bytes!
 }
+
+" Latest Rates over time "
+type RateUpdate @entity {
+  " <transaction hash>-<currency key> "
+  id: ID!
+  " currencyKey for which this this rate update applies "
+  currencyKey: Bytes!
+  " currencyKey expressed as a string "
+  synth: String!
+  " the rate recorded at this timestamp "
+  rate: BigDecimal!
+  " the block which this rate was recorded "
+  block: BigInt!
+  " timestamp of the block in which the rate was recorded "
+  timestamp: BigInt!
+}
