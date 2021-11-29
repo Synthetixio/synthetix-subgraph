@@ -21,7 +21,7 @@ import {
   SynthAggregator,
   InverseAggregator,
 } from '../../generated/subgraphs/latest-rates/templates';
-import { LatestRate, InversePricingInfo } from '../../generated/subgraphs/latest-rates/schema';
+import { LatestRate, InversePricingInfo, RateUpdate } from '../../generated/subgraphs/latest-rates/schema';
 
 import {
   BigDecimal,
@@ -40,12 +40,17 @@ import { ExecutionSuccess } from '../../generated/subgraphs/latest-rates/Chainli
 import { AddressResolver } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/AddressResolver';
 import { getContractDeployment } from '../../generated/addresses';
 
-export function addLatestRate(synth: string, rate: BigInt, aggregator: Address): void {
+export function addLatestRate(synth: string, rate: BigInt, aggregator: Address, event: ethereum.Event): void {
   let decimalRate = toDecimal(rate);
-  addLatestRateFromDecimal(synth, decimalRate, aggregator);
+  addLatestRateFromDecimal(synth, decimalRate, aggregator, event);
 }
 
-export function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggregator: Address): void {
+export function addLatestRateFromDecimal(
+  synth: string,
+  rate: BigDecimal,
+  aggregator: Address,
+  event: ethereum.Event,
+): void {
   let prevLatestRate = LatestRate.load(synth);
   if (prevLatestRate != null && aggregator.notEqual(prevLatestRate.aggregator)) return;
 
@@ -56,6 +61,14 @@ export function addLatestRateFromDecimal(synth: string, rate: BigDecimal, aggreg
 
   prevLatestRate.rate = rate;
   prevLatestRate.save();
+
+  let rateUpdate = new RateUpdate(event.transaction.hash.toHex() + '-' + synth);
+  rateUpdate.currencyKey = strToBytes(synth);
+  rateUpdate.synth = synth;
+  rateUpdate.rate = rate;
+  rateUpdate.block = event.block.number;
+  rateUpdate.timestamp = event.block.timestamp;
+  rateUpdate.save();
 }
 
 export function addDollar(dollarID: string): void {
@@ -181,7 +194,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
 
   for (let i = 0; i < keys.length; i++) {
     if (keys[i].toString() != '') {
-      addLatestRate(keys[i].toString(), rates[i], ZERO_ADDRESS);
+      addLatestRate(keys[i].toString(), rates[i], ZERO_ADDRESS, event);
     }
   }
 }
@@ -206,7 +219,12 @@ export function handleInverseFrozen(event: InversePriceFrozen): void {
 
   if (!curInverseRate) return;
 
-  addLatestRate(event.params.currencyKey.toString(), event.params.rate, changetype<Address>(curInverseRate.aggregator));
+  addLatestRate(
+    event.params.currencyKey.toString(),
+    event.params.rate,
+    changetype<Address>(curInverseRate.aggregator),
+    event,
+  );
 }
 
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
@@ -214,7 +232,7 @@ export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
 
   addDollar('sUSD');
-  addLatestRate(context.getString('currencyKey'), rate, event.address);
+  addLatestRate(context.getString('currencyKey'), rate, event.address, event);
 }
 
 export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
@@ -225,7 +243,7 @@ export function handleInverseAggregatorAnswerUpdated(event: AnswerUpdatedEvent):
 
   if (inverseRate.equals(toDecimal(ZERO))) return;
 
-  addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate as BigDecimal, event.address);
+  addLatestRateFromDecimal(context.getString('currencyKey'), inverseRate as BigDecimal, event.address, event);
 }
 
 // required to rescan all aggregator addresses whenever chainlink settings are updated. This is because of an issue where the chainlink aggregator proxy
