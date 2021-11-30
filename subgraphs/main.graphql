@@ -150,8 +150,40 @@ type LatestRate @entity {
   aggregator: Bytes!
 }
 
+" Latest Rates over time "
+type RateUpdate @entity {
+  " <transaction hash>-<currency key> "
+  id: ID!
+  " currencyKey for which this this rate update applies "
+  currencyKey: Bytes!
+  " currencyKey expressed as a string "
+  synth: String!
+  " the rate recorded at this timestamp "
+  rate: BigDecimal!
+  " the block which this rate was recorded "
+  block: BigInt!
+  " timestamp of the block in which the rate was recorded "
+  timestamp: BigInt!
+}
+
 " Tracks this event from the Synthetix.sol contract "
 type SynthExchange @entity {
+  id: ID!
+  account: Exchanger!
+  fromSynth: Synth
+  toSynth: Synth
+  fromAmount: BigDecimal!
+  fromAmountInUSD: BigDecimal!
+  toAmount: BigDecimal!
+  toAmountInUSD: BigDecimal!
+  feesInUSD: BigDecimal!
+  toAddress: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+}
+
+" Tracks this event from the Synthetix.sol contract. (Atomic exchanges also trigger standard SynthExchange events.)"
+type AtomicSynthExchange @entity {
   id: ID!
   account: Exchanger!
   fromSynth: Synth
@@ -246,22 +278,6 @@ type ExchangeFee @entity {
   id: ID!
   " Current Fee as a ratio of the trade amount "
   fee: BigDecimal!
-}
-
-" Latest Rates over time "
-type RateUpdate @entity {
-  " <transaction hash>-<currency key> "
-  id: ID!
-  " currencyKey for which this this rate update applies "
-  currencyKey: Bytes!
-  " currencyKey expressed as a string "
-  synth: String!
-  " the rate recorded at this timestamp "
-  rate: BigDecimal!
-  " the block which this rate was recorded "
-  block: BigInt!
-  " timestamp of the block in which the rate was recorded "
-  timestamp: BigInt!
 }
 
 " The average price of SNX over a 15 minute period "
