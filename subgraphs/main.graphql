@@ -166,6 +166,22 @@ type SynthExchange @entity {
   gasPrice: BigInt!
 }
 
+" Tracks this event from the Synthetix.sol contract. (Atomic exchanges also trigger standard SynthExchange events.)"
+type AtomicSynthExchange @entity {
+  id: ID!
+  account: Exchanger!
+  fromSynth: Synth
+  toSynth: Synth
+  fromAmount: BigDecimal!
+  fromAmountInUSD: BigDecimal!
+  toAmount: BigDecimal!
+  toAmountInUSD: BigDecimal!
+  feesInUSD: BigDecimal!
+  toAddress: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+}
+
 " Tracks this event from the Synthetix.sol contract "
 type ExchangeReclaim @entity {
   id: ID!

@@ -116,7 +116,7 @@ program.action(async () => {
   await exec('node ./scripts/helpers/create-contracts');
 
   const networkPrefix = (network) => {
-    return network == 'mainnet' ? '' : network + '-';
+    return network + '-';
   };
 
   if (settings.network !== 'None') {
