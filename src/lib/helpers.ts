@@ -22,12 +22,6 @@ export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
   return value.divDecimal(precision);
 }
 
-export function toInt(value: BigDecimal, decimals: u32 = 18): BigInt {
-  let precision = BigInt.fromI32(10).pow(<u8>decimals);
-
-  return BigInt.fromString(value.times(precision.toBigDecimal()).toString());
-}
-
 export function strToBytes(str: string, length: i32 = 32): Bytes {
   return Bytes.fromByteArray(Bytes.fromUTF8(str));
 }
