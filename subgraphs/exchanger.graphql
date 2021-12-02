@@ -149,3 +149,14 @@ type RateUpdate @entity {
   " timestamp of the block in which the rate was recorded "
   timestamp: BigInt!
 }
+
+type DailyCandle @entity {
+  " DailyEpoch-Asset. E.g. 18361-sETH "
+  id: ID!
+  synth: String!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+  timestamp: BigInt!
+}
