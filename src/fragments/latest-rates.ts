@@ -21,7 +21,14 @@ import {
   SynthAggregator,
   InverseAggregator,
 } from '../../generated/subgraphs/latest-rates/templates';
-import { LatestRate, InversePricingInfo, RateUpdate } from '../../generated/subgraphs/latest-rates/schema';
+import {
+  LatestRate,
+  InversePricingInfo,
+  RateUpdate,
+  DailyCandle,
+  DailySNXPrice,
+  FifteenMinuteSNXPrice,
+} from '../../generated/subgraphs/latest-rates/schema';
 
 import {
   BigDecimal,
@@ -69,6 +76,86 @@ export function addLatestRateFromDecimal(
   rateUpdate.block = event.block.number;
   rateUpdate.timestamp = event.block.timestamp;
   rateUpdate.save();
+
+  updateDailyCandle(event.block.timestamp, synth, rate);
+
+  if (synth == 'SNX') {
+    handleSNXPrices(event.block.timestamp, rate);
+  }
+}
+
+function updateDailyCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void {
+  let dayID = timestamp.toI32() / 86400;
+  let newCandle = DailyCandle.load(dayID.toString() + '-' + synth);
+  if (newCandle == null) {
+    newCandle = new DailyCandle(dayID.toString() + '-' + synth);
+    newCandle.synth = synth;
+    newCandle.open = rate;
+    newCandle.high = rate;
+    newCandle.low = rate;
+    newCandle.close = rate;
+    newCandle.timestamp = timestamp;
+    newCandle.save();
+    return;
+  }
+  if (newCandle.low > rate) {
+    newCandle.low = rate;
+  }
+  if (newCandle.high < rate) {
+    newCandle.high = rate;
+  }
+  newCandle.close = rate;
+  newCandle.save();
+}
+
+function handleSNXPrices(timestamp: BigInt, rate: BigDecimal): void {
+  let dayID = timestamp.toI32() / 86400;
+  let fifteenMinuteID = timestamp.toI32() / 900;
+
+  let dailySNXPrice = DailySNXPrice.load(dayID.toString());
+  let fifteenMinuteSNXPrice = FifteenMinuteSNXPrice.load(fifteenMinuteID.toString());
+
+  if (dailySNXPrice == null) {
+    dailySNXPrice = loadDailySNXPrice(dayID.toString());
+  }
+
+  if (fifteenMinuteSNXPrice == null) {
+    fifteenMinuteSNXPrice = loadFifteenMinuteSNXPrice(fifteenMinuteID.toString());
+  }
+
+  dailySNXPrice.count = dailySNXPrice.count.plus(BigInt.fromI32(1));
+  dailySNXPrice.averagePrice = calculateAveragePrice(dailySNXPrice.averagePrice, rate, dailySNXPrice.count);
+
+  fifteenMinuteSNXPrice.count = fifteenMinuteSNXPrice.count.plus(BigInt.fromI32(1));
+  fifteenMinuteSNXPrice.averagePrice = calculateAveragePrice(
+    fifteenMinuteSNXPrice.averagePrice,
+    rate,
+    fifteenMinuteSNXPrice.count,
+  );
+
+  dailySNXPrice.save();
+  fifteenMinuteSNXPrice.save();
+}
+
+function loadDailySNXPrice(id: string): DailySNXPrice {
+  let newDailySNXPrice = new DailySNXPrice(id);
+  newDailySNXPrice.count = BigInt.fromI32(0);
+  newDailySNXPrice.averagePrice = new BigDecimal(BigInt.fromI32(0));
+  return newDailySNXPrice;
+}
+
+function loadFifteenMinuteSNXPrice(id: string): FifteenMinuteSNXPrice {
+  let newFifteenMinuteSNXPrice = new FifteenMinuteSNXPrice(id);
+  newFifteenMinuteSNXPrice.count = BigInt.fromI32(0);
+  newFifteenMinuteSNXPrice.averagePrice = new BigDecimal(BigInt.fromI32(0));
+  return newFifteenMinuteSNXPrice;
+}
+
+function calculateAveragePrice(oldAveragePrice: BigDecimal, newRate: BigDecimal, newCount: BigInt): BigDecimal {
+  return oldAveragePrice
+    .times(newCount.minus(BigInt.fromI32(1)).toBigDecimal())
+    .plus(newRate)
+    .div(newCount.toBigDecimal());
 }
 
 export function addDollar(dollarID: string): void {

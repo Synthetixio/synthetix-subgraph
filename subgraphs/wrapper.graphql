@@ -114,3 +114,38 @@ type RateUpdate @entity {
   " timestamp of the block in which the rate was recorded "
   timestamp: BigInt!
 }
+
+type DailyCandle @entity {
+  " DailyEpoch-Asset. E.g. 18361-sETH "
+  id: ID!
+  synth: String!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+  timestamp: BigInt!
+}
+
+" The average price of SNX over a 15 minute period "
+type FifteenMinuteSNXPrice @entity {
+  " unix timestamp at beginning of 15 minute period "
+  id: ID!
+
+  " number of samples averaged in the period "
+  count: BigInt!
+
+  " calculated average price of all the samples "
+  averagePrice: BigDecimal!
+}
+
+" The average price of SNX over a day "
+type DailySNXPrice @entity {
+  " unix timestamp at beginning of 15 minute period "
+  id: ID!
+
+  " number of samples averaged in the period "
+  count: BigInt!
+
+  " calculated average price of all the samples "
+  averagePrice: BigDecimal!
+}
