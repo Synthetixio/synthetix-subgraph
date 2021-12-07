@@ -73,7 +73,7 @@ _Due to limitation imposed by The Graph, only 1,000 results will be returned fro
 
 ### @synthetixio/queries
 
-To abstract interacting with The Graph’s API directly, Synthetix maintains a JavaScript library, [@synthetixio/queries](https://github.com/Synthetixio/js-monorepo/tree/master/packages/queries). The library provides TypeScript support for the returned data, automatically handles pagination, and allows you to subscribe to real-time updates.
+[@synthetixio/queries](https://github.com/Synthetixio/js-monorepo/tree/master/packages/queries) is a JavaScript library that retrieves Synthetix’s data from The Graph. The library provides TypeScript support for the returned data, automatically handles pagination, and allows you to subscribe to real-time updates.
 
 ## Build and Deploy
 
