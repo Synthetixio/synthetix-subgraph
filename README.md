@@ -6,7 +6,7 @@
 
 The Graph currently consists of a hosted service and a decentralized network. In the future, the hosted service will be gradually sunset after the decentralized network achieves feature parity.
 
-Synthetix currently maintains one official subgraph per network. Only mainnet is on the Graph Decentralized net.
+Synthetix currently maintains one official subgraph per network. Only mainnet is on The Graph’s decentralized network.
 
 ### Hosted Service
 
@@ -14,19 +14,15 @@ The Synthetix subgraph is available on the hosted service on **[mainnet](https:/
 
 **⚠️ Using subgraphs with the hosted service may introduce breaking changes.** The Synthetix subgraphs are under active development. Because The Graph does not currently support pinning subgraph versions on the hosted service, these subgraphs should be used with caution.
 
-Note that data queried from the optimism network may be incomplete due the regenesis on 11/11/21.
+Note that data queried from the Optimism networks may be incomplete due the regenesis on 11/11/21.
 
 ### The Graph Network
 
 The subgraph can also be found on The Graph’s decentralized network **[here](https://thegraph.com/explorer/subgraph?id=0xde910777c787903f78c89e7a0bf7f4c435cbb1fe-0&view=Overview)**.
 
-The decentralized network supports pinning versions. Subgraphs on the decentralized network can only query data on mainnet currently.
+The decentralized network supports pinning versions. Subgraphs on the decentralized network can only query data on mainnet.
 
 ## Usage
-
-### synthetix-data
-
-To abstract interacting with The Graph’s hosted service directly, Synthetix maintains a JavaScript library: [synthetix-data](https://github.com/Synthetixio/js-monorepo/tree/master/packages/data). The library provides TypeScript support for the returned data and allows you to subscribe to real-time updates.
 
 ### Query the hosted service directly
 
@@ -59,7 +55,7 @@ This code snippet demonstrates how to retrieve all exchanges that occured in the
     variables: null,
   });
 
-  const response = await fetch('https://api.thegraph.com/subgraphs/name/synthetixio-team/exchanges', {
+  const response = await fetch('https://api.thegraph.com/subgraphs/name/synthetixio-team/mainnet-main', {
     method: 'POST',
     body,
   });
@@ -71,11 +67,17 @@ This code snippet demonstrates how to retrieve all exchanges that occured in the
 })();
 ```
 
-_Due to The Graph limitation, only `1000` results will be returned (the maximum allowed `first` amount). If you use the predefined queries in `@synthetixio/queries` it will grab all the results unless you pass a `max` field. You can also read the docs for more info on pagination if writing a custom query: https://thegraph.com/docs/graphql-api#pagination_
+Explore all of the entities available in the subgraph in [the playground](https://thegraph.com/hosted-service/subgraph/synthetixio-team/mainnet-main?selected=playground).
+
+_Due to limitation imposed by The Graph, only 1,000 results will be returned from the query above. Review [The Graph's documentation on pagination](https://thegraph.com/docs/graphql-api#pagination) for more information._
+
+### @synthetixio/queries
+
+[@synthetixio/queries](https://github.com/Synthetixio/js-monorepo/tree/master/packages/queries) is a JavaScript library that retrieves Synthetix’s data from The Graph. The library provides TypeScript support for the returned data, automatically handles pagination, and allows you to subscribe to real-time updates.
 
 ## Build and Deploy
 
-To build and deploy the subgraphs, run `npm run deploy` for the CLI. You will have the option to update the Synthetix contract ABIs, build the updated subgraph, and deploy to the hosted service and/or decentralized network.
+To build and deploy the subgraphs, run `npm run deploy` for a CLI. You will have the option to update the Synthetix contract ABIs, build the updated subgraph, and deploy to the hosted service and/or decentralized network.
 
 The CLI automatically generates the main subgraph, which is composed of the other subgraph in the `subgraphs` directory. You can also use the CLI to deploy the component subgraphs to the hosted service for faster development and testing.
 
