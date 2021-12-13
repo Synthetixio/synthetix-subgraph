@@ -8,6 +8,7 @@ import {
   LoanDrawnDown as LoanDrawnDownEvent,
   LoanPartiallyLiquidated as LoanPartiallyLiquidatedEvent,
   LoanClosedByLiquidation as LoanClosedByLiquidationEvent,
+  LoanClosedByRepayment as LoanClosedByRepaymentEvent,
   MinCratioRatioUpdated as MinCratioRatioUpdatedEvent,
   MinCollateralUpdated as MinCollateralUpdatedEvent,
   IssueFeeRateUpdated as IssueFeeRateUpdatedEvent,
@@ -371,6 +372,23 @@ export function handleLoanClosedByLiquidationsUSD(event: LoanClosedByLiquidation
     event.block.timestamp,
     event.block.number,
   );
+}
+
+export function handleLoanClosedByRepayment(event: LoanClosedByRepaymentEvent): void {
+  let shortEntity = Short.load(event.params.id.toString());
+  if (shortEntity == null) {
+    log.error('trying to close a loan that does not exist with id: {} from txHash: {}', [
+      event.params.id.toString(),
+      event.transaction.hash.toHex(),
+    ]);
+    return;
+  }
+  shortEntity.isOpen = false;
+  shortEntity.closedAt = event.block.timestamp;
+  shortEntity.accruedInterestLastUpdateTimestamp = event.block.timestamp;
+  shortEntity.synthBorrowedAmount = toDecimal(BigInt.fromI32(0));
+  shortEntity.collateralLockedAmount = toDecimal(BigInt.fromI32(0));
+  shortEntity.save();
 }
 
 export function handleMinCratioRatioUpdatedsUSD(event: MinCratioRatioUpdatedEvent): void {

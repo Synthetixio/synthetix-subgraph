@@ -106,6 +106,10 @@ getContractDeployments('CollateralShort').forEach((a, i) => {
           event: 'CanOpenLoansUpdated(bool)',
           handler: 'handleCanOpenLoansUpdatedsUSD',
         },
+        {
+          event: 'LoanClosedByRepayment(borrower, id, amount, collateral)',
+          handler: 'handleLoanClosedByRepayment',
+        }
       ],
     },
   });
