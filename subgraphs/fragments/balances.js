@@ -46,9 +46,10 @@ const synthsManifests = [];
 const synths = getReleaseInfo('synths');
 
 for (const { name } of synths) {
-  getContractDeployments('Proxy' + name).forEach((a, i) => {
+  getContractDeployments('Proxy' + (name == 'sUSD' ? 'ERC20' + name : name)).forEach((a, i) => {
     synthsManifests.push({
       kind: 'ethereum/contract',
+      // for some reason sUSD has different contract name
       name: `balances_Synth${name}_${i}`,
       network: getCurrentNetwork(),
       source: {
