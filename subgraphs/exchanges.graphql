@@ -220,9 +220,12 @@ type SynthByCurrencyKey @entity {
 }
 
 type Synth @entity {
+  " lowercase address of the proxy contract for the synth "
   id: ID!
   name: String!
   symbol: String!
+
+  totalSupply: BigDecimal!
 }
 
 type SynthBalance @entity {

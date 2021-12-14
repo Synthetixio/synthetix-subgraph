@@ -12,6 +12,7 @@ type Synth @entity {
   id: ID!
   name: String!
   symbol: String!
+  totalSupply: BigDecimal!
 }
 
 type SynthBalance @entity {

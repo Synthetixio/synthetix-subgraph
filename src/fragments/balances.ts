@@ -5,18 +5,19 @@ import {
 } from '../../generated/subgraphs/balances/balances_SynthsUSD_0/Synth';
 
 import { Synth, SynthBalance, LatestSynthBalance, SynthByCurrencyKey } from '../../generated/subgraphs/balances/schema';
-import { FEE_ADDRESS, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/helpers';
+import { toDecimal, ZERO, ZERO_ADDRESS } from '../lib/helpers';
 
-export function registerSynth(synthAddress: Address): void {
+export function registerSynth(synthAddress: Address): Synth | null {
   // the address associated with the issuer may not be the proxy
   let synthBackContract = SynthContract.bind(synthAddress);
   let proxyQuery = synthBackContract.try_proxy();
   let nameQuery = synthBackContract.try_name();
   let symbolQuery = synthBackContract.try_symbol();
+  let totalSupplyQuery = synthBackContract.try_totalSupply();
 
   if (symbolQuery.reverted) {
     log.warning('tried to save invalid synth {}', [synthAddress.toHex()]);
-    return;
+    return null;
   }
 
   if (!proxyQuery.reverted) {
@@ -26,6 +27,7 @@ export function registerSynth(synthAddress: Address): void {
   let newSynth = new Synth(synthAddress.toHex());
   newSynth.name = nameQuery.reverted ? symbolQuery.value : nameQuery.value;
   newSynth.symbol = symbolQuery.value;
+  newSynth.totalSupply = toDecimal(totalSupplyQuery.value);
   newSynth.save();
 
   // symbol is same as currencyKey
@@ -39,6 +41,8 @@ export function registerSynth(synthAddress: Address): void {
     newSynthByCurrencyKey.proxyAddress = synthAddress;
     newSynthByCurrencyKey.save();
   }
+
+  return newSynth;
 }
 
 function trackSynthHolder(synthAddress: Address, account: Address, timestamp: BigInt, value: BigDecimal): void {
@@ -76,11 +80,37 @@ function trackSynthHolder(synthAddress: Address, account: Address, timestamp: Bi
   newBalance.save();
 }
 
-export function handleTransferSynth(event: SynthTransferEvent): void {
-  if (event.params.from.toHex() != ZERO_ADDRESS.toHex() && event.params.from.toHex() != FEE_ADDRESS.toHex()) {
-    trackSynthHolder(event.address, event.params.from, event.block.timestamp, toDecimal(event.params.value).neg());
+function trackMintOrBurn(synthAddress: Address, value: BigDecimal): void {
+  let synth = Synth.load(synthAddress.toHex());
+
+  if (synth == null) {
+    synth = registerSynth(synthAddress);
   }
-  if (event.params.to.toHex() != ZERO_ADDRESS.toHex() && event.params.to.toHex() != FEE_ADDRESS.toHex()) {
+
+  if (synth != null) {
+    let newSupply = synth.totalSupply.plus(value);
+
+    if (newSupply.lt(toDecimal(ZERO))) {
+      log.warning('totalSupply needs correction, is negative: %s', [synth.symbol]);
+      let synthBackContract = SynthContract.bind(synthAddress);
+      synth.totalSupply = toDecimal(synthBackContract.totalSupply());
+    } else {
+      synth.totalSupply = newSupply;
+      synth.save();
+    }
+  }
+}
+
+export function handleTransferSynth(event: SynthTransferEvent): void {
+  if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
+    trackSynthHolder(event.address, event.params.from, event.block.timestamp, toDecimal(event.params.value).neg());
+  } else {
+    trackMintOrBurn(event.address, toDecimal(event.params.value));
+  }
+
+  if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
     trackSynthHolder(event.address, event.params.to, event.block.timestamp, toDecimal(event.params.value));
+  } else {
+    trackMintOrBurn(event.address, toDecimal(event.params.value).neg());
   }
 }
