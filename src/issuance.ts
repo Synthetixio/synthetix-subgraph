@@ -22,7 +22,7 @@ import {
 } from '../generated/subgraphs/issuance/issuance_RewardEscrow_0/RewardEscrow';
 
 import {
-  Synth,
+  Synth as SynthContract,
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/subgraphs/issuance/issuance_SynthsUSD_0/Synth';
@@ -52,6 +52,8 @@ import { strToBytes } from './lib/helpers';
 import { log } from '@graphprotocol/graph-ts';
 import { DAY_SECONDS } from './lib/helpers';
 import { getContractDeployment } from '../generated/addresses';
+import { registerSynth } from './fragments/balances';
+import { Synth } from '../generated/subgraphs/balances/schema';
 
 let v219UpgradeBlock = BigInt.fromI32(9518914); // Archernar v2.19.x Feb 20, 2020
 
@@ -334,11 +336,27 @@ function trackDebtSnapshot(event: ethereum.Event): void {
 }
 
 export function handleTransferSNX(event: SNXTransferEvent): void {
+  let synth = Synth.load(event.address.toHex());
+
+  if (synth == null) {
+    // ensure SNX is recorded
+    synth = registerSynth(event.address);
+  }
+
   if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
     trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
+  } else if (synth != null) {
+    // snx is minted
+    synth.totalSupply = synth.totalSupply.plus(toDecimal(event.params.value));
+    synth.save();
   }
+
   if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
     trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
+  } else if (synth != null) {
+    // snx is burned (only occurs on cross chain transfer)
+    synth.totalSupply = synth.totalSupply.minus(toDecimal(event.params.value));
+    synth.save();
   }
 }
 
@@ -403,7 +421,7 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   // Note: this amount isn't in sUSD for sETH or sBTC issuance prior to Vega
   entity.value = toDecimal(event.params.value);
 
-  let synth = Synth.bind(event.address);
+  let synth = SynthContract.bind(event.address);
   let currencyKeyTry = synth.try_currencyKey();
   if (!currencyKeyTry.reverted) {
     entity.source = currencyKeyTry.value.toString();
@@ -529,7 +547,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   // Note: this amount isn't in sUSD for sETH or sBTC issuance prior to Vega
   entity.value = toDecimal(event.params.value);
 
-  let synth = Synth.bind(event.address);
+  let synth = SynthContract.bind(event.address);
   let currencyKeyTry = synth.try_currencyKey();
   if (!currencyKeyTry.reverted) {
     entity.source = currencyKeyTry.value.toString();
