@@ -78,10 +78,6 @@ export function addLatestRateFromDecimal(
   rateUpdate.save();
 
   updateDailyCandle(event.block.timestamp, synth, rate);
-
-  if (synth == 'SNX') {
-    handleSNXPrices(event.block.timestamp, rate);
-  }
 }
 
 function updateDailyCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void {
@@ -106,49 +102,6 @@ function updateDailyCandle(timestamp: BigInt, synth: string, rate: BigDecimal): 
   }
   newCandle.close = rate;
   newCandle.save();
-}
-
-function handleSNXPrices(timestamp: BigInt, rate: BigDecimal): void {
-  let dayID = timestamp.toI32() / 86400;
-  let fifteenMinuteID = timestamp.toI32() / 900;
-
-  let dailySNXPrice = DailySNXPrice.load(dayID.toString());
-  let fifteenMinuteSNXPrice = FifteenMinuteSNXPrice.load(fifteenMinuteID.toString());
-
-  if (dailySNXPrice == null) {
-    dailySNXPrice = loadDailySNXPrice(dayID.toString());
-  }
-
-  if (fifteenMinuteSNXPrice == null) {
-    fifteenMinuteSNXPrice = loadFifteenMinuteSNXPrice(fifteenMinuteID.toString());
-  }
-
-  dailySNXPrice.count = dailySNXPrice.count.plus(BigInt.fromI32(1));
-  dailySNXPrice.averagePrice = calculateAveragePrice(dailySNXPrice.averagePrice, rate, dailySNXPrice.count);
-
-  fifteenMinuteSNXPrice.count = fifteenMinuteSNXPrice.count.plus(BigInt.fromI32(1));
-  fifteenMinuteSNXPrice.averagePrice = calculateAveragePrice(
-    fifteenMinuteSNXPrice.averagePrice,
-    rate,
-    fifteenMinuteSNXPrice.count,
-  );
-
-  dailySNXPrice.save();
-  fifteenMinuteSNXPrice.save();
-}
-
-function loadDailySNXPrice(id: string): DailySNXPrice {
-  let newDailySNXPrice = new DailySNXPrice(id);
-  newDailySNXPrice.count = BigInt.fromI32(0);
-  newDailySNXPrice.averagePrice = new BigDecimal(BigInt.fromI32(0));
-  return newDailySNXPrice;
-}
-
-function loadFifteenMinuteSNXPrice(id: string): FifteenMinuteSNXPrice {
-  let newFifteenMinuteSNXPrice = new FifteenMinuteSNXPrice(id);
-  newFifteenMinuteSNXPrice.count = BigInt.fromI32(0);
-  newFifteenMinuteSNXPrice.averagePrice = new BigDecimal(BigInt.fromI32(0));
-  return newFifteenMinuteSNXPrice;
 }
 
 function calculateAveragePrice(oldAveragePrice: BigDecimal, newRate: BigDecimal, newCount: BigInt): BigDecimal {
