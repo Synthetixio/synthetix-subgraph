@@ -48,6 +48,11 @@ for (const contractName of ['Synthetix', 'ERC20']) {
             name: 'SynthetixState',
             file: '../abis/SynthetixState.json',
           },
+          {
+            // needed to track supply
+            name: 'Synth',
+            file: '../abis/Synth.json',
+          },
         ],
         eventHandlers: [
           {

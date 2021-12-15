@@ -154,6 +154,11 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let toCurrencyKey = event.params.toCurrencyKey.toString();
   let latestFromRate = getLatestRate(fromCurrencyKey, txHash);
   let latestToRate = getLatestRate(toCurrencyKey, txHash);
+  // this will ensure SNX rate gets added at some point
+  let latestSNXRate = getLatestRate('SNX', txHash);
+  if (!latestSNXRate) {
+    addMissingSynthRate(strToBytes('SNX'));
+  }
 
   // may need to add new aggregator (this can happen on optimism)
   if (!latestFromRate) {
