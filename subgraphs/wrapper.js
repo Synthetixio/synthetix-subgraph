@@ -176,6 +176,7 @@ if (getCurrentNetwork() == 'optimism') {
   let daiSource = clone(daiWrapper.source);
   daiSource.address = '0xad32aA4Bff8b61B4aE07E3BA437CF81100AF0cD7';
   daiWrapper.source = daiSource;
+  daiWrapper.source.startBlock = parseInt(process.env.SNX_START_BLOCK) || 0;
   manifest.push(daiWrapper);
 
   let ethWrapper = clone(wrapperTemplate);
@@ -183,6 +184,7 @@ if (getCurrentNetwork() == 'optimism') {
   let ethSource = clone(ethWrapper.source);
   ethSource.address = '0x6202A3B0bE1D222971E93AaB084c6E584C29DB70';
   ethWrapper.source = ethSource;
+  ethWrapper.source.startBlock = parseInt(process.env.SNX_START_BLOCK) || 0;
   manifest.push(ethWrapper);
 }
 
