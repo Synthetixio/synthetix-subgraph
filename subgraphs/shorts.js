@@ -42,7 +42,7 @@ getContractDeployments('CollateralShort').forEach((a, i) => {
         },
         {
           name: 'CollateralShort',
-          file: '../abis/CollateralShort.json',
+          file: '../abis/CollateralShortOVM.json',
         },
       ],
       eventHandlers: [
@@ -79,10 +79,6 @@ getContractDeployments('CollateralShort').forEach((a, i) => {
           handler: 'handleLoanClosedByLiquidationsUSD',
         },
         {
-          event: 'MinCratioRatioUpdated(uint256)',
-          handler: 'handleMinCratioRatioUpdatedsUSD',
-        },
-        {
           event: 'MinCollateralUpdated(uint256)',
           handler: 'handleMinCollateralUpdatedsUSD',
         },
@@ -91,20 +87,12 @@ getContractDeployments('CollateralShort').forEach((a, i) => {
           handler: 'handleIssueFeeRateUpdatedsUSD',
         },
         {
-          event: 'MaxLoansPerAccountUpdated(uint256)',
-          handler: 'handleMaxLoansPerAccountUpdatedsUSD',
-        },
-        {
-          event: 'InteractionDelayUpdated(uint256)',
-          handler: 'handleInteractionDelayUpdatedsUSD',
-        },
-        {
-          event: 'ManagerUpdated(address)',
-          handler: 'handleManagerUpdatedsUSD',
-        },
-        {
           event: 'CanOpenLoansUpdated(bool)',
           handler: 'handleCanOpenLoansUpdatedsUSD',
+        },
+        {
+          event: 'LoanClosedByRepayment(indexed address,uint256,uint256,uint256)',
+          handler: 'handleLoanClosedByRepayment',
         },
       ],
     },
