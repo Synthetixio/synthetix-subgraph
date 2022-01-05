@@ -1,16 +1,6 @@
-import { store, Address, BigInt } from '@graphprotocol/graph-ts';
-import {
-  MarketAdded as MarketAddedEvent,
-  MarketRemoved as MarketRemovedEvent,
-} from '../generated/FuturesMarketManager/FuturesMarketManager';
+import { Address, BigInt, store } from '@graphprotocol/graph-ts';
 
 import { FuturesMarket } from '../generated/templates';
-import {
-  PositionLiquidated as PositionLiquidatedEvent,
-  PositionModified as PositionModifiedEvent,
-  FuturesMarket as FuturesMarketContract,
-} from '../generated/templates/FuturesMarket/FuturesMarket';
-
 import {
   FuturesMarket as FuturesMarketEntity,
   FuturesPosition,
@@ -19,7 +9,16 @@ import {
   FuturesCumulativeStat,
   FuturesOneMinStat,
 } from '../generated/schema';
-import { ZERO } from './common';
+import {
+  MarketAdded as MarketAddedEvent,
+  MarketRemoved as MarketRemovedEvent,
+} from '../generated/FuturesMarketManager/FuturesMarketManager';
+import {
+  PositionLiquidated as PositionLiquidatedEvent,
+  PositionModified as PositionModifiedEvent,
+  FuturesMarket as FuturesMarketContract,
+} from '../generated/templates/FuturesMarket/FuturesMarket';
+import { ZERO } from './lib/helpers';
 
 let ETHER = BigInt.fromI32(10).pow(18);
 let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
@@ -72,10 +71,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     tradeEntity.save();
 
-    let volume = tradeEntity.size
-      .times(tradeEntity.price)
-      .div(ETHER)
-      .abs();
+    let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER).abs();
     cumulativeEntity.totalTrades = cumulativeEntity.totalTrades.plus(BigInt.fromI32(1));
     cumulativeEntity.totalVolume = cumulativeEntity.totalVolume.plus(volume);
     cumulativeEntity.averageTradeSize = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
