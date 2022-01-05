@@ -1,6 +1,7 @@
 type FuturesMarket @entity {
   id: ID!
   asset: Bytes!
+  marketStats: FuturesCumulativeStat!
 }
 
 type FuturesTrade @entity {
@@ -9,6 +10,7 @@ type FuturesTrade @entity {
   account: Bytes!
   size: BigInt!
   asset: Bytes!
+  price: BigInt!
 }
 
 type FuturesPosition @entity {
@@ -24,4 +26,29 @@ type FuturesPosition @entity {
   margin: BigInt!
   entryPrice: BigInt!
   exitPrice: BigInt
+}
+
+type FuturesStat @entity {
+  id: ID!
+  account: Bytes!
+  feesPaid: BigInt!
+  pnl: BigInt!
+  pnlWithFeesPaid: BigInt!
+  liquidations: BigInt!
+  totalTrades: BigInt!
+}
+
+type FuturesCumulativeStat @entity {
+  id: ID!
+  totalLiquidations: BigInt!
+  totalTrades: BigInt!
+  totalVolume: BigInt!
+  averageTradeSize: BigInt!
+}
+
+type FuturesOneMinStat @entity {
+  id: ID!
+  trades: BigInt!
+  volume: BigInt!
+  timestamp: BigInt!
 }
