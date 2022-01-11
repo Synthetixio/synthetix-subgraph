@@ -26,8 +26,7 @@ import {
   InversePricingInfo,
   RateUpdate,
   DailyCandle,
-  DailySNXPrice,
-  FifteenMinuteSNXPrice,
+  Candle,
 } from '../../generated/subgraphs/latest-rates/schema';
 
 import {
@@ -40,7 +39,16 @@ import {
   ethereum,
   Bytes,
 } from '@graphprotocol/graph-ts';
-import { strToBytes, toDecimal, ZERO, ZERO_ADDRESS } from '../lib/helpers';
+
+import {
+  strToBytes,
+  toDecimal,
+  ZERO,
+  ZERO_ADDRESS,
+  DAY_SECONDS,
+  FIFTEEN_MINUTE_SECONDS,
+  YEAR_SECONDS,
+} from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/Synthetix';
 import { ExecutionSuccess } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/GnosisSafe';
@@ -77,38 +85,64 @@ export function addLatestRateFromDecimal(
   rateUpdate.timestamp = event.block.timestamp;
   rateUpdate.save();
 
-  updateDailyCandle(event.block.timestamp, synth, rate);
+  updateDailyCandle(event.block.timestamp, synth, rate); // DEPRECATED: See updateCandle
+  updateCandle(event.block.timestamp, synth, rate);
 }
 
-function updateDailyCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void {
-  let dayID = timestamp.toI32() / 86400;
-  let newCandle = DailyCandle.load(dayID.toString() + '-' + synth);
-  if (newCandle == null) {
-    newCandle = new DailyCandle(dayID.toString() + '-' + synth);
-    newCandle.synth = synth;
-    newCandle.open = rate;
-    newCandle.high = rate;
-    newCandle.low = rate;
-    newCandle.close = rate;
-    newCandle.timestamp = timestamp;
-    newCandle.save();
-    return;
+function updateCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void {
+  let periods: BigInt[] = [
+    YEAR_SECONDS,
+    YEAR_SECONDS.div(BigInt.fromI32(4)),
+    YEAR_SECONDS.div(BigInt.fromI32(12)),
+    DAY_SECONDS.times(BigInt.fromI32(7)),
+    DAY_SECONDS,
+    FIFTEEN_MINUTE_SECONDS.times(BigInt.fromI32(4)),
+    FIFTEEN_MINUTE_SECONDS,
+  ];
+
+  for (let p = 0; p < periods.length; p++) {
+    let period = periods[p];
+    let periodId = timestamp.div(period);
+    let id = synth + '-' + period.toString() + '-' + periodId.toString();
+    let candle = Candle.load(id);
+    if (candle == null) {
+      candle = new Candle(id);
+      candle.synth = synth;
+      candle.open = rate;
+      candle.high = rate;
+      candle.low = rate;
+      candle.close = rate;
+      candle.average = rate;
+      candle.period = period;
+      candle.timestamp = timestamp;
+      candle.aggregatedPrices = BigInt.fromI32(1);
+      candle.save();
+      return;
+    }
+
+    if (candle.low > rate) {
+      candle.low = rate;
+    }
+    if (candle.high < rate) {
+      candle.high = rate;
+    }
+    candle.close = rate;
+    candle.average = calculateAveragePrice(candle.average, rate, candle.aggregatedPrices);
+    candle.aggregatedPrices = candle.aggregatedPrices.plus(BigInt.fromI32(1));
+
+    candle.save();
   }
-  if (newCandle.low > rate) {
-    newCandle.low = rate;
-  }
-  if (newCandle.high < rate) {
-    newCandle.high = rate;
-  }
-  newCandle.close = rate;
-  newCandle.save();
 }
 
-function calculateAveragePrice(oldAveragePrice: BigDecimal, newRate: BigDecimal, newCount: BigInt): BigDecimal {
+function calculateAveragePrice(
+  oldAveragePrice: BigDecimal,
+  newRate: BigDecimal,
+  oldAggregatedPrices: BigInt,
+): BigDecimal {
   return oldAveragePrice
-    .times(newCount.minus(BigInt.fromI32(1)).toBigDecimal())
+    .times(oldAggregatedPrices.toBigDecimal())
     .plus(newRate)
-    .div(newCount.toBigDecimal());
+    .div(oldAggregatedPrices.plus(BigInt.fromI32(1)).toBigDecimal());
 }
 
 export function addDollar(dollarID: string): void {
@@ -337,4 +371,29 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
   if (index == 0) {
     log.warning('no aggregator keys found in rates contract for chainlink update, or reverted', []);
   }
+}
+
+// DEPRECATED: See updateCandle
+function updateDailyCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void {
+  let dayID = timestamp.toI32() / 86400;
+  let newCandle = DailyCandle.load(dayID.toString() + '-' + synth);
+  if (newCandle == null) {
+    newCandle = new DailyCandle(dayID.toString() + '-' + synth);
+    newCandle.synth = synth;
+    newCandle.open = rate;
+    newCandle.high = rate;
+    newCandle.low = rate;
+    newCandle.close = rate;
+    newCandle.timestamp = timestamp;
+    newCandle.save();
+    return;
+  }
+  if (newCandle.low > rate) {
+    newCandle.low = rate;
+  }
+  if (newCandle.high < rate) {
+    newCandle.high = rate;
+  }
+  newCandle.close = rate;
+  newCandle.save();
 }

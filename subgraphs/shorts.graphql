@@ -219,8 +219,9 @@ type RateUpdate @entity {
   timestamp: BigInt!
 }
 
+" DEPRECATED: See the Candles entity"
 type DailyCandle @entity {
-  " DailyEpoch-Asset. E.g. 18361-sETH "
+  " DEPRECATED: See the Candles entity "
   id: ID!
   synth: String!
   open: BigDecimal!
