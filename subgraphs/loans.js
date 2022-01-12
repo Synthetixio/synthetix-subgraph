@@ -39,6 +39,10 @@ getContractDeployments('EtherCollateral').forEach((a, i) => {
           handler: 'handleLoanCreatedEther',
         },
         {
+          event: 'LoanCreated(indexed address,uint256,uint256,int256,bytes32,uint256)',
+          handler: 'handleLoanCreatedEther',
+        },
+        {
           event: 'LoanClosed(indexed address,uint256,uint256)',
           handler: 'handleLoanClosedEther',
         },
