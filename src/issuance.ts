@@ -26,7 +26,10 @@ import {
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/subgraphs/issuance/issuance_SynthsUSD_0/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePool';
+import {
+  FeesClaimed as FeesClaimedEvent,
+  FeePeriodClosed as FeePeriodClosedEvent,
+} from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePool';
 import { FeePoolv217 } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePoolv217';
 
 import {
@@ -43,6 +46,7 @@ import {
   ActiveStaker,
   DailyIssued,
   DailyBurned,
+  FeePeriod,
 } from '../generated/subgraphs/issuance/schema';
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
@@ -649,6 +653,28 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
     snxHolder.claims = snxHolder.claims!.plus(BigInt.fromI32(1));
     snxHolder.save();
   }
+
+  // update feePeriod
+  let feePeriod = FeePeriod.load('current');
+  if (feePeriod) {
+    feePeriod.susdRewards = feePeriod.susdRewards.plus(entity.value);
+    feePeriod.snxRewards = feePeriod.snxRewards.plus(entity.rewards);
+    feePeriod.save();
+  }
+}
+
+export function handleFeePeriodClosed(event: FeePeriodClosedEvent): void {
+  // Assign period feePeriodId
+  let closedFeePeriod = FeePeriod.load('current');
+  if (closedFeePeriod) {
+    closedFeePeriod.id = event.params.feePeriodId.toString();
+    closedFeePeriod.save();
+  }
+
+  // Create the fee period
+  let feePeriod = new FeePeriod('current');
+  feePeriod.timestamp = event.block.timestamp;
+  feePeriod.save();
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {

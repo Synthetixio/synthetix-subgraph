@@ -104,6 +104,10 @@ getContractDeployments('ProxyFeePool').forEach((a, i) => {
           event: 'FeesClaimed(address,uint256,uint256)',
           handler: 'handleFeesClaimed',
         },
+        {
+          event: 'FeePeriodClosed(uint256)',
+          handler: 'handleFeePeriodClosed',
+        },
       ],
     },
   });
