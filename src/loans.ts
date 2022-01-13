@@ -83,7 +83,7 @@ export function handleLoanPartiallyLiquidated(event: LoanPartiallyLiquidatedEven
   loanPartiallyLiquidatedEntity.timestamp = event.block.timestamp;
   loanPartiallyLiquidatedEntity.save();
 
-  let loanEntity = Loan.load(event.params.id.toHex()); // Shouldn't this have  + '-sETH' ? It doesn't in the legacy code...
+  let loanEntity = Loan.load(event.params.id.toHex() + '-sETH');
   if (loanEntity == null) {
     log.error('for handleLoanPartiallyLiquidated there should be a loan entity for this id: {} in this hash: {}', [
       event.params.id.toHex(),
@@ -105,7 +105,7 @@ export function handleLoanRepaymentMade(event: LoanRepaymentMadeEvent): void {
   loanRepaid.timestamp = event.block.timestamp;
   loanRepaid.save();
 
-  let loanEntity = Loan.load(event.params.id.toHex()); // Shouldn't this have  + '-sETH' ? It doesn't in the legacy code...
+  let loanEntity = Loan.load(event.params.id.toHex() + '-sETH');
   if (loanEntity == null) {
     log.error('for handleLoanRepaid there should be a loan entity for this id: {} in this hash: {}', [
       event.params.id.toHex(),
@@ -142,7 +142,7 @@ export function handleCollateralWithdrawn(event: CollateralWithdrawnEvent): void
 }
 
 export function handleLoanDrawnDown(event: LoanDrawnDownEvent): void {
-  let loanEntity = Loan.load(event.params.id.toHex()); // Shouldn't this have  + '-sETH' ? It doesn't in the legacy code...
+  let loanEntity = Loan.load(event.params.id.toHex() + '-sETH');
   if (loanEntity == null) {
     log.error('for handleLoanPartiallyLiquidated there should be a loan entity for this id: {} in this hash: {}', [
       event.params.id.toHex(),
