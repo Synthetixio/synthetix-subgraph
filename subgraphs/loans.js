@@ -161,10 +161,6 @@ getContractDeployments('CollateralEth').forEach((a, i) => {
           handler: 'handleLoanPartiallyLiquidated',
         },
         {
-          event: 'LoanRepaymentMade(indexed address,indexed address,uint256,uint256,uint256)',
-          handler: 'handleRepaymentMade',
-        },
-        {
           event: 'CollateralDeposited(indexed address,uint256,uint256,uint256)',
           handler: 'handleCollateralDeposited',
         },
