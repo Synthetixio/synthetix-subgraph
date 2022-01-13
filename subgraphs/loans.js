@@ -112,8 +112,7 @@ getContractDeployments('EtherCollateralsUSD').forEach((a, i) => {
   });
 });
 
-getContractDeployments('CollateralEth', 0, Number.MAX_VALUE, 'mainnet-ovm').forEach((a, i) => {
-  console.log(a);
+getContractDeployments('CollateralEth').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
     name: `loans_CollateralEth_${i}`,
