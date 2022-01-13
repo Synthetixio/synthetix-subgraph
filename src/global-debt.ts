@@ -40,14 +40,13 @@ export function trackGlobalDebt(block: ethereum.Block): void {
 
     let debtStateEntity = new DebtState(timeSlot.toString());
 
+    let debtEntry = synthetixState.try_lastDebtLedgerEntry();
+    if (!debtEntry.reverted) {
+      debtStateEntity.debtEntry = toDecimal(debtEntry.value);
+      debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
+      debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
+    }
     debtStateEntity.timestamp = block.timestamp;
-
-    // debt entry represents percentage ownership of the "first" snx staker. It must be inverted to make sense of issued/burnt
-    debtStateEntity.debtEntry = toDecimal(BigInt.fromI32(1), 0).div(toDecimal(synthetixState.lastDebtLedgerEntry()));
-
-    debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
-
-    debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
     debtStateEntity.save();
   }
 }
