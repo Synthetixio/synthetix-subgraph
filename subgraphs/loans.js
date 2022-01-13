@@ -154,7 +154,7 @@ getContractDeployments('CollateralEth').forEach((a, i) => {
         },
         {
           event: 'LoanClosedByLiquidation(indexed address,uint256,indexed address,uint256,uint256)',
-          handler: 'handleLoanLiquidated',
+          handler: 'handleLoanClosedByLiquidation',
         },
         {
           event: 'LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)',
