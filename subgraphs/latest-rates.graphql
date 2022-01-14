@@ -1,3 +1,20 @@
+type Candle @entity {
+  " synth-period-periodId (periodId is timestamp / period) "
+  id: ID!
+  " Ticker for synth (e.g. 'sUSD') or 'SNX'"
+  synth: String!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+  average: BigDecimal!
+  timestamp: BigInt!
+  " Duration this candle captures in seconds. Year, quarter, month, week, day, hour, and 15 minutes available. "
+  period: BigInt!
+  " Number of RateUpdates aggregated into this candle, mostly useful for the indexer to calculate averages "
+  aggregatedPrices: BigInt!
+}
+
 type InversePricingInfo @entity {
   " Name of inverse synth. E.g. iETH "
   id: ID!
@@ -47,8 +64,9 @@ type RateUpdate @entity {
   timestamp: BigInt!
 }
 
+" DEPRECATED: See the Candles entity"
 type DailyCandle @entity {
-  " DailyEpoch-Asset. E.g. 18361-sETH "
+  " DEPRECATED: See the Candles entity "
   id: ID!
   synth: String!
   open: BigDecimal!
@@ -56,28 +74,4 @@ type DailyCandle @entity {
   low: BigDecimal!
   close: BigDecimal!
   timestamp: BigInt!
-}
-
-" The average price of SNX over a 15 minute period "
-type FifteenMinuteSNXPrice @entity {
-  " unix timestamp at beginning of 15 minute period "
-  id: ID!
-
-  " number of samples averaged in the period "
-  count: BigInt!
-
-  " calculated average price of all the samples "
-  averagePrice: BigDecimal!
-}
-
-" The average price of SNX over a day "
-type DailySNXPrice @entity {
-  " unix timestamp at beginning of 15 minute period "
-  id: ID!
-
-  " number of samples averaged in the period "
-  count: BigInt!
-
-  " calculated average price of all the samples "
-  averagePrice: BigDecimal!
 }

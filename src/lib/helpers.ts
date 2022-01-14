@@ -14,6 +14,16 @@ export let FIFTEEN_MINUTE_SECONDS = BigInt.fromI32(900);
 export let DAY_SECONDS = BigInt.fromI32(86400);
 export let YEAR_SECONDS = BigInt.fromI32(31556736);
 
+export let CANDLE_PERIODS: BigInt[] = [
+  YEAR_SECONDS,
+  YEAR_SECONDS.div(BigInt.fromI32(4)),
+  YEAR_SECONDS.div(BigInt.fromI32(12)),
+  DAY_SECONDS.times(BigInt.fromI32(7)),
+  DAY_SECONDS,
+  FIFTEEN_MINUTE_SECONDS.times(BigInt.fromI32(4)),
+  FIFTEEN_MINUTE_SECONDS,
+];
+
 export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
   let precision = BigInt.fromI32(10)
     .pow(<u8>decimals)
