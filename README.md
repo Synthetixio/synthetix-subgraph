@@ -111,7 +111,7 @@ Each time a synth is exchanged, a new SynthExchange entity is created.
 - `timestamp` (integer) - The timestamp, in seconds, when this exchange occured.
 - `gasPrice` (integer) - The gas price for the exchange.
 
-### Totals
+### Total
 
 The Total entities aggregate SynthExchange data over time.
 
