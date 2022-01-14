@@ -4,6 +4,8 @@ import {
   Transfer as SNXTransferEvent,
 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix';
 
+import { FeePool as FeePoolContract } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePool';
+
 import { Synthetix32 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix32';
 
 import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix4';
@@ -654,13 +656,7 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
     snxHolder.save();
   }
 
-  // update feePeriod
-  let feePeriod = FeePeriod.load('current');
-  if (feePeriod) {
-    feePeriod.susdRewards = feePeriod.susdRewards.plus(entity.value);
-    feePeriod.snxRewards = feePeriod.snxRewards.plus(entity.rewards);
-    feePeriod.save();
-  }
+  updateCurrentFeePeriod(event.address);
 }
 
 export function handleFeePeriodClosed(event: FeePeriodClosedEvent): void {
@@ -671,10 +667,26 @@ export function handleFeePeriodClosed(event: FeePeriodClosedEvent): void {
     closedFeePeriod.save();
   }
 
-  // Create the fee period
-  let feePeriod = new FeePeriod('current');
-  feePeriod.timestamp = event.block.timestamp;
-  feePeriod.save();
+  updateCurrentFeePeriod(event.address);
+}
+
+function updateCurrentFeePeriod(feePoolAddress: Address): void {
+  let FeePool = FeePoolContract.bind(feePoolAddress);
+
+  let recentFeePeriod = FeePool.try_recentFeePeriods(BigInt.fromI32(0));
+  if (!recentFeePeriod.reverted) {
+    let feePeriod = FeePeriod.load(recentFeePeriod.value.value0.toString());
+    if (!feePeriod) {
+      feePeriod = new FeePeriod(recentFeePeriod.value.value0.toString());
+    }
+    feePeriod.startingDebtIndex = recentFeePeriod.value.value1;
+    feePeriod.startTime = recentFeePeriod.value.value2;
+    feePeriod.feesToDistribute = toDecimal(recentFeePeriod.value.value3);
+    feePeriod.feesClaimed = toDecimal(recentFeePeriod.value.value4);
+    feePeriod.rewardsToDistribute = toDecimal(recentFeePeriod.value.value5);
+    feePeriod.rewardsClaimed = toDecimal(recentFeePeriod.value.value6);
+    feePeriod.save();
+  }
 }
 
 function trackActiveStakers(event: ethereum.Event, isBurn: boolean): void {

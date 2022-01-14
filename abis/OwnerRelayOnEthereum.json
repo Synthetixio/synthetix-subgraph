@@ -8,7 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "_associatedContract",
+        "name": "_resolver",
         "type": "address"
       }
     ],
@@ -21,12 +21,18 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "bytes32",
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
-        "name": "associatedContract",
+        "name": "destination",
         "type": "address"
       }
     ],
-    "name": "AssociatedContractUpdated",
+    "name": "CacheUpdated",
     "type": "event"
   },
   {
@@ -62,6 +68,44 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "targets",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes[]",
+        "name": "payloads",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "RelayBatchInitiated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      }
+    ],
+    "name": "RelayInitiated",
+    "type": "event"
+  },
+  {
     "constant": false,
     "inputs": [],
     "name": "acceptOwnership",
@@ -71,61 +115,64 @@
     "type": "function"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "target",
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "allowance",
-    "outputs": [
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "crossDomainGasLimit",
+        "type": "uint32"
       }
     ],
+    "name": "initiateRelay",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "targets",
+        "type": "address[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "payloads",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "uint32",
+        "name": "crossDomainGasLimit",
+        "type": "uint32"
+      }
+    ],
+    "name": "initiateRelayBatch",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "associatedContract",
+    "name": "isResolverCached",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "bool",
         "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "balanceOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "payable": false,
@@ -179,62 +226,41 @@
   },
   {
     "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tokenOwner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "setAllowance",
+    "inputs": [],
+    "name": "rebuildCache",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "resolver",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "_associatedContract",
+        "internalType": "contract AddressResolver",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "setAssociatedContract",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "resolverAddressesRequired",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
+        "internalType": "bytes32[]",
+        "name": "addresses",
+        "type": "bytes32[]"
       }
     ],
-    "name": "setBalanceOf",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   }
 ]
