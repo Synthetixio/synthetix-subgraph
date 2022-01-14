@@ -40,15 +40,7 @@ import {
   Bytes,
 } from '@graphprotocol/graph-ts';
 
-import {
-  strToBytes,
-  toDecimal,
-  ZERO,
-  ZERO_ADDRESS,
-  DAY_SECONDS,
-  FIFTEEN_MINUTE_SECONDS,
-  YEAR_SECONDS,
-} from '../lib/helpers';
+import { strToBytes, toDecimal, ZERO, ZERO_ADDRESS, CANDLE_PERIODS } from '../lib/helpers';
 import { ProxyERC20 } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/ProxyERC20';
 import { Synthetix } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/Synthetix';
 import { ExecutionSuccess } from '../../generated/subgraphs/latest-rates/ChainlinkMultisig/GnosisSafe';
@@ -90,18 +82,8 @@ export function addLatestRateFromDecimal(
 }
 
 function updateCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void {
-  let periods: BigInt[] = [
-    YEAR_SECONDS,
-    YEAR_SECONDS.div(BigInt.fromI32(4)),
-    YEAR_SECONDS.div(BigInt.fromI32(12)),
-    DAY_SECONDS.times(BigInt.fromI32(7)),
-    DAY_SECONDS,
-    FIFTEEN_MINUTE_SECONDS.times(BigInt.fromI32(4)),
-    FIFTEEN_MINUTE_SECONDS,
-  ];
-
-  for (let p = 0; p < periods.length; p++) {
-    let period = periods[p];
+  for (let p = 0; p < CANDLE_PERIODS.length; p++) {
+    let period = CANDLE_PERIODS[p];
     let periodId = timestamp.div(period);
     let id = synth + '-' + period.toString() + '-' + periodId.toString();
     let candle = Candle.load(id);
