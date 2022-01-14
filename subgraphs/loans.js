@@ -32,15 +32,15 @@ getContractDeployments('EtherCollateral').forEach((a, i) => {
       eventHandlers: [
         {
           event: 'LoanLiquidated(indexed address,uint256,address)',
-          handler: 'handleLoanLiquidated',
+          handler: 'handleLoanLiquidatedLegacy',
         },
         {
           event: 'LoanCreated(indexed address,uint256,uint256)',
-          handler: 'handleLoanCreatedEther',
+          handler: 'handleLoanCreatedEtherLegacy',
         },
         {
           event: 'LoanClosed(indexed address,uint256,uint256)',
-          handler: 'handleLoanClosedEther',
+          handler: 'handleLoanClosedEtherLegacy',
         },
       ],
     },
@@ -81,19 +81,88 @@ getContractDeployments('EtherCollateralsUSD').forEach((a, i) => {
       eventHandlers: [
         {
           event: 'LoanLiquidated(indexed address,uint256,address)',
-          handler: 'handleLoanLiquidated',
+          handler: 'handleLoanLiquidatedLegacy',
         },
         {
           event: 'LoanCreated(indexed address,uint256,uint256)',
-          handler: 'handleLoanCreatedsUSD',
+          handler: 'handleLoanCreatedsUSDLegacy',
         },
         {
           event: 'LoanClosed(indexed address,uint256,uint256)',
-          handler: 'handleLoanClosedsUSD',
+          handler: 'handleLoanClosedsUSDLegacy',
+        },
+        {
+          event: 'LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)',
+          handler: 'handleLoanPartiallyLiquidatedLegacy',
+        },
+        {
+          event: 'CollateralDeposited(indexed address,uint256,uint256,uint256)',
+          handler: 'handleCollateralDepositedLegacy',
+        },
+        {
+          event: 'CollateralWithdrawn(indexed address,uint256,uint256,uint256)',
+          handler: 'handleCollateralWithdrawnLegacy',
+        },
+        {
+          event: 'LoanRepaid(indexed address,uint256,uint256,uint256)',
+          handler: 'handleLoanRepaidLegacy',
+        },
+      ],
+    },
+  });
+});
+
+getContractDeployments('CollateralEth').forEach((a, i) => {
+  manifest.push({
+    kind: 'ethereum/contract',
+    name: `loans_CollateralEth_${i}`,
+    network: getCurrentNetwork(),
+    source: {
+      address: a.address,
+      startBlock: a.startBlock,
+      abi: 'CollateralEth',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.5',
+      language: 'wasm/assemblyscript',
+      file: '../src/loans.ts',
+      entities: [
+        'Loan',
+        'LoanCreated',
+        'LoanClosed',
+        'LoanLiquidated',
+        'LoanPartiallyLiquidated',
+        'CollateralDeposited',
+        'CollateralWithdrawn',
+        'LoanRepaid',
+      ],
+      abis: [
+        {
+          name: 'CollateralEth',
+          file: '../abis/CollateralEth.json',
+        },
+      ],
+      eventHandlers: [
+        {
+          event: 'LoanCreated(indexed address,uint256,uint256,uint256,bytes32,uint256)',
+          handler: 'handleLoanCreatedEther',
+        },
+        {
+          event: 'LoanClosed(indexed address,uint256)',
+          handler: 'handleLoanClosedEther',
+        },
+        {
+          event: 'LoanClosedByLiquidation(indexed address,uint256,indexed address,uint256,uint256)',
+          handler: 'handleLoanClosedByLiquidation',
         },
         {
           event: 'LoanPartiallyLiquidated(indexed address,uint256,address,uint256,uint256)',
           handler: 'handleLoanPartiallyLiquidated',
+        },
+        {
+          event: 'LoanRepaymentMade(indexed address,indexed address,uint256,uint256,uint256)',
+          handler: 'handleLoanRepaymentMade',
         },
         {
           event: 'CollateralDeposited(indexed address,uint256,uint256,uint256)',
@@ -104,8 +173,8 @@ getContractDeployments('EtherCollateralsUSD').forEach((a, i) => {
           handler: 'handleCollateralWithdrawn',
         },
         {
-          event: 'LoanRepaid(indexed address,uint256,uint256,uint256)',
-          handler: 'handleLoanRepaid',
+          event: 'LoanDrawnDown(indexed address,uint256,uint256)',
+          handler: 'handleLoanDrawnDown',
         },
       ],
     },

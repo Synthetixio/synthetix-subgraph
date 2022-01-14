@@ -24,7 +24,7 @@
     "commander": "8.2.0",
     "eslint-config-prettier": "^8.3.0",
     "mustache": "4.2.0",
-    "synthetix": "2.56.0-alpha"
+    "synthetix": "^2.56.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.32.0",
