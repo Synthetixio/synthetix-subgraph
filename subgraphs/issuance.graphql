@@ -139,6 +139,15 @@ type FeesClaimed @entity {
   timestamp: BigInt!
 }
 
+type FeePeriod @entity {
+  id: ID!
+  startTime: BigInt!
+  feesToDistribute: BigDecimal!
+  feesClaimed: BigDecimal!
+  rewardsToDistribute: BigDecimal!
+  rewardsClaimed: BigDecimal!
+}
+
 type TotalActiveStaker @entity {
   " single value "
   id: ID!

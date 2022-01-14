@@ -80,7 +80,7 @@ getContractDeployments('ProxyFeePool').forEach((a, i) => {
       apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/issuance.ts',
-      entities: ['FeesClaimed', 'SNXHolder'],
+      entities: ['FeesClaimed', 'SNXHolder', 'FeePeriod'],
       abis: [
         {
           name: 'FeePool',
@@ -103,6 +103,10 @@ getContractDeployments('ProxyFeePool').forEach((a, i) => {
         {
           event: 'FeesClaimed(address,uint256,uint256)',
           handler: 'handleFeesClaimed',
+        },
+        {
+          event: 'FeePeriodClosed(uint256)',
+          handler: 'handleFeePeriodClosed',
         },
       ],
     },

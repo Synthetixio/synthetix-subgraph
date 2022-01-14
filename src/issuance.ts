@@ -4,6 +4,8 @@ import {
   Transfer as SNXTransferEvent,
 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix';
 
+import { FeePool as FeePoolContract } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePool';
+
 import { Synthetix32 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix32';
 
 import { Synthetix4 } from '../generated/subgraphs/issuance/issuance_Synthetix_0/Synthetix4';
@@ -26,7 +28,10 @@ import {
   Issued as IssuedEvent,
   Burned as BurnedEvent,
 } from '../generated/subgraphs/issuance/issuance_SynthsUSD_0/Synth';
-import { FeesClaimed as FeesClaimedEvent } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePool';
+import {
+  FeesClaimed as FeesClaimedEvent,
+  FeePeriodClosed as FeePeriodClosedEvent,
+} from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePool';
 import { FeePoolv217 } from '../generated/subgraphs/issuance/issuance_FeePool_0/FeePoolv217';
 
 import {
@@ -43,6 +48,7 @@ import {
   ActiveStaker,
   DailyIssued,
   DailyBurned,
+  FeePeriod,
 } from '../generated/subgraphs/issuance/schema';
 
 import { store, BigInt, Address, ethereum, Bytes, dataSource } from '@graphprotocol/graph-ts';
@@ -648,6 +654,38 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
     }
     snxHolder.claims = snxHolder.claims!.plus(BigInt.fromI32(1));
     snxHolder.save();
+  }
+
+  updateCurrentFeePeriod(event.address);
+}
+
+export function handleFeePeriodClosed(event: FeePeriodClosedEvent): void {
+  // Assign period feePeriodId
+  let closedFeePeriod = FeePeriod.load('current');
+  if (closedFeePeriod) {
+    closedFeePeriod.id = event.params.feePeriodId.toString();
+    closedFeePeriod.save();
+  }
+
+  updateCurrentFeePeriod(event.address);
+}
+
+function updateCurrentFeePeriod(feePoolAddress: Address): void {
+  let FeePool = FeePoolContract.bind(feePoolAddress);
+
+  let recentFeePeriod = FeePool.try_recentFeePeriods(BigInt.fromI32(0));
+  if (!recentFeePeriod.reverted) {
+    let feePeriod = FeePeriod.load(recentFeePeriod.value.value0.toString());
+    if (!feePeriod) {
+      feePeriod = new FeePeriod(recentFeePeriod.value.value0.toString());
+    }
+    //feePeriod.startingDebtIndex = recentFeePeriod.value.value1;
+    feePeriod.startTime = recentFeePeriod.value.value2;
+    feePeriod.feesToDistribute = toDecimal(recentFeePeriod.value.value3);
+    feePeriod.feesClaimed = toDecimal(recentFeePeriod.value.value4);
+    feePeriod.rewardsToDistribute = toDecimal(recentFeePeriod.value.value5);
+    feePeriod.rewardsClaimed = toDecimal(recentFeePeriod.value.value6);
+    feePeriod.save();
   }
 }
 
