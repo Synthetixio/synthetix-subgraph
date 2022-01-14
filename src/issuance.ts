@@ -679,7 +679,7 @@ function updateCurrentFeePeriod(feePoolAddress: Address): void {
     if (!feePeriod) {
       feePeriod = new FeePeriod(recentFeePeriod.value.value0.toString());
     }
-    feePeriod.startingDebtIndex = recentFeePeriod.value.value1;
+    //feePeriod.startingDebtIndex = recentFeePeriod.value.value1;
     feePeriod.startTime = recentFeePeriod.value.value2;
     feePeriod.feesToDistribute = toDecimal(recentFeePeriod.value.value3);
     feePeriod.feesClaimed = toDecimal(recentFeePeriod.value.value4);

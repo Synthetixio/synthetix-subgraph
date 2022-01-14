@@ -422,9 +422,11 @@ type FeesClaimed @entity {
 
 type FeePeriod @entity {
   id: ID!
-  timestamp: BigInt!
-  susdRewards: BigDecimal!
-  snxRewards: BigDecimal!
+  startTime: BigInt!
+  feesToDistribute: BigDecimal!
+  feesClaimed: BigDecimal!
+  rewardsToDistribute: BigDecimal!
+  rewardsClaimed: BigDecimal!
 }
 
 type TotalActiveStaker @entity {

@@ -141,7 +141,6 @@ type FeesClaimed @entity {
 
 type FeePeriod @entity {
   id: ID!
-  startingDebtIndex: BigInt!
   startTime: BigInt!
   feesToDistribute: BigDecimal!
   feesClaimed: BigDecimal!
