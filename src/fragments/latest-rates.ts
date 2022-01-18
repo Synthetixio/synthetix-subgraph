@@ -96,7 +96,7 @@ function updateCandle(timestamp: BigInt, synth: string, rate: BigDecimal): void 
       candle.close = rate;
       candle.average = rate;
       candle.period = period;
-      candle.timestamp = timestamp;
+      candle.timestamp = timestamp.minus(timestamp.mod(period)); // store the beginning of this period, rather than the timestamp of the first rate update.
       candle.aggregatedPrices = BigInt.fromI32(1);
       candle.save();
       return;

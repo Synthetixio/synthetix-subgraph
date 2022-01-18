@@ -673,12 +673,16 @@ export function handleFeePeriodClosed(event: FeePeriodClosedEvent): void {
 function updateCurrentFeePeriod(feePoolAddress: Address): void {
   let FeePool = FeePoolContract.bind(feePoolAddress);
 
-  let recentFeePeriod = FeePool.try_recentFeePeriods(BigInt.fromI32(0));
+  // [0] is always the current active fee period which is not
+  // claimable until closeCurrentFeePeriod() is called closing
+  // the current weeks collected fees. [1] is last week's period.
+  let recentFeePeriod = FeePool.try_recentFeePeriods(BigInt.fromI32(1));
   if (!recentFeePeriod.reverted) {
     let feePeriod = FeePeriod.load(recentFeePeriod.value.value0.toString());
     if (!feePeriod) {
       feePeriod = new FeePeriod(recentFeePeriod.value.value0.toString());
     }
+
     //feePeriod.startingDebtIndex = recentFeePeriod.value.value1;
     feePeriod.startTime = recentFeePeriod.value.value2;
     feePeriod.feesToDistribute = toDecimal(recentFeePeriod.value.value3);
