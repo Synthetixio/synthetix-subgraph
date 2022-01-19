@@ -7,7 +7,7 @@ manifest.push({
   name: 'futures_FuturesMarket',
   network: getCurrentNetwork(),
   source: {
-    address: '0xf6cE6160B9d3b8313326f8c9244a5BBf55244069',
+    address: '0x832177F21CCDcc286003faDF4e98fc11dc5C627F',
     startBlock: 0,
     abi: 'FuturesMarket',
   },
@@ -41,7 +41,7 @@ manifest.push({
   name: 'futures_FuturesMarketManager',
   network: getCurrentNetwork(),
   source: {
-    address: '0xd33E996D0A054d4Ef529E3cF8058B7D2906ea107',
+    address: '0xF11112E2619EDD0192fbE51655115E9f041C11b3',
     startBlock: 0,
     abi: 'FuturesMarketManager',
   },
