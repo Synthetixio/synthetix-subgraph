@@ -1,6 +1,6 @@
 import { Address, BigInt, store } from '@graphprotocol/graph-ts';
 
-import { FuturesMarket } from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
+// import { FuturesMarket } from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
 import {
   FuturesMarket as FuturesMarketEntity,
   FuturesPosition,
@@ -27,7 +27,7 @@ let SINGLE_INDEX = '0';
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
   let proxyAddress = futuresMarketContract.proxy();
-  FuturesMarket.create(proxyAddress);
+  // FuturesMarket.create(proxyAddress); needed? type error: Property 'create' does not exist on type '~lib/@graphprotocol/graph-ts/chain/ethereum/ethereum.SmartContract'.
   let marketEntity = new FuturesMarketEntity(proxyAddress.toHex());
   marketEntity.asset = event.params.asset;
   let marketStats = getOrCreateMarketStats(event.params.asset.toHex());
@@ -67,7 +67,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.account = event.params.account;
     tradeEntity.size = event.params.tradeSize;
     tradeEntity.price = event.params.lastPrice;
-    tradeEntity.asset = marketEntity.asset;
+    if (marketEntity && marketEntity.asset) {
+      tradeEntity.asset = marketEntity.asset;
+    }
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     tradeEntity.save();
 
@@ -88,17 +90,20 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       oneMinStat.volume = oneMinStat.volume.plus(volume);
     }
     oneMinStat.save();
-
-    let marketStats = getOrCreateMarketStats(marketEntity.asset.toHex());
-    marketStats.totalTrades = marketStats.totalTrades.plus(BigInt.fromI32(1));
-    marketStats.totalVolume = marketStats.totalVolume.plus(volume);
-    marketStats.averageTradeSize = marketStats.totalVolume.div(marketStats.totalTrades);
-    marketStats.save();
+    if (marketEntity && marketEntity.asset) {
+      let marketStats = getOrCreateMarketStats(marketEntity.asset.toHex());
+      marketStats.totalTrades = marketStats.totalTrades.plus(BigInt.fromI32(1));
+      marketStats.totalVolume = marketStats.totalVolume.plus(volume);
+      marketStats.averageTradeSize = marketStats.totalVolume.div(marketStats.totalTrades);
+      marketStats.save();
+    }
   }
   if (positionEntity == null) {
     positionEntity = new FuturesPosition(positionId);
     positionEntity.market = proxyAddress;
-    positionEntity.asset = marketEntity.asset;
+    if (marketEntity && marketEntity.asset) {
+      positionEntity.asset = marketEntity.asset;
+    }
     positionEntity.account = event.params.account;
     positionEntity.isLiquidated = false;
     positionEntity.isOpen = true;
@@ -136,17 +141,23 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   let positionEntity = FuturesPosition.load(positionId);
   let statId = event.params.account.toHex();
   let statEntity = FuturesStat.load(statId);
-  statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
-  statEntity.save();
-  positionEntity.isLiquidated = true;
-  positionEntity.save();
+  if (statEntity && statEntity.liquidations) {
+    statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
+    statEntity.save();
+  }
+  if (positionEntity) {
+    positionEntity.isLiquidated = true;
+    positionEntity.save();
+  }
   let cumulativeEntity = getOrCreateCumulativeEntity();
   cumulativeEntity.totalLiquidations = cumulativeEntity.totalLiquidations.plus(BigInt.fromI32(1));
   cumulativeEntity.save();
 
-  let marketStats = getOrCreateMarketStats(positionEntity.asset.toHex());
-  marketStats.totalLiquidations = marketStats.totalLiquidations.plus(BigInt.fromI32(1));
-  marketStats.save();
+  if (positionEntity && positionEntity.asset) {
+    let marketStats = getOrCreateMarketStats(positionEntity.asset.toHex());
+    marketStats.totalLiquidations = marketStats.totalLiquidations.plus(BigInt.fromI32(1));
+    marketStats.save();
+  }
 }
 
 function getOrCreateCumulativeEntity(): FuturesCumulativeStat {
