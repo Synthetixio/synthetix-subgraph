@@ -36,12 +36,50 @@ manifest.push({
   },
 });
 
+// manifest.push({
+//   kind: 'ethereum/contract',
+//   name: 'futures_FuturesMarketManager',
+//   network: getCurrentNetwork(),
+//   source: {
+//     address: '0xF11112E2619EDD0192fbE51655115E9f041C11b3',
+//     startBlock: 0,
+//     abi: 'FuturesMarketManager',
+//   },
+//   mapping: {
+//     kind: 'ethereum/events',
+//     apiVersion: '0.0.5',
+//     language: 'wasm/assemblyscript',
+//     file: '../src/futures.ts',
+//     entities: ['FuturesMarket'],
+//     abis: [
+//       {
+//         name: 'FuturesMarket',
+//         file: '../abis/FuturesMarket.json',
+//       },
+//       {
+//         name: 'FuturesMarketManager',
+//         file: '../abis/FuturesMarketManager.json',
+//       },
+//     ],
+//     eventHandlers: [
+//       {
+//         event: 'MarketAdded(address,indexed bytes32)',
+//         handler: 'handleMarketAdded',
+//       },
+//       {
+//         event: 'MarketRemoved(address,indexed bytes32)',
+//         handler: 'handleMarketRemoved',
+//       },
+//     ],
+//   },
+// });
+
 manifest.push({
   kind: 'ethereum/contract',
   name: 'futures_FuturesMarketManager',
   network: getCurrentNetwork(),
   source: {
-    address: '0xF11112E2619EDD0192fbE51655115E9f041C11b3',
+    address: '0x4BADCe3453810a2EaC9da2352F40239B4F77E25b',
     startBlock: 0,
     abi: 'FuturesMarketManager',
   },
