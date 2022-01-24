@@ -27,7 +27,7 @@ let SINGLE_INDEX = '0';
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
   let proxyAddress = futuresMarketContract.proxy();
-  // FuturesMarket.create(proxyAddress); needed? type error: Property 'create' does not exist on type '~lib/@graphprotocol/graph-ts/chain/ethereum/ethereum.SmartContract'.
+  // FuturesMarket.create(proxyAddress); // needed? type error: Property 'create' does not exist on type '~lib/@graphprotocol/graph-ts/chain/ethereum/ethereum.SmartContract'.
   let marketEntity = new FuturesMarketEntity(proxyAddress.toHex());
   marketEntity.asset = event.params.asset;
   let marketStats = getOrCreateMarketStats(event.params.asset.toHex());
@@ -114,9 +114,12 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
     positionEntity.exitPrice = futuresMarketContract.assetPrice().value0;
-    statEntity.pnl = statEntity.pnl.plus(
-      positionEntity.size.times(positionEntity.exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
-    );
+    const exitPrice = positionEntity.exitPrice;
+    if (exitPrice) {
+      statEntity.pnl = statEntity.pnl.plus(
+        positionEntity.size.times(exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
+      );
+    }
   } else {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.size = event.params.size;
