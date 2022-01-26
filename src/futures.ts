@@ -1,8 +1,9 @@
-import { Address, BigInt, store } from '@graphprotocol/graph-ts';
+import { Address, BigInt, store, log, ByteArray, Bytes } from '@graphprotocol/graph-ts';
 
 // import { FuturesMarket } from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
 import {
   FuturesMarket as FuturesMarketEntity,
+  FuturesMarginTransfer,
   FuturesPosition,
   FuturesTrade,
   FuturesStat,
@@ -17,12 +18,16 @@ import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
   FuturesMarket as FuturesMarketContract,
+  MarginTransferred as MarginTransferredEvent,
 } from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
 import { ZERO } from './lib/helpers';
 
 let ETHER = BigInt.fromI32(10).pow(18);
 let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
 let SINGLE_INDEX = '0';
+const ETH = 'ETH';
+const BTC = 'BTC';
+const LINK = 'LINK';
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
@@ -190,4 +195,34 @@ function getOrCreateMarketStats(asset: string): FuturesCumulativeStat {
 function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
   let remainder = timestamp.mod(num);
   return timestamp.minus(remainder);
+}
+
+export function handleMarginTransferredBTC(event: MarginTransferredEvent): void {
+  const txHash = event.transaction.hash.toHex();
+  let marginTransferEntity = new FuturesMarginTransfer(BTC + '-' + txHash + event.logIndex.toString());
+  marginTransferEntity.timestamp = event.block.timestamp;
+  marginTransferEntity.account = event.params.account;
+  marginTransferEntity.market = Bytes.fromUTF8(BTC);
+  marginTransferEntity.size = event.params.marginDelta;
+  marginTransferEntity.save();
+}
+
+export function handleMarginTransferredETH(event: MarginTransferredEvent): void {
+  const txHash = event.transaction.hash.toHex();
+  let marginTransferEntity = new FuturesMarginTransfer(ETH + '-' + txHash + event.logIndex.toString());
+  marginTransferEntity.timestamp = event.block.timestamp;
+  marginTransferEntity.account = event.params.account;
+  marginTransferEntity.market = Bytes.fromUTF8(ETH);
+  marginTransferEntity.size = event.params.marginDelta;
+  marginTransferEntity.save();
+}
+
+export function handleMarginTransferredLINK(event: MarginTransferredEvent): void {
+  const txHash = event.transaction.hash.toHex();
+  let marginTransferEntity = new FuturesMarginTransfer(LINK + '-' + txHash + event.logIndex.toString());
+  marginTransferEntity.timestamp = event.block.timestamp;
+  marginTransferEntity.account = event.params.account;
+  marginTransferEntity.market = Bytes.fromUTF8(LINK);
+  marginTransferEntity.size = event.params.marginDelta;
+  marginTransferEntity.save();
 }
