@@ -115,6 +115,23 @@ type RateUpdate @entity {
   timestamp: BigInt!
 }
 
+type Candle @entity {
+  " synth-period-periodId (periodId is timestamp / period) "
+  id: ID!
+  " Ticker for synth (e.g. 'sUSD') or 'SNX'"
+  synth: String!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+  average: BigDecimal!
+  timestamp: BigInt!
+  " Duration this candle captures in seconds. Year, quarter, month, week, day, hour, and 15 minutes available. "
+  period: BigInt!
+  " Number of RateUpdates aggregated into this candle, mostly useful for the indexer to calculate averages "
+  aggregatedPrices: BigInt!
+}
+
 " DEPRECATED: See the Candles entity"
 type DailyCandle @entity {
   " DEPRECATED: See the Candles entity "
