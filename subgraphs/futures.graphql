@@ -52,3 +52,11 @@ type FuturesOneMinStat @entity {
   volume: BigInt!
   timestamp: BigInt!
 }
+
+type FuturesMarginTransfer @entity {
+  id: ID!
+  timestamp: BigInt!
+  account: Bytes!
+  market: Bytes!
+  size: BigInt!
+}
