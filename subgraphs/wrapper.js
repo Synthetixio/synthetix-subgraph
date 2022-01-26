@@ -186,6 +186,14 @@ if (getCurrentNetwork() == 'optimism') {
   ethWrapper.source = ethSource;
   ethWrapper.source.startBlock = parseInt(process.env.SNX_START_BLOCK) || 0;
   manifest.push(ethWrapper);
+
+  let lusdWrapper = clone(wrapperTemplate);
+  lusdWrapper.name = 'lusdWrapper';
+  let lusdSource = clone(lusdWrapper.source);
+  lusdSource.address = '0x8a91e92fdd86e734781c38db52a390e1b99fba7c';
+  lusdWrapper.source = lusdSource;
+  lusdWrapper.source.startBlock = parseInt(process.env.SNX_START_BLOCK) || 0;
+  manifest.push(lusdWrapper);
 }
 
 module.exports = {
