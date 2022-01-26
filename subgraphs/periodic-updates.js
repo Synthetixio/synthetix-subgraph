@@ -5,7 +5,7 @@ const manifest = [];
 getContractDeployments('ProxyERC20').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
-    name: `globalDebt_ProxyERC20_${i}`,
+    name: `periodicUpdates_ProxyERC20_${i}`,
     network: getCurrentNetwork(),
     source: {
       address: a.address,
@@ -16,8 +16,8 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
       kind: 'ethereum/events',
       apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
-      file: '../src/global-debt.ts',
-      entities: ['DebtState'],
+      file: '../src/periodic-updates.ts',
+      entities: ['DebtState', 'SystemSettings'],
       abis: [
         {
           name: 'Proxy',
@@ -35,6 +35,10 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
           name: 'Synthetix',
           file: '../abis/SynthetixGlobalDebt.json',
         },
+        {
+          name: 'SystemSettings',
+          file: '../abis/SystemSettings.json',
+        },
       ],
       blockHandlers: [{ handler: 'handleBlock' }],
     },
@@ -43,10 +47,10 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
 
 module.exports = {
   specVersion: '0.0.2',
-  description: 'Synthetix Global Debt API',
+  description: 'Synthetix Periodic Updates API',
   repository: 'https://github.com/Synthetixio/synthetix-subgraph',
   schema: {
-    file: './global-debt.graphql',
+    file: './periodic-updates.graphql',
   },
   dataSources: manifest,
 };
