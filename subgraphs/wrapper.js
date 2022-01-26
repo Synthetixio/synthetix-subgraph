@@ -167,7 +167,7 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
   });
 });
 
-// We manually add the ETH and DAI Wrappers when indexing Optimism
+// We manually add the ETH, DAI, and LUSD Wrappers when indexing Optimism
 // because the WrapperFactory events that would generate them
 // were lost in the regenesis on 11/11/21.
 if (getCurrentNetwork() == 'optimism') {
