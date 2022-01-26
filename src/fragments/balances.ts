@@ -96,8 +96,8 @@ function trackMintOrBurn(synthAddress: Address, value: BigDecimal): void {
       synth.totalSupply = toDecimal(synthBackContract.totalSupply());
     } else {
       synth.totalSupply = newSupply;
-      synth.save();
     }
+    synth.save();
   }
 }
 
