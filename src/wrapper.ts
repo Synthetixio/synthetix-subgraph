@@ -12,6 +12,7 @@ import {
   WrapperMaxTokenAmountUpdated as WrapperMaxTokenAmountUpdatedEvent,
   EtherWrapperMaxETHUpdated as EtherWrapperMaxETHUpdatedEvent,
 } from '../generated/subgraphs/wrapper/SystemSettings_0/SystemSettings';
+import { Wrapper as WrapperContract } from '../generated/subgraphs/wrapper/templates/WrapperTemplate/Wrapper';
 import { WrapperCreated as WrapperCreatedEvent } from '../generated/subgraphs/wrapper/WrapperFactory_0/WrapperFactory';
 
 export function handleWrapperCreated(event: WrapperCreatedEvent): void {
@@ -118,21 +119,18 @@ export function handleEtherWrapperMaxETHUpdated(event: EtherWrapperMaxETHUpdated
 function initializeWrapper(wrapper: Wrapper, address: Address): Wrapper {
   // See wrapper.js for more context on the pre-regenesis wrappers
   // We assume this hasn't been initialized if the maxAmount is 0
-  if (address.toHexString() == '0xad32aa4bff8b61b4ae07e3ba437cf81100af0cd7' && wrapper.amount.toString() == '0') {
-    // DAI Wrapper
-    wrapper.tokenAddress = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1';
-    wrapper.currencyKey = 'USD';
-    wrapper.amount = BigDecimal.fromString('11188940.35781237660384383');
+  if (
+    wrapper.amount.toString() == '0' &&
+    (address.toHexString() == '0xad32aa4bff8b61b4ae07e3ba437cf81100af0cd7' ||
+      address.toHexString() == '0x6202a3b0be1d222971e93aab084c6e584c29db70' ||
+      address.toHexString() == '0x8a91e92fdd86e734781c38db52a390e1b99fba7c')
+  ) {
+    let wrapperContract = WrapperContract.bind(address);
+    wrapper.tokenAddress = wrapperContract.token().toHexString();
+    wrapper.currencyKey = wrapperContract.currencyKey().toString();
+    wrapper.amount = toDecimal(wrapperContract.targetSynthIssued());
+    wrapper.maxAmount = toDecimal(wrapperContract.maxTokenAmount());
     wrapper.totalFees = BigDecimal.fromString('0'); // TBD
-    wrapper.maxAmount = BigDecimal.fromString('30000000');
-  }
-  if (address.toHexString() == '0x6202a3b0be1d222971e93aab084c6e584c29db70' && wrapper.amount.toString() == '0') {
-    // ETH Wrapper
-    wrapper.tokenAddress = '0x4200000000000000000000000000000000000006';
-    wrapper.currencyKey = 'ETH';
-    wrapper.amount = BigDecimal.fromString('2200');
-    wrapper.totalFees = BigDecimal.fromString('0'); // TBD
-    wrapper.maxAmount = BigDecimal.fromString('2200');
   }
 
   // If this still doesn't have a currencyKey, this is the ETH wrapper on mainnet
