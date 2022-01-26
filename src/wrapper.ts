@@ -125,7 +125,6 @@ function initializeWrapper(wrapper: Wrapper, address: Address): Wrapper {
       address.toHexString() == '0x6202a3b0be1d222971e93aab084c6e584c29db70' ||
       address.toHexString() == '0x8a91e92fdd86e734781c38db52a390e1b99fba7c')
   ) {
-    console.error('HELLO', []);
     let wrapperContract = WrapperContract.bind(address);
     wrapper.tokenAddress = wrapperContract.token().toHexString();
     wrapper.currencyKey = wrapperContract.currencyKey().toString();
