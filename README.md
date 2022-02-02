@@ -126,7 +126,7 @@ The Total entities aggregate SynthExchange data over time.
 - `exchangeUSDTally` (decimal) - The value of all synths exchanged, denominated in USD, in this Total.
 - `totalFeesGeneratedInUSD` (decimal) - The value of all exchange fees, denominated in USD, generated in this Total.
 
-### SNXUser
+### SnxHolder
 
 This entity represents each individual holder of SNX tokens.
 
