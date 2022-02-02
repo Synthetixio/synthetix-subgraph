@@ -41,12 +41,12 @@ export function trackSystemSettings(block: ethereum.Block): void {
 
     let priceDeviationThresholdFactor = systemSettings.try_priceDeviationThresholdFactor();
     if (!priceDeviationThresholdFactor.reverted) {
-      systemSettingsEntity.priceDeviationThresholdFactor = priceDeviationThresholdFactor.value;
+      systemSettingsEntity.priceDeviationThresholdFactor = toDecimal(priceDeviationThresholdFactor.value);
     }
 
     let issuanceRatio = systemSettings.try_issuanceRatio();
     if (!issuanceRatio.reverted) {
-      systemSettingsEntity.issuanceRatio = issuanceRatio.value;
+      systemSettingsEntity.issuanceRatio = toDecimal(issuanceRatio.value);
     }
 
     let feePeriodDuration = systemSettings.try_feePeriodDuration();
@@ -56,7 +56,7 @@ export function trackSystemSettings(block: ethereum.Block): void {
 
     let targetThreshold = systemSettings.try_targetThreshold();
     if (!targetThreshold.reverted) {
-      systemSettingsEntity.targetThreshold = targetThreshold.value;
+      systemSettingsEntity.targetThreshold = toDecimal(targetThreshold.value);
     }
 
     let liquidationDelay = systemSettings.try_liquidationDelay();
@@ -66,12 +66,12 @@ export function trackSystemSettings(block: ethereum.Block): void {
 
     let liquidationRatio = systemSettings.try_liquidationRatio();
     if (!liquidationRatio.reverted) {
-      systemSettingsEntity.liquidationRatio = liquidationRatio.value;
+      systemSettingsEntity.liquidationRatio = toDecimal(liquidationRatio.value);
     }
 
     let liquidationPenalty = systemSettings.try_liquidationPenalty();
     if (!liquidationPenalty.reverted) {
-      systemSettingsEntity.liquidationPenalty = liquidationPenalty.value;
+      systemSettingsEntity.liquidationPenalty = toDecimal(liquidationPenalty.value);
     }
 
     let rateStalePeriod = systemSettings.try_rateStalePeriod();
@@ -91,17 +91,17 @@ export function trackSystemSettings(block: ethereum.Block): void {
 
     let etherWrapperMaxETH = systemSettings.try_etherWrapperMaxETH();
     if (!etherWrapperMaxETH.reverted) {
-      systemSettingsEntity.etherWrapperMaxETH = etherWrapperMaxETH.value;
+      systemSettingsEntity.etherWrapperMaxETH = toDecimal(etherWrapperMaxETH.value);
     }
 
     let etherWrapperMintFeeRate = systemSettings.try_etherWrapperMintFeeRate();
     if (!etherWrapperMintFeeRate.reverted) {
-      systemSettingsEntity.etherWrapperMintFeeRate = etherWrapperMintFeeRate.value;
+      systemSettingsEntity.etherWrapperMintFeeRate = toDecimal(etherWrapperMintFeeRate.value);
     }
 
     let etherWrapperBurnFeeRate = systemSettings.try_etherWrapperBurnFeeRate();
     if (!etherWrapperBurnFeeRate.reverted) {
-      systemSettingsEntity.etherWrapperBurnFeeRate = etherWrapperBurnFeeRate.value;
+      systemSettingsEntity.etherWrapperBurnFeeRate = toDecimal(etherWrapperBurnFeeRate.value);
     }
 
     let atomicMaxVolumePerBlock = systemSettings.try_atomicMaxVolumePerBlock();
