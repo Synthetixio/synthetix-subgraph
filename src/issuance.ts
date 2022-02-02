@@ -39,7 +39,7 @@ import {
   Issued,
   Burned,
   Issuer,
-  SNXHolder,
+  SnxHolder,
   DebtSnapshot,
   RewardEscrowHolder,
   FeesClaimed,
@@ -113,7 +113,7 @@ function trackIssuer(account: Address): void {
   }
 }
 
-function trackSNXHolder(
+function trackSnxHolder(
   snxContract: Address,
   account: Address,
   block: ethereum.Block,
@@ -124,8 +124,8 @@ function trackSNXHolder(
   if (isEscrow(holder, dataSource.network())) {
     return;
   }
-  let existingSNXHolder = SNXHolder.load(holder);
-  let snxHolder = new SNXHolder(holder);
+  let existingSnxHolder = SnxHolder.load(holder);
+  let snxHolder = new SnxHolder(holder);
   snxHolder.block = block.number;
   snxHolder.timestamp = block.timestamp;
 
@@ -220,15 +220,15 @@ function trackSNXHolder(
   }
 
   if (
-    (existingSNXHolder == null && snxHolder.balanceOf!.gt(toDecimal(BigInt.fromI32(0)))) ||
-    (existingSNXHolder != null &&
-      existingSNXHolder.balanceOf == toDecimal(BigInt.fromI32(0)) &&
+    (existingSnxHolder == null && snxHolder.balanceOf!.gt(toDecimal(BigInt.fromI32(0)))) ||
+    (existingSnxHolder != null &&
+      existingSnxHolder.balanceOf == toDecimal(BigInt.fromI32(0)) &&
       snxHolder.balanceOf > toDecimal(BigInt.fromI32(0)))
   ) {
     incrementMetadata('snxHolders');
   } else if (
-    existingSNXHolder != null &&
-    existingSNXHolder.balanceOf > toDecimal(BigInt.fromI32(0)) &&
+    existingSnxHolder != null &&
+    existingSnxHolder.balanceOf > toDecimal(BigInt.fromI32(0)) &&
     snxHolder.balanceOf == toDecimal(BigInt.fromI32(0))
   ) {
     decrementMetadata('snxHolders');
@@ -350,7 +350,7 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   }
 
   if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
-    trackSNXHolder(event.address, event.params.from, event.block, event.transaction);
+    trackSnxHolder(event.address, event.params.from, event.block, event.transaction);
   } else if (synth != null) {
     // snx is minted
     synth.totalSupply = synth.totalSupply.plus(toDecimal(event.params.value));
@@ -358,7 +358,7 @@ export function handleTransferSNX(event: SNXTransferEvent): void {
   }
 
   if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
-    trackSNXHolder(event.address, event.params.to, event.block, event.transaction);
+    trackSnxHolder(event.address, event.params.to, event.block, event.transaction);
   } else if (synth != null) {
     // snx is burned (only occurs on cross chain transfer)
     synth.totalSupply = synth.totalSupply.minus(toDecimal(event.params.value));
@@ -379,7 +379,7 @@ export function handleRewardVestEvent(event: VestedEvent): void {
   entity.save();
   // now track the SNX holder as this action can impact their collateral
   let synthetixAddress = contract.synthetix();
-  trackSNXHolder(synthetixAddress, event.params.beneficiary, event.block, event.transaction);
+  trackSnxHolder(synthetixAddress, event.params.beneficiary, event.block, event.transaction);
 }
 
 export function handleIssuedSynths(event: IssuedEvent): void {
@@ -476,10 +476,10 @@ export function handleIssuedSynths(event: IssuedEvent): void {
   trackIssuer(event.transaction.from);
 
   // update SNX holder details
-  trackSNXHolder(event.transaction.to!, event.transaction.from, event.block, event.transaction);
+  trackSnxHolder(event.transaction.to!, event.transaction.from, event.block, event.transaction);
 
-  // now update SNXHolder to increment the number of claims
-  let snxHolder = SNXHolder.load(entity.account.toHexString());
+  // now update SnxHolder to increment the number of claims
+  let snxHolder = SnxHolder.load(entity.account.toHexString());
   if (snxHolder != null) {
     if (!snxHolder.mints) {
       snxHolder.mints = BigInt.fromI32(0);
@@ -571,7 +571,7 @@ export function handleBurnedSynths(event: BurnedEvent): void {
   }
 
   // update SNX holder details
-  trackSNXHolder(event.transaction.to!, event.transaction.from, event.block, event.transaction);
+  trackSnxHolder(event.transaction.to!, event.transaction.from, event.block, event.transaction);
 
   // Don't bother getting data pre-Archernar to avoid slowing The Graph down. Can be changed later if needed.
   if ((dataSource.network() != 'mainnet' || event.block.number > v219UpgradeBlock) && entity.source == 'sUSD') {
@@ -646,8 +646,8 @@ export function handleFeesClaimed(event: FeesClaimedEvent): void {
 
   entity.save();
 
-  // now update SNXHolder to increment the number of claims
-  let snxHolder = SNXHolder.load(entity.account.toHexString());
+  // now update SnxHolder to increment the number of claims
+  let snxHolder = SnxHolder.load(entity.account.toHexString());
   if (snxHolder != null) {
     if (!snxHolder.claims) {
       snxHolder.claims = BigInt.fromI32(0);

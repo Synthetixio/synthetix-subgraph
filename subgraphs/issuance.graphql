@@ -15,7 +15,7 @@ type Issuer @entity {
 }
 
 " An individual SNX holder (always overridden with their latest information) "
-type SNXHolder @entity {
+type SnxHolder @entity {
   " address of holder "
   id: ID!
 
