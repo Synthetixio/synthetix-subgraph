@@ -9,7 +9,7 @@ import { strToBytes, toDecimal } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
 
-import { DebtState, SystemSettings } from '../generated/subgraphs/periodic-updates/schema';
+import { DebtState, SystemSetting } from '../generated/subgraphs/periodic-updates/schema';
 
 import { BigInt, Address, ethereum, dataSource, log } from '@graphprotocol/graph-ts';
 import { getContractDeployment } from '../generated/addresses';
@@ -26,12 +26,12 @@ export function handleBlock(block: ethereum.Block): void {
 export function trackSystemSettings(block: ethereum.Block): void {
   let timeSlot = block.timestamp.minus(block.timestamp.mod(BigInt.fromI32(900)));
 
-  let curSystemSettings = SystemSettings.load(timeSlot.toString());
+  let curSystemSettings = SystemSetting.load(timeSlot.toString());
 
   if (curSystemSettings == null) {
     let systemSettingsAddress = getContractDeployment('SystemSettings', dataSource.network(), block.number)!;
     let systemSettings = SystemSettingsContract.bind(systemSettingsAddress);
-    let systemSettingsEntity = new SystemSettings(timeSlot.toString());
+    let systemSettingsEntity = new SystemSetting(timeSlot.toString());
     systemSettingsEntity.timestamp = block.timestamp;
 
     let waitingPeriodSecs = systemSettings.try_waitingPeriodSecs();

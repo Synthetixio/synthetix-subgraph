@@ -15,7 +15,7 @@ type DebtState @entity {
   debtRatio: BigDecimal!
 }
 
-type SystemSettings @entity {
+type SystemSetting @entity {
   id: ID!
 
   " time at which these values are recorded "

@@ -17,7 +17,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
       apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/periodic-updates.ts',
-      entities: ['DebtState', 'SystemSettings'],
+      entities: ['DebtState', 'SystemSetting'],
       abis: [
         {
           name: 'Proxy',
