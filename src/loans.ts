@@ -31,7 +31,7 @@ import {
   LoanRepaid,
 } from '../generated/subgraphs/loans/schema';
 
-import { log } from '@graphprotocol/graph-ts';
+import { log, BigInt } from '@graphprotocol/graph-ts';
 import { toDecimal } from './lib/helpers';
 
 export function handleLoanCreatedEther(event: LoanCreatedEvent): void {
@@ -42,6 +42,9 @@ export function handleLoanCreatedEther(event: LoanCreatedEvent): void {
   loanEntity.hasPartialLiquidations = false;
   loanEntity.isOpen = true;
   loanEntity.createdAt = event.block.timestamp;
+  loanEntity.collateralMinted = 'sETH';
+  loanEntity.currency = event.params.currency.toString();
+  loanEntity.collateralAmount = toDecimal(event.params.collateral);
   loanEntity.save();
 }
 
@@ -67,6 +70,7 @@ export function handleLoanClosedByLiquidation(event: LoanClosedByLiquidation): v
   if (loanEntity) {
     loanEntity.isOpen = false;
     loanEntity.closedAt = event.block.timestamp;
+    loanEntity.collateralAmount = toDecimal(BigInt.fromI32(0));
     loanEntity.save();
   }
 }
@@ -93,6 +97,7 @@ export function handleLoanPartiallyLiquidated(event: LoanPartiallyLiquidatedEven
   }
   loanEntity.hasPartialLiquidations = true;
   loanEntity.amount = loanEntity.amount.minus(toDecimal(event.params.amountLiquidated));
+  loanEntity.collateralAmount = loanEntity.collateralAmount.minus(toDecimal(event.params.collateralLiquidated));
   loanEntity.save();
 }
 
@@ -127,6 +132,12 @@ export function handleCollateralDeposited(event: CollateralDepositedEvent): void
   collateralDepositedEntity.account = event.params.account;
   collateralDepositedEntity.timestamp = event.block.timestamp;
   collateralDepositedEntity.save();
+
+  let loanEntity = Loan.load(event.params.id.toHex() + '-sETH');
+  if (loanEntity) {
+    loanEntity.collateralAmount = collateralDepositedEntity.collateralAfter;
+    loanEntity.save();
+  }
 }
 
 export function handleCollateralWithdrawn(event: CollateralWithdrawnEvent): void {
@@ -139,6 +150,12 @@ export function handleCollateralWithdrawn(event: CollateralWithdrawnEvent): void
   collateralWithdrawnEntity.account = event.params.account;
   collateralWithdrawnEntity.timestamp = event.block.timestamp;
   collateralWithdrawnEntity.save();
+
+  let loanEntity = Loan.load(event.params.id.toHex() + '-sETH');
+  if (loanEntity) {
+    loanEntity.collateralAmount = collateralWithdrawnEntity.collateralAfter;
+    loanEntity.save();
+  }
 }
 
 export function handleLoanDrawnDown(event: LoanDrawnDownEvent): void {
