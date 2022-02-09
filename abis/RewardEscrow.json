@@ -349,7 +349,6 @@
     "name": "feePool",
     "outputs": [
       {
-        "internalType": "contract IFeePool",
         "name": "",
         "type": "address"
       }

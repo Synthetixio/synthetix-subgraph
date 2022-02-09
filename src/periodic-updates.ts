@@ -1,17 +1,16 @@
 // The latest Synthetix and event invocations
 
-import { AddressResolver } from '../generated/subgraphs/periodic-updates/periodicUpdates_ProxyERC20_0/AddressResolver';
 import { Synthetix as SNX } from '../generated/subgraphs/periodic-updates/periodicUpdates_ProxyERC20_0/Synthetix';
-import { SynthetixState } from '../generated/subgraphs/periodic-updates/periodicUpdates_ProxyERC20_0/SynthetixState';
+import { SynthetixDebtShare } from '../generated/subgraphs/periodic-updates/periodicUpdates_ProxyERC20_0/SynthetixDebtShare';
 import { SystemSettings as SystemSettingsContract } from '../generated/subgraphs/periodic-updates/periodicUpdates_ProxyERC20_0/SystemSettings';
 
-import { strToBytes, toDecimal } from './lib/helpers';
+import { CANDLE_PERIODS, strToBytes, toDecimal, ZERO } from './lib/helpers';
 
 // SynthetixState has not changed ABI since deployment
 
 import { DebtState, SystemSetting } from '../generated/subgraphs/periodic-updates/schema';
 
-import { BigInt, Address, ethereum, dataSource, log } from '@graphprotocol/graph-ts';
+import { BigInt, ethereum, dataSource, log } from '@graphprotocol/graph-ts';
 import { getContractDeployment } from '../generated/addresses';
 
 export function handleBlock(block: ethereum.Block): void {
@@ -124,8 +123,8 @@ export function trackGlobalDebt(block: ethereum.Block): void {
   let curDebtState = DebtState.load(timeSlot.toString());
 
   if (curDebtState == null) {
-    let synthetixStateAddress = getContractDeployment('SynthetixState', dataSource.network(), block.number)!;
-    let synthetixState = SynthetixState.bind(synthetixStateAddress);
+    let sdsAddress = getContractDeployment('SynthetixDebtShare', dataSource.network(), block.number)!;
+    let sds = SynthetixDebtShare.bind(sdsAddress);
 
     let synthetix = SNX.bind(dataSource.address());
     let issuedSynths = synthetix.try_totalIssuedSynthsExcludeOtherCollateral(strToBytes('sUSD', 32));
@@ -143,15 +142,27 @@ export function trackGlobalDebt(block: ethereum.Block): void {
       }
     }
 
-    let debtStateEntity = new DebtState(timeSlot.toString());
+    let debtSharesSupply = sds.try_totalSupply();
+    if (!debtSharesSupply.reverted) {
+      for (let p = 0; p < CANDLE_PERIODS.length; p++) {
+        let period = CANDLE_PERIODS[p];
+        let periodId = block.timestamp.minus(block.timestamp.mod(period));
+        let id = period.toString() + '-' + periodId.toString();
 
-    let debtEntry = synthetixState.try_lastDebtLedgerEntry();
-    if (!debtEntry.reverted) {
-      debtStateEntity.debtEntry = toDecimal(debtEntry.value);
-      debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
-      debtStateEntity.debtRatio = debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
+        let debtStateEntity = new DebtState(id);
+
+        debtStateEntity.debtEntry = toDecimal(debtSharesSupply.value);
+        debtStateEntity.totalIssuedSynths = toDecimal(issuedSynths.value);
+
+        debtStateEntity.debtRatio = debtStateEntity.debtEntry.equals(toDecimal(ZERO))
+          ? toDecimal(ZERO)
+          : debtStateEntity.totalIssuedSynths.div(debtStateEntity.debtEntry);
+
+        debtStateEntity.timestamp = block.timestamp;
+        debtStateEntity.period = period;
+
+        debtStateEntity.save();
+      }
     }
-    debtStateEntity.timestamp = block.timestamp;
-    debtStateEntity.save();
   }
 }

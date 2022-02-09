@@ -20,6 +20,11 @@
         "internalType": "address",
         "name": "_rewardsToken",
         "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_synth",
+        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -114,6 +119,26 @@
     "name": "PauseChanged",
     "type": "event",
     "signature": "0x8fb6c181ee25a520cf3dd6565006ef91229fcfe5a989566c2a3b8c115570cec5"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Recovered",
+    "type": "event",
+    "signature": "0x8c1256b8896378cd5044f80c202f9772b9d77dc85c8a6eb51967210b09bfaa28"
   },
   {
     "anonymous": false,
@@ -657,6 +682,22 @@
     "stateMutability": "nonpayable",
     "type": "function",
     "signature": "0xcc1a378f"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "synth",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x115f4fee"
   },
   {
     "constant": true,

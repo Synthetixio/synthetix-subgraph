@@ -18,16 +18,16 @@
     "constant": false,
     "inputs": [
       {
-        "name": "quantity",
-        "type": "uint256"
+        "name": "_owner",
+        "type": "address"
       }
     ],
-    "name": "withdrawHavvens",
+    "name": "nominateNewOwner",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function",
-    "signature": "0x19dc831a"
+    "signature": "0x1627540c"
   },
   {
     "constant": true,
@@ -133,21 +133,6 @@
     "signature": "0x2f5bb661"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "decimals",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x313ce567"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "vest",
@@ -186,21 +171,6 @@
     "signature": "0x45e5441f"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_havven",
-        "type": "address"
-      }
-    ],
-    "name": "setHavven",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x4fa2b0a5"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "nominatedOwner",
@@ -214,21 +184,6 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x53a47bb7"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "name": "nominateOwner",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x5b94db27"
   },
   {
     "constant": true,
@@ -269,6 +224,21 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x70a08231"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "synthetix",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x759b5225"
   },
   {
     "constant": false,
@@ -342,36 +312,6 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "havven",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9c4de81f"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "UNIT",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9d8e2177"
-  },
-  {
-    "constant": true,
-    "inputs": [],
     "name": "totalVestedBalance",
     "outputs": [
       {
@@ -432,6 +372,21 @@
     "signature": "0xda7bd3e9"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "quantity",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawSynthetix",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xe6d76a76"
+  },
+  {
     "constant": true,
     "inputs": [
       {
@@ -456,13 +411,28 @@
     "signature": "0xee1d036c"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_synthetix",
+        "type": "address"
+      }
+    ],
+    "name": "setSynthetix",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xfec9f9da"
+  },
+  {
     "inputs": [
       {
         "name": "_owner",
         "type": "address"
       },
       {
-        "name": "_havven",
+        "name": "_synthetix",
         "type": "address"
       }
     ],
@@ -475,25 +445,20 @@
     "inputs": [
       {
         "indexed": false,
-        "name": "newHavven",
+        "name": "newSynthetix",
         "type": "address"
       }
     ],
-    "name": "HavvenUpdated",
+    "name": "SynthetixUpdated",
     "type": "event",
-    "signature": "0x7d83fa33771af200b7fda80813418ffe7eafdbeb2a93f5267ced74abac654a4e"
+    "signature": "0x46e9c68bd7831071bdd478f1ae4c4a52463961a9d620383a0a121dbfc0e0f06d"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "name": "beneficiary",
-        "type": "address"
-      },
-      {
         "indexed": true,
-        "name": "beneficiaryIndex",
+        "name": "beneficiary",
         "type": "address"
       },
       {
@@ -509,7 +474,7 @@
     ],
     "name": "Vested",
     "type": "event",
-    "signature": "0x6d06f0a463d80b43fe6cd0b79c61bb2790cfe898790e69828f25e6e12886e178"
+    "signature": "0xfbeff59d2bfda0d79ea8a29f8c57c66d48c7a13eabbdb90908d9115ec41c9dc6"
   },
   {
     "anonymous": false,

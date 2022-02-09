@@ -28,8 +28,8 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
           file: '../abis/AddressResolver.json',
         },
         {
-          name: 'SynthetixState',
-          file: '../abis/SynthetixState.json',
+          name: 'SynthetixDebtShare',
+          file: '../abis/SynthetixDebtShare.json',
         },
         {
           name: 'Synthetix',

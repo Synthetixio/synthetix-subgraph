@@ -9,7 +9,8 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor"
+    "type": "constructor",
+    "signature": "constructor"
   },
   {
     "anonymous": false,
@@ -34,7 +35,8 @@
       }
     ],
     "name": "Approval",
-    "type": "event"
+    "type": "event",
+    "signature": "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925"
   },
   {
     "anonymous": false,
@@ -53,7 +55,8 @@
       }
     ],
     "name": "OwnerChanged",
-    "type": "event"
+    "type": "event",
+    "signature": "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c"
   },
   {
     "anonymous": false,
@@ -66,7 +69,8 @@
       }
     ],
     "name": "OwnerNominated",
-    "type": "event"
+    "type": "event",
+    "signature": "0x906a1c6bd7e3091ea86693dd029a831c19049ce77f1dce2ce0bab1cacbabce22"
   },
   {
     "anonymous": false,
@@ -79,7 +83,8 @@
       }
     ],
     "name": "TargetUpdated",
-    "type": "event"
+    "type": "event",
+    "signature": "0x814250a3b8c79fcbe2ead2c131c952a278491c8f4322a79fe84b5040a810373e"
   },
   {
     "anonymous": false,
@@ -104,7 +109,8 @@
       }
     ],
     "name": "Transfer",
-    "type": "event"
+    "type": "event",
+    "signature": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
   },
   {
     "payable": true,
@@ -149,7 +155,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x907dff97"
   },
   {
     "constant": false,
@@ -158,7 +165,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x79ba5097"
   },
   {
     "constant": true,
@@ -184,7 +192,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0xdd62ed3e"
   },
   {
     "constant": false,
@@ -210,7 +219,8 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x095ea7b3"
   },
   {
     "constant": true,
@@ -231,7 +241,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x70a08231"
   },
   {
     "constant": true,
@@ -246,7 +257,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x313ce567"
   },
   {
     "constant": true,
@@ -261,7 +273,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x06fdde03"
   },
   {
     "constant": false,
@@ -276,7 +289,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x1627540c"
   },
   {
     "constant": true,
@@ -291,7 +305,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x53a47bb7"
   },
   {
     "constant": true,
@@ -306,7 +321,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x8da5cb5b"
   },
   {
     "constant": false,
@@ -321,7 +337,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x776d1a01"
   },
   {
     "constant": true,
@@ -336,7 +353,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x95d89b41"
   },
   {
     "constant": true,
@@ -351,7 +369,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0xd4b83992"
   },
   {
     "constant": true,
@@ -366,7 +385,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x18160ddd"
   },
   {
     "constant": false,
@@ -392,7 +412,8 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0xa9059cbb"
   },
   {
     "constant": false,
@@ -423,6 +444,7 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x23b872dd"
   }
 ]
