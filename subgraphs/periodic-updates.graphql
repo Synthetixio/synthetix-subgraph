@@ -2,6 +2,8 @@ type DebtState @entity {
   " Global historical debt entry index "
   id: ID!
 
+  period: BigInt!
+
   " time at which these values are recorded "
   timestamp: BigInt!
 

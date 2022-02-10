@@ -96,19 +96,20 @@ function trackMintOrBurn(synthAddress: Address, value: BigDecimal): void {
       synth.totalSupply = toDecimal(synthBackContract.totalSupply());
     } else {
       synth.totalSupply = newSupply;
-      synth.save();
     }
+
+    synth.save();
   }
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
-  if (event.params.from.toHex() != ZERO_ADDRESS.toHex()) {
+  if (event.params.from.toHex() != ZERO_ADDRESS.toHex() && event.params.from != event.address) {
     trackSynthHolder(event.address, event.params.from, event.block.timestamp, toDecimal(event.params.value).neg());
   } else {
     trackMintOrBurn(event.address, toDecimal(event.params.value));
   }
 
-  if (event.params.to.toHex() != ZERO_ADDRESS.toHex()) {
+  if (event.params.to.toHex() != ZERO_ADDRESS.toHex() && event.params.to != event.address) {
     trackSynthHolder(event.address, event.params.to, event.block.timestamp, toDecimal(event.params.value));
   } else {
     trackMintOrBurn(event.address, toDecimal(event.params.value).neg());
