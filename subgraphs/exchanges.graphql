@@ -56,7 +56,7 @@ type ExchangeRebate @entity {
 
 # Aggrgeations of the synth exchanges by various time/volume groupings
 type Total @entity {
-  " $timestamp-$period-$bucketMagnitude-$synth "
+  " $timestamp-$bucketMagnitude-$synth-$period "
   id: ID!
 
   " timestamp of the beginning of the time period this represents "
