@@ -27,8 +27,8 @@ for (const included of includedSubgraphs) {
 
 module.exports = {
   specVersion: '0.0.2',
-  description: 'Synthetix Subgraph',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
+  description: 'Kwenta Subgraph',
+  repository: 'https://github.com/kwenta/kwenta-subgraph',
   schema: {
     file: './main.graphql',
   },

@@ -1,12 +1,10 @@
-# Synthetix Subgraph
+# Kwenta Subgraph
 
 ## Overview
 
 [The Graph](https://thegraph.com/) is a decentralized protocol for indexing and querying data on the Ethereum blockchain. Subgraphs define the data The Graph will index and how it will be stored. This data is then provided via a GraphQL API.
 
 The Graph currently consists of a hosted service and a decentralized network. In the future, the hosted service will be gradually sunset after the decentralized network achieves feature parity.
-
-Synthetix currently maintains one official subgraph per network. Only mainnet is on The Graph’s decentralized network.
 
 ### Hosted Service
 
