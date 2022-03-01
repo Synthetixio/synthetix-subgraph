@@ -8,7 +8,7 @@ manifest.push({
   network: getCurrentNetwork(),
   source: {
     address: '0x832177F21CCDcc286003faDF4e98fc11dc5C627F',
-    startBlock: 0,
+    startBlock: 1265982,
     abi: 'FuturesMarket',
   },
   mapping: {
@@ -81,7 +81,7 @@ manifest.push({
   network: getCurrentNetwork(),
   source: {
     address: '0xaFC817d8B6FcA3a22607384b42A0d26B4eC85d9D',
-    startBlock: 0,
+    startBlock: 1265982,
     abi: 'FuturesMarket',
   },
   mapping: {
@@ -116,7 +116,7 @@ manifest.push({
   network: getCurrentNetwork(),
   source: {
     address: '0xE72CFFC7C07aa4FA7E8cB3B19AbD631bf58022b5',
-    startBlock: 0,
+    startBlock: 1265982,
     abi: 'FuturesMarket',
   },
   mapping: {
@@ -151,7 +151,7 @@ manifest.push({
   network: getCurrentNetwork(),
   source: {
     address: '0x697eD8b025D5F65591Eda8645A9ee5Db4d1f7b12',
-    startBlock: 0,
+    startBlock: 1265982,
     abi: 'FuturesMarket',
   },
   mapping: {

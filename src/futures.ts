@@ -30,9 +30,6 @@ const BTC = 'BTC';
 const LINK = 'LINK';
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
-  let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
-  // let proxyAddress = futuresMarketContract.proxy();
-  // FuturesMarket.create(proxyAddress); // needed? type error: Property 'create' does not exist on type '~lib/@graphprotocol/graph-ts/chain/ethereum/ethereum.SmartContract'.
   let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
   marketEntity.asset = event.params.asset;
   let marketStats = getOrCreateMarketStats(event.params.asset.toHex());
@@ -42,17 +39,15 @@ export function handleMarketAdded(event: MarketAddedEvent): void {
 }
 
 export function handleMarketRemoved(event: MarketRemovedEvent): void {
-  let futuresMarketContract = FuturesMarketContract.bind(event.params.market);
-  let proxyAddress = futuresMarketContract.proxy();
-  store.remove('FuturesMarket', proxyAddress.toHex());
+  store.remove('FuturesMarket', event.params.market.toHex());
 }
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
   let futuresMarketContract = FuturesMarketContract.bind(event.transaction.to as Address);
-  let proxyAddress = event.transaction.to as Address;
-  let positionId = proxyAddress.toHex() + '-' + event.params.id.toHex();
+  let futuresMarketAdress = event.transaction.to as Address;
+  let positionId = futuresMarketAdress.toHex() + '-' + event.params.id.toHex();
   let statId = event.params.account.toHex();
-  let marketEntity = FuturesMarketEntity.load(proxyAddress.toHex());
+  let marketEntity = FuturesMarketEntity.load(futuresMarketAdress.toHex());
   let positionEntity = FuturesPosition.load(positionId);
   let statEntity = FuturesStat.load(statId);
   let cumulativeEntity = getOrCreateCumulativeEntity();
@@ -105,7 +100,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   }
   if (positionEntity == null) {
     positionEntity = new FuturesPosition(positionId);
-    positionEntity.market = proxyAddress;
+    positionEntity.market = futuresMarketAdress;
     if (marketEntity && marketEntity.asset) {
       positionEntity.asset = marketEntity.asset;
     }
@@ -143,9 +138,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 }
 
 export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
-  let futuresMarketContract = FuturesMarketContract.bind(event.transaction.to as Address);
-  let proxyAddress = event.transaction.to as Address;
-  let positionId = proxyAddress.toHex() + '-' + event.params.id.toHex();
+  let futuresMarketAddress = event.transaction.to as Address;
+  let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
   let positionEntity = FuturesPosition.load(positionId);
   let statId = event.params.account.toHex();
   let statEntity = FuturesStat.load(statId);
