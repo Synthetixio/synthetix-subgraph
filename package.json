@@ -1,8 +1,8 @@
 {
-  "name": "synthetix-subgraph",
+  "name": "kwenta-subgraph",
   "license": "MIT",
   "version": "1.2.1",
-  "author": "Synthetix",
+  "author": "Kwenta",
   "main": "index.js",
   "browser": "index.min.js",
   "bin": {

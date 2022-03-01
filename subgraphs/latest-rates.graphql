@@ -63,15 +63,3 @@ type RateUpdate @entity {
   " timestamp of the block in which the rate was recorded "
   timestamp: BigInt!
 }
-
-" DEPRECATED: See the Candles entity"
-type DailyCandle @entity {
-  " DEPRECATED: See the Candles entity "
-  id: ID!
-  synth: String!
-  open: BigDecimal!
-  high: BigDecimal!
-  low: BigDecimal!
-  close: BigDecimal!
-  timestamp: BigInt!
-}
