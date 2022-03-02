@@ -8,11 +8,17 @@ type Loan @entity {
   " the account receiving the loan "
   account: Bytes!
 
-  " the type of collateral minted - sUSD or sETH "
+  " the currency of loan amount "
+  currency: String!
+
+  " the currency of the collateralAmount "
   collateralMinted: String!
 
   " the amount of the loan "
   amount: BigDecimal!
+
+  " the amount of collateral "
+  collateralAmount: BigDecimal!
 
   " is the loan still open? "
   isOpen: Boolean!
