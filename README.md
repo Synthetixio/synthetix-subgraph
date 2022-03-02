@@ -6,7 +6,7 @@
 
 The Graph currently consists of a hosted service and a decentralized network. In the future, the hosted service will be gradually sunset after the decentralized network achieves feature parity.
 
-Synthetix currently maintains one official subgraph per network. Only mainnet is on The Graph’s decentralized network.
+Synthetix currently maintains one official subgraph per network on the hosted services.
 
 ### Hosted Service
 
@@ -20,7 +20,7 @@ Note that data queried from the Optimism networks may be incomplete due the rege
 
 The subgraph can also be found on The Graph’s decentralized network **[here](https://thegraph.com/explorer/subgraph?id=0xde910777c787903f78c89e7a0bf7f4c435cbb1fe-0&view=Overview)**.
 
-The decentralized network supports pinning versions. Subgraphs on the decentralized network can only query data on mainnet.
+The decentralized network supports pinning versions. Subgraphs on the decentralized network can only query data on mainnet. The latest version available on the decentralized network may not always be synchronized with the latest version on the hosted service.
 
 ## Usage
 
@@ -113,9 +113,9 @@ Each time a synth is exchanged, a new SynthExchange entity is created.
 
 ### Total
 
-The Total entities aggregate SynthExchange data over time.
+The Total entities aggregate SynthExchange data over time. Note that we are only collecting a single entity to record all-time totals for each combination of `bucketMagnitude` and `synth` filters. (i.e. All totals with a period of 0 have a timestamp of 0.)
 
-- `id` (string) - The unique identifier for this total, represented as _timestamp_-_period_-_bucketMagnitude_-_synth_
+- `id` (string) - The unique identifier for this total, represented as _timestamp_-_bucketMagnitude_-_synth_-_period_
 - `period` (integer) - The duration this candle is tracking, in seconds. The following periods are available: year (31556736), quarter (7889184), month (2629728), week (604800), day (86400), 15 minutes (900), and all-time (0). This is especially useful for filtering.
 - `timestamp` (integer) - The timestamp, in seconds, at the beginning of this period. This is especially useful for filtering.
 - `bucketMagnitude` (integer) - The minimum power of 10 that the exchange's `fromAmountInUSD` value must be. (e.g. 2 will total trades valued at $100 or higher.) This is especially useful for filtering.
