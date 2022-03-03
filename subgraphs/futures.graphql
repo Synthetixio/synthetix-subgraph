@@ -36,6 +36,7 @@ type FuturesStat @entity {
   pnlWithFeesPaid: BigInt!
   liquidations: BigInt!
   totalTrades: BigInt!
+  totalVolume: BigInt!
 }
 
 type FuturesCumulativeStat @entity {
