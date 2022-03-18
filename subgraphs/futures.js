@@ -7,7 +7,7 @@ manifest.push({
   name: 'futures_FuturesMarket',
   network: getCurrentNetwork(),
   source: {
-    address: '0x832177F21CCDcc286003faDF4e98fc11dc5C627F',
+    address: '0xC51aeDBEC3aCD26650a7E85B6909E8AEc4d0F19e',
     startBlock: 1265982,
     abi: 'FuturesMarket',
   },
@@ -41,7 +41,7 @@ manifest.push({
   name: 'futures_FuturesMarketManager',
   network: getCurrentNetwork(),
   source: {
-    address: '0x4BADCe3453810a2EaC9da2352F40239B4F77E25b',
+    address: '0xc704c9AA89d1ca60F67B3075d05fBb92b3B00B3B',
     startBlock: 1265982,
     abi: 'FuturesMarketManager',
   },
@@ -80,7 +80,7 @@ manifest.push({
   name: 'futures_FuturesMarket_BTC',
   network: getCurrentNetwork(),
   source: {
-    address: '0xaFC817d8B6FcA3a22607384b42A0d26B4eC85d9D',
+    address: '0xEe8804d8Ad10b0C3aD1Bd57AC3737242aD24bB95',
     startBlock: 1265982,
     abi: 'FuturesMarket',
   },
@@ -115,7 +115,7 @@ manifest.push({
   name: 'futures_FuturesMarket_ETH',
   network: getCurrentNetwork(),
   source: {
-    address: '0xE72CFFC7C07aa4FA7E8cB3B19AbD631bf58022b5',
+    address: '0xf86048DFf23cF130107dfB4e6386f574231a5C65',
     startBlock: 1265982,
     abi: 'FuturesMarket',
   },
@@ -150,7 +150,7 @@ manifest.push({
   name: 'futures_FuturesMarket_LINK',
   network: getCurrentNetwork(),
   source: {
-    address: '0x697eD8b025D5F65591Eda8645A9ee5Db4d1f7b12',
+    address: '0x1228c7D8BBc5bC53DB181bD7B1fcE765aa83bF8A',
     startBlock: 1265982,
     abi: 'FuturesMarket',
   },
