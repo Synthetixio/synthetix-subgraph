@@ -2,47 +2,17 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "decimals",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x313ce567"
-  },
-  {
-    "constant": true,
-    "inputs": [],
     "name": "PRECISE_UNIT",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x864029e7"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "unit",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "pure",
-    "type": "function",
-    "signature": "0x907af6c0"
+    "type": "function"
   },
   {
     "constant": true,
@@ -50,29 +20,29 @@
     "name": "UNIT",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9d8e2177"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "preciseUnit",
+    "name": "decimals",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
-        "type": "uint256"
+        "type": "uint8"
       }
     ],
     "payable": false,
-    "stateMutability": "pure",
-    "type": "function",
-    "signature": "0xd5e5e6e6"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "constant": true,
@@ -80,13 +50,43 @@
     "name": "highPrecisionDecimals",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xdef4419d"
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "preciseUnit",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "unit",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
   }
 ]
