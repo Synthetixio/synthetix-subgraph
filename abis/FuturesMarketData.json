@@ -9,8 +9,7 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "signature": "constructor"
+    "type": "constructor"
   },
   {
     "constant": true,
@@ -27,6 +26,11 @@
           {
             "internalType": "bytes32",
             "name": "asset",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "key",
             "type": "bytes32"
           },
           {
@@ -70,6 +74,16 @@
                 "internalType": "uint256",
                 "name": "makerFee",
                 "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "takerFeeNextPrice",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "makerFeeNextPrice",
+                "type": "uint256"
               }
             ],
             "internalType": "struct FuturesMarketData.FeeRates",
@@ -84,8 +98,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x3c88ee18"
+    "type": "function"
   },
   {
     "constant": true,
@@ -101,7 +114,17 @@
           },
           {
             "internalType": "uint256",
-            "name": "liquidationFee",
+            "name": "liquidationFeeRatio",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidationBufferRatio",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minKeeperFee",
             "type": "uint256"
           }
         ],
@@ -112,8 +135,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xc3124525"
+    "type": "function"
   },
   {
     "constant": true,
@@ -139,6 +161,11 @@
             "type": "bytes32"
           },
           {
+            "internalType": "bytes32",
+            "name": "marketKey",
+            "type": "bytes32"
+          },
+          {
             "components": [
               {
                 "internalType": "uint256",
@@ -148,6 +175,16 @@
               {
                 "internalType": "uint256",
                 "name": "makerFee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "takerFeeNextPrice",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "makerFeeNextPrice",
                 "type": "uint256"
               }
             ],
@@ -164,7 +201,7 @@
               },
               {
                 "internalType": "uint256",
-                "name": "maxMarketValue",
+                "name": "maxMarketValueUSD",
                 "type": "uint256"
               }
             ],
@@ -181,12 +218,7 @@
               },
               {
                 "internalType": "uint256",
-                "name": "maxFundingRateSkew",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "maxFundingRateDelta",
+                "name": "skewScaleUSD",
                 "type": "uint256"
               }
             ],
@@ -258,19 +290,18 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x730e0037"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "asset",
+        "name": "marketKey",
         "type": "bytes32"
       }
     ],
-    "name": "marketDetailsForAsset",
+    "name": "marketDetailsForKey",
     "outputs": [
       {
         "components": [
@@ -285,6 +316,11 @@
             "type": "bytes32"
           },
           {
+            "internalType": "bytes32",
+            "name": "marketKey",
+            "type": "bytes32"
+          },
+          {
             "components": [
               {
                 "internalType": "uint256",
@@ -294,6 +330,16 @@
               {
                 "internalType": "uint256",
                 "name": "makerFee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "takerFeeNextPrice",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "makerFeeNextPrice",
                 "type": "uint256"
               }
             ],
@@ -310,7 +356,7 @@
               },
               {
                 "internalType": "uint256",
-                "name": "maxMarketValue",
+                "name": "maxMarketValueUSD",
                 "type": "uint256"
               }
             ],
@@ -327,12 +373,7 @@
               },
               {
                 "internalType": "uint256",
-                "name": "maxFundingRateSkew",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "maxFundingRateDelta",
+                "name": "skewScaleUSD",
                 "type": "uint256"
               }
             ],
@@ -404,8 +445,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xccb045b9"
+    "type": "function"
   },
   {
     "constant": true,
@@ -431,84 +471,8 @@
             "type": "bytes32"
           },
           {
-            "internalType": "uint256",
-            "name": "maxLeverage",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "marketSize",
-            "type": "uint256"
-          },
-          {
-            "internalType": "int256",
-            "name": "marketSkew",
-            "type": "int256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "marketDebt",
-            "type": "uint256"
-          },
-          {
-            "internalType": "int256",
-            "name": "currentFundingRate",
-            "type": "int256"
-          },
-          {
-            "components": [
-              {
-                "internalType": "uint256",
-                "name": "takerFee",
-                "type": "uint256"
-              },
-              {
-                "internalType": "uint256",
-                "name": "makerFee",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct FuturesMarketData.FeeRates",
-            "name": "feeRates",
-            "type": "tuple"
-          }
-        ],
-        "internalType": "struct FuturesMarketData.MarketSummary[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xa9e0bef7"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "assets",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "marketSummariesForAssets",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "market",
-            "type": "address"
-          },
-          {
             "internalType": "bytes32",
-            "name": "asset",
+            "name": "key",
             "type": "bytes32"
           },
           {
@@ -552,6 +516,16 @@
                 "internalType": "uint256",
                 "name": "makerFee",
                 "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "takerFeeNextPrice",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "makerFeeNextPrice",
+                "type": "uint256"
               }
             ],
             "internalType": "struct FuturesMarketData.FeeRates",
@@ -566,15 +540,109 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x0c1ea85c"
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "marketKeys",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "marketSummariesForKeys",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "market",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "asset",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "key",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxLeverage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "marketSize",
+            "type": "uint256"
+          },
+          {
+            "internalType": "int256",
+            "name": "marketSkew",
+            "type": "int256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "marketDebt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "int256",
+            "name": "currentFundingRate",
+            "type": "int256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "takerFee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "makerFee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "takerFeeNextPrice",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "makerFeeNextPrice",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct FuturesMarketData.FeeRates",
+            "name": "feeRates",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct FuturesMarketData.MarketSummary[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "baseAsset",
+        "name": "marketKey",
         "type": "bytes32"
       }
     ],
@@ -594,7 +662,17 @@
           },
           {
             "internalType": "uint256",
-            "name": "closureFee",
+            "name": "takerFeeNextPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "makerFeeNextPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "nextPriceConfirmWindow",
             "type": "uint256"
           },
           {
@@ -604,7 +682,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "maxMarketValue",
+            "name": "maxMarketValueUSD",
             "type": "uint256"
           },
           {
@@ -614,12 +692,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "maxFundingRateSkew",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxFundingRateDelta",
+            "name": "skewScaleUSD",
             "type": "uint256"
           }
         ],
@@ -630,8 +703,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x02506804"
+    "type": "function"
   },
   {
     "constant": true,
@@ -654,32 +726,32 @@
           {
             "components": [
               {
-                "internalType": "uint256",
+                "internalType": "uint64",
                 "name": "id",
-                "type": "uint256"
+                "type": "uint64"
               },
               {
-                "internalType": "uint256",
+                "internalType": "uint64",
+                "name": "lastFundingIndex",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint128",
                 "name": "margin",
-                "type": "uint256"
+                "type": "uint128"
               },
               {
-                "internalType": "int256",
-                "name": "size",
-                "type": "int256"
-              },
-              {
-                "internalType": "uint256",
+                "internalType": "uint128",
                 "name": "lastPrice",
-                "type": "uint256"
+                "type": "uint128"
               },
               {
-                "internalType": "uint256",
-                "name": "fundingIndex",
-                "type": "uint256"
+                "internalType": "int128",
+                "name": "size",
+                "type": "int128"
               }
             ],
-            "internalType": "struct IFuturesMarket.Position",
+            "internalType": "struct IFuturesMarketBaseTypes.Position",
             "name": "position",
             "type": "tuple"
           },
@@ -726,15 +798,14 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x808bad34"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "asset",
+        "name": "marketKey",
         "type": "bytes32"
       },
       {
@@ -743,39 +814,39 @@
         "type": "address"
       }
     ],
-    "name": "positionDetailsForAsset",
+    "name": "positionDetailsForMarketKey",
     "outputs": [
       {
         "components": [
           {
             "components": [
               {
-                "internalType": "uint256",
+                "internalType": "uint64",
                 "name": "id",
-                "type": "uint256"
+                "type": "uint64"
               },
               {
-                "internalType": "uint256",
+                "internalType": "uint64",
+                "name": "lastFundingIndex",
+                "type": "uint64"
+              },
+              {
+                "internalType": "uint128",
                 "name": "margin",
-                "type": "uint256"
+                "type": "uint128"
               },
               {
-                "internalType": "int256",
-                "name": "size",
-                "type": "int256"
-              },
-              {
-                "internalType": "uint256",
+                "internalType": "uint128",
                 "name": "lastPrice",
-                "type": "uint256"
+                "type": "uint128"
               },
               {
-                "internalType": "uint256",
-                "name": "fundingIndex",
-                "type": "uint256"
+                "internalType": "int128",
+                "name": "size",
+                "type": "int128"
               }
             ],
-            "internalType": "struct IFuturesMarket.Position",
+            "internalType": "struct IFuturesMarketBaseTypes.Position",
             "name": "position",
             "type": "tuple"
           },
@@ -822,8 +893,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x39c93192"
+    "type": "function"
   },
   {
     "constant": true,
@@ -838,7 +908,6 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x6a59e495"
+    "type": "function"
   }
 ]

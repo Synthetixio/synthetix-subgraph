@@ -5,9 +5,9 @@
     "name": "PRECISE_UNIT",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "int256",
         "name": "",
-        "type": "uint256"
+        "type": "int256"
       }
     ],
     "payable": false,
@@ -20,9 +20,9 @@
     "name": "UNIT",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "int256",
         "name": "",
-        "type": "uint256"
+        "type": "int256"
       }
     ],
     "payable": false,
@@ -65,9 +65,9 @@
     "name": "preciseUnit",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "int256",
         "name": "",
-        "type": "uint256"
+        "type": "int256"
       }
     ],
     "payable": false,
@@ -80,9 +80,9 @@
     "name": "unit",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "int256",
         "name": "",
-        "type": "uint256"
+        "type": "int256"
       }
     ],
     "payable": false,

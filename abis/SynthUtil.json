@@ -9,8 +9,7 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "signature": "constructor"
+    "type": "constructor"
   },
   {
     "constant": true,
@@ -25,8 +24,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xd18ab376"
+    "type": "function"
   },
   {
     "constant": true,
@@ -41,8 +39,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xeade6d2d"
+    "type": "function"
   },
   {
     "constant": true,
@@ -73,8 +70,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xa827bf48"
+    "type": "function"
   },
   {
     "constant": true,
@@ -94,8 +90,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x27fe55a6"
+    "type": "function"
   },
   {
     "constant": true,
@@ -120,8 +115,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x492dbcdd"
+    "type": "function"
   },
   {
     "constant": true,
@@ -147,7 +141,6 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x0120be33"
+    "type": "function"
   }
 ]
