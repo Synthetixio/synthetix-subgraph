@@ -48,7 +48,7 @@ synths.forEach((synth, i) => {
   getContractDeployments(`FuturesMarket${synth}`).forEach((a, i) => {
     manifest.push({
       kind: 'ethereum/contract',
-      name: `futures_FuturesMarket_${i}`,
+      name: `futures_FuturesMarket_${synth}_${i}`,
       network: getCurrentNetwork(),
       source: {
         address: a.address,
