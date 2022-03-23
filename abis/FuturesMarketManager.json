@@ -2,11 +2,6 @@
   {
     "inputs": [
       {
-        "internalType": "address payable",
-        "name": "_proxy",
-        "type": "address"
-      },
-      {
         "internalType": "address",
         "name": "_owner",
         "type": "address"
@@ -19,8 +14,7 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "signature": "constructor"
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -39,8 +33,7 @@
       }
     ],
     "name": "CacheUpdated",
-    "type": "event",
-    "signature": "0x88a93678a3692f6789d9546fc621bf7234b101ddb7d4fe479455112831b8aa68"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -55,12 +48,17 @@
         "indexed": true,
         "internalType": "bytes32",
         "name": "asset",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "marketKey",
         "type": "bytes32"
       }
     ],
     "name": "MarketAdded",
-    "type": "event",
-    "signature": "0x908f8e9f0a0d9367639eed5a8f85df28353adcde390225801841a0c96a0107ec"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -76,11 +74,16 @@
         "internalType": "bytes32",
         "name": "asset",
         "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "marketKey",
+        "type": "bytes32"
       }
     ],
     "name": "MarketRemoved",
-    "type": "event",
-    "signature": "0x9f42756b57509e6fd6420d67fa82856a7a585dcbe1b94d92e3dea10e3aa3b469"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -99,8 +102,7 @@
       }
     ],
     "name": "OwnerChanged",
-    "type": "event",
-    "signature": "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -113,22 +115,22 @@
       }
     ],
     "name": "OwnerNominated",
-    "type": "event",
-    "signature": "0x906a1c6bd7e3091ea86693dd029a831c19049ce77f1dce2ce0bab1cacbabce22"
+    "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "CONTRACT_NAME",
+    "outputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "proxyAddress",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
-    "name": "ProxyUpdated",
-    "type": "event",
-    "signature": "0xfc80377ca9c49cc11ae6982f390a42db976d5530af7c43889264b13fbbd7c57e"
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "constant": false,
@@ -137,8 +139,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x79ba5097"
+    "type": "function"
   },
   {
     "constant": false,
@@ -153,8 +154,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xda40385d"
+    "type": "function"
   },
   {
     "constant": true,
@@ -169,8 +169,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x375a7cba"
+    "type": "function"
   },
   {
     "constant": false,
@@ -196,24 +195,7 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x6f9a0ca6"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "integrationProxy",
-    "outputs": [
-      {
-        "internalType": "contract Proxy",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0x9cbdaeb6"
+    "type": "function"
   },
   {
     "constant": true,
@@ -228,8 +210,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x2af64bd3"
+    "type": "function"
   },
   {
     "constant": false,
@@ -249,8 +230,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xa7b5833f"
+    "type": "function"
   },
   {
     "constant": true,
@@ -261,7 +241,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "marketForAsset",
+    "name": "marketForKey",
     "outputs": [
       {
         "internalType": "address",
@@ -271,8 +251,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xafbb1217"
+    "type": "function"
   },
   {
     "constant": true,
@@ -298,19 +277,18 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xfe11edc9"
+    "type": "function"
   },
   {
     "constant": true,
     "inputs": [
       {
         "internalType": "bytes32[]",
-        "name": "assets",
+        "name": "marketKeys",
         "type": "bytes32[]"
       }
     ],
-    "name": "marketsForAssets",
+    "name": "marketsForKeys",
     "outputs": [
       {
         "internalType": "address[]",
@@ -320,24 +298,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x0a347f1a"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "messageSender",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xd67bdd25"
+    "type": "function"
   },
   {
     "constant": false,
@@ -352,8 +313,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x1627540c"
+    "type": "function"
   },
   {
     "constant": true,
@@ -368,8 +328,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x53a47bb7"
+    "type": "function"
   },
   {
     "constant": true,
@@ -384,8 +343,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x26e04f9d"
+    "type": "function"
   },
   {
     "constant": true,
@@ -400,8 +358,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x8da5cb5b"
+    "type": "function"
   },
   {
     "constant": false,
@@ -416,24 +373,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xd289ade2"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "proxy",
-    "outputs": [
-      {
-        "internalType": "contract Proxy",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function",
-    "signature": "0xec556889"
+    "type": "function"
   },
   {
     "constant": false,
@@ -442,8 +382,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x74185360"
+    "type": "function"
   },
   {
     "constant": false,
@@ -458,24 +397,22 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xbfef7bdf"
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
         "internalType": "bytes32[]",
-        "name": "assetsToRemove",
+        "name": "marketKeysToRemove",
         "type": "bytes32[]"
       }
     ],
-    "name": "removeMarketsByAsset",
+    "name": "removeMarketsByKey",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x575ceb4b"
+    "type": "function"
   },
   {
     "constant": true,
@@ -490,8 +427,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x04f3bcec"
+    "type": "function"
   },
   {
     "constant": true,
@@ -506,56 +442,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x899ffef4"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "_integrationProxy",
-        "type": "address"
-      }
-    ],
-    "name": "setIntegrationProxy",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x131b0ae7"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "setMessageSender",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xbc67f832"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "_proxy",
-        "type": "address"
-      }
-    ],
-    "name": "setProxy",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x97107d6d"
+    "type": "function"
   },
   {
     "constant": true,
@@ -575,7 +462,6 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0xfc7b9c18"
+    "type": "function"
   }
 ]

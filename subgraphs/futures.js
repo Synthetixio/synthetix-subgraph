@@ -122,8 +122,8 @@ synths.forEach((synth, i) => {
 
 module.exports = {
   specVersion: '0.0.2',
-  description: 'Synthetix Futures API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
+  description: 'Kwenta Futures API',
+  repository: 'https://github.com/kwenta/kwenta-subgraph',
   schema: {
     file: './futures.graphql',
   },
