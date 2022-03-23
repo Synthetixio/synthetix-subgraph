@@ -2,44 +2,14 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      },
-      {
-        "internalType": "contract IFeePool",
-        "name": "_feePool",
+        "internalType": "contract AddressResolver",
+        "name": "_resolver",
         "type": "address"
       }
     ],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "debtRatio",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "feePeriodCloseIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "IssuanceDebtRatioEntry",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -74,14 +44,27 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetOverrideTimestamp",
+    "type": "event"
+  },
+  {
     "constant": true,
     "inputs": [],
-    "name": "FEE_PERIOD_LENGTH",
+    "name": "CONTRACT_NAME",
     "outputs": [
       {
-        "internalType": "uint8",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint8"
+        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -99,28 +82,95 @@
   },
   {
     "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "",
+        "name": "_roundId",
         "type": "uint256"
       }
     ],
-    "name": "accountIssuanceLedger",
+    "name": "getAnswer",
     "outputs": [
       {
+        "internalType": "int256",
+        "name": "answer",
+        "type": "int256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint80",
+        "name": "",
+        "type": "uint80"
+      }
+    ],
+    "name": "getRoundData",
+    "outputs": [
+      {
+        "internalType": "uint80",
+        "name": "",
+        "type": "uint80"
+      },
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      },
+      {
         "internalType": "uint256",
-        "name": "debtPercentage",
+        "name": "",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "debtEntryIndex",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint80",
+        "name": "",
+        "type": "uint80"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_roundId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
         "type": "uint256"
       }
     ],
@@ -129,56 +179,10 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "debtRatio",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "debtEntryIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "currentPeriodStartDebtIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "appendAccountIssuanceRecord",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "closingDebtIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "applicableIssuanceData",
+    "inputs": [],
+    "name": "latestRound",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
       {
         "internalType": "uint256",
         "name": "",
@@ -192,77 +196,36 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "feePool",
+    "name": "latestRoundData",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint80",
         "name": "",
-        "type": "address"
+        "type": "uint80"
+      },
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint80",
+        "name": "",
+        "type": "uint80"
       }
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "getAccountsDebtEntry",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "debtPercentage",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "debtEntryIndex",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "accounts",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "ratios",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "periodToInsert",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "feePeriodCloseIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "importIssuerData",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -298,6 +261,21 @@
   {
     "constant": true,
     "inputs": [],
+    "name": "overrideTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "owner",
     "outputs": [
       {
@@ -311,33 +289,33 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "contract IFeePool",
-        "name": "_feePool",
-        "type": "address"
-      }
-    ],
-    "name": "setFeePool",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [],
-    "name": "setupExpiryTime",
+    "name": "resolver",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "contract AddressResolver",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "setOverrideTimestamp",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
