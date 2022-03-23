@@ -1,6 +1,5 @@
 import { Address, BigInt, store, log, ByteArray, Bytes } from '@graphprotocol/graph-ts';
 
-// import { FuturesMarket } from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
 import {
   FuturesMarket as FuturesMarketEntity,
   FuturesMarginTransfer,
@@ -13,13 +12,13 @@ import {
 import {
   MarketAdded as MarketAddedEvent,
   MarketRemoved as MarketRemovedEvent,
-} from '../generated/subgraphs/futures/futures_FuturesMarketManager/FuturesMarketManager';
+} from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarketManager';
 import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
   FuturesMarket as FuturesMarketContract,
   MarginTransferred as MarginTransferredEvent,
-} from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
+} from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarket';
 import { ZERO } from './lib/helpers';
 
 let ETHER = BigInt.fromI32(10).pow(18);
@@ -111,6 +110,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.size = event.params.size;
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
+    positionEntity.feesPaid = ZERO;
   }
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
@@ -134,8 +134,10 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
 
+  positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
+
   positionEntity.save();
   statEntity.save();
   cumulativeEntity.save();

@@ -27,6 +27,7 @@ type FuturesPosition @entity {
   isLiquidated: Boolean!
   size: BigInt!
   margin: BigInt!
+  feesPaid: BigInt!
   entryPrice: BigInt!
   exitPrice: BigInt
 }
@@ -39,6 +40,7 @@ type FuturesStat @entity {
   pnlWithFeesPaid: BigInt!
   liquidations: BigInt!
   totalTrades: BigInt!
+  totalVolume: BigInt!
 }
 
 type FuturesCumulativeStat @entity {
