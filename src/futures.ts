@@ -1,6 +1,5 @@
 import { Address, BigInt, store, log, ByteArray, Bytes } from '@graphprotocol/graph-ts';
 
-// import { FuturesMarket } from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
 import {
   FuturesMarket as FuturesMarketEntity,
   FuturesMarginTransfer,
@@ -13,13 +12,13 @@ import {
 import {
   MarketAdded as MarketAddedEvent,
   MarketRemoved as MarketRemovedEvent,
-} from '../generated/subgraphs/futures/futures_FuturesMarketManager/FuturesMarketManager';
+} from '../generated/subgraphs/futures/futures_FuturesMarketManager/FuturesMarketManager_0';
 import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
   FuturesMarket as FuturesMarketContract,
   MarginTransferred as MarginTransferredEvent,
-} from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket';
+} from '../generated/subgraphs/futures/futures_FuturesMarket/FuturesMarket_0';
 import { ZERO } from './lib/helpers';
 
 let ETHER = BigInt.fromI32(10).pow(18);
