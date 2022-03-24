@@ -80,6 +80,10 @@ synths.forEach((synth, i) => {
             event: 'PositionLiquidated(indexed uint256,indexed address,indexed address,int256,uint256,uint256)',
             handler: 'handlePositionLiquidated',
           },
+          {
+            event: 'FundingRecomputed(int256,uint256,uint256)',
+            handler: 'handleFundingRecomputed',
+          },
         ],
       },
     });

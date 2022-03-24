@@ -62,3 +62,11 @@ type FuturesMarginTransfer @entity {
   market: Bytes!
   size: BigInt!
 }
+
+type FundingRateUpdate @entity {
+  id: ID!
+  timestamp: BigInt!
+  market: Bytes!
+  sequenceLength: BigInt!
+  fundingRate: BigInt!
+}
