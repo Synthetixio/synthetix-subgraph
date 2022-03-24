@@ -8,6 +8,7 @@ import {
   FuturesStat,
   FuturesCumulativeStat,
   FuturesOneMinStat,
+  FundingRateUpdate,
 } from '../generated/subgraphs/futures/schema';
 import {
   MarketAdded as MarketAddedEvent,
@@ -18,6 +19,7 @@ import {
   PositionModified as PositionModifiedEvent,
   FuturesMarket as FuturesMarketContract,
   MarginTransferred as MarginTransferredEvent,
+  FundingRecomputed as FundingRecomputedEvent,
 } from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarket';
 import { ZERO } from './lib/helpers';
 
@@ -225,4 +227,16 @@ export function handleMarginTransferredLINK(event: MarginTransferredEvent): void
   marginTransferEntity.market = Bytes.fromUTF8(LINK);
   marginTransferEntity.size = event.params.marginDelta;
   marginTransferEntity.save();
+}
+
+export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
+  let futuresMarketAddress = event.transaction.to as Address;
+  let fundingRateUpdateEntity = new FundingRateUpdate(
+    futuresMarketAddress.toHex() + '-' + event.params.index.toString(),
+  );
+  fundingRateUpdateEntity.timestamp = event.params.timestamp;
+  fundingRateUpdateEntity.market = futuresMarketAddress;
+  fundingRateUpdateEntity.sequenceLength = event.params.index;
+  fundingRateUpdateEntity.fundingRate = event.params.funding;
+  fundingRateUpdateEntity.save();
 }
