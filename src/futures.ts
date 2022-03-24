@@ -26,9 +26,6 @@ import { ZERO } from './lib/helpers';
 let ETHER = BigInt.fromI32(10).pow(18);
 let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
 let SINGLE_INDEX = '0';
-const ETH = 'ETH';
-const BTC = 'BTC';
-const LINK = 'LINK';
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
@@ -199,32 +196,15 @@ function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
   return timestamp.minus(remainder);
 }
 
-export function handleMarginTransferredBTC(event: MarginTransferredEvent): void {
+export function handleMarginTransferred(event: MarginTransferredEvent): void {
+  let futuresMarketAddress = event.transaction.to as Address;
   const txHash = event.transaction.hash.toHex();
-  let marginTransferEntity = new FuturesMarginTransfer(BTC + '-' + txHash + event.logIndex.toString());
+  let marginTransferEntity = new FuturesMarginTransfer(
+    futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.toString(),
+  );
   marginTransferEntity.timestamp = event.block.timestamp;
   marginTransferEntity.account = event.params.account;
-  marginTransferEntity.market = Bytes.fromUTF8(BTC);
-  marginTransferEntity.size = event.params.marginDelta;
-  marginTransferEntity.save();
-}
-
-export function handleMarginTransferredETH(event: MarginTransferredEvent): void {
-  const txHash = event.transaction.hash.toHex();
-  let marginTransferEntity = new FuturesMarginTransfer(ETH + '-' + txHash + event.logIndex.toString());
-  marginTransferEntity.timestamp = event.block.timestamp;
-  marginTransferEntity.account = event.params.account;
-  marginTransferEntity.market = Bytes.fromUTF8(ETH);
-  marginTransferEntity.size = event.params.marginDelta;
-  marginTransferEntity.save();
-}
-
-export function handleMarginTransferredLINK(event: MarginTransferredEvent): void {
-  const txHash = event.transaction.hash.toHex();
-  let marginTransferEntity = new FuturesMarginTransfer(LINK + '-' + txHash + event.logIndex.toString());
-  marginTransferEntity.timestamp = event.block.timestamp;
-  marginTransferEntity.account = event.params.account;
-  marginTransferEntity.market = Bytes.fromUTF8(LINK);
+  marginTransferEntity.market = futuresMarketAddress;
   marginTransferEntity.size = event.params.marginDelta;
   marginTransferEntity.save();
 }
