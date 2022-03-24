@@ -70,7 +70,7 @@ synths.forEach((synth, i) => {
         eventHandlers: [
           {
             event: 'MarginTransferred(indexed address,int256)',
-            handler: 'handleMarginTransferredBTC',
+            handler: 'handleMarginTransferred',
           },
           {
             event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)',

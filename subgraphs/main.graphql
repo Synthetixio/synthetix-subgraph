@@ -66,6 +66,14 @@ type FuturesMarginTransfer @entity {
   size: BigInt!
 }
 
+type FundingRateUpdate @entity {
+  id: ID!
+  timestamp: BigInt!
+  market: Bytes!
+  sequenceLength: BigInt!
+  fundingRate: BigInt!
+}
+
 type Candle @entity {
   " synth-period-periodId (periodId is timestamp / period) "
   id: ID!
