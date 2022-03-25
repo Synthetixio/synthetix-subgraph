@@ -217,6 +217,6 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
   fundingRateUpdateEntity.timestamp = event.params.timestamp;
   fundingRateUpdateEntity.market = futuresMarketAddress;
   fundingRateUpdateEntity.sequenceLength = event.params.index;
-  fundingRateUpdateEntity.fundingRate = event.params.funding;
+  fundingRateUpdateEntity.funding = event.params.funding;
   fundingRateUpdateEntity.save();
 }
