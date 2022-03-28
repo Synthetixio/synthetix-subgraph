@@ -124,7 +124,25 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       );
     }
   } else {
-    positionEntity.entryPrice = event.params.lastPrice;
+    // if position changes sides, reset the entry price
+    if (
+      (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
+      (positionEntity.size.gt(ZERO) && event.params.size.lt(ZERO))
+    ) {
+      positionEntity.entryPrice = event.params.lastPrice;
+    } else {
+      // check if the position side increases (long or short)
+      if (event.params.size.abs().gt(positionEntity.size.abs())) {
+        // if so, calculate the new average price
+        const existingSize = positionEntity.size.abs();
+        const existingPrice = existingSize.times(positionEntity.entryPrice);
+
+        const newSize = event.params.tradeSize.abs();
+        const newPrice = newSize.times(event.params.lastPrice);
+        positionEntity.entryPrice = existingPrice.plus(newPrice).div(event.params.size.abs());
+      }
+      // otherwise do nothing
+    }
     positionEntity.size = event.params.size;
     positionEntity.margin = event.params.margin;
   }
@@ -217,6 +235,6 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
   fundingRateUpdateEntity.timestamp = event.params.timestamp;
   fundingRateUpdateEntity.market = futuresMarketAddress;
   fundingRateUpdateEntity.sequenceLength = event.params.index;
-  fundingRateUpdateEntity.fundingRate = event.params.funding;
+  fundingRateUpdateEntity.funding = event.params.funding;
   fundingRateUpdateEntity.save();
 }

@@ -71,7 +71,7 @@ type FundingRateUpdate @entity {
   timestamp: BigInt!
   market: Bytes!
   sequenceLength: BigInt!
-  fundingRate: BigInt!
+  funding: BigInt!
 }
 
 type Candle @entity {
