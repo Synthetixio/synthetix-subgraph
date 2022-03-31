@@ -11,6 +11,7 @@
   "scripts": {
     "lint": "eslint src/ scripts/ subgraphs/",
     "prepare": "husky install",
+    "auth": "graph auth --product hosted-service",
     "deploy": "node ./scripts/deploy.js"
   },
   "lint-staged": {

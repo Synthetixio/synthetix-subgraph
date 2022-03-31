@@ -139,7 +139,15 @@ This entity represents each individual holder of SNX tokens.
 - `claims` (integer) - The number of fee claims performed by this user.
 - `mints` (integer) - The number of mints performed by this user.
 
-## Build and Deploy
+## Development
+
+### Auth
+
+To set your access token for the hosted service:
+
+`npm run auth <ACCESS_TOKEN>`
+
+### Deployment
 
 To build and deploy the subgraphs, run `npm run deploy` for a CLI. You will have the option to update the Synthetix contract ABIs, build the updated subgraph, and deploy to the hosted service and/or decentralized network.
 
