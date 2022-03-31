@@ -113,7 +113,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   }
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
-    positionEntity.exitPrice = futuresMarketContract.assetPrice().value0;
+    positionEntity.exitPrice = ZERO; //futuresMarketContract.assetPrice().value0;
     const exitPrice = positionEntity.exitPrice;
     if (exitPrice) {
       statEntity.pnl = statEntity.pnl.plus(
