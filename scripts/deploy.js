@@ -136,8 +136,8 @@ program.action(async () => {
 
         if (!settings.buildOnly) {
           await exec(
-            `SNX_START_BLOCK=${
-              process.env.SNX_START_BLOCK || 0
+            `START_BLOCK=${
+              process.env.START_BLOCK || 0
             } NETWORK=${network} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
               settings.team
             }/${networkPrefix(network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,

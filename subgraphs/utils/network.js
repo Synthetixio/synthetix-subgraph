@@ -83,7 +83,7 @@ function getReleaseBlocks() {
 const versions = getReleaseBlocks();
 
 function getContractDeployments(contractName, network = undefined, startBlock = 0, endBlock = Number.MAX_VALUE) {
-  startBlock = Math.max(startBlock, process.env['SNX_START_BLOCK'] || 0);
+  startBlock = Math.max(startBlock, process.env['START_BLOCK'] || 0);
 
   const versionInfo = getReleaseInfo('versions', network);
 
