@@ -168,39 +168,6 @@ program.action(async () => {
     }
   }
 
-  if (settings.subgraph == 'main' && !settings.buildOnly) {
-    settings = await inquirer.prompt(
-      [
-        {
-          message: 'Would you like to deploy to the main subgraph to the decentralized network?',
-          name: 'deployDecentralized',
-          type: 'confirm',
-        },
-      ],
-      settings,
-    );
-
-    if (settings.deployDecentralized) {
-      const { version: defaultVersion } = require('../node_modules/synthetix/package.json');
-      settings = await inquirer.prompt(
-        [
-          {
-            message: 'What version label should be used for this release?',
-            name: 'versionLabel',
-            default: defaultVersion,
-          },
-        ],
-        settings,
-      );
-
-      console.log('Deploying to decentralized network...');
-      await exec(
-        `npx graph deploy --studio ${settings.team} --version-label ${settings.versionLabel} --access-token  ${settings.access_token} ./subgraphs/main.js`,
-      );
-      console.log(green('Successfully deployed to decentralized network.'));
-    }
-  }
-
   console.log(greenBright('All operations completed successfully!'));
 });
 
