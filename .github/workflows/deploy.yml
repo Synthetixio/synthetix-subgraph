@@ -1,18 +1,14 @@
-name: Build
+name: Deploy
 
 on:
   push:
     branches:
       - main
       - master
-  pull_request:
-    branches:
-      - main
-      - master
 
 jobs:
   build:
-    name: Update synthetix in contracts-interface
+    name: Deploy subgraph
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,6 +38,16 @@ jobs:
       - run: npm ci
       - name: build
         run: |
-          node scripts/deploy.js --build-only -s main -n mainnet
+          node scripts/deploy.js --build-only -s main -n optimism
       # lint happens after build because it depends on some of the codegen
       - run: npm run lint
+      - name: authenticate
+      - run: npm run auth ${{ secrets.ACCESS_TOKEN }}
+      - name: Deploy kovan subgraph
+        run: ./node_modules/.bin/graph deploy scripts/deploy.js --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ kwenta/optimism-kovan-main ./subgraphs/main.js
+        env:
+          NETWORK: optimism-kovan
+      - name: Deploy optimism subgraph
+        run: ./node_modules/.bin/graph deploy scripts/deploy.js --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ kwenta/optimism-main ./subgraphs/main.js
+        env:
+          NETWORK: optimism

@@ -108,7 +108,7 @@ program.action(async () => {
   for (let i = 0; i < SUBGRAPH_CHOICES.length; i++) {
     const subgraph = SUBGRAPH_CHOICES[i];
     await exec(
-      `SNX_NETWORK=mainnet SUBGRAPH=${subgraph} ./node_modules/.bin/graph codegen ./subgraphs/${subgraph}.js -o ./generated/subgraphs/${subgraph}`,
+      `NETWORK=mainnet SUBGRAPH=${subgraph} ./node_modules/.bin/graph codegen ./subgraphs/${subgraph}.js -o ./generated/subgraphs/${subgraph}`,
     );
   }
 
@@ -128,7 +128,7 @@ program.action(async () => {
 
         try {
           await exec(
-            `SNX_NETWORK=${network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
+            `NETWORK=${network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
           );
         } catch {
           process.exit(1);
@@ -138,7 +138,7 @@ program.action(async () => {
           await exec(
             `SNX_START_BLOCK=${
               process.env.SNX_START_BLOCK || 0
-            } SNX_NETWORK=${network} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
+            } NETWORK=${network} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
               settings.team
             }/${networkPrefix(network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
           );
@@ -149,7 +149,7 @@ program.action(async () => {
       console.log(cyan(`Building subgraph for network ${settings.network}...`));
       try {
         await exec(
-          `SNX_NETWORK=${settings.network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${settings.network}/subgraphs/${settings.subgraph}`,
+          `NETWORK=${settings.network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${settings.network}/subgraphs/${settings.subgraph}`,
         );
       } catch {
         process.exit(1);
@@ -157,7 +157,7 @@ program.action(async () => {
 
       if (!settings.buildOnly) {
         await exec(
-          `SNX_NETWORK=${
+          `NETWORK=${
             settings.network
           } ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
             settings.team
