@@ -70,7 +70,7 @@ program.action(async () => {
     });
   }
 
-  if (!OPTIONS.buildOnly) {
+  if (!OPTIONS.team) {
     inquiries.push({
       message: 'What is your team name on The Graph?',
       name: 'team',

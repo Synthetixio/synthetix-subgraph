@@ -38,19 +38,11 @@ jobs:
       - run: npm ci
       - name: authenticate
         run: npm run auth ${{ secrets.ACCESS_TOKEN }}
-      - name: Build optimistic kovan subgraph
-        run: ./node_modules/.bin/graph build ./subgraphs/main.js -o ./build/$NETWORK/subgraphs/main
-        env:
-          NETWORK: optimism-kovan
       - name: Deploy optimistic kovan subgraph
-        run: ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ kwenta/optimism-kovan-main ./subgraphs/main.js
+        run: node scripts/deploy.js -t kwenta -s main -n optimism-kovan
         env:
           NETWORK: optimism-kovan
-      - name: Build optimistic mainnet subgraph
-        run: ./node_modules/.bin/graph build ./subgraphs/main.js -o ./build/$NETWORK/subgraphs/main
-        env:
-          NETWORK: optimism
       - name: Deploy optimistic mainnet subgraph
-        run: ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ kwenta/optimism-main ./subgraphs/main.js
+        run: node scripts/deploy.js -t kwenta -s main -n optimism
         env:
           NETWORK: optimism
