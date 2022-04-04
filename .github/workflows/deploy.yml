@@ -36,13 +36,8 @@ jobs:
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
       - run: npm ci
-      - name: build
-        run: |
-          node scripts/deploy.js --build-only -s main -n optimism
-      # lint happens after build because it depends on some of the codegen
-      - run: npm run lint
       - name: authenticate
-      - run: npm run auth ${{ secrets.ACCESS_TOKEN }}
+        run: npm run auth ${{ secrets.ACCESS_TOKEN }}
       - name: Deploy kovan subgraph
         run: ./node_modules/.bin/graph deploy scripts/deploy.js --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ kwenta/optimism-kovan-main ./subgraphs/main.js
         env:
