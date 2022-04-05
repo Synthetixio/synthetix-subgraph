@@ -54,18 +54,6 @@ type ExchangeRebate @entity {
   block: BigInt!
 }
 
-" Tracks the PositionModified event "
-type FuturesPosition @entity {
-  id: ID!
-  account: Bytes! # address
-  margin: BigInt!
-  size: BigInt!
-  tradeSize: BigInt!
-  lastPrice: BigInt!
-  fundingIndex: BigInt!
-  fee: BigInt!
-}
-
 # Aggrgeations of the synth exchanges by various time/volume groupings
 type Total @entity {
   " $timestamp-$bucketMagnitude-$synth-$period "

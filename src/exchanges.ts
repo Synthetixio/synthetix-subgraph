@@ -5,10 +5,7 @@ import {
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/subgraphs/exchanges/exchanges_Synthetix_0/Synthetix';
 
-import {
-  PositionModified as PositionModifiedEvent,
-  FuturesMarket as FuturesMarketContract,
-} from '../generated/subgraphs/exchanges/exchanges_FuturesMarketManager_0/FuturesMarket';
+import { PositionModified as PositionModifiedEvent } from '../generated/subgraphs/exchanges/exchanges_FuturesMarketManager_0/FuturesMarket';
 
 import { ExchangeRates } from '../generated/subgraphs/exchanges/ExchangeRates_13/ExchangeRates';
 
@@ -23,7 +20,6 @@ import {
   ExchangeRebate,
   ExchangeFee,
   SynthByCurrencyKey,
-  FuturesPosition,
 } from '../generated/subgraphs/exchanges/schema';
 
 import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
@@ -357,14 +353,7 @@ export function handleFuturesPositionModified(event: PositionModifiedEvent): voi
     ZERO,
   ];
 
-  let futuresPositionEntity = FuturesPosition.load(event.params.id.toString());
-  let previousAmountInUSD = new BigInt(0);
-  if (futuresPositionEntity) {
-    previousAmountInUSD = futuresPositionEntity.tradeSize.times(futuresPositionEntity.lastPrice).div(ETHER).abs();
-  }
-
-  let currentAmountInUSD = event.params.tradeSize.times(event.params.lastPrice).div(ETHER).abs();
-  let amountInUSD = toDecimal(currentAmountInUSD.minus(previousAmountInUSD));
+  let amountInUSD = toDecimal(event.params.tradeSize.times(event.params.lastPrice).div(ETHER).abs());
 
   for (let p = 0; p < periods.length; p++) {
     let period = periods[p];
@@ -385,16 +374,4 @@ export function handleFuturesPositionModified(event: PositionModifiedEvent): voi
       );
     }
   }
-
-  if (futuresPositionEntity == null) {
-    futuresPositionEntity = new FuturesPosition(event.params.id.toString());
-  }
-  futuresPositionEntity.account = event.params.account;
-  futuresPositionEntity.margin = event.params.margin;
-  futuresPositionEntity.size = event.params.size;
-  futuresPositionEntity.tradeSize = event.params.tradeSize;
-  futuresPositionEntity.lastPrice = event.params.lastPrice;
-  futuresPositionEntity.fundingIndex = event.params.fundingIndex;
-  futuresPositionEntity.fee = event.params.fee;
-  futuresPositionEntity.save();
 }
