@@ -1,6 +1,6 @@
-const { getCurrentNetwork, getContractDeployments } = require('./utils/network');
+const { getCurrentNetwork, getContractDeployments, getFuturesMarkets } = require('./utils/network');
 
-const synths = ['BTC', 'ETH', 'LINK'];
+const synths = getFuturesMarkets(getCurrentNetwork());
 
 const manifest = [];
 
