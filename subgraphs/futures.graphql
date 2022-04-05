@@ -25,6 +25,8 @@ type FuturesPosition @entity {
   size: BigInt!
   margin: BigInt!
   feesPaid: BigInt!
+  netFunding: BigInt!
+  fundingIndex: BigInt!
   entryPrice: BigInt!
   exitPrice: BigInt
 }

@@ -110,6 +110,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
     positionEntity.feesPaid = ZERO;
+    positionEntity.netFunding = ZERO;
+    positionEntity.fundingIndex = event.params.fundingIndex;
   }
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
