@@ -236,7 +236,7 @@ type ExchangeRebate @entity {
 }
 
 type Total @entity {
-  " $timestamp-$period-$bucketMagnitude-$synth "
+  " $timestamp-$bucketMagnitude-$synth-$period "
   id: ID!
   " timestamp of the beginning of the time period this represents "
   timestamp: BigInt!
@@ -499,10 +499,14 @@ type Loan @entity {
   txHash: String!
   " the account receiving the loan "
   account: Bytes!
-  " the type of collateral minted - sUSD or sETH "
+  " the currency of loan amount "
+  currency: String!
+  " the currency of the collateralAmount "
   collateralMinted: String!
   " the amount of the loan "
   amount: BigDecimal!
+  " the amount of collateral "
+  collateralAmount: BigDecimal!
   " is the loan still open? "
   isOpen: Boolean!
   " the timestamp the loan was created "
@@ -591,6 +595,7 @@ type LoanRepaid @entity {
 type DebtState @entity {
   " Global historical debt entry index "
   id: ID!
+  period: BigInt!
   " time at which these values are recorded "
   timestamp: BigInt!
   " representation of total amount of debt issued over time. increases or decreases proportionally whenever synths are minted/burned "
