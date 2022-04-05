@@ -14,7 +14,8 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor"
+    "type": "constructor",
+    "signature": "constructor"
   },
   {
     "anonymous": false,
@@ -51,7 +52,8 @@
       }
     ],
     "name": "AccountMerged",
-    "type": "event"
+    "type": "event",
+    "signature": "0x48d567deaa7db90f8a443344e519ca8906521ffe118e1df43e89a3c257963f7c"
   },
   {
     "anonymous": false,
@@ -64,7 +66,8 @@
       }
     ],
     "name": "AccountMergingDurationUpdated",
-    "type": "event"
+    "type": "event",
+    "signature": "0x723c43349da7aeae47190396f2e2fbe6bedb46b9e9705bc5b908d65bc7a1e0e6"
   },
   {
     "anonymous": false,
@@ -83,7 +86,8 @@
       }
     ],
     "name": "AccountMergingStarted",
-    "type": "event"
+    "type": "event",
+    "signature": "0xceade2b9bc02350b17075c94bb699508b89ed2752f501ea42024b1bb5fd34445"
   },
   {
     "anonymous": false,
@@ -102,7 +106,8 @@
       }
     ],
     "name": "CacheUpdated",
-    "type": "event"
+    "type": "event",
+    "signature": "0x88a93678a3692f6789d9546fc621bf7234b101ddb7d4fe479455112831b8aa68"
   },
   {
     "anonymous": false,
@@ -115,7 +120,8 @@
       }
     ],
     "name": "MaxAccountMergingDurationUpdated",
-    "type": "event"
+    "type": "event",
+    "signature": "0xe829efae5d8a2f7163f46c23a8190bf14625c1e446561ca0f5cf279ab7c8015e"
   },
   {
     "anonymous": false,
@@ -128,7 +134,8 @@
       }
     ],
     "name": "MaxEscrowDurationUpdated",
-    "type": "event"
+    "type": "event",
+    "signature": "0x6b92bd20c4b2e6861047ba7209ddc78d538419aae187d0df46716b827b8997a4"
   },
   {
     "anonymous": false,
@@ -147,7 +154,8 @@
       }
     ],
     "name": "NominateAccountToMerge",
-    "type": "event"
+    "type": "event",
+    "signature": "0xcf51776bb16e5780edcca2e64a9ba8a9c7d5d00a6699cbd7606e465361ba4852"
   },
   {
     "anonymous": false,
@@ -166,7 +174,8 @@
       }
     ],
     "name": "OwnerChanged",
-    "type": "event"
+    "type": "event",
+    "signature": "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c"
   },
   {
     "anonymous": false,
@@ -179,7 +188,8 @@
       }
     ],
     "name": "OwnerNominated",
-    "type": "event"
+    "type": "event",
+    "signature": "0x906a1c6bd7e3091ea86693dd029a831c19049ce77f1dce2ce0bab1cacbabce22"
   },
   {
     "anonymous": false,
@@ -204,7 +214,8 @@
       }
     ],
     "name": "Vested",
-    "type": "event"
+    "type": "event",
+    "signature": "0xfbeff59d2bfda0d79ea8a29f8c57c66d48c7a13eabbdb90908d9115ec41c9dc6"
   },
   {
     "anonymous": false,
@@ -241,7 +252,8 @@
       }
     ],
     "name": "VestingEntryCreated",
-    "type": "event"
+    "type": "event",
+    "signature": "0x2cc016694185d38abbe28d9e9baea2e9d95a321ae43475e5ea7b643756840bc0"
   },
   {
     "constant": false,
@@ -250,7 +262,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x79ba5097"
   },
   {
     "constant": true,
@@ -265,7 +278,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x910a326d"
   },
   {
     "constant": true,
@@ -280,7 +294,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x05662986"
   },
   {
     "constant": true,
@@ -295,7 +310,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x0fcdefb7"
   },
   {
     "constant": true,
@@ -321,7 +337,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0xae582549"
   },
   {
     "constant": false,
@@ -346,7 +363,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x1bb47b44"
   },
   {
     "constant": true,
@@ -367,7 +385,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x70a08231"
   },
   {
     "constant": false,
@@ -410,7 +429,8 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x80d46f58"
   },
   {
     "constant": false,
@@ -435,7 +455,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0xa0416ed3"
   },
   {
     "constant": true,
@@ -466,7 +487,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0xeac62489"
   },
   {
     "constant": true,
@@ -497,7 +519,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x6154c343"
   },
   {
     "constant": true,
@@ -523,7 +546,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x30104c5f"
   },
   {
     "constant": true,
@@ -549,7 +573,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x6dc05bd3"
   },
   {
     "constant": true,
@@ -597,7 +622,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x773ab39f"
   },
   {
     "constant": false,
@@ -634,7 +660,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0xcd7b43dd"
   },
   {
     "constant": true,
@@ -649,7 +676,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x2af64bd3"
   },
   {
     "constant": true,
@@ -664,7 +692,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x37088ffc"
   },
   {
     "constant": true,
@@ -679,7 +708,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x5eb8cf25"
   },
   {
     "constant": false,
@@ -699,7 +729,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0xf0b882ba"
   },
   {
     "constant": false,
@@ -724,7 +755,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0xb95375bd"
   },
   {
     "constant": false,
@@ -739,7 +771,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x7839b92f"
   },
   {
     "constant": true,
@@ -754,7 +787,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0xe6b2cf6c"
   },
   {
     "constant": false,
@@ -769,7 +803,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x7cc1d756"
   },
   {
     "constant": false,
@@ -784,7 +819,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x1627540c"
   },
   {
     "constant": true,
@@ -799,7 +835,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x53a47bb7"
   },
   {
     "constant": true,
@@ -820,7 +857,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x73307e40"
   },
   {
     "constant": true,
@@ -841,7 +879,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x204b676a"
   },
   {
     "constant": true,
@@ -856,7 +895,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x8da5cb5b"
   },
   {
     "constant": false,
@@ -865,7 +905,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x74185360"
   },
   {
     "constant": true,
@@ -880,7 +921,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x04f3bcec"
   },
   {
     "constant": true,
@@ -895,7 +937,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x899ffef4"
   },
   {
     "constant": false,
@@ -910,7 +953,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x7993e699"
   },
   {
     "constant": false,
@@ -925,7 +969,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x018c6c55"
   },
   {
     "constant": false,
@@ -940,7 +985,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x4525aabc"
   },
   {
     "constant": true,
@@ -955,7 +1001,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x46ba2d90"
   },
   {
     "constant": false,
@@ -964,7 +1011,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x178c5655"
   },
   {
     "constant": true,
@@ -985,7 +1033,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x326a3cfb"
   },
   {
     "constant": true,
@@ -1000,7 +1049,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x71e780f3"
   },
   {
     "constant": true,
@@ -1021,7 +1071,8 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x227d517a"
   },
   {
     "constant": false,
@@ -1036,7 +1087,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0x34c7fec9"
   },
   {
     "constant": true,
@@ -1067,6 +1119,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0x45626bd6"
   }
 ]

@@ -12,6 +12,7 @@
     ],
     "payable": false,
     "stateMutability": "pure",
-    "type": "function"
+    "type": "function",
+    "signature": "0xee5f3f5c"
   }
 ]

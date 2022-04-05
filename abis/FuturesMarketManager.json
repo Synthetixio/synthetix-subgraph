@@ -7,14 +7,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_lastMintEvent",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_currentWeek",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_resolver",
+        "type": "address"
       }
     ],
     "payable": false,
@@ -26,12 +21,18 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "newInflationAmount",
-        "type": "uint256"
+        "internalType": "bytes32",
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
       }
     ],
-    "name": "InflationAmountUpdated",
+    "name": "CacheUpdated",
     "type": "event"
   },
   {
@@ -39,12 +40,24 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "newInflationAmount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "market",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "asset",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "marketKey",
+        "type": "bytes32"
       }
     ],
-    "name": "MaxInflationAmountUpdated",
+    "name": "MarketAdded",
     "type": "event"
   },
   {
@@ -52,12 +65,24 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "newRewardAmount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "market",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "asset",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "marketKey",
+        "type": "bytes32"
       }
     ],
-    "name": "MinterRewardUpdated",
+    "name": "MarketRemoved",
     "type": "event"
   },
   {
@@ -93,110 +118,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "supplyMinted",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "numberOfWeeksIssued",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "lastMintEvent",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "SupplyMinted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newAddress",
-        "type": "address"
-      }
-    ],
-    "name": "SynthetixProxyUpdated",
-    "type": "event"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "INFLATION_START_DATE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "MAX_MINTER_REWARD",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "MINT_BUFFER",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "MINT_PERIOD_DURATION",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "acceptOwnership",
@@ -206,14 +127,29 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "marketsToAdd",
+        "type": "address[]"
+      }
+    ],
+    "name": "addMarkets",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [],
-    "name": "inflationAmount",
+    "name": "allMarkets",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address[]",
         "name": "",
-        "type": "uint256"
+        "type": "address[]"
       }
     ],
     "payable": false,
@@ -221,9 +157,35 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "burnSUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "postReclamationAmount",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [],
-    "name": "isMintable",
+    "name": "isResolverCached",
     "outputs": [
       {
         "internalType": "bool",
@@ -236,14 +198,40 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "lastMintEvent",
-    "outputs": [
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "amount",
         "type": "uint256"
+      }
+    ],
+    "name": "issueSUSD",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "marketForKey",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "payable": false,
@@ -252,13 +240,24 @@
   },
   {
     "constant": true,
-    "inputs": [],
-    "name": "maxInflationAmount",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "index",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageSize",
+        "type": "uint256"
+      }
+    ],
+    "name": "markets",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
       }
     ],
     "payable": false,
@@ -267,28 +266,19 @@
   },
   {
     "constant": true,
-    "inputs": [],
-    "name": "mintableSupply",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "bytes32[]",
+        "name": "marketKeys",
+        "type": "bytes32[]"
       }
     ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "minterReward",
+    "name": "marketsForKeys",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address[]",
         "name": "",
-        "type": "uint256"
+        "type": "address[]"
       }
     ],
     "payable": false,
@@ -328,6 +318,21 @@
   {
     "constant": true,
     "inputs": [],
+    "name": "numMarkets",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "owner",
     "outputs": [
       {
@@ -345,32 +350,20 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "supplyMinted",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "recordMintEvent",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "name": "payFee",
+    "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "constant": false,
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "setInflationAmount",
+    "inputs": [],
+    "name": "rebuildCache",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -380,12 +373,12 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "address[]",
+        "name": "marketsToRemove",
+        "type": "address[]"
       }
     ],
-    "name": "setMaxInflationAmount",
+    "name": "removeMarkets",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -395,27 +388,12 @@
     "constant": false,
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "bytes32[]",
+        "name": "marketKeysToRemove",
+        "type": "bytes32[]"
       }
     ],
-    "name": "setMinterReward",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "contract ISynthetix",
-        "name": "_synthetixProxy",
-        "type": "address"
-      }
-    ],
-    "name": "setSynthetixProxy",
+    "name": "removeMarketsByKey",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -424,10 +402,10 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "synthetixProxy",
+    "name": "resolver",
     "outputs": [
       {
-        "internalType": "address payable",
+        "internalType": "contract AddressResolver",
         "name": "",
         "type": "address"
       }
@@ -439,12 +417,12 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "weekCounter",
+    "name": "resolverAddressesRequired",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "bytes32[]",
+        "name": "addresses",
+        "type": "bytes32[]"
       }
     ],
     "payable": false,
@@ -454,12 +432,17 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "weeksSinceLastIssuance",
+    "name": "totalDebt",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "debt",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isInvalid",
+        "type": "bool"
       }
     ],
     "payable": false,

@@ -3,13 +3,18 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "_resolver",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_resolver",
+        "name": "_temporaryOwner",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_ownershipDuration",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -39,87 +44,19 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
-        "name": "_to",
+        "name": "target",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
       }
     ],
-    "name": "DepositFinalized",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "snxBackedAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "totalDebtShares",
-        "type": "uint256"
-      }
-    ],
-    "name": "FeePeriodCloseFinalized",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "escrowedAmount",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint64",
-            "name": "endTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint256",
-            "name": "escrowAmount",
-            "type": "uint256"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct VestingEntries.VestingEntry[]",
-        "name": "vestingEntries",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "ImportedVestingEntries",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [],
-    "name": "InitiationResumed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [],
-    "name": "InitiationSuspended",
+    "name": "DirectRelay",
     "type": "event"
   },
   {
@@ -159,43 +96,37 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "targets",
+        "type": "address[]"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "bytes[]",
+        "name": "payloads",
+        "type": "bytes[]"
       }
     ],
-    "name": "RewardDepositFinalized",
+    "name": "RelayBatchFinalized",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
-        "name": "_from",
+        "name": "target",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "_to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
       }
     ],
-    "name": "WithdrawalInitiated",
+    "name": "RelayFinalized",
     "type": "event"
   },
   {
@@ -212,93 +143,16 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "to",
+        "name": "target",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
       }
     ],
-    "name": "finalizeDeposit",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "escrowedAmount",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint64",
-            "name": "endTime",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint256",
-            "name": "escrowAmount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct VestingEntries.VestingEntry[]",
-        "name": "vestingEntries",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "finalizeEscrowMigration",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "snxBackedAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "totalDebtShares",
-        "type": "uint256"
-      }
-    ],
-    "name": "finalizeFeePeriodClose",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "finalizeRewardDeposit",
+    "name": "directRelay",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -307,16 +161,56 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "initiationActive",
+    "name": "expiryTime",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "",
-        "type": "bool"
+        "type": "uint256"
       }
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      }
+    ],
+    "name": "finalizeRelay",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "targets",
+        "type": "address[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "payloads",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "finalizeRelayBatch",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -353,21 +247,6 @@
     "constant": true,
     "inputs": [],
     "name": "nominatedOwner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "owner",
     "outputs": [
       {
         "internalType": "address",
@@ -420,55 +299,32 @@
   },
   {
     "constant": false,
-    "inputs": [],
-    "name": "resumeInitiation",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [],
-    "name": "suspendInitiation",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_duration",
         "type": "uint256"
       }
     ],
-    "name": "withdraw",
+    "name": "setNewExpiryTime",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "temporaryOwner",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "to",
+        "name": "",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
       }
     ],
-    "name": "withdrawTo",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   }
 ]

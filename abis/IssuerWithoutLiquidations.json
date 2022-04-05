@@ -205,7 +205,6 @@
     "type": "function"
   },
   {
-    "constant": true,
     "inputs": [
       {
         "internalType": "uint256",

@@ -3,7 +3,8 @@
     "inputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor"
+    "type": "constructor",
+    "signature": "constructor"
   },
   {
     "constant": false,
@@ -12,7 +13,8 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
+    "type": "function",
+    "signature": "0xbb57ad20"
   },
   {
     "constant": true,
@@ -27,6 +29,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "signature": "0xee5f3f5c"
   }
 ]

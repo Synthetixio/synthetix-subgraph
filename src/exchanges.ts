@@ -5,6 +5,11 @@ import {
   ExchangeRebate as ExchangeRebateEvent,
 } from '../generated/subgraphs/exchanges/exchanges_Synthetix_0/Synthetix';
 
+import {
+  PositionModified as PositionModifiedEvent,
+  FuturesMarket as FuturesMarketContract,
+} from '../generated/subgraphs/exchanges/exchanges_FuturesMarketManager_0/FuturesMarket';
+
 import { ExchangeRates } from '../generated/subgraphs/exchanges/ExchangeRates_13/ExchangeRates';
 
 import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subgraphs/exchanges/exchanges_SystemSettings_0/SystemSettings';
@@ -18,6 +23,7 @@ import {
   ExchangeRebate,
   ExchangeFee,
   SynthByCurrencyKey,
+  FuturesPosition,
 } from '../generated/subgraphs/exchanges/schema';
 
 import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
@@ -38,6 +44,7 @@ import { Synthetix } from '../generated/subgraphs/latest-rates/ChainlinkMultisig
 import { AddressResolver } from '../generated/subgraphs/latest-rates/ChainlinkMultisig/AddressResolver';
 
 const MAX_MAGNITUDE = 10;
+const ETHER = BigInt.fromI32(10).pow(18);
 
 function populateAggregatedTotalEntity(
   timestamp: BigInt,
@@ -106,10 +113,10 @@ function trackTotals(
 
   exchanger.lastSeen = actualTimestamp;
 
-  entity.trades = entity.trades.plus(BigInt.fromI32(1));
-  exchanger.trades = exchanger.trades.plus(BigInt.fromI32(1));
-
   if (amountInUSD && feesInUSD) {
+    entity.trades = entity.trades.plus(BigInt.fromI32(1));
+    exchanger.trades = exchanger.trades.plus(BigInt.fromI32(1));
+
     entity.exchangeUSDTally = entity.exchangeUSDTally.plus(amountInUSD);
     entity.totalFeesGeneratedInUSD = entity.totalFeesGeneratedInUSD.plus(feesInUSD);
 
@@ -332,4 +339,62 @@ export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
   let entity = new ExchangeFee(currencyKey);
   entity.fee = toDecimal(event.params.newExchangeFeeRate);
   entity.save();
+}
+
+export function handleFuturesPositionModified(event: PositionModifiedEvent): void {
+  let synthAddress = null;
+  if (event.transaction.to) {
+    synthAddress = event.transaction.to.toHex();
+  }
+
+  let periods: BigInt[] = [
+    YEAR_SECONDS,
+    YEAR_SECONDS.div(BigInt.fromI32(4)),
+    YEAR_SECONDS.div(BigInt.fromI32(12)),
+    DAY_SECONDS.times(BigInt.fromI32(7)),
+    DAY_SECONDS,
+    FIFTEEN_MINUTE_SECONDS,
+    ZERO,
+  ];
+
+  let futuresPositionEntity = FuturesPosition.load(event.params.id.toString());
+  let previousAmountInUSD = new BigInt(0);
+  if (futuresPositionEntity) {
+    previousAmountInUSD = futuresPositionEntity.tradeSize.times(futuresPositionEntity.lastPrice).div(ETHER).abs();
+  }
+
+  let currentAmountInUSD = event.params.tradeSize.times(event.params.lastPrice).div(ETHER).abs();
+  let amountInUSD = toDecimal(currentAmountInUSD.minus(previousAmountInUSD));
+
+  for (let p = 0; p < periods.length; p++) {
+    let period = periods[p];
+    let startTimestamp = period == ZERO ? ZERO : getTimeID(event.block.timestamp, period);
+
+    for (let m = 0; m < MAX_MAGNITUDE; m++) {
+      let mag = new BigDecimal(BigInt.fromI32(<i32>Math.floor(Math.pow(10, m))));
+      if (amountInUSD.lt(mag)) {
+        break;
+      }
+
+      trackTotals(
+        populateAggregatedTotalEntity(startTimestamp, period, BigInt.fromI32(m), synthAddress),
+        event.params.account,
+        event.block.timestamp,
+        amountInUSD,
+        toDecimal(event.params.fee),
+      );
+    }
+  }
+
+  if (futuresPositionEntity == null) {
+    futuresPositionEntity = new FuturesPosition(event.params.id.toString());
+  }
+  futuresPositionEntity.account = event.params.account;
+  futuresPositionEntity.margin = event.params.margin;
+  futuresPositionEntity.size = event.params.size;
+  futuresPositionEntity.tradeSize = event.params.tradeSize;
+  futuresPositionEntity.lastPrice = event.params.lastPrice;
+  futuresPositionEntity.fundingIndex = event.params.fundingIndex;
+  futuresPositionEntity.fee = event.params.fee;
+  futuresPositionEntity.save();
 }

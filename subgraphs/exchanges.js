@@ -212,6 +212,83 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
   });
 });
 
+if (getCurrentNetwork() == 'optimism') {
+  getContractDeployments('FuturesMarketManager').forEach((a, i) => {
+    manifest.push({
+      kind: 'ethereum/contract',
+      name: `exchanges_FuturesMarketManager_${i}`,
+      network: getCurrentNetwork(),
+      source: {
+        address: a.address,
+        startBlock: a.startBlock,
+        abi: 'FuturesMarketManager',
+      },
+      mapping: {
+        kind: 'ethereum/events',
+        apiVersion: '0.0.5',
+        language: 'wasm/assemblyscript',
+        file: '../src/exchanges.ts',
+        entities: ['FuturesMarket'],
+        abis: [
+          {
+            name: 'FuturesMarket',
+            file: '../abis/FuturesMarket.json',
+          },
+          {
+            name: 'FuturesMarketManager',
+            file: '../abis/FuturesMarketManager.json',
+          },
+        ],
+        eventHandlers: [
+          {
+            event: 'MarketAdded(address,indexed bytes32,indexed bytes32)',
+            handler: 'handleMarketAdded',
+          },
+          {
+            event: 'MarketRemoved(address,indexed bytes32,indexed bytes32)',
+            handler: 'handleMarketRemoved',
+          },
+        ],
+      },
+    });
+  });
+
+  const synths = ['BTC', 'ETH', 'LINK'];
+  synths.forEach((synth, i) => {
+    getContractDeployments(`FuturesMarket${synth}`).forEach((a, i) => {
+      manifest.push({
+        kind: 'ethereum/contract',
+        name: `exchanges_FuturesMarket_${synth}_${i}`,
+        network: getCurrentNetwork(),
+        source: {
+          address: a.address,
+          startBlock: a.startBlock,
+          abi: 'FuturesMarket',
+        },
+        mapping: {
+          kind: 'ethereum/events',
+          apiVersion: '0.0.5',
+          language: 'wasm/assemblyscript',
+          file: '../src/exchanges.ts',
+          entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
+          abis: [
+            {
+              name: 'FuturesMarket',
+              file: '../abis/FuturesMarket.json',
+            },
+          ],
+          eventHandlers: [
+            {
+              event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)',
+              handler: 'handlePositionModified',
+            },
+          ],
+        },
+      });
+    });
+  });
+}
+
 module.exports = {
   specVersion: '0.0.2',
   description: 'Synthetix Exchanges API',
