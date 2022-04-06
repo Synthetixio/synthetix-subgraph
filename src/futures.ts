@@ -17,7 +17,6 @@ import {
 import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
-  FuturesMarket as FuturesMarketContract,
   MarginTransferred as MarginTransferredEvent,
   FundingRecomputed as FundingRecomputedEvent,
 } from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarket';
@@ -109,10 +108,35 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.isOpen = true;
     positionEntity.size = event.params.size;
     positionEntity.entryPrice = event.params.lastPrice;
+    positionEntity.lastPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
     positionEntity.feesPaid = ZERO;
     positionEntity.netFunding = ZERO;
     positionEntity.fundingIndex = event.params.fundingIndex;
+  }
+
+  // if existing, add accrued funding to position
+  if (positionEntity.fundingIndex != event.params.fundingIndex) {
+    let pastFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
+    );
+
+    let currentFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + event.params.fundingIndex.toString(),
+    );
+
+    if (pastFundingEntity && currentFundingEntity) {
+      // add accrued funding
+      let fundingAccrued = currentFundingEntity.funding
+        .minus(pastFundingEntity.funding)
+        .times(positionEntity.size)
+        .div(ETHER);
+
+      positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
+
+      // set the new index
+      positionEntity.fundingIndex = event.params.fundingIndex;
+    }
   }
 
   // if the position is closed during this transaction...
@@ -154,33 +178,10 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
 
-  // add accrued funding to position
-  if (positionEntity.fundingIndex != event.params.fundingIndex) {
-    let pastFundingEntity = FundingRateUpdate.load(
-      futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
-    );
-
-    let currentFundingEntity = FundingRateUpdate.load(
-      futuresMarketAddress.toHex() + '-' + event.params.fundingIndex.toString(),
-    );
-
-    if (pastFundingEntity && currentFundingEntity) {
-      // add accrued funding
-      let fundingAccrued = currentFundingEntity.funding
-        .minus(pastFundingEntity.funding)
-        .times(positionEntity.size)
-        .div(ETHER);
-
-      positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
-
-      // set the new index
-      positionEntity.fundingIndex = event.params.fundingIndex;
-    }
-  }
-
   // update global values
   positionEntity.size = event.params.size;
   positionEntity.margin = event.params.margin;
+  positionEntity.lastPrice = event.params.lastPrice;
   positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;

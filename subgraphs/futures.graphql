@@ -28,6 +28,7 @@ type FuturesPosition @entity {
   netFunding: BigInt!
   fundingIndex: BigInt!
   entryPrice: BigInt!
+  lastPrice: BigInt!
   exitPrice: BigInt
 }
 
