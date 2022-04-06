@@ -10,8 +10,6 @@ jobs:
   build:
     name: Deploy Subgraphs
     runs-on: ubuntu-latest
-    env:
-      START_BLOCK: 4552546
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
