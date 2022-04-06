@@ -148,10 +148,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       }
       // otherwise do nothing
     }
-
-    // update remaining values on this entity
-    positionEntity.size = event.params.size;
-    positionEntity.margin = event.params.margin;
   }
 
   //Calc fees paid to exchange and include in PnL
@@ -170,11 +166,11 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
     if (pastFundingEntity && currentFundingEntity) {
       // add accrued funding
-      const fundingAccrued = currentFundingEntity.funding
+      let fundingAccrued = currentFundingEntity.funding
         .minus(pastFundingEntity.funding)
         .times(positionEntity.size)
-        .div(ETHER)
-        .times(BigInt.fromI32(-1));
+        .div(ETHER);
+
       positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
 
       // set the new index
@@ -183,6 +179,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   }
 
   // update global values
+  positionEntity.size = event.params.size;
+  positionEntity.margin = event.params.margin;
   positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
