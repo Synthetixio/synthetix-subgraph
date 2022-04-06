@@ -41,11 +41,10 @@ export function handleMarketRemoved(event: MarketRemovedEvent): void {
 }
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
-  let futuresMarketContract = FuturesMarketContract.bind(event.transaction.to as Address);
-  let futuresMarketAdress = event.transaction.to as Address;
-  let positionId = futuresMarketAdress.toHex() + '-' + event.params.id.toHex();
+  let futuresMarketAddress = event.transaction.to as Address;
+  let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
   let statId = event.params.account.toHex();
-  let marketEntity = FuturesMarketEntity.load(futuresMarketAdress.toHex());
+  let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
   let positionEntity = FuturesPosition.load(positionId);
   let statEntity = FuturesStat.load(statId);
   let cumulativeEntity = getOrCreateCumulativeEntity();
@@ -97,9 +96,11 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       marketStats.save();
     }
   }
+
+  // if it's a new position...
   if (positionEntity == null) {
     positionEntity = new FuturesPosition(positionId);
-    positionEntity.market = futuresMarketAdress;
+    positionEntity.market = futuresMarketAddress;
     if (marketEntity && marketEntity.asset) {
       positionEntity.asset = marketEntity.asset;
     }
@@ -110,10 +111,14 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
     positionEntity.feesPaid = ZERO;
+    positionEntity.netFunding = ZERO;
+    positionEntity.fundingIndex = event.params.fundingIndex;
   }
+
+  // if the position is closed during this transaction...
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
-    positionEntity.exitPrice = ZERO; //futuresMarketContract.assetPrice().value0;
+    positionEntity.exitPrice = event.params.lastPrice;
     const exitPrice = positionEntity.exitPrice;
     if (exitPrice) {
       statEntity.pnl = statEntity.pnl.plus(
@@ -143,14 +148,39 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       }
       // otherwise do nothing
     }
-    positionEntity.size = event.params.size;
-    positionEntity.margin = event.params.margin;
   }
 
   //Calc fees paid to exchange and include in PnL
   statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
 
+  // add accrued funding to position
+  if (positionEntity.fundingIndex != event.params.fundingIndex) {
+    let pastFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
+    );
+
+    let currentFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + event.params.fundingIndex.toString(),
+    );
+
+    if (pastFundingEntity && currentFundingEntity) {
+      // add accrued funding
+      let fundingAccrued = currentFundingEntity.funding
+        .minus(pastFundingEntity.funding)
+        .times(positionEntity.size)
+        .div(ETHER);
+
+      positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
+
+      // set the new index
+      positionEntity.fundingIndex = event.params.fundingIndex;
+    }
+  }
+
+  // update global values
+  positionEntity.size = event.params.size;
+  positionEntity.margin = event.params.margin;
   positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
