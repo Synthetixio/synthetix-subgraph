@@ -136,6 +136,11 @@ function getContractDeployments(contractName, network = undefined, startBlock = 
   return reverse(addressInfo);
 }
 
+function getFuturesMarkets(network = 'optimism') {
+  const futuresMarkets = getReleaseInfo('futures-markets', network);
+  return futuresMarkets.map(({ marketKey }) => marketKey.substring(1) /* Slicing off the `s` from marketKey */);
+}
+
 const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism'];
 
 module.exports = {
@@ -146,4 +151,5 @@ module.exports = {
   getContractDeployments,
   NETWORKS,
   getCurrentSubgraph,
+  getFuturesMarkets,
 };
