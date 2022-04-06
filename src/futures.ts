@@ -140,19 +140,21 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   }
 
   // if the position is closed during this transaction...
+  // set the exit price and close the position
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
     positionEntity.exitPrice = event.params.lastPrice;
-    const exitPrice = positionEntity.exitPrice;
-    if (exitPrice) {
-      statEntity.pnl = statEntity.pnl.plus(
-        positionEntity.size.times(exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
-      );
-      statEntity.totalVolume = statEntity.totalVolume.plus(
-        positionEntity.size.times(positionEntity.entryPrice).div(ETHER),
-      );
-    }
+    // const exitPrice = positionEntity.exitPrice;
+    // if (exitPrice) {
+    //   statEntity.pnl = statEntity.pnl.plus(
+    //     positionEntity.size.times(exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
+    //   );
+    //   statEntity.totalVolume = statEntity.totalVolume.plus(
+    //     positionEntity.size.times(positionEntity.entryPrice).div(ETHER),
+    //   );
+    // }
   } else {
+    // if the position is not closed...
     // if position changes sides, reset the entry price
     if (
       (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
