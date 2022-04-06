@@ -24,6 +24,7 @@ type FuturesPosition @entity {
   isLiquidated: Boolean!
   size: BigInt!
   margin: BigInt!
+  pnl: BigInt!
   feesPaid: BigInt!
   netFunding: BigInt!
   fundingIndex: BigInt!

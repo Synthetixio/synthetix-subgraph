@@ -110,13 +110,15 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.lastPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
+    positionEntity.pnl = ZERO;
     positionEntity.feesPaid = ZERO;
     positionEntity.netFunding = ZERO;
     positionEntity.fundingIndex = event.params.fundingIndex;
   }
 
-  // if existing, add accrued funding to position
+  // if there is an existing position...
   if (positionEntity.fundingIndex != event.params.fundingIndex) {
+    // 1. add accrued funding to position
     let pastFundingEntity = FundingRateUpdate.load(
       futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
     );
@@ -137,6 +139,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       // set the new index
       positionEntity.fundingIndex = event.params.fundingIndex;
     }
+
+    // 2. calculate the change in pnl for this position
   }
 
   // if the position is closed during this transaction...
