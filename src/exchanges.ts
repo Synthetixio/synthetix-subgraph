@@ -7,6 +7,10 @@ import {
 
 import { PositionModified as PositionModifiedEvent } from '../generated/subgraphs/exchanges/exchanges_FuturesMarketManager_0/FuturesMarket';
 
+import { MarketAdded as MarketAddedEvent } from '../generated/subgraphs/exchanges/exchanges_FuturesMarketManager_0/FuturesMarketManager';
+
+import { FuturesMarketTemplate } from '../generated/subgraphs/exchanges/templates';
+
 import { ExchangeRates } from '../generated/subgraphs/exchanges/ExchangeRates_13/ExchangeRates';
 
 import { ExchangeFeeUpdated as ExchangeFeeUpdatedEvent } from '../generated/subgraphs/exchanges/exchanges_SystemSettings_0/SystemSettings';
@@ -22,7 +26,7 @@ import {
   SynthByCurrencyKey,
 } from '../generated/subgraphs/exchanges/schema';
 
-import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
+import { Address, BigDecimal, BigInt, Bytes, dataSource, log, DataSourceContext } from '@graphprotocol/graph-ts';
 
 import {
   getUSDAmountFromAssetAmount,
@@ -337,8 +341,13 @@ export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
   entity.save();
 }
 
+export function handleMarketAdded(event: MarketAddedEvent): void {
+  let context = new DataSourceContext();
+  FuturesMarketTemplate.createWithContext(event.params.market, context);
+}
+
 export function handleFuturesPositionModified(event: PositionModifiedEvent): void {
-  let synth = event.transaction.to!.toHex();
+  let market = event.transaction.to!.toHex();
 
   let periods: BigInt[] = [
     YEAR_SECONDS,
@@ -363,7 +372,7 @@ export function handleFuturesPositionModified(event: PositionModifiedEvent): voi
       }
 
       trackTotals(
-        populateAggregatedTotalEntity(startTimestamp, period, BigInt.fromI32(m), synth),
+        populateAggregatedTotalEntity(startTimestamp, period, BigInt.fromI32(m), market),
         event.params.account,
         event.block.timestamp,
         amountInUSD,

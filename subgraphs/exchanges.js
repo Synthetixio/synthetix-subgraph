@@ -252,42 +252,35 @@ if (getCurrentNetwork() == 'optimism') {
       },
     });
   });
-
-  const synths = ['BTC', 'ETH', 'LINK'];
-  synths.forEach((synth, i) => {
-    getContractDeployments(`FuturesMarket${synth}`).forEach((a, i) => {
-      manifest.push({
-        kind: 'ethereum/contract',
-        name: `exchanges_FuturesMarket_${synth}_${i}`,
-        network: getCurrentNetwork(),
-        source: {
-          address: a.address,
-          startBlock: a.startBlock,
-          abi: 'FuturesMarket',
-        },
-        mapping: {
-          kind: 'ethereum/events',
-          apiVersion: '0.0.5',
-          language: 'wasm/assemblyscript',
-          file: '../src/exchanges.ts',
-          entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
-          abis: [
-            {
-              name: 'FuturesMarket',
-              file: '../abis/FuturesMarket.json',
-            },
-          ],
-          eventHandlers: [
-            {
-              event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)',
-              handler: 'handlePositionModified',
-            },
-          ],
-        },
-      });
-    });
-  });
 }
+
+let futuresMarketTemplate = {
+  kind: 'ethereum/contract',
+  name: 'FuturesMarketTemplate',
+  network: getCurrentNetwork(),
+  source: {
+    abi: 'FuturesMarket',
+  },
+  mapping: {
+    kind: 'ethereum/events',
+    apiVersion: '0.0.5',
+    language: 'wasm/assemblyscript',
+    file: '../src/exchanges.ts',
+    entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
+    abis: [
+      {
+        name: 'FuturesMarket',
+        file: '../abis/FuturesMarket.json',
+      },
+    ],
+    eventHandlers: [
+      {
+        event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)',
+        handler: 'handlePositionModified',
+      },
+    ],
+  },
+};
 
 module.exports = {
   specVersion: '0.0.2',
@@ -297,5 +290,5 @@ module.exports = {
     file: './exchanges.graphql',
   },
   dataSources: manifest,
-  templates: latestRates.templates,
+  templates: latestRates.templates.concat([futuresMarketTemplate]),
 };
