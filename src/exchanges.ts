@@ -26,7 +26,7 @@ import {
   SynthByCurrencyKey,
 } from '../generated/subgraphs/exchanges/schema';
 
-import { Address, BigDecimal, BigInt, Bytes, dataSource, log, DataSourceContext } from '@graphprotocol/graph-ts';
+import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
 
 import {
   getUSDAmountFromAssetAmount,
@@ -342,8 +342,7 @@ export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
 }
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
-  let context = new DataSourceContext();
-  FuturesMarketTemplate.createWithContext(event.params.market, context);
+  FuturesMarketTemplate.create(event.params.market);
 }
 
 export function handleFuturesPositionModified(event: PositionModifiedEvent): void {

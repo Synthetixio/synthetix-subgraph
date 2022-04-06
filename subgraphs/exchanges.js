@@ -266,7 +266,7 @@ let futuresMarketTemplate = {
     apiVersion: '0.0.5',
     language: 'wasm/assemblyscript',
     file: '../src/exchanges.ts',
-    entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
+    entities: ['FuturesMarket'],
     abis: [
       {
         name: 'FuturesMarket',
