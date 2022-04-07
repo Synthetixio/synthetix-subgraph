@@ -67,13 +67,15 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
     }
-    statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     tradeEntity.save();
 
     let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER).abs();
     cumulativeEntity.totalTrades = cumulativeEntity.totalTrades.plus(BigInt.fromI32(1));
     cumulativeEntity.totalVolume = cumulativeEntity.totalVolume.plus(volume);
     cumulativeEntity.averageTradeSize = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
+
+    statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
+    statEntity.totalVolume = statEntity.totalVolume.plus(volume);
 
     let timestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
     let oneMinStat = FuturesOneMinStat.load(timestamp.toString());
@@ -141,6 +143,29 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
 
     // 2. calculate the change in pnl for this position
+    let tradeSize = ZERO;
+    if (event.params.tradeSize.isZero()) {
+      // if trade size is zero then they just deposited/withdraw margin
+      // we want to update the pnl value at the total size of the open position
+      tradeSize = positionEntity.size;
+    } else if (
+      // check if the trade is switching sides
+      (positionEntity.size.gt(ZERO) && positionEntity.size.minus(event.params.size).gt(positionEntity.size)) ||
+      (positionEntity.size.lt(ZERO) && positionEntity.size.minus(event.params.size).lt(positionEntity.size))
+    ) {
+      // if so, cap the trade size at closing the position
+      tradeSize = positionEntity.size;
+    } else {
+      // otherwise calculate the difference in position size
+      tradeSize = positionEntity.size.minus(event.params.size);
+    }
+
+    // calculate pnl
+    const newPnl = event.params.lastPrice.minus(positionEntity.lastPrice).times(tradeSize).div(ETHER);
+
+    // add pnl to this position and the trader's overall stats
+    positionEntity.pnl = positionEntity.pnl.plus(newPnl);
+    statEntity.pnl = statEntity.pnl.plus(newPnl);
   }
 
   // if the position is closed during this transaction...
@@ -148,15 +173,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
     positionEntity.exitPrice = event.params.lastPrice;
-    // const exitPrice = positionEntity.exitPrice;
-    // if (exitPrice) {
-    //   statEntity.pnl = statEntity.pnl.plus(
-    //     positionEntity.size.times(exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
-    //   );
-    //   statEntity.totalVolume = statEntity.totalVolume.plus(
-    //     positionEntity.size.times(positionEntity.entryPrice).div(ETHER),
-    //   );
-    // }
   } else {
     // if the position is not closed...
     // if position changes sides, reset the entry price
