@@ -24,6 +24,7 @@ import {
   ExchangeRebate,
   ExchangeFee,
   SynthByCurrencyKey,
+  FuturesMarket,
 } from '../generated/subgraphs/exchanges/schema';
 
 import { Address, BigDecimal, BigInt, Bytes, dataSource, log } from '@graphprotocol/graph-ts';
@@ -342,7 +343,10 @@ export function handleFeeChange(event: ExchangeFeeUpdatedEvent): void {
 }
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
-  FuturesMarketTemplate.create(event.params.market);
+  let market = FuturesMarket.load(event.params.market.toHexString());
+  if (!market) {
+    FuturesMarketTemplate.create(event.params.market);
+  }
 }
 
 export function handleFuturesPositionModified(event: PositionModifiedEvent): void {
