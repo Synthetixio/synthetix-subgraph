@@ -242,3 +242,8 @@ type LatestSynthBalance @entity {
   timestamp: BigInt!
   synth: Synth
 }
+
+type FuturesMarket @entity {
+  " Address of the market "
+  id: ID!
+}
