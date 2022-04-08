@@ -41,7 +41,7 @@ export function handleMarketRemoved(event: MarketRemovedEvent): void {
 }
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
-  let futuresMarketAddress = event.transaction.to as Address;
+  let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
   let statId = event.params.account.toHex();
   let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
