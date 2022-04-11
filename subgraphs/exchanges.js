@@ -276,7 +276,7 @@ let futuresMarketTemplate = {
     eventHandlers: [
       {
         event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)',
-        handler: 'handlePositionModified',
+        handler: 'handleFuturesPositionModified',
       },
     ],
   },
