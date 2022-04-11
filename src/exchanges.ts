@@ -349,7 +349,7 @@ export function handleMarketAdded(event: MarketAddedEvent): void {
   }
 }
 
-export function handleFuturesPositionModified(event: PositionModifiedEvent): void {
+export function handlePositionModified(event: PositionModifiedEvent): void {
   let market = event.transaction.to!.toHex();
 
   let periods: BigInt[] = [
