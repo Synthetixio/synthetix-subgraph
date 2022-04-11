@@ -17,7 +17,6 @@ import {
 import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
-  FuturesMarket as FuturesMarketContract,
   MarginTransferred as MarginTransferredEvent,
   FundingRecomputed as FundingRecomputedEvent,
 } from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarket';
@@ -68,13 +67,15 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
     }
-    statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     tradeEntity.save();
 
     let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER).abs();
     cumulativeEntity.totalTrades = cumulativeEntity.totalTrades.plus(BigInt.fromI32(1));
     cumulativeEntity.totalVolume = cumulativeEntity.totalVolume.plus(volume);
     cumulativeEntity.averageTradeSize = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
+
+    statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
+    statEntity.totalVolume = statEntity.totalVolume.plus(volume);
 
     let timestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
     let oneMinStat = FuturesOneMinStat.load(timestamp.toString());
@@ -109,26 +110,71 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.isOpen = true;
     positionEntity.size = event.params.size;
     positionEntity.entryPrice = event.params.lastPrice;
+    positionEntity.lastPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
+    positionEntity.pnl = ZERO;
     positionEntity.feesPaid = ZERO;
     positionEntity.netFunding = ZERO;
     positionEntity.fundingIndex = event.params.fundingIndex;
   }
 
+  // if there is an existing position...
+  if (positionEntity.fundingIndex != event.params.fundingIndex) {
+    // 1. add accrued funding to position
+    let pastFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
+    );
+
+    let currentFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + event.params.fundingIndex.toString(),
+    );
+
+    if (pastFundingEntity && currentFundingEntity) {
+      // add accrued funding
+      let fundingAccrued = currentFundingEntity.funding
+        .minus(pastFundingEntity.funding)
+        .times(positionEntity.size)
+        .div(ETHER);
+
+      positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
+
+      // set the new index
+      positionEntity.fundingIndex = event.params.fundingIndex;
+    }
+
+    // 2. calculate the change in pnl for this position
+    let tradeSize = ZERO;
+    if (event.params.tradeSize.isZero()) {
+      // if trade size is zero then they just deposited/withdraw margin
+      // we want to update the pnl value at the total size of the open position
+      tradeSize = positionEntity.size;
+    } else if (
+      // check if the trade is switching sides
+      (positionEntity.size.gt(ZERO) && positionEntity.size.minus(event.params.size).gt(positionEntity.size)) ||
+      (positionEntity.size.lt(ZERO) && positionEntity.size.minus(event.params.size).lt(positionEntity.size))
+    ) {
+      // if so, cap the trade size at closing the position
+      tradeSize = positionEntity.size;
+    } else {
+      // otherwise calculate the difference in position size
+      tradeSize = positionEntity.size.minus(event.params.size);
+    }
+
+    // calculate pnl
+    const newPnl = event.params.lastPrice.minus(positionEntity.lastPrice).times(tradeSize).div(ETHER);
+
+    // add pnl to this position and the trader's overall stats
+    positionEntity.pnl = positionEntity.pnl.plus(newPnl);
+    statEntity.pnl = statEntity.pnl.plus(newPnl);
+  }
+
   // if the position is closed during this transaction...
+  // set the exit price and close the position
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
     positionEntity.exitPrice = event.params.lastPrice;
-    const exitPrice = positionEntity.exitPrice;
-    if (exitPrice) {
-      statEntity.pnl = statEntity.pnl.plus(
-        positionEntity.size.times(exitPrice.minus(positionEntity.entryPrice)).div(ETHER),
-      );
-      statEntity.totalVolume = statEntity.totalVolume.plus(
-        positionEntity.size.times(positionEntity.entryPrice).div(ETHER),
-      );
-    }
   } else {
+    // if the position is not closed...
     // if position changes sides, reset the entry price
     if (
       (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
@@ -154,33 +200,10 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
 
-  // add accrued funding to position
-  if (positionEntity.fundingIndex != event.params.fundingIndex) {
-    let pastFundingEntity = FundingRateUpdate.load(
-      futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
-    );
-
-    let currentFundingEntity = FundingRateUpdate.load(
-      futuresMarketAddress.toHex() + '-' + event.params.fundingIndex.toString(),
-    );
-
-    if (pastFundingEntity && currentFundingEntity) {
-      // add accrued funding
-      let fundingAccrued = currentFundingEntity.funding
-        .minus(pastFundingEntity.funding)
-        .times(positionEntity.size)
-        .div(ETHER);
-
-      positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
-
-      // set the new index
-      positionEntity.fundingIndex = event.params.fundingIndex;
-    }
-  }
-
   // update global values
   positionEntity.size = event.params.size;
   positionEntity.margin = event.params.margin;
+  positionEntity.lastPrice = event.params.lastPrice;
   positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
