@@ -137,6 +137,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
         .div(ETHER);
 
       positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
+      statEntity.feesPaid = statEntity.feesPaid.plus(fundingAccrued);
 
       // set the new index
       positionEntity.fundingIndex = event.params.fundingIndex;
