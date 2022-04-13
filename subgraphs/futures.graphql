@@ -24,6 +24,8 @@ type FuturesPosition @entity {
   account: Bytes!
   isOpen: Boolean!
   isLiquidated: Boolean!
+  trades: BigInt!
+  totalVolume: BigInt!
   size: BigInt!
   margin: BigInt!
   pnl: BigInt!
