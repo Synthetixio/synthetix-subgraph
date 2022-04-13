@@ -109,6 +109,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.isLiquidated = false;
     positionEntity.isOpen = true;
     positionEntity.size = event.params.size;
+    positionEntity.timestamp = event.block.timestamp;
+    positionEntity.openTimestamp = event.block.timestamp;
+    positionEntity.avgEntryPrice = event.params.lastPrice;
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.lastPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
@@ -174,6 +177,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
     positionEntity.exitPrice = event.params.lastPrice;
+    positionEntity.closeTimestamp = event.block.timestamp;
   } else {
     // if the position is not closed...
     // if position changes sides, reset the entry price
@@ -181,7 +185,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
       (positionEntity.size.gt(ZERO) && event.params.size.lt(ZERO))
     ) {
-      positionEntity.entryPrice = event.params.lastPrice;
+      positionEntity.entryPrice = event.params.lastPrice; // Deprecate this after migrating frontend
+      positionEntity.avgEntryPrice = event.params.lastPrice;
     } else {
       // check if the position side increases (long or short)
       if (event.params.size.abs().gt(positionEntity.size.abs())) {
@@ -191,7 +196,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
         const newSize = event.params.tradeSize.abs();
         const newPrice = newSize.times(event.params.lastPrice);
-        positionEntity.entryPrice = existingPrice.plus(newPrice).div(event.params.size.abs());
+        positionEntity.entryPrice = existingPrice.plus(newPrice).div(event.params.size.abs()); // Deprecate this after migrating frontend
+        positionEntity.avgEntryPrice = existingPrice.plus(newPrice).div(event.params.size.abs());
       }
       // otherwise do nothing
     }
