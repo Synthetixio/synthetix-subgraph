@@ -16,12 +16,16 @@ type FuturesTrade @entity {
 type FuturesPosition @entity {
   id: ID!
   lastTxHash: Bytes!
+  openTimestamp: BigInt!
+  closeTimestamp: BigInt
   timestamp: BigInt!
   market: Bytes!
   asset: Bytes!
   account: Bytes!
   isOpen: Boolean!
   isLiquidated: Boolean!
+  trades: BigInt!
+  totalVolume: BigInt!
   size: BigInt!
   margin: BigInt!
   pnl: BigInt!
@@ -29,6 +33,7 @@ type FuturesPosition @entity {
   netFunding: BigInt!
   fundingIndex: BigInt!
   entryPrice: BigInt!
+  avgEntryPrice: BigInt!
   lastPrice: BigInt!
   exitPrice: BigInt
 }

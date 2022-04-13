@@ -48,6 +48,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   let statEntity = FuturesStat.load(statId);
   let cumulativeEntity = getOrCreateCumulativeEntity();
 
+  // create new entities
   if (statEntity == null) {
     statEntity = new FuturesStat(statId);
     statEntity.account = event.params.account;
@@ -58,6 +59,31 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.totalTrades = ZERO;
     statEntity.totalVolume = ZERO;
   }
+
+  // if it's a new position...
+  if (positionEntity == null) {
+    positionEntity = new FuturesPosition(positionId);
+    positionEntity.market = futuresMarketAddress;
+    if (marketEntity && marketEntity.asset) {
+      positionEntity.asset = marketEntity.asset;
+    }
+    positionEntity.account = event.params.account;
+    positionEntity.isLiquidated = false;
+    positionEntity.isOpen = true;
+    positionEntity.size = event.params.size;
+    positionEntity.timestamp = event.block.timestamp;
+    positionEntity.openTimestamp = event.block.timestamp;
+    positionEntity.avgEntryPrice = event.params.lastPrice;
+    positionEntity.trades = ZERO;
+    positionEntity.entryPrice = event.params.lastPrice;
+    positionEntity.lastPrice = event.params.lastPrice;
+    positionEntity.margin = event.params.margin;
+    positionEntity.pnl = ZERO;
+    positionEntity.feesPaid = ZERO;
+    positionEntity.netFunding = ZERO;
+    positionEntity.fundingIndex = event.params.fundingIndex;
+  }
+
   if (event.params.tradeSize.isZero() == false) {
     let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
     tradeEntity.timestamp = event.block.timestamp;
@@ -76,6 +102,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     statEntity.totalVolume = statEntity.totalVolume.plus(volume);
+
+    positionEntity.trades = positionEntity.trades.plus(BigInt.fromI32(1));
+    positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
     let timestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
     let oneMinStat = FuturesOneMinStat.load(timestamp.toString());
@@ -96,26 +125,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       marketStats.averageTradeSize = marketStats.totalVolume.div(marketStats.totalTrades);
       marketStats.save();
     }
-  }
-
-  // if it's a new position...
-  if (positionEntity == null) {
-    positionEntity = new FuturesPosition(positionId);
-    positionEntity.market = futuresMarketAddress;
-    if (marketEntity && marketEntity.asset) {
-      positionEntity.asset = marketEntity.asset;
-    }
-    positionEntity.account = event.params.account;
-    positionEntity.isLiquidated = false;
-    positionEntity.isOpen = true;
-    positionEntity.size = event.params.size;
-    positionEntity.entryPrice = event.params.lastPrice;
-    positionEntity.lastPrice = event.params.lastPrice;
-    positionEntity.margin = event.params.margin;
-    positionEntity.pnl = ZERO;
-    positionEntity.feesPaid = ZERO;
-    positionEntity.netFunding = ZERO;
-    positionEntity.fundingIndex = event.params.fundingIndex;
   }
 
   // if there is an existing position...
@@ -174,6 +183,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   if (event.params.size.isZero() == true) {
     positionEntity.isOpen = false;
     positionEntity.exitPrice = event.params.lastPrice;
+    positionEntity.closeTimestamp = event.block.timestamp;
   } else {
     // if the position is not closed...
     // if position changes sides, reset the entry price
@@ -181,7 +191,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
       (positionEntity.size.gt(ZERO) && event.params.size.lt(ZERO))
     ) {
-      positionEntity.entryPrice = event.params.lastPrice;
+      positionEntity.entryPrice = event.params.lastPrice; // Deprecate this after migrating frontend
+      positionEntity.avgEntryPrice = event.params.lastPrice;
     } else {
       // check if the position side increases (long or short)
       if (event.params.size.abs().gt(positionEntity.size.abs())) {
@@ -191,7 +202,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
         const newSize = event.params.tradeSize.abs();
         const newPrice = newSize.times(event.params.lastPrice);
-        positionEntity.entryPrice = existingPrice.plus(newPrice).div(event.params.size.abs());
+        positionEntity.entryPrice = existingPrice.plus(newPrice).div(event.params.size.abs()); // Deprecate this after migrating frontend
+        positionEntity.avgEntryPrice = existingPrice.plus(newPrice).div(event.params.size.abs());
       }
       // otherwise do nothing
     }
