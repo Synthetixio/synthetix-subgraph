@@ -50,6 +50,7 @@ const ETHER = BigInt.fromI32(10).pow(18);
 function populateAggregatedTotalEntity(
   timestamp: BigInt,
   period: BigInt,
+  product: string,
   bucketMagnitude: BigInt,
   synth: string | null,
 ): Total {
@@ -67,6 +68,7 @@ function populateAggregatedTotalEntity(
   entity.period = period;
   entity.bucketMagnitude = bucketMagnitude;
   entity.synth = synth;
+  entity.product = product;
 
   entity.trades = ZERO;
   entity.exchangers = ZERO;
@@ -235,7 +237,7 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
         }
 
         trackTotals(
-          populateAggregatedTotalEntity(startTimestamp, period, BigInt.fromI32(m), synth),
+          populateAggregatedTotalEntity(startTimestamp, period, 'exchange', BigInt.fromI32(m), synth),
           account,
           event.block.timestamp,
           fromAmountInUSD,
@@ -364,23 +366,29 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
   let amountInUSD = toDecimal(event.params.tradeSize.times(event.params.lastPrice).div(ETHER).abs());
 
-  for (let p = 0; p < periods.length; p++) {
-    let period = periods[p];
-    let startTimestamp = period == ZERO ? ZERO : getTimeID(event.block.timestamp, period);
+  let synthOpts: (string | null)[] = [null, market];
 
-    for (let m = 0; m < MAX_MAGNITUDE; m++) {
-      let mag = new BigDecimal(BigInt.fromI32(<i32>Math.floor(Math.pow(10, m))));
-      if (amountInUSD.lt(mag)) {
-        break;
+  for (let s = 0; s < synthOpts.length; s++) {
+    let synth = synthOpts[s];
+
+    for (let p = 0; p < periods.length; p++) {
+      let period = periods[p];
+      let startTimestamp = period == ZERO ? ZERO : getTimeID(event.block.timestamp, period);
+
+      for (let m = 0; m < MAX_MAGNITUDE; m++) {
+        let mag = new BigDecimal(BigInt.fromI32(<i32>Math.floor(Math.pow(10, m))));
+        if (amountInUSD.lt(mag)) {
+          break;
+        }
+
+        trackTotals(
+          populateAggregatedTotalEntity(startTimestamp, period, 'futures', BigInt.fromI32(m), synth),
+          event.params.account,
+          event.block.timestamp,
+          amountInUSD,
+          toDecimal(event.params.fee),
+        );
       }
-
-      trackTotals(
-        populateAggregatedTotalEntity(startTimestamp, period, BigInt.fromI32(m), market),
-        event.params.account,
-        event.block.timestamp,
-        amountInUSD,
-        toDecimal(event.params.fee),
-      );
     }
   }
 }

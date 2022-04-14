@@ -62,6 +62,9 @@ type Total @entity {
   " timestamp of the beginning of the time period this represents "
   timestamp: BigInt!
 
+  " which product the volume came from. Ex 'futures' or 'exchange' "
+  product: String!
+
   " number of seconds the data covers after `timestamp` "
   period: BigInt!
 
