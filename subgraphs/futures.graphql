@@ -79,3 +79,12 @@ type FundingRateUpdate @entity {
   sequenceLength: BigInt!
   funding: BigInt!
 }
+
+type NextPriceOrder @entity {
+  id: ID!
+  timestamp: BigInt!
+  market: Bytes!
+  asset: Bytes!
+  account: Bytes!
+  size: BigInt!
+}

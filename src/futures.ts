@@ -9,6 +9,7 @@ import {
   FuturesCumulativeStat,
   FuturesOneMinStat,
   FundingRateUpdate,
+  NextPriceOrder,
 } from '../generated/subgraphs/futures/schema';
 import {
   MarketAdded as MarketAddedEvent,
@@ -19,6 +20,8 @@ import {
   PositionModified as PositionModifiedEvent,
   MarginTransferred as MarginTransferredEvent,
   FundingRecomputed as FundingRecomputedEvent,
+  NextPriceOrderSubmitted as NextPriceOrderSubmittedEvent,
+  NextPriceOrderRemoved as NextPriceOrderRemovedEvent,
 } from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarket';
 import { ZERO } from './lib/helpers';
 
@@ -303,4 +306,34 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
   fundingRateUpdateEntity.sequenceLength = event.params.index;
   fundingRateUpdateEntity.funding = event.params.funding;
   fundingRateUpdateEntity.save();
+}
+
+export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
+  if (event.params.trackingCode.toString() === 'KWENTA') {
+    let futuresMarketAddress = event.transaction.to as Address;
+    let nextPriceOrderEntity = new NextPriceOrder(futuresMarketAddress.toHex() + '-' + event.params.account.toString());
+    let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
+
+    if (marketEntity) {
+      nextPriceOrderEntity.asset = marketEntity.asset;
+    }
+
+    nextPriceOrderEntity.market = futuresMarketAddress;
+    nextPriceOrderEntity.account = event.params.account;
+    nextPriceOrderEntity.size = event.params.sizeDelta;
+    nextPriceOrderEntity.save();
+  }
+}
+
+export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): void {
+  if (event.params.trackingCode.toString() === 'KWENTA') {
+    let futuresMarketAddress = event.transaction.to as Address;
+    let nextPriceOrderEntity = NextPriceOrder.load(
+      futuresMarketAddress.toHex() + '-' + event.params.account.toString(),
+    );
+
+    if (nextPriceOrderEntity) {
+      nextPriceOrderEntity.delete();
+    }
+  }
 }
