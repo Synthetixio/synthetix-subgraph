@@ -333,7 +333,7 @@ export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): 
     );
 
     if (nextPriceOrderEntity) {
-      nextPriceOrderEntity.delete();
+      store.remove('NextPriceOrder', nextPriceOrderEntity.id);
     }
   }
 }
