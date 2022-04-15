@@ -321,6 +321,8 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
     nextPriceOrderEntity.market = futuresMarketAddress;
     nextPriceOrderEntity.account = event.params.account;
     nextPriceOrderEntity.size = event.params.sizeDelta;
+    nextPriceOrderEntity.timestamp = event.block.timestamp;
+
     nextPriceOrderEntity.save();
   }
 }
