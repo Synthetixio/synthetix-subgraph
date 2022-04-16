@@ -84,6 +84,14 @@ synths.forEach((synth, i) => {
             event: 'FundingRecomputed(int256,uint256,uint256)',
             handler: 'handleFundingRecomputed',
           },
+          {
+            event: 'NextPriceOrderSubmitted(indexed address,int256,uint256,uint256,uint256,bytes32)',
+            handler: 'handleNextPriceOrderSubmitted',
+          },
+          {
+            event: 'NextPriceOrderRemoved(indexed address,uint256,int256,uint256,uint256,uint256,bytes32)',
+            handler: 'handleNextPriceOrderRemoved',
+          },
         ],
       },
     });
