@@ -9,7 +9,7 @@ import {
   FuturesCumulativeStat,
   FuturesOneMinStat,
   FundingRateUpdate,
-  NextPriceOrder,
+  FuturesOrder,
 } from '../generated/subgraphs/futures/schema';
 import {
   MarketAdded as MarketAddedEvent,
@@ -311,33 +311,34 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
 export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
     let futuresMarketAddress = event.transaction.to as Address;
-    let nextPriceOrderEntity = new NextPriceOrder(
-      futuresMarketAddress.toHex() + '-' + event.params.account.toHexString(),
-    );
+    let futuresOrderEntity = new FuturesOrder(futuresMarketAddress.toHex() + '-' + event.params.account.toHexString());
     let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
 
+    futuresOrderEntity.orderType = 'NextPrice';
+    futuresOrderEntity.status = 'Pending';
+
     if (marketEntity) {
-      nextPriceOrderEntity.asset = marketEntity.asset;
+      futuresOrderEntity.asset = marketEntity.asset;
     }
 
-    nextPriceOrderEntity.market = futuresMarketAddress;
-    nextPriceOrderEntity.account = event.params.account;
-    nextPriceOrderEntity.size = event.params.sizeDelta;
-    nextPriceOrderEntity.timestamp = event.block.timestamp;
+    futuresOrderEntity.market = futuresMarketAddress;
+    futuresOrderEntity.account = event.params.account;
+    futuresOrderEntity.size = event.params.sizeDelta;
+    futuresOrderEntity.timestamp = event.block.timestamp;
 
-    nextPriceOrderEntity.save();
+    futuresOrderEntity.save();
   }
 }
 
 export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
     let futuresMarketAddress = event.transaction.to as Address;
-    let nextPriceOrderEntity = NextPriceOrder.load(
-      futuresMarketAddress.toHex() + '-' + event.params.account.toHexString(),
-    );
+    let futuresOrderEntity = FuturesOrder.load(futuresMarketAddress.toHex() + '-' + event.params.account.toHexString());
 
-    if (nextPriceOrderEntity) {
-      store.remove('NextPriceOrder', nextPriceOrderEntity.id);
+    if (futuresOrderEntity) {
+      // TODO: check whether the order was filled/cancelled
+      futuresOrderEntity.status = 'Filled';
+      futuresOrderEntity.save();
     }
   }
 }
