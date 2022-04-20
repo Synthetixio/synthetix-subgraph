@@ -1,7 +1,6 @@
 import { BigDecimal, BigInt, Bytes, ByteArray, log, Address, dataSource } from '@graphprotocol/graph-ts';
 
 import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
-import { initFeed } from '../fragments/latest-rates';
 import { getContractDeployment } from '../../generated/addresses';
 
 export let ZERO = BigInt.fromI32(0);
@@ -47,23 +46,4 @@ export function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
 export function getUSDAmountFromAssetAmount(amount: BigInt, rate: BigDecimal): BigDecimal {
   let decimalAmount = toDecimal(amount);
   return decimalAmount.times(rate);
-}
-
-export function getLatestRate(synth: string, txHash: string): BigDecimal | null {
-  let latestRate = LatestRate.load(synth);
-  if (latestRate == null) {
-    log.warning('latest rate missing for synth: {}, in tx hash: {}', [synth, txHash]);
-
-    // load feed for the first time, and use contract call to get rate
-    return initFeed(synth);
-  }
-  return latestRate.rate;
-}
-
-export function isEscrow(holder: string, network: string): boolean {
-  return (
-    getContractDeployment('SynthetixEscrow', dataSource.network(), BigInt.fromI32(1000000000))!.toHexString() ==
-      holder ||
-    getContractDeployment('RewardEscrow', dataSource.network(), BigInt.fromI32(1000000000))!.toHexString() == holder
-  );
 }
