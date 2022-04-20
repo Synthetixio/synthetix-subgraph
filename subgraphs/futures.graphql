@@ -61,6 +61,7 @@ type FuturesMarginTransfer @entity {
   account: Bytes!
   market: Bytes!
   size: BigInt!
+  transaction: String!
 }
 
 type FundingRateUpdate @entity {

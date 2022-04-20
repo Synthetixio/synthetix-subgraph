@@ -224,6 +224,7 @@ export function handleMarginTransferred(event: MarginTransferredEvent): void {
   marginTransferEntity.account = event.params.account;
   marginTransferEntity.market = futuresMarketAddress;
   marginTransferEntity.size = event.params.marginDelta;
+  marginTransferEntity.transaction = txHash;
   marginTransferEntity.save();
 }
 
