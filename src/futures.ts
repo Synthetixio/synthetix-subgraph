@@ -92,10 +92,17 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.timestamp = event.block.timestamp;
     tradeEntity.account = event.params.account;
     tradeEntity.size = event.params.tradeSize;
+    tradeEntity.positionSize = event.params.size;
     tradeEntity.price = event.params.lastPrice;
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
     }
+    if (event.params.size.isZero()) {
+      tradeEntity.positionClosed = true;
+    } else {
+      tradeEntity.positionClosed = false;
+    }
+
     tradeEntity.save();
 
     let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER).abs();
