@@ -311,13 +311,20 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
 export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
     let futuresMarketAddress = event.transaction.to as Address;
-    let futuresOrderEntity = new FuturesOrder(
+
+    const futuresOrderEntityId =
       futuresMarketAddress.toHex() +
-        '-' +
-        event.params.account.toHexString() +
-        '-' +
-        event.params.targetRoundId.toString(),
-    );
+      '-' +
+      event.params.account.toHexString() +
+      '-' +
+      event.params.targetRoundId.toString();
+
+    let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+
+    if (futuresOrderEntity == null) {
+      futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
+    }
+
     let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
 
     futuresOrderEntity.orderType = 'NextPrice';
