@@ -311,7 +311,13 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
 export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
     let futuresMarketAddress = event.transaction.to as Address;
-    let futuresOrderEntity = new FuturesOrder(futuresMarketAddress.toHex() + '-' + event.params.account.toHexString());
+    let futuresOrderEntity = new FuturesOrder(
+      futuresMarketAddress.toHex() +
+        '-' +
+        event.params.account.toHexString() +
+        '-' +
+        event.params.targetRoundId.toString(),
+    );
     let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
 
     futuresOrderEntity.orderType = 'NextPrice';
@@ -333,7 +339,13 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
 export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
     let futuresMarketAddress = event.transaction.to as Address;
-    let futuresOrderEntity = FuturesOrder.load(futuresMarketAddress.toHex() + '-' + event.params.account.toHexString());
+    let futuresOrderEntity = FuturesOrder.load(
+      futuresMarketAddress.toHex() +
+        '-' +
+        event.params.account.toHexString() +
+        '-' +
+        event.params.targetRoundId.toString(),
+    );
 
     if (futuresOrderEntity) {
       // TODO: check whether the order was filled/cancelled
