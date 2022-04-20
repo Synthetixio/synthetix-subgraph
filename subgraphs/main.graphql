@@ -82,3 +82,25 @@ type FundingRateUpdate @entity {
   sequenceLength: BigInt!
   funding: BigInt!
 }
+
+enum FuturesOrderType {
+  NextPrice
+  Limit
+}
+
+enum FuturesOrderStatus {
+  Pending
+  Filled
+  Cancelled
+}
+
+type FuturesOrder @entity {
+  id: ID!
+  size: BigInt!
+  asset: Bytes!
+  market: Bytes!
+  account: Bytes!
+  timestamp: BigInt!
+  orderType: FuturesOrderType!
+  status: FuturesOrderStatus!
+}

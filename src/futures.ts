@@ -9,6 +9,7 @@ import {
   FuturesCumulativeStat,
   FuturesOneMinStat,
   FundingRateUpdate,
+  FuturesOrder,
 } from '../generated/subgraphs/futures/schema';
 import {
   MarketAdded as MarketAddedEvent,
@@ -19,6 +20,8 @@ import {
   PositionModified as PositionModifiedEvent,
   MarginTransferred as MarginTransferredEvent,
   FundingRecomputed as FundingRecomputedEvent,
+  NextPriceOrderSubmitted as NextPriceOrderSubmittedEvent,
+  NextPriceOrderRemoved as NextPriceOrderRemovedEvent,
 } from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarket';
 import { ZERO } from './lib/helpers';
 
@@ -303,4 +306,58 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
   fundingRateUpdateEntity.sequenceLength = event.params.index;
   fundingRateUpdateEntity.funding = event.params.funding;
   fundingRateUpdateEntity.save();
+}
+
+export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
+  if (event.params.trackingCode.toString() == 'KWENTA') {
+    let futuresMarketAddress = event.transaction.to as Address;
+
+    const futuresOrderEntityId =
+      futuresMarketAddress.toHex() +
+      '-' +
+      event.params.account.toHexString() +
+      '-' +
+      event.params.targetRoundId.toString();
+
+    let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+
+    if (futuresOrderEntity == null) {
+      futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
+    }
+
+    let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
+
+    futuresOrderEntity.orderType = 'NextPrice';
+    futuresOrderEntity.status = 'Pending';
+
+    if (marketEntity) {
+      futuresOrderEntity.asset = marketEntity.asset;
+    }
+
+    futuresOrderEntity.market = futuresMarketAddress;
+    futuresOrderEntity.account = event.params.account;
+    futuresOrderEntity.size = event.params.sizeDelta;
+    futuresOrderEntity.timestamp = event.block.timestamp;
+
+    futuresOrderEntity.save();
+  }
+}
+
+export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): void {
+  if (event.params.trackingCode.toString() == 'KWENTA') {
+    let futuresMarketAddress = event.transaction.to as Address;
+    let futuresOrderEntity = FuturesOrder.load(
+      futuresMarketAddress.toHex() +
+        '-' +
+        event.params.account.toHexString() +
+        '-' +
+        event.params.targetRoundId.toString(),
+    );
+
+    if (futuresOrderEntity) {
+      // TODO: check whether the order was filled/cancelled
+      futuresOrderEntity.status = 'Filled';
+      futuresOrderEntity.save();
+    }
+  }
 }
