@@ -19,12 +19,16 @@ type FuturesTrade @entity {
 type FuturesPosition @entity {
   id: ID!
   lastTxHash: Bytes!
+  openTimestamp: BigInt!
+  closeTimestamp: BigInt
   timestamp: BigInt!
   market: Bytes!
   asset: Bytes!
   account: Bytes!
   isOpen: Boolean!
   isLiquidated: Boolean!
+  trades: BigInt!
+  totalVolume: BigInt!
   size: BigInt!
   margin: BigInt!
   pnl: BigInt!
@@ -32,6 +36,7 @@ type FuturesPosition @entity {
   netFunding: BigInt!
   fundingIndex: BigInt!
   entryPrice: BigInt!
+  avgEntryPrice: BigInt!
   lastPrice: BigInt!
   exitPrice: BigInt
 }
@@ -76,6 +81,28 @@ type FundingRateUpdate @entity {
   market: Bytes!
   sequenceLength: BigInt!
   funding: BigInt!
+}
+
+enum FuturesOrderType {
+  NextPrice
+  Limit
+}
+
+enum FuturesOrderStatus {
+  Pending
+  Filled
+  Cancelled
+}
+
+type FuturesOrder @entity {
+  id: ID!
+  size: BigInt!
+  asset: Bytes!
+  market: Bytes!
+  account: Bytes!
+  timestamp: BigInt!
+  orderType: FuturesOrderType!
+  status: FuturesOrderStatus!
 }
 
 type Candle @entity {
