@@ -63,6 +63,7 @@ type FuturesMarginTransfer @entity {
   timestamp: BigInt!
   account: Bytes!
   market: Bytes!
+  asset: Bytes!
   size: BigInt!
   txHash: String!
 }
