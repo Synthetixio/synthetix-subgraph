@@ -344,6 +344,7 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
     futuresOrderEntity.market = futuresMarketAddress;
     futuresOrderEntity.account = event.params.account;
     futuresOrderEntity.size = event.params.sizeDelta;
+    futuresOrderEntity.targetRoundId = event.params.targetRoundId;
     futuresOrderEntity.timestamp = event.block.timestamp;
 
     futuresOrderEntity.save();
