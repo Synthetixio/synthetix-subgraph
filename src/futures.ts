@@ -293,6 +293,7 @@ function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
 export function handleMarginTransferred(event: MarginTransferredEvent): void {
   let futuresMarketAddress = event.transaction.to as Address;
   const txHash = event.transaction.hash.toHex();
+  let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
   let marginTransferEntity = new FuturesMarginTransfer(
     futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.toString(),
   );
@@ -300,6 +301,12 @@ export function handleMarginTransferred(event: MarginTransferredEvent): void {
   marginTransferEntity.account = event.params.account;
   marginTransferEntity.market = futuresMarketAddress;
   marginTransferEntity.size = event.params.marginDelta;
+  marginTransferEntity.txHash = txHash;
+
+  if (marketEntity && marketEntity.asset) {
+    marginTransferEntity.asset = marketEntity.asset;
+  }
+
   marginTransferEntity.save();
 }
 
