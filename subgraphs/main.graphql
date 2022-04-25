@@ -104,6 +104,7 @@ type FuturesOrder @entity {
   asset: Bytes!
   market: Bytes!
   account: Bytes!
+  targetRoundId: BigInt!
   timestamp: BigInt!
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
