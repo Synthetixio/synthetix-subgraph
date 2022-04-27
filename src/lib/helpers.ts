@@ -1,6 +1,4 @@
-import { BigDecimal, BigInt, Bytes, ByteArray, log, Address, dataSource } from '@graphprotocol/graph-ts';
-
-import { getContractDeployment } from '../../generated/addresses';
+import { BigDecimal, BigInt, Bytes, Address } from '@graphprotocol/graph-ts';
 
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
@@ -8,18 +6,16 @@ export let ONE = BigInt.fromI32(1);
 export let ZERO_ADDRESS = changetype<Address>(Address.fromHexString('0x0000000000000000000000000000000000000000'));
 export let FEE_ADDRESS = changetype<Address>(Address.fromHexString('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef'));
 
-export let FIFTEEN_MINUTE_SECONDS = BigInt.fromI32(900);
+export let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
 export let DAY_SECONDS = BigInt.fromI32(86400);
-export let YEAR_SECONDS = BigInt.fromI32(31556736);
 
 export let CANDLE_PERIODS: BigInt[] = [
-  YEAR_SECONDS,
-  YEAR_SECONDS.div(BigInt.fromI32(4)),
-  YEAR_SECONDS.div(BigInt.fromI32(12)),
   DAY_SECONDS.times(BigInt.fromI32(7)),
   DAY_SECONDS,
-  FIFTEEN_MINUTE_SECONDS.times(BigInt.fromI32(4)),
-  FIFTEEN_MINUTE_SECONDS,
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(60)),
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(15)),
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(5)),
+  ONE_MINUTE_SECONDS,
 ];
 
 export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
