@@ -113,7 +113,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.positionSize = event.params.size;
     tradeEntity.price = event.params.lastPrice;
     tradeEntity.feesPaid = event.params.fee;
-    tradeEntity.txHash = event.transaction.hash;
 
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
