@@ -29,7 +29,7 @@ let ETHER = BigInt.fromI32(10).pow(18);
 let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
 let SINGLE_INDEX = '0';
 
-const getTeadeSize = (event: PositionModifiedEvent, positionEntity: FuturesPosition): BigInt => {
+const getTradeSize = (event: PositionModifiedEvent, positionEntity: FuturesPosition): BigInt => {
   let tradeSize = ZERO;
 
   if (
@@ -124,7 +124,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
 
     // calculate pnl
-    const tradeSize = getTeadeSize(event, positionEntity);
+    const tradeSize = getTradeSize(event, positionEntity);
     const newPnl = event.params.lastPrice.minus(positionEntity.lastPrice).times(tradeSize).div(ETHER);
 
     // add pnl to this position and the trader's overall stats
@@ -195,7 +195,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       // we want to update the pnl value at the total size of the open position
       tradeSize = positionEntity.size;
     } else {
-      tradeSize = getTeadeSize(event, positionEntity);
+      tradeSize = getTradeSize(event, positionEntity);
     }
 
     // calculate pnl

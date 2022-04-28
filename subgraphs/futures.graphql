@@ -15,7 +15,6 @@ type FuturesTrade @entity {
   positionClosed: Boolean!
   pnl: BigInt!
   feesPaid: BigInt!
-  pnlWithFeesPaid: BigInt!
 }
 
 type FuturesPosition @entity {
