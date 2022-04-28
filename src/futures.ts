@@ -1,4 +1,4 @@
-import { Address, BigInt, store, log, ByteArray, Bytes } from '@graphprotocol/graph-ts';
+import { Address, BigInt, store } from '@graphprotocol/graph-ts';
 
 import {
   FuturesMarket as FuturesMarketEntity,
@@ -28,6 +28,24 @@ import { ZERO } from './lib/helpers';
 let ETHER = BigInt.fromI32(10).pow(18);
 let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
 let SINGLE_INDEX = '0';
+
+const getTeadeSize = (event: PositionModifiedEvent, positionEntity: FuturesPosition): BigInt => {
+  let tradeSize = ZERO;
+
+  if (
+    // check if the trade is switching sides
+    (positionEntity.size.gt(ZERO) && positionEntity.size.minus(event.params.size).gt(positionEntity.size)) ||
+    (positionEntity.size.lt(ZERO) && positionEntity.size.minus(event.params.size).lt(positionEntity.size))
+  ) {
+    // if so, cap the trade size at closing the position
+    tradeSize = positionEntity.size;
+  } else {
+    // otherwise calculate the difference in position size
+    tradeSize = positionEntity.size.minus(event.params.size);
+  }
+
+  return tradeSize;
+};
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
@@ -94,6 +112,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.size = event.params.tradeSize;
     tradeEntity.positionSize = event.params.size;
     tradeEntity.price = event.params.lastPrice;
+    tradeEntity.feesPaid = event.params.fee;
+
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
     }
@@ -103,6 +123,12 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.positionClosed = false;
     }
 
+    // calculate pnl
+    const tradeSize = getTeadeSize(event, positionEntity);
+    const newPnl = event.params.lastPrice.minus(positionEntity.lastPrice).times(tradeSize).div(ETHER);
+
+    // add pnl to this position and the trader's overall stats
+    tradeEntity.pnl = newPnl;
     tradeEntity.save();
 
     let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER).abs();
@@ -168,16 +194,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       // if trade size is zero then they just deposited/withdraw margin
       // we want to update the pnl value at the total size of the open position
       tradeSize = positionEntity.size;
-    } else if (
-      // check if the trade is switching sides
-      (positionEntity.size.gt(ZERO) && positionEntity.size.minus(event.params.size).gt(positionEntity.size)) ||
-      (positionEntity.size.lt(ZERO) && positionEntity.size.minus(event.params.size).lt(positionEntity.size))
-    ) {
-      // if so, cap the trade size at closing the position
-      tradeSize = positionEntity.size;
     } else {
-      // otherwise calculate the difference in position size
-      tradeSize = positionEntity.size.minus(event.params.size);
+      tradeSize = getTeadeSize(event, positionEntity);
     }
 
     // calculate pnl
