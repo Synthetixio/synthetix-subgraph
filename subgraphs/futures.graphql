@@ -11,6 +11,7 @@ type FuturesTrade @entity {
   size: BigInt!
   asset: Bytes!
   price: BigInt!
+  positionId: ID!
   positionSize: BigInt!
   positionClosed: Boolean!
   pnl: BigInt!
