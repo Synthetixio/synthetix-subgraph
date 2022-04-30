@@ -1,12 +1,5 @@
 const latestRates = require('./fragments/latest-rates');
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Latest Rates API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './latest-rates.graphql',
-  },
-  dataSources: latestRates.dataSources,
-  templates: latestRates.templates,
-};
+const { createSubgraphManifest } = require('./utils/network');
+
+module.exports = createSubgraphManifest('latest-rates', latestRates.dataSources, latestRates.templates);

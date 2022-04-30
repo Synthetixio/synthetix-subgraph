@@ -1,5 +1,7 @@
 const { values, reverse, sortedIndexBy } = require('lodash');
 
+const package = require('../../package.json');
+
 const BLOCK_SAFETY_OFFSET = 8640;
 
 function getCurrentNetwork() {
@@ -83,7 +85,7 @@ function getReleaseBlocks() {
 const versions = getReleaseBlocks();
 
 function getContractDeployments(contractName, startBlock = 0, endBlock = Number.MAX_VALUE, network = undefined) {
-  startBlock = Math.max(startBlock, process.env['SNX_START_BLOCK'] || 0);
+  startBlock = Math.max(Math.max(startBlock, process.env.GRAFT_BLOCK || 0), process.env['SNX_START_BLOCK'] || 0);
 
   const versionInfo = getReleaseInfo('versions', network);
 
@@ -136,6 +138,33 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
   return reverse(addressInfo);
 }
 
+function createSubgraphManifest(name, dataSources, templates) {
+  const manifest = {
+    specVersion: '0.0.4',
+    features: ['grafting'],
+    description: name ? 'Synthetix Subgraph' : 'Synthetix Subgraph ' + name,
+    repository: 'https://github.com/Synthetixio/synthetix-subgraph',
+    schema: {
+      file: `./${name}.graphql`,
+    },
+    dataSources: Object.values(dataSources),
+    templates: Object.values(templates),
+  };
+
+  if (process.env.GRAFT_BASE) {
+    manifest.graft = {
+      base: process.env.GRAFT_BASE,
+      block: parseInt(process.env.GRAFT_BLOCK),
+    };
+  }
+
+  if (process.env.DEBUG_MANIFEST) {
+    console.log('generated manifest:', JSON.stringify(manifest, null, 2));
+  }
+
+  return manifest;
+}
+
 const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism'];
 
 module.exports = {
@@ -146,4 +175,5 @@ module.exports = {
   getContractDeployments,
   NETWORKS,
   getCurrentSubgraph,
+  createSubgraphManifest,
 };

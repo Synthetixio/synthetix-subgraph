@@ -1,7 +1,6 @@
 const { clone } = require('lodash');
 
-const { getContractDeployments } = require('./utils/network');
-const { getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 
 const latestRates = require('./fragments/latest-rates');
 const balances = require('./fragments/balances');
@@ -212,13 +211,4 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
   });
 });
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Exchanges API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './exchanges.graphql',
-  },
-  dataSources: manifest,
-  templates: latestRates.templates,
-};
+module.exports = createSubgraphManifest('exchanges', manifest, latestRates.templates);

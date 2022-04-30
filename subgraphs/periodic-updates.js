@@ -1,4 +1,4 @@
-const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 
 const manifest = [];
 
@@ -45,12 +45,4 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
   });
 });
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Periodic Updates API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './periodic-updates.graphql',
-  },
-  dataSources: manifest,
-};
+module.exports = createSubgraphManifest('periodic-updates', manifest, []);
