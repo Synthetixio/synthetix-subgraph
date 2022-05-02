@@ -38,11 +38,19 @@ jobs:
       - run: npm ci
       - name: Authenticate
         run: npm run auth ${{ secrets.ACCESS_TOKEN }}
-      - name: Deploy optimistic kovan subgraph
+      - name: Deploy optimistic kovan main subgraph
         run: node scripts/deploy.js -t kwenta -s main -n optimism-kovan
         env:
           NETWORK: optimism-kovan
-      - name: Deploy optimistic mainnet subgraph
+      - name: Deploy optimistic mainnet main subgraph
         run: node scripts/deploy.js -t kwenta -s main -n optimism
+        env:
+          NETWORK: optimism
+      - name: Deploy optimistic kovan rates subgraph
+        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism-kovan
+        env:
+          NETWORK: optimism-kovan
+      - name: Deploy optimistic mainnet rates subgraph
+        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism
         env:
           NETWORK: optimism
