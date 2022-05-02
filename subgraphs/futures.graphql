@@ -16,6 +16,7 @@ type FuturesTrade @entity {
   positionClosed: Boolean!
   pnl: BigInt!
   feesPaid: BigInt!
+  orderType: FuturesOrderType!
 }
 
 type FuturesPosition @entity {
@@ -90,6 +91,7 @@ type FundingRateUpdate @entity {
 enum FuturesOrderType {
   NextPrice
   Limit
+  Market
 }
 
 enum FuturesOrderStatus {

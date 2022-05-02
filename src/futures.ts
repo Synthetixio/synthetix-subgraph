@@ -114,6 +114,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.positionId = positionId;
     tradeEntity.price = event.params.lastPrice;
     tradeEntity.feesPaid = event.params.fee;
+    tradeEntity.orderType = 'Market';
 
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
@@ -389,8 +390,18 @@ export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): 
     );
 
     if (futuresOrderEntity) {
-      // TODO: check whether the order was filled/cancelled
-      futuresOrderEntity.status = 'Filled';
+      let tradeEntity = FuturesTrade.load(
+        event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
+      );
+
+      if (tradeEntity) {
+        futuresOrderEntity.status = 'Filled';
+        tradeEntity.orderType = 'NextPrice';
+        tradeEntity.save();
+      } else {
+        futuresOrderEntity.status = 'Cancelled';
+      }
+
       futuresOrderEntity.save();
     }
   }

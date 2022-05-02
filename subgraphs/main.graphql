@@ -14,10 +14,12 @@ type FuturesTrade @entity {
   size: BigInt!
   asset: Bytes!
   price: BigInt!
+  positionId: ID!
   positionSize: BigInt!
   positionClosed: Boolean!
   pnl: BigInt!
   feesPaid: BigInt!
+  orderType: FuturesOrderType!
 }
 
 type FuturesPosition @entity {
@@ -92,6 +94,7 @@ type FundingRateUpdate @entity {
 enum FuturesOrderType {
   NextPrice
   Limit
+  Market
 }
 
 enum FuturesOrderStatus {
