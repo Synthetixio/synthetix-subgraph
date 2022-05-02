@@ -99,11 +99,8 @@ program.action(async () => {
   }
 
   if (!OPTIONS.team) {
-    inquiries.push({
-      message: 'What is your team name on The Graph?',
-      name: 'team',
-      default: 'synthetixio-team',
-    });
+    OPTIONS.team = 'synthetixio-team';
+    console.log(`Using default team ${OPTIONS.team}`);
   }
 
   let settings = {
@@ -115,7 +112,7 @@ program.action(async () => {
     settings.graftBase ||
     (await readPreviousDeploymentId(settings.team, networkPrefix(settings.network) + settings.subgraph));
 
-  if (prevDeployId && !OPTIONS.graftBlock) {
+  if (prevDeployId && !OPTIONS.graftBlock && !OPTIONS.buildOnly) {
     await inquirer.prompt(
       [
         {
