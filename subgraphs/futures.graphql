@@ -110,4 +110,5 @@ type FuturesOrder @entity {
   timestamp: BigInt!
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
+  keeper: Bytes!
 }

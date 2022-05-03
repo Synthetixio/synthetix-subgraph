@@ -380,6 +380,9 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
 
 export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
+    const statId = event.params.account.toHex();
+    let statEntity = FuturesStat.load(statId);
+
     let futuresMarketAddress = event.transaction.to as Address;
     let futuresOrderEntity = FuturesOrder.load(
       futuresMarketAddress.toHex() +
@@ -390,15 +393,38 @@ export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): 
     );
 
     if (futuresOrderEntity) {
+      futuresOrderEntity.keeper = event.transaction.from;
       let tradeEntity = FuturesTrade.load(
         event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
       );
 
-      if (tradeEntity) {
+      if (statEntity && tradeEntity) {
+        // if trade exists get the position
+        let positionEntity = FuturesPosition.load(tradeEntity.positionId);
+
+        // update order values
         futuresOrderEntity.status = 'Filled';
         tradeEntity.orderType = 'NextPrice';
+
+        // add fee if not self-executed
+        if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
+          tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.keeperDeposit);
+          statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
+          if (positionEntity) {
+            positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.keeperDeposit);
+            positionEntity.save();
+          }
+
+          statEntity.save();
+        }
+
         tradeEntity.save();
-      } else {
+      } else if (statEntity) {
+        if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
+          statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
+          statEntity.save();
+        }
+
         futuresOrderEntity.status = 'Cancelled';
       }
 
