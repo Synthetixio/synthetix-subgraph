@@ -1,4 +1,4 @@
-const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 
 const balances = require('./fragments/balances');
 
@@ -233,12 +233,4 @@ for (const token of ['sUSD', 'ERC20sUSD']) {
 
 manifest.push(...balances.dataSources);
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './issuance.graphql',
-  },
-  dataSources: manifest,
-};
+module.exports = createSubgraphManifest('issuance', manifest, []);

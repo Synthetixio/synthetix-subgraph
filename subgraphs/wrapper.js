@@ -1,5 +1,5 @@
 const { clone } = require('lodash');
-const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 const latestRates = require('./fragments/latest-rates');
 let manifest = clone(latestRates.dataSources);
 
@@ -196,13 +196,4 @@ if (getCurrentNetwork() == 'optimism') {
   manifest.push(lusdWrapper);
 }
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Wrapper API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './wrapper.graphql',
-  },
-  dataSources: manifest,
-  templates: latestRates.templates.concat([wrapperTemplate]),
-};
+module.exports = createSubgraphManifest('wrapper', manifest, latestRates.templates.concat([wrapperTemplate]));

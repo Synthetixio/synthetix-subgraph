@@ -1,6 +1,6 @@
 const { clone } = require('lodash');
 
-const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 
 const latestRates = require('./fragments/latest-rates');
 
@@ -99,13 +99,4 @@ getContractDeployments('CollateralShort').forEach((a, i) => {
   });
 });
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Shorts API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './shorts.graphql',
-  },
-  dataSources: manifest,
-  templates: latestRates.templates,
-};
+module.exports = createSubgraphManifest('shorts', manifest, latestRates.templates);
