@@ -29,7 +29,7 @@ async function readPreviousDeploymentId(team, subgraphName) {
 
   const body = await res.json();
 
-  return body.data._meta.deployment;
+  return body.data ? body.data._meta.deployment : undefined;
 }
 
 function exec(cmd) {
@@ -107,7 +107,6 @@ program.action(async () => {
     ...(await inquirer.prompt(inquiries, OPTIONS)),
     ...OPTIONS,
   };
-
   const prevDeployId =
     settings.graftBase ||
     (await readPreviousDeploymentId(settings.team, networkPrefix(settings.network) + settings.subgraph));
