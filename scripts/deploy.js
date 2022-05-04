@@ -107,6 +107,7 @@ program.action(async () => {
     ...(await inquirer.prompt(inquiries, OPTIONS)),
     ...OPTIONS,
   };
+
   const prevDeployId =
     settings.graftBase ||
     (await readPreviousDeploymentId(settings.team, networkPrefix(settings.network) + settings.subgraph));

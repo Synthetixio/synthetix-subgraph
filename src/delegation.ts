@@ -5,35 +5,38 @@ import {
 
 import { DelegatedWallet } from '../generated/subgraphs/delegation/schema';
 
-import { strToBytes } from './lib/helpers';
-import { Address, Bytes } from '@graphprotocol/graph-ts';
+import { Address, Bytes, log } from '@graphprotocol/graph-ts';
 
 function setDelegateApproval(authoriser: Address, delegate: Address, action: Bytes, isApproval: boolean): void {
-  let delegatedWalletEntity = DelegatedWallet.load(authoriser.toHex() + '-' + delegate.toHex());
+  let id = authoriser.toHex() + '-' + delegate.toHex();
+  let delegatedWalletEntity = DelegatedWallet.load(id);
   let actionRight = isApproval ? true : false;
   if (delegatedWalletEntity == null) {
     if (!isApproval) {
       return;
     }
-    delegatedWalletEntity = new DelegatedWallet(authoriser.toHex() + '-' + delegate.toHex());
+    delegatedWalletEntity = new DelegatedWallet(id);
     delegatedWalletEntity.authoriser = authoriser;
     delegatedWalletEntity.delegate = delegate;
   }
-
-  if (action == strToBytes('ApproveAll')) {
+  let actionAsString = action.toString();
+  if (actionAsString == 'ApproveAll') {
     delegatedWalletEntity.canMint = actionRight;
     delegatedWalletEntity.canBurn = actionRight;
     delegatedWalletEntity.canClaim = actionRight;
     delegatedWalletEntity.canExchange = actionRight;
-  } else if (action == strToBytes('IssueForAddress')) {
+  } else if (actionAsString == 'IssueForAddress') {
     delegatedWalletEntity.canMint = actionRight;
-  } else if (action == strToBytes('BurnForAddress')) {
+  } else if (actionAsString == 'BurnForAddress') {
     delegatedWalletEntity.canBurn = actionRight;
-  } else if (action == strToBytes('ClaimForAddress')) {
+  } else if (actionAsString == 'ClaimForAddress') {
     delegatedWalletEntity.canClaim = actionRight;
-  } else if (action == strToBytes('ExchangeForAddress')) {
+  } else if (actionAsString == 'ExchangeForAddress') {
     delegatedWalletEntity.canExchange = actionRight;
-  } else return;
+  } else {
+    log.error('Unknown action "' + actionAsString + '" no entry will be saved.', []);
+    return;
+  }
 
   delegatedWalletEntity.save();
 }
