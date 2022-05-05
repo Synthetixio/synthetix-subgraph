@@ -181,6 +181,10 @@ program.action(async () => {
         }
 
         if (!settings.buildOnly) {
+          if (i === 0 && settings.accessToken) {
+            await exec(`./node_modules/.bin/graph auth --product hosted-service ${settings.accessToken}`);
+          }
+
           await exec(
             `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
               settings.team
@@ -200,6 +204,9 @@ program.action(async () => {
       }
 
       if (!settings.buildOnly) {
+        if (settings.accessToken) {
+          await exec(`./node_modules/.bin/graph auth --product hosted-service ${settings.accessToken}`);
+        }
         await exec(
           `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
             settings.team
@@ -236,6 +243,10 @@ program.action(async () => {
       );
 
       console.log('Deploying to decentralized network...');
+      if (settings.accessToken) {
+        await exec(`./node_modules/.bin/graph auth --product subgraph-studio ${settings.accessToken}`);
+      }
+
       await exec(
         `${prefixArgs} ./node_modules/.bin/graph deploy --studio ${settings.team} --version-label ${settings.versionLabel} --access-token  ${settings.access_token} ./subgraphs/main.js`,
       );
