@@ -12,6 +12,8 @@ const { mergeTypeDefs } = require('@graphql-tools/merge');
 
 const fetch = require('node-fetch');
 
+const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
+
 const parseBoolean = (val) => {
   return val == 'false' ? false : val;
 };
@@ -41,6 +43,85 @@ function networkPrefix(network) {
   return network + '-';
 }
 
+function buildAndDeployHosted(settings, prefixArgs) {
+  const networks = settings.network == 'All' ? NETWORK_CHOICES : [settings.network];
+  for (let i = 0; i < networks.length; i++) {
+    const network = networks[i];
+
+    console.log(cyan(`Building subgraph for network ${network}...`));
+
+    try {
+      exec(
+        `${prefixArgs} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
+      );
+    } catch {
+      process.exit(1);
+    }
+
+    if (!settings.buildOnly) {
+      if (i === 0 && settings.accessToken) {
+        exec(`./node_modules/.bin/graph auth --product hosted-service ${settings.accessToken}`);
+      }
+
+      exec(
+        `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
+          settings.team
+        }/${networkPrefix(network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
+      );
+      console.log(green(`Successfully deployed to ${network} on the hosted service.`));
+    }
+  }
+}
+
+async function deployDecentralized(settings, prefixArgs) {
+  settings = await inquirer.prompt(
+    [
+      {
+        message: 'Would you like to deploy to the main subgraph to the decentralized network?',
+        name: 'deployDecentralized',
+        type: 'confirm',
+      },
+    ],
+    settings,
+  );
+
+  if (settings.deployDecentralized) {
+    const { version: defaultVersion } = require('../node_modules/synthetix/package.json');
+    settings = await inquirer.prompt(
+      [
+        {
+          message: 'What version label should be used for this release?',
+          name: 'versionLabel',
+          default: defaultVersion,
+        },
+      ],
+      settings,
+    );
+
+    console.log('Deploying to decentralized network...');
+    if (settings.accessToken) {
+      exec(`./node_modules/.bin/graph auth --product subgraph-studio ${settings.accessToken}`);
+    }
+
+    exec(
+      `${prefixArgs} ./node_modules/.bin/graph deploy --studio ${settings.team} --version-label ${settings.versionLabel} ./subgraphs/main.js`,
+    );
+    console.log(green('Successfully deployed to decentralized network.'));
+  }
+}
+
+async function buildAndDeploy(settings, prefixArgs) {
+  if (settings.network === 'None') {
+    // With the old logic, if network was None and deployDecentralized is true we would NOT build and try to deploy to decentralised network.
+    // I think we dont want to deploy anything when network is None?
+    return;
+  }
+  buildAndDeployHosted(settings, prefixArgs);
+  if (settings.subgraph == 'main' && !settings.buildOnly) {
+    await deployDecentralized(settings, prefixArgs);
+  }
+}
+
 program
   .option('-u --update-synthetix [version]', 'Update the Synthetix package and contract ABIs to the given version')
   .option('-s --subgraph <names>', 'The subgraph to deploy to the hosted service')
@@ -57,8 +138,7 @@ program
   .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting');
 
 program.action(async () => {
-  const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
-  const SUBGRAPH_CHOICES = await fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
+  const SUBGRAPH_CHOICES = fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
     if (val.endsWith('.js') && val !== 'main.js') {
       acc.push(val.slice(0, -3));
     }
@@ -68,9 +148,9 @@ program.action(async () => {
 
   if (OPTIONS.updateSynthetix) {
     console.log(cyan('Updating the Synthetix package and contract ABIs...'));
-    await exec(`npm install synthetix@${OPTIONS.updateSynthetix == true ? 'latest' : OPTIONS.updateSynthetix}`);
+    exec(`npm install synthetix@${OPTIONS.updateSynthetix == true ? 'latest' : OPTIONS.updateSynthetix}`);
     console.log(green('Successfully updated the Synthetix package for the most recent contracts.'));
-    await exec('node scripts/helpers/prepare-abis.js');
+    exec('node scripts/helpers/prepare-abis.js');
     console.log(green('Successfully prepared the ABI files for subgraph generation.'));
   }
 
@@ -131,9 +211,7 @@ program.action(async () => {
     // We merge using this strategy to avoid duplicates from the fragments
     let typesArray = [];
     for (let i = 0; i < SUBGRAPH_CHOICES.length; i++) {
-      typesArray.push(
-        (await fs.readFileSync(path.join(__dirname, `../subgraphs/${SUBGRAPH_CHOICES[i]}.graphql`))).toString(),
-      );
+      typesArray.push(fs.readFileSync(path.join(__dirname, `../subgraphs/${SUBGRAPH_CHOICES[i]}.graphql`)).toString());
     }
     const typeDefs = mergeTypeDefs(typesArray);
 
@@ -149,13 +227,13 @@ program.action(async () => {
   console.log(cyan('Running The Graph’s codegen...'));
   for (let i = 0; i < SUBGRAPH_CHOICES.length; i++) {
     const subgraph = SUBGRAPH_CHOICES[i];
-    await exec(
+    exec(
       `SNX_NETWORK=mainnet SUBGRAPH=${subgraph} ./node_modules/.bin/graph codegen ./subgraphs/${subgraph}.js -o ./generated/subgraphs/${subgraph}`,
     );
   }
 
   console.log(cyan('Creating contracts...'));
-  await exec('node ./scripts/helpers/create-contracts');
+  exec('node ./scripts/helpers/create-contracts');
 
   let prefixArgs = `DEBUG_MANIFEST=true SNX_START_BLOCK=${process.env.SNX_START_BLOCK || 0} SNX_NETWORK=${
     settings.network
@@ -165,83 +243,7 @@ program.action(async () => {
     prefixArgs += ` GRAFT_BASE=${prevDeployId} GRAFT_BLOCK=${settings.graftBlock}`;
   }
 
-  if (settings.network !== 'None') {
-    if (settings.network == 'All') {
-      for (let i = 0; i < NETWORK_CHOICES.length; i++) {
-        const network = NETWORK_CHOICES[i];
-
-        console.log(cyan(`Building subgraph for network ${network}...`));
-
-        try {
-          await exec(
-            `${prefixArgs} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
-          );
-        } catch {
-          process.exit(1);
-        }
-
-        if (!settings.buildOnly) {
-          await exec(
-            `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
-              settings.team
-            }/${networkPrefix(network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
-          );
-          console.log(green(`Successfully deployed to ${network} on the hosted service.`));
-        }
-      }
-    } else {
-      console.log(cyan(`Building subgraph for network ${settings.network}...`));
-      try {
-        await exec(
-          `${prefixArgs} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${settings.network}/subgraphs/${settings.subgraph}`,
-        );
-      } catch {
-        process.exit(1);
-      }
-
-      if (!settings.buildOnly) {
-        await exec(
-          `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
-            settings.team
-          }/${networkPrefix(settings.network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
-        );
-        console.log(green(`Successfully deployed to ${settings.network} on the hosted service.`));
-      }
-    }
-  }
-
-  if (settings.subgraph == 'main' && !settings.buildOnly) {
-    settings = await inquirer.prompt(
-      [
-        {
-          message: 'Would you like to deploy to the main subgraph to the decentralized network?',
-          name: 'deployDecentralized',
-          type: 'confirm',
-        },
-      ],
-      settings,
-    );
-
-    if (settings.deployDecentralized) {
-      const { version: defaultVersion } = require('../node_modules/synthetix/package.json');
-      settings = await inquirer.prompt(
-        [
-          {
-            message: 'What version label should be used for this release?',
-            name: 'versionLabel',
-            default: defaultVersion,
-          },
-        ],
-        settings,
-      );
-
-      console.log('Deploying to decentralized network...');
-      await exec(
-        `${prefixArgs} ./node_modules/.bin/graph deploy --studio ${settings.team} --version-label ${settings.versionLabel} --access-token  ${settings.access_token} ./subgraphs/main.js`,
-      );
-      console.log(green('Successfully deployed to decentralized network.'));
-    }
-  }
+  await buildAndDeploy(settings, prefixArgs);
 
   console.log(greenBright('All operations completed successfully!'));
 });
