@@ -12,6 +12,8 @@ const { mergeTypeDefs } = require('@graphql-tools/merge');
 
 const fetch = require('node-fetch');
 
+const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
+
 const parseBoolean = (val) => {
   return val == 'false' ? false : val;
 };
@@ -136,7 +138,6 @@ program
   .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting');
 
 program.action(async () => {
-  const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
   const SUBGRAPH_CHOICES = fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
     if (val.endsWith('.js') && val !== 'main.js') {
       acc.push(val.slice(0, -3));
