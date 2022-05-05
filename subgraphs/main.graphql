@@ -113,48 +113,5 @@ type FuturesOrder @entity {
   timestamp: BigInt!
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
-}
-
-type Candle @entity {
-  " synth-period-periodId (periodId is timestamp / period) "
-  id: ID!
-  " Ticker for synth (e.g. 'sUSD') or 'SNX'"
-  synth: String!
-  open: BigDecimal!
-  high: BigDecimal!
-  low: BigDecimal!
-  close: BigDecimal!
-  average: BigDecimal!
-  timestamp: BigInt!
-  " Duration this candle captures in seconds. Year, quarter, month, week, day, hour, and 15 minutes available. "
-  period: BigInt!
-  " Number of RateUpdates aggregated into this candle, mostly useful for the indexer to calculate averages "
-  aggregatedPrices: BigInt!
-}
-
-type LatestRate @entity {
-  " Name of synth. E.g. sUSD "
-  id: ID!
-  " Synth USD rate "
-  rate: BigDecimal!
-  " Timestamp the rate was updated "
-  timestamp: BigInt!
-  " Address of the aggregator which produces current result "
-  aggregator: Bytes!
-}
-
-" Latest Rates over time "
-type RateUpdate @entity {
-  " <transaction hash>-<currency key> "
-  id: ID!
-  " currencyKey for which this this rate update applies "
-  currencyKey: Bytes!
-  " currencyKey expressed as a string "
-  synth: String!
-  " the rate recorded at this timestamp "
-  rate: BigDecimal!
-  " the block which this rate was recorded "
-  block: BigInt!
-  " timestamp of the block in which the rate was recorded "
-  timestamp: BigInt!
+  keeper: Bytes!
 }
