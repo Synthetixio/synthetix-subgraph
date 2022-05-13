@@ -95,6 +95,7 @@ enum FuturesOrderType {
   NextPrice
   Limit
   Market
+  Liquidation
 }
 
 enum FuturesOrderStatus {

@@ -147,7 +147,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   } else if (event.params.tradeSize.isZero() && event.params.size.isZero() && event.params.margin.isZero()) {
     const txHash = event.transaction.hash.toHex();
     let marginTransferEntity = FuturesMarginTransfer.load(
-      futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.toString(),
+      futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
     );
 
     // this check is here to get around the fact that the sometimes a withdrawalAll margin transfer event
