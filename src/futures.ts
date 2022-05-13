@@ -145,23 +145,33 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       marketStats.save();
     }
   } else if (event.params.tradeSize.isZero() && event.params.size.isZero() && event.params.margin.isZero()) {
-    // it's a liquidation
-    let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
-    tradeEntity.timestamp = event.block.timestamp;
-    tradeEntity.account = event.params.account;
+    const txHash = event.transaction.hash.toHex();
+    let marginTransferEntity = FuturesMarginTransfer.load(
+      futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.toString(),
+    );
 
-    // create a placeholder for trade size as long/short
-    // this will help figure out the trade direction during a liquidation
-    // since the position size will be set to zero before the PositionLiquidated event
-    tradeEntity.size = positionEntity.size.gt(ZERO) ? BigInt.fromI32(-1) : BigInt.fromI32(1);
-    tradeEntity.positionSize = ZERO;
-    tradeEntity.positionId = positionId;
-    tradeEntity.price = event.params.lastPrice;
-    tradeEntity.feesPaid = event.params.fee;
-    tradeEntity.orderType = 'Liquidation';
-    tradeEntity.asset = positionEntity.asset;
-    tradeEntity.positionClosed = true;
-    tradeEntity.save();
+    // this check is here to get around the fact that the sometimes a withdrawalAll margin transfer event
+    // will trigger a trade entity liquidation to be created. guarding against this event for now.
+    // TODO confirm this is the correct fix for the long term - https://github.com/Kwenta/kwenta/issues/843
+    if (marginTransferEntity == null) {
+      // if its not a withdrawal (or deposit), it's a liquidation
+      let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
+      tradeEntity.timestamp = event.block.timestamp;
+      tradeEntity.account = event.params.account;
+
+      // create a placeholder for trade size as long/short
+      // this will help figure out the trade direction during a liquidation
+      // since the position size will be set to zero before the PositionLiquidated event
+      tradeEntity.size = positionEntity.size.gt(ZERO) ? BigInt.fromI32(-1) : BigInt.fromI32(1);
+      tradeEntity.positionSize = ZERO;
+      tradeEntity.positionId = positionId;
+      tradeEntity.price = event.params.lastPrice;
+      tradeEntity.feesPaid = event.params.fee;
+      tradeEntity.orderType = 'Liquidation';
+      tradeEntity.asset = positionEntity.asset;
+      tradeEntity.positionClosed = true;
+      tradeEntity.save();
+    }
   }
 
   // if there is an existing position...
