@@ -148,3 +148,15 @@ To build and deploy the subgraphs, run `npm run deploy` for a CLI. You will have
 The CLI automatically generates the main subgraph, which is composed of the other subgraph in the `subgraphs` directory. You can also use the CLI to deploy the component subgraphs to the hosted service for faster development and testing.
 
 All of the prompts in the CLI can be provided via options. For more information, run `npm run deploy -- --help`.
+
+## Test setup
+
+Follow the instructions here: https://github.com/LimeChain/matchstick/blob/main/README.md
+
+Tldr. You need to have postgressql installed
+
+## Run tests
+
+`node run-tests.js`
+
+Normally you would run the tests with `npx graph test`, but matchstick is still not very mature and missing some configuration options which means we need to run some workarounds before and after the tests. See scripts/testSetup.js for explanation and implementation

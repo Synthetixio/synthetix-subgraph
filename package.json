@@ -9,6 +9,7 @@
     "snxData": "bin.js"
   },
   "scripts": {
+    "test": "node run-tests.js",
     "lint": "eslint src/ scripts/ subgraphs/",
     "prepare": "husky install",
     "deploy": "node ./scripts/deploy.js"
@@ -34,7 +35,9 @@
     "eslint-plugin-import": "2.24.2",
     "eslint-plugin-prettier": "4.0.0",
     "husky": "7.0.2",
+    "js-yaml": "4.1.0",
     "lint-staged": "11.1.2",
+    "matchstick-as": "0.4.2",
     "minify": "7.2.1",
     "node-fetch": "^2.6.7",
     "prettier": "2.4.1",
