@@ -10,9 +10,16 @@ export let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
 export let DAY_SECONDS = BigInt.fromI32(86400);
 
 export let CANDLE_PERIODS: BigInt[] = [
+  DAY_SECONDS.times(BigInt.fromI32(30)),
   DAY_SECONDS.times(BigInt.fromI32(7)),
+  DAY_SECONDS.times(BigInt.fromI32(3)),
   DAY_SECONDS,
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(720)),
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(480)),
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(240)),
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(120)),
   ONE_MINUTE_SECONDS.times(BigInt.fromI32(60)),
+  ONE_MINUTE_SECONDS.times(BigInt.fromI32(30)),
   ONE_MINUTE_SECONDS.times(BigInt.fromI32(15)),
   ONE_MINUTE_SECONDS.times(BigInt.fromI32(5)),
   ONE_MINUTE_SECONDS,
