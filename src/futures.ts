@@ -81,9 +81,12 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.entryPrice = event.params.lastPrice;
     positionEntity.lastPrice = event.params.lastPrice;
     positionEntity.margin = event.params.margin;
+    positionEntity.initialMargin = event.params.margin;
     positionEntity.pnl = ZERO;
     positionEntity.feesPaid = ZERO;
     positionEntity.netFunding = ZERO;
+    positionEntity.netTransfers = ZERO;
+    positionEntity.totalDeposits = ZERO;
     positionEntity.fundingIndex = event.params.fundingIndex;
   }
 
@@ -144,7 +147,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       marketStats.averageTradeSize = marketStats.totalVolume.div(marketStats.totalTrades);
       marketStats.save();
     }
-  } else if (event.params.tradeSize.isZero() && event.params.size.isZero() && event.params.margin.isZero()) {
+  } else {
     const txHash = event.transaction.hash.toHex();
     let marginTransferEntity = FuturesMarginTransfer.load(
       futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
@@ -153,7 +156,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     // this check is here to get around the fact that the sometimes a withdrawalAll margin transfer event
     // will trigger a trade entity liquidation to be created. guarding against this event for now.
     // TODO confirm this is the correct fix for the long term - https://github.com/Kwenta/kwenta/issues/843
-    if (marginTransferEntity == null) {
+    if (marginTransferEntity == null && event.params.size.isZero() && event.params.margin.isZero()) {
       // if its not a withdrawal (or deposit), it's a liquidation
       let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
       tradeEntity.timestamp = event.block.timestamp;
@@ -171,6 +174,14 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.asset = positionEntity.asset;
       tradeEntity.positionClosed = true;
       tradeEntity.save();
+    } else if (marginTransferEntity) {
+      // if margin transfer exists, add it to net transfers
+      positionEntity.netTransfers = positionEntity.netTransfers.plus(marginTransferEntity.size);
+
+      // if a deposit, add to deposits
+      if (marginTransferEntity.size.gt(ZERO)) {
+        positionEntity.totalDeposits = positionEntity.totalDeposits.plus(marginTransferEntity.size);
+      }
     }
   }
 

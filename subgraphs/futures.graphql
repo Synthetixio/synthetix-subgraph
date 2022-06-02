@@ -33,10 +33,13 @@ type FuturesPosition @entity {
   trades: BigInt!
   totalVolume: BigInt!
   size: BigInt!
+  initialMargin: BigInt!
   margin: BigInt!
   pnl: BigInt!
   feesPaid: BigInt!
   netFunding: BigInt!
+  netTransfers: BigInt!
+  totalDeposits: BigInt!
   fundingIndex: BigInt!
   entryPrice: BigInt!
   avgEntryPrice: BigInt!
