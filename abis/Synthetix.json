@@ -939,6 +939,11 @@
         "internalType": "bytes32",
         "name": "trackingCode",
         "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minAmount",
+        "type": "uint256"
       }
     ],
     "name": "exchangeAtomically",
@@ -1159,6 +1164,21 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "initializeLiquidatorRewardsRestitution",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "isResolverCached",
@@ -1260,14 +1280,24 @@
         "internalType": "address",
         "name": "account",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "susdAmount",
-        "type": "uint256"
       }
     ],
     "name": "liquidateDelinquentAccount",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "liquidateSelf",
     "outputs": [
       {
         "internalType": "bool",
@@ -1513,6 +1543,21 @@
         "internalType": "bytes32[]",
         "name": "addresses",
         "type": "bytes32[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "restituted",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "payable": false,
