@@ -211,47 +211,45 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
   });
 });
 
-if (getCurrentNetwork() == 'optimism') {
-  getContractDeployments('FuturesMarketManager').forEach((a, i) => {
-    manifest.push({
-      kind: 'ethereum/contract',
-      name: `exchanges_FuturesMarketManager_${i}`,
-      network: getCurrentNetwork(),
-      source: {
-        address: a.address,
-        startBlock: a.startBlock,
-        abi: 'FuturesMarketManager',
-      },
-      mapping: {
-        kind: 'ethereum/events',
-        apiVersion: '0.0.5',
-        language: 'wasm/assemblyscript',
-        file: '../src/exchanges.ts',
-        entities: ['FuturesMarket'],
-        abis: [
-          {
-            name: 'FuturesMarket',
-            file: '../abis/FuturesMarket.json',
-          },
-          {
-            name: 'FuturesMarketManager',
-            file: '../abis/FuturesMarketManager.json',
-          },
-        ],
-        eventHandlers: [
-          {
-            event: 'MarketAdded(address,indexed bytes32,indexed bytes32)',
-            handler: 'handleMarketAdded',
-          },
-          {
-            event: 'MarketRemoved(address,indexed bytes32,indexed bytes32)',
-            handler: 'handleMarketRemoved',
-          },
-        ],
-      },
-    });
+getContractDeployments('FuturesMarketManager').forEach((a, i) => {
+  manifest.push({
+    kind: 'ethereum/contract',
+    name: `exchanges_FuturesMarketManager_${i}`,
+    network: getCurrentNetwork(),
+    source: {
+      address: a.address,
+      startBlock: a.startBlock,
+      abi: 'FuturesMarketManager',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.5',
+      language: 'wasm/assemblyscript',
+      file: '../src/exchanges.ts',
+      entities: ['FuturesMarket'],
+      abis: [
+        {
+          name: 'FuturesMarket',
+          file: '../abis/FuturesMarket.json',
+        },
+        {
+          name: 'FuturesMarketManager',
+          file: '../abis/FuturesMarketManager.json',
+        },
+      ],
+      eventHandlers: [
+        {
+          event: 'MarketAdded(address,indexed bytes32,indexed bytes32)',
+          handler: 'handleMarketAdded',
+        },
+        {
+          event: 'MarketRemoved(address,indexed bytes32,indexed bytes32)',
+          handler: 'handleMarketRemoved',
+        },
+      ],
+    },
   });
-}
+});
 
 let futuresMarketTemplate = {
   kind: 'ethereum/contract',

@@ -50,6 +50,7 @@ program
   .option('-d, --deploy-decentralized [value]', 'Deploy to the decentralized network', parseBoolean)
   .option('-v, --version-label [value]', 'Version label for the deployment to the decentralized network')
   .option('--build-only', 'Skip deploy')
+  .option('--debug', 'Print out extra debugging information')
   .option(
     '--graft-base <id>',
     'ID of subgraph to graft. If unspecified, will attempt to read existing from the graph API',
@@ -157,12 +158,16 @@ program.action(async () => {
   console.log(cyan('Creating contracts...'));
   await exec('node ./scripts/helpers/create-contracts');
 
-  let prefixArgs = `DEBUG_MANIFEST=true SNX_START_BLOCK=${process.env.SNX_START_BLOCK || 0} SNX_NETWORK=${
-    settings.network
-  } SUBGRAPH=${settings.subgraph}`;
+  let prefixArgs = `SNX_START_BLOCK=${process.env.SNX_START_BLOCK || 0} SNX_NETWORK=${settings.network} SUBGRAPH=${
+    settings.subgraph
+  }`;
 
   if (settings.graftBlock) {
     prefixArgs += ` GRAFT_BASE=${prevDeployId} GRAFT_BLOCK=${settings.graftBlock}`;
+  }
+
+  if (settings.debug) {
+    prefixArgs += ' DEBUG_MANIFEST=true';
   }
 
   if (settings.network !== 'None') {
