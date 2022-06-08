@@ -62,6 +62,9 @@ type Total @entity {
   " timestamp of the beginning of the time period this represents "
   timestamp: BigInt!
 
+  " which product the volume came from. Ex 'futures' or 'exchange' "
+  product: String!
+
   " number of seconds the data covers after `timestamp` "
   period: BigInt!
 
@@ -132,6 +135,23 @@ type ExchangeFee @entity {
 
   " Current Fee as a ratio of the trade amount "
   fee: BigDecimal!
+}
+
+type Candle @entity {
+  " synth-period-periodId (periodId is timestamp / period) "
+  id: ID!
+  " Ticker for synth (e.g. 'sUSD') or 'SNX'"
+  synth: String!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+  average: BigDecimal!
+  timestamp: BigInt!
+  " Duration this candle captures in seconds. Year, quarter, month, week, day, hour, and 15 minutes available. "
+  period: BigInt!
+  " Number of RateUpdates aggregated into this candle, mostly useful for the indexer to calculate averages "
+  aggregatedPrices: BigInt!
 }
 
 " DEPRECATED: See the Candles entity"
@@ -224,4 +244,9 @@ type LatestSynthBalance @entity {
   account: String!
   timestamp: BigInt!
   synth: Synth
+}
+
+type FuturesMarket @entity {
+  " Address of the market "
+  id: ID!
 }

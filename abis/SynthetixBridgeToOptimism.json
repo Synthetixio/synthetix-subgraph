@@ -14,8 +14,7 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "constructor",
-    "signature": "constructor"
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -34,8 +33,7 @@
       }
     ],
     "name": "CacheUpdated",
-    "type": "event",
-    "signature": "0x88a93678a3692f6789d9546fc621bf7234b101ddb7d4fe479455112831b8aa68"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -60,8 +58,7 @@
       }
     ],
     "name": "DepositInitiated",
-    "type": "event",
-    "signature": "0xf531653a5819e21265de50358610d55dbe6594c61605b209dfa4280d277938c1"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -98,22 +95,88 @@
       }
     ],
     "name": "ExportedVestingEntries",
-    "type": "event",
-    "signature": "0x4dc5956ab6218a4dfa2cc5e5c50d98d039dde03aabfc504c54b601b6f5622696"
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "snxBackedDebt",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalDebtShares",
+        "type": "uint256"
+      }
+    ],
+    "name": "FeePeriodClosed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "currencyKey",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "FinalizeSynthTransfer",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "currencyKey",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "InitiateSynthTransfer",
+    "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [],
     "name": "InitiationResumed",
-    "type": "event",
-    "signature": "0x7c88488c18e2ff121a34a4a2a44990557a5b76ab1ceb6bd95ebe7d419c7575f4"
+    "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [],
     "name": "InitiationSuspended",
-    "type": "event",
-    "signature": "0x43e00f2c8f8651a29db34d34fb689573423f8aaae8f9d32e3e871b4c35c62546"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -132,8 +195,7 @@
       }
     ],
     "name": "OwnerChanged",
-    "type": "event",
-    "signature": "0xb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -146,8 +208,7 @@
       }
     ],
     "name": "OwnerNominated",
-    "type": "event",
-    "signature": "0x906a1c6bd7e3091ea86693dd029a831c19049ce77f1dce2ce0bab1cacbabce22"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -166,8 +227,7 @@
       }
     ],
     "name": "RewardDepositInitiated",
-    "type": "event",
-    "signature": "0x0ac6af0c6fd21e58850b0385f451cdcc08071424f47fd04652be4e51069f43cc"
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -186,8 +246,22 @@
       }
     ],
     "name": "WithdrawalFinalized",
-    "type": "event",
-    "signature": "0x9e5c4f9f4e46b8629d3dda85f43a69194f50254404a72dc62b9e932d9c94eda8"
+    "type": "event"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "CONTRACT_NAME",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
     "constant": false,
@@ -196,8 +270,27 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x79ba5097"
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "snxBackedAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalDebtShares",
+        "type": "uint256"
+      }
+    ],
+    "name": "closeFeePeriod",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "constant": false,
@@ -212,8 +305,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xb6b55f25"
+    "type": "function"
   },
   {
     "constant": false,
@@ -228,8 +320,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x1e2720ff"
+    "type": "function"
   },
   {
     "constant": false,
@@ -249,8 +340,32 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xffaad6a5"
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "currencyKey",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "finalizeSynthTransfer",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "constant": false,
@@ -270,8 +385,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0xf4f7b41a"
+    "type": "function"
   },
   {
     "constant": false,
@@ -286,8 +400,32 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x462286d5"
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "currencyKey",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "destination",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "initiateSynthTransfer",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "constant": true,
@@ -302,8 +440,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x100be6d4"
+    "type": "function"
   },
   {
     "constant": true,
@@ -318,8 +455,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x2af64bd3"
+    "type": "function"
   },
   {
     "constant": false,
@@ -334,8 +470,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x9a9e7f96"
+    "type": "function"
   },
   {
     "constant": false,
@@ -350,8 +485,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x1627540c"
+    "type": "function"
   },
   {
     "constant": true,
@@ -366,8 +500,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x53a47bb7"
+    "type": "function"
   },
   {
     "constant": false,
@@ -382,8 +515,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x3c6b16ab"
+    "type": "function"
   },
   {
     "constant": true,
@@ -398,8 +530,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x8da5cb5b"
+    "type": "function"
   },
   {
     "constant": false,
@@ -408,8 +539,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x74185360"
+    "type": "function"
   },
   {
     "constant": true,
@@ -424,8 +554,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x04f3bcec"
+    "type": "function"
   },
   {
     "constant": true,
@@ -440,8 +569,7 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function",
-    "signature": "0x899ffef4"
+    "type": "function"
   },
   {
     "constant": false,
@@ -450,8 +578,7 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x698a26b2"
+    "type": "function"
   },
   {
     "constant": false,
@@ -460,7 +587,36 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function",
-    "signature": "0x3872dda3"
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "synthTransferReceived",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "synthTransferSent",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   }
 ]
