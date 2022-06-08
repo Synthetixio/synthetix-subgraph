@@ -1,4 +1,4 @@
-const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 
 const manifest = [];
 
@@ -38,12 +38,4 @@ getContractDeployments('DelegateApprovals').forEach((a, i) => {
   });
 });
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Delegation API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './delegation.graphql',
-  },
-  dataSources: manifest,
-};
+module.exports = createSubgraphManifest('delegation', manifest, []);

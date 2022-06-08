@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { createSubgraphManifest } = require('./utils/network');
 
 const includedSubgraphs = fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
   if (val.endsWith('.js') && val !== 'main.js') {
@@ -25,13 +26,4 @@ for (const included of includedSubgraphs) {
   }
 }
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Subgraph',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './main.graphql',
-  },
-  dataSources: Object.values(dataSources),
-  templates: Object.values(templates),
-};
+module.exports = createSubgraphManifest('main', dataSources, templates);

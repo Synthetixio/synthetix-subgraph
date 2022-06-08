@@ -1,4 +1,4 @@
-const { getContractDeployments, getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 
 const manifest = [];
 
@@ -78,12 +78,4 @@ getContractDeployments('Liquidations').forEach((a, i) => {
   });
 });
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Exchanges API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './liquidations.graphql',
-  },
-  dataSources: manifest,
-};
+module.exports = createSubgraphManifest('liquidations', manifest, []);

@@ -3,19 +3,42 @@
 
 const fs = require('fs');
 const path = require('path');
-const { green, cyan, gray, greenBright } = require('chalk');
+const { green, cyan, gray, greenBright, blueBright } = require('chalk');
 const program = require('commander');
 const inquirer = require('inquirer');
 const { execSync } = require('child_process');
 const { print } = require('graphql');
 const { mergeTypeDefs } = require('@graphql-tools/merge');
 
+const fetch = require('node-fetch');
+
 const parseBoolean = (val) => {
   return val == 'false' ? false : val;
 };
 
+async function readPreviousDeploymentId(team, subgraphName) {
+  // now that we have most of the information, see if we have a previous subgraph version
+  // if so, prompt the user to graft onto it
+  const res = await fetch(`https://api.thegraph.com/subgraphs/name/${team}/${subgraphName}`, {
+    headers: {
+      'User-Agent': 'Synthetix/0.0.1',
+    },
+    body: '{"query":"{_meta { deployment }}","variables":null,"extensions":{"headers":null}}',
+    method: 'POST',
+  });
+
+  const body = await res.json();
+
+  return body.data ? body.data._meta.deployment : undefined;
+}
+
 function exec(cmd) {
+  console.log(blueBright(`exec: ${cmd}`));
   execSync(cmd, { stdio: 'inherit' });
+}
+
+function networkPrefix(network) {
+  return network + '-';
 }
 
 program
@@ -26,7 +49,12 @@ program
   .option('-a --access-token <token>', 'The Graph access token')
   .option('-d, --deploy-decentralized [value]', 'Deploy to the decentralized network', parseBoolean)
   .option('-v, --version-label [value]', 'Version label for the deployment to the decentralized network')
-  .option('--build-only', 'Skip deploy');
+  .option('--build-only', 'Skip deploy')
+  .option(
+    '--graft-base <id>',
+    'ID of subgraph to graft. If unspecified, will attempt to read existing from the graph API',
+  )
+  .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting');
 
 program.action(async () => {
   const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
@@ -70,18 +98,32 @@ program.action(async () => {
     });
   }
 
-  if (!OPTIONS.buildOnly) {
-    inquiries.push({
-      message: 'What is your team name on The Graph?',
-      name: 'team',
-      default: 'synthetixio-team',
-    });
+  if (!OPTIONS.team) {
+    OPTIONS.team = 'synthetixio-team';
+    console.log(`Using default team ${OPTIONS.team}`);
   }
 
   let settings = {
     ...(await inquirer.prompt(inquiries, OPTIONS)),
     ...OPTIONS,
   };
+
+  const prevDeployId =
+    settings.graftBase ||
+    (await readPreviousDeploymentId(settings.team, networkPrefix(settings.network) + settings.subgraph));
+
+  if (prevDeployId && !OPTIONS.graftBlock && !OPTIONS.buildOnly) {
+    await inquirer.prompt(
+      [
+        {
+          message: `Previous graftable base found (${prevDeployId}). Specify graft start block (0 to disable):`,
+          type: 'number',
+          name: 'graftBlock',
+        },
+      ],
+      OPTIONS,
+    );
+  }
 
   if (settings.subgraph == 'main') {
     console.log('Generating the main subgraph...');
@@ -115,9 +157,13 @@ program.action(async () => {
   console.log(cyan('Creating contracts...'));
   await exec('node ./scripts/helpers/create-contracts');
 
-  const networkPrefix = (network) => {
-    return network + '-';
-  };
+  let prefixArgs = `DEBUG_MANIFEST=true SNX_START_BLOCK=${process.env.SNX_START_BLOCK || 0} SNX_NETWORK=${
+    settings.network
+  } SUBGRAPH=${settings.subgraph}`;
+
+  if (settings.graftBlock) {
+    prefixArgs += ` GRAFT_BASE=${prevDeployId} GRAFT_BLOCK=${settings.graftBlock}`;
+  }
 
   if (settings.network !== 'None') {
     if (settings.network == 'All') {
@@ -128,7 +174,7 @@ program.action(async () => {
 
         try {
           await exec(
-            `SNX_NETWORK=${network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
+            `${prefixArgs} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${network}/subgraphs/${settings.subgraph}`,
           );
         } catch {
           process.exit(1);
@@ -136,9 +182,7 @@ program.action(async () => {
 
         if (!settings.buildOnly) {
           await exec(
-            `SNX_START_BLOCK=${
-              process.env.SNX_START_BLOCK || 0
-            } SNX_NETWORK=${network} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
+            `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
               settings.team
             }/${networkPrefix(network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
           );
@@ -149,7 +193,7 @@ program.action(async () => {
       console.log(cyan(`Building subgraph for network ${settings.network}...`));
       try {
         await exec(
-          `SNX_NETWORK=${settings.network} SUBGRAPH=${settings.subgraph} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${settings.network}/subgraphs/${settings.subgraph}`,
+          `${prefixArgs} ./node_modules/.bin/graph build ./subgraphs/${settings.subgraph}.js -o ./build/${settings.network}/subgraphs/${settings.subgraph}`,
         );
       } catch {
         process.exit(1);
@@ -157,9 +201,7 @@ program.action(async () => {
 
       if (!settings.buildOnly) {
         await exec(
-          `SNX_NETWORK=${
-            settings.network
-          } ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
+          `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
             settings.team
           }/${networkPrefix(settings.network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
         );
@@ -195,7 +237,7 @@ program.action(async () => {
 
       console.log('Deploying to decentralized network...');
       await exec(
-        `npx graph deploy --studio ${settings.team} --version-label ${settings.versionLabel} --access-token  ${settings.access_token} ./subgraphs/main.js`,
+        `${prefixArgs} ./node_modules/.bin/graph deploy --studio ${settings.team} --version-label ${settings.versionLabel} --access-token  ${settings.access_token} ./subgraphs/main.js`,
       );
       console.log(green('Successfully deployed to decentralized network.'));
     }

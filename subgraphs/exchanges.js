@@ -1,7 +1,6 @@
 const { clone } = require('lodash');
 
-const { getContractDeployments } = require('./utils/network');
-const { getCurrentNetwork } = require('./utils/network');
+const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = require('./utils/network');
 
 const latestRates = require('./fragments/latest-rates');
 const balances = require('./fragments/balances');
@@ -281,6 +280,8 @@ let futuresMarketTemplate = {
     ],
   },
 };
+
+module.exports = createSubgraphManifest('exchanges', manifest, latestRates.templates.concat([futuresMarketTemplate]));
 
 module.exports = {
   specVersion: '0.0.2',
