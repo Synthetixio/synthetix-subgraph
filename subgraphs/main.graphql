@@ -36,10 +36,13 @@ type FuturesPosition @entity {
   trades: BigInt!
   totalVolume: BigInt!
   size: BigInt!
+  initialMargin: BigInt!
   margin: BigInt!
   pnl: BigInt!
   feesPaid: BigInt!
   netFunding: BigInt!
+  netTransfers: BigInt!
+  totalDeposits: BigInt!
   fundingIndex: BigInt!
   entryPrice: BigInt!
   avgEntryPrice: BigInt!
@@ -81,6 +84,17 @@ type FuturesMarginTransfer @entity {
   asset: Bytes!
   size: BigInt!
   txHash: String!
+}
+
+type FuturesMarginAccount @entity {
+  id: ID!
+  timestamp: BigInt!
+  account: Bytes!
+  market: Bytes!
+  asset: Bytes!
+  margin: BigInt!
+  deposits: BigInt!
+  withdrawals: BigInt!
 }
 
 type FundingRateUpdate @entity {

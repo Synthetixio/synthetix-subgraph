@@ -3,6 +3,7 @@ import { Address, BigInt, store } from '@graphprotocol/graph-ts';
 import {
   FuturesMarket as FuturesMarketEntity,
   FuturesMarginTransfer,
+  FuturesMarginAccount,
   FuturesPosition,
   FuturesTrade,
   FuturesStat,
@@ -50,6 +51,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   let positionEntity = FuturesPosition.load(positionId);
   let statEntity = FuturesStat.load(statId);
   let cumulativeEntity = getOrCreateCumulativeEntity();
+  let marginAccountEntity = FuturesMarginAccount.load(
+    event.params.account.toHex() + '-' + futuresMarketAddress.toHex(),
+  );
 
   // create new entities
   if (statEntity == null) {
@@ -261,13 +265,20 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
 
+  // update margin account
+  if (marginAccountEntity) {
+    marginAccountEntity.margin = event.params.margin;
+    marginAccountEntity.timestamp = event.block.timestamp;
+    marginAccountEntity.save();
+  }
+
   positionEntity.save();
   statEntity.save();
   cumulativeEntity.save();
 }
 
 export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
-  let futuresMarketAddress = event.transaction.to as Address;
+  let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
   let positionEntity = FuturesPosition.load(positionId);
   let tradeEntity = FuturesTrade.load(
@@ -333,9 +344,11 @@ function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
 }
 
 export function handleMarginTransferred(event: MarginTransferredEvent): void {
-  let futuresMarketAddress = event.transaction.to as Address;
+  let futuresMarketAddress = event.address as Address;
   const txHash = event.transaction.hash.toHex();
   let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
+
+  // handle margin transfer
   let marginTransferEntity = new FuturesMarginTransfer(
     futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.toString(),
   );
@@ -349,11 +362,41 @@ export function handleMarginTransferred(event: MarginTransferredEvent): void {
     marginTransferEntity.asset = marketEntity.asset;
   }
 
+  // handle margin account
+  let marginAccountEntity = FuturesMarginAccount.load(
+    event.params.account.toHex() + '-' + futuresMarketAddress.toHex(),
+  );
+
+  // make account if this is the first deposit
+  if (marginAccountEntity == null) {
+    marginAccountEntity = new FuturesMarginAccount(event.params.account.toHex() + '-' + futuresMarketAddress.toHex());
+
+    marginAccountEntity.timestamp = event.block.timestamp;
+    marginAccountEntity.account = event.params.account;
+    marginAccountEntity.market = futuresMarketAddress;
+    marginAccountEntity.margin = ZERO;
+    marginAccountEntity.deposits = ZERO;
+    marginAccountEntity.withdrawals = ZERO;
+
+    if (marketEntity && marketEntity.asset) {
+      marginAccountEntity.asset = marketEntity.asset;
+    }
+  }
+
+  if (event.params.marginDelta.gt(ZERO)) {
+    marginAccountEntity.deposits = marginAccountEntity.deposits.plus(event.params.marginDelta.abs());
+  }
+
+  if (event.params.marginDelta.lt(ZERO)) {
+    marginAccountEntity.withdrawals = marginAccountEntity.withdrawals.plus(event.params.marginDelta.abs());
+  }
+
   marginTransferEntity.save();
+  marginAccountEntity.save();
 }
 
 export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
-  let futuresMarketAddress = event.transaction.to as Address;
+  let futuresMarketAddress = event.address as Address;
   let fundingRateUpdateEntity = new FundingRateUpdate(
     futuresMarketAddress.toHex() + '-' + event.params.index.toString(),
   );
@@ -366,7 +409,7 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
 
 export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
-    let futuresMarketAddress = event.transaction.to as Address;
+    let futuresMarketAddress = event.address as Address;
 
     const futuresOrderEntityId =
       futuresMarketAddress.toHex() +
@@ -405,7 +448,7 @@ export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): 
     const statId = event.params.account.toHex();
     let statEntity = FuturesStat.load(statId);
 
-    let futuresMarketAddress = event.transaction.to as Address;
+    let futuresMarketAddress = event.address as Address;
     let futuresOrderEntity = FuturesOrder.load(
       futuresMarketAddress.toHex() +
         '-' +

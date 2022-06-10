@@ -83,6 +83,17 @@ type FuturesMarginTransfer @entity {
   txHash: String!
 }
 
+type FuturesMarginAccount @entity {
+  id: ID!
+  timestamp: BigInt!
+  account: Bytes!
+  market: Bytes!
+  asset: Bytes!
+  margin: BigInt!
+  deposits: BigInt!
+  withdrawals: BigInt!
+}
+
 type FundingRateUpdate @entity {
   id: ID!
   timestamp: BigInt!
