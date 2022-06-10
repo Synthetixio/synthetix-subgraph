@@ -242,10 +242,6 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
           event: 'MarketAdded(address,indexed bytes32,indexed bytes32)',
           handler: 'handleMarketAdded',
         },
-        {
-          event: 'MarketRemoved(address,indexed bytes32,indexed bytes32)',
-          handler: 'handleMarketRemoved',
-        },
       ],
     },
   });
