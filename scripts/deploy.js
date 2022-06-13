@@ -29,7 +29,7 @@ program
   .option('--build-only', 'Skip deploy');
 
 program.action(async () => {
-  const MAIN_SUBGRAPH_EXCLUDE = ['latest-rates'];
+  const MAIN_SUBGRAPH_EXCLUDE = [];
   const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
   const SUBGRAPH_CHOICES = await fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
     if (val.endsWith('.js') && val !== 'main.js') {
@@ -90,7 +90,6 @@ program.action(async () => {
     // We merge using this strategy to avoid duplicates from the fragments
     let typesArray = [];
     for (let i = 0; i < SUBGRAPH_CHOICES.length; i++) {
-      console.log(MAIN_SUBGRAPH_EXCLUDE);
       if (!MAIN_SUBGRAPH_EXCLUDE.includes(SUBGRAPH_CHOICES[i])) {
         typesArray.push(
           (await fs.readFileSync(path.join(__dirname, `../subgraphs/${SUBGRAPH_CHOICES[i]}.graphql`))).toString(),

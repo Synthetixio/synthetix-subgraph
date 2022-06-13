@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const MAIN_SUBGRAPH_EXCLUDE = ['main.js', 'latest-rates.js'];
+const MAIN_SUBGRAPH_EXCLUDE = ['main.js'];
 
 const includedSubgraphs = fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
   if (val.endsWith('.js') && !MAIN_SUBGRAPH_EXCLUDE.includes(val)) {

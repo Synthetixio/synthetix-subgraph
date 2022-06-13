@@ -21,6 +21,37 @@ import { LatestRate, RateUpdate, Candle } from '../../generated/subgraphs/latest
 import { BigDecimal, BigInt, DataSourceContext, dataSource, log, Address, ethereum } from '@graphprotocol/graph-ts';
 
 import { strToBytes, toDecimal, ZERO, ZERO_ADDRESS, CANDLE_PERIODS } from '../lib/helpers';
+import { getContractDeployment } from '../../generated/addresses';
+import { AddressResolver } from '../../generated/subgraphs/exchanges/exchanges_Synthetix_0/AddressResolver';
+import { ExchangeRates } from '../../generated/subgraphs/latest-rates/ExchangeRates_0/ExchangeRates';
+
+export function initFeed(currencyKey: string): BigDecimal | null {
+  let addressResolverAddress = getContractDeployment(
+    'AddressResolver',
+    dataSource.network(),
+    BigInt.fromI32(1000000000),
+  )!;
+  let resolver = AddressResolver.bind(addressResolverAddress);
+  let exchangeRateAddressTry = resolver.try_getAddress(strToBytes('ExchangeRates', 32));
+
+  if (!exchangeRateAddressTry.reverted) {
+    let er = ExchangeRates.bind(exchangeRateAddressTry.value);
+
+    let aggregatorAddress = er.try_aggregators(strToBytes(currencyKey, 32));
+
+    if (!aggregatorAddress.reverted) {
+      addProxyAggregator(currencyKey, aggregatorAddress.value);
+
+      let r = er.try_rateForCurrency(strToBytes(currencyKey, 32));
+
+      if (!r.reverted) {
+        return toDecimal(r.value);
+      }
+    }
+  }
+
+  return null;
+}
 
 export function addLatestRate(synth: string, rate: BigInt, aggregator: Address, event: ethereum.Event): void {
   let decimalRate = toDecimal(rate);
