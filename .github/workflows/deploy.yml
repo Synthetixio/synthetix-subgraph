@@ -50,11 +50,11 @@ jobs:
         run: node scripts/deploy.js -t kwenta -s main -n mainnet
         env:
           NETWORK: mainnet
-      - name: Deploy optimistic kovan rates subgraph
-        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism-kovan
+      - name: Deploy optimistic kovan futures subgraph
+        run: node scripts/deploy.js -t kwenta -s futures -n optimism-kovan
         env:
           NETWORK: optimism-kovan
-      - name: Deploy optimistic mainnet rates subgraph
-        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism
+      - name: Deploy optimistic mainnet futures subgraph
+        run: node scripts/deploy.js -t kwenta -s futures -n optimism
         env:
           NETWORK: optimism
