@@ -8,6 +8,7 @@ type FuturesTrade @entity {
   id: ID!
   timestamp: BigInt!
   account: Bytes!
+  margin: BigInt!
   size: BigInt!
   asset: Bytes!
   price: BigInt!
@@ -38,6 +39,7 @@ type FuturesPosition @entity {
   pnl: BigInt!
   feesPaid: BigInt!
   netFunding: BigInt!
+  pnlWithFeesPaid: BigInt!
   netTransfers: BigInt!
   totalDeposits: BigInt!
   fundingIndex: BigInt!
