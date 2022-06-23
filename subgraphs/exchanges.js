@@ -5,8 +5,7 @@ const { getContractDeployments, getCurrentNetwork, createSubgraphManifest } = re
 const latestRates = require('./fragments/latest-rates');
 const balances = require('./fragments/balances');
 
-const manifest = clone(latestRates.dataSources);
-manifest.push(...balances.dataSources);
+const manifest = [];
 
 if (getCurrentNetwork() == 'mainnet') {
   manifest.push(
@@ -17,14 +16,14 @@ if (getCurrentNetwork() == 'mainnet') {
       source: {
         address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f',
         abi: 'Synthetix4',
-        startBlock: 6841188,
+        startBlock: Math.max(parseInt(process.env.SNX_START_BLOCK || '0'), 6841188),
       },
       mapping: {
         kind: 'ethereum/events',
         apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/exchanges.ts',
-        entities: ['SynthExchange'],
+        entities: ['SynthExchange', 'FeeRate'],
         abis: [
           {
             name: 'Synthetix4',
@@ -50,6 +49,10 @@ if (getCurrentNetwork() == 'mainnet') {
             name: 'AggregatorProxy',
             file: '../abis/AggregatorProxy.json',
           },
+          {
+            name: 'SystemSettings',
+            file: '../abis/SystemSettings.json',
+          },
         ],
         eventHandlers: [
           {
@@ -66,14 +69,14 @@ if (getCurrentNetwork() == 'mainnet') {
       source: {
         address: '0xc011a72400e58ecd99ee497cf89e3775d4bd732f',
         abi: 'Synthetix',
-        startBlock: 8622911,
+        startBlock: Math.max(parseInt(process.env.SNX_START_BLOCK || '0'), 8622911),
       },
       mapping: {
         kind: 'ethereum/events',
         apiVersion: '0.0.5',
         language: 'wasm/assemblyscript',
         file: '../src/exchanges.ts',
-        entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate'],
+        entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate', 'FeeRate'],
         abis: [
           {
             name: 'Synthetix4',
@@ -94,6 +97,10 @@ if (getCurrentNetwork() == 'mainnet') {
           {
             name: 'ExchangeRates',
             file: '../abis/ExchangeRates.json',
+          },
+          {
+            name: 'SystemSettings',
+            file: '../abis/SystemSettings.json',
           },
         ],
         eventHandlers: [
@@ -130,7 +137,7 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
       apiVersion: '0.0.5',
       language: 'wasm/assemblyscript',
       file: '../src/exchanges.ts',
-      entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate'],
+      entities: ['SynthExchange', 'ExchangeReclaim', 'ExchangeRebate', 'FeeRate'],
       abis: [
         {
           name: 'Synthetix4',
@@ -155,6 +162,10 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
         {
           name: 'AggregatorProxy',
           file: '../abis/AggregatorProxy.json',
+        },
+        {
+          name: 'SystemSettings',
+          file: '../abis/SystemSettings.json',
         },
       ],
       eventHandlers: [
@@ -275,15 +286,7 @@ let futuresMarketTemplate = {
   },
 };
 
-module.exports = createSubgraphManifest('exchanges', manifest, latestRates.templates.concat([futuresMarketTemplate]));
+manifest.push(...balances.dataSources);
+manifest.push(...latestRates.dataSources);
 
-module.exports = {
-  specVersion: '0.0.2',
-  description: 'Synthetix Exchanges API',
-  repository: 'https://github.com/Synthetixio/synthetix-subgraph',
-  schema: {
-    file: './exchanges.graphql',
-  },
-  dataSources: manifest,
-  templates: latestRates.templates.concat([futuresMarketTemplate]),
-};
+module.exports = createSubgraphManifest('exchanges', manifest, [...latestRates.templates, futuresMarketTemplate]);

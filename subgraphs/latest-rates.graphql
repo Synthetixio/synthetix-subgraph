@@ -64,6 +64,19 @@ type RateUpdate @entity {
   timestamp: BigInt!
 }
 
+type FeeRate @entity {
+  " string representing the setting name "
+  id: ID!
+
+  setting: String!
+
+  " name of the synth this record applies to, if any "
+  synth: String
+
+  " value of the setting "
+  rate: BigDecimal!
+}
+
 " DEPRECATED: See the Candles entity"
 type DailyCandle @entity {
   " DEPRECATED: See the Candles entity "

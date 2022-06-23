@@ -38,6 +38,7 @@ import {
   strToBytes,
   ZERO,
   YEAR_SECONDS,
+  getExchangeFee,
 } from './lib/helpers';
 import { toDecimal, ZERO_ADDRESS } from './lib/helpers';
 import { addDollar, addProxyAggregator } from './fragments/latest-rates';
@@ -184,13 +185,9 @@ export function handleSynthExchange(event: SynthExchangeEvent): void {
   let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.fromAmount, latestFromRate);
   let toAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestToRate);
 
-  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
-
-  if (feesInUSD.lt(toDecimal(ZERO))) {
-    let DEFAULT_FEE = toDecimal(BigInt.fromI32(3), 3);
-    // this is an edge case. we can get pretty close to accurate by use of best guess of 30 bp
-    feesInUSD = fromAmountInUSD.times(DEFAULT_FEE);
-  }
+  let feesInUSD = fromAmountInUSD.times(
+    getExchangeFee('exchangeFeeRate', fromCurrencyKey == 'sUSD' ? toCurrencyKey : fromCurrencyKey),
+  );
 
   let fromSynth = SynthByCurrencyKey.load(fromCurrencyKey);
   let toSynth = SynthByCurrencyKey.load(toCurrencyKey);
@@ -269,16 +266,12 @@ export function handleAtomicSynthExchange(event: AtomicSynthExchangeEvent): void
   let fromAmountInUSD = getUSDAmountFromAssetAmount(event.params.fromAmount, latestFromRate);
   let toAmountInUSD = getUSDAmountFromAssetAmount(event.params.toAmount, latestToRate);
 
-  let feesInUSD = fromAmountInUSD.minus(toAmountInUSD);
-
-  if (feesInUSD.lt(toDecimal(ZERO))) {
-    let DEFAULT_FEE = toDecimal(BigInt.fromI32(3), 3);
-    // this is an edge case. we can get pretty close to accurate by use of best guess of 30 bp
-    feesInUSD = fromAmountInUSD.times(DEFAULT_FEE);
-  }
-
   let fromSynth = SynthByCurrencyKey.load(fromCurrencyKey);
   let toSynth = SynthByCurrencyKey.load(toCurrencyKey);
+
+  let feesInUSD = fromAmountInUSD.times(
+    getExchangeFee('atomicExchangeFeeRate', fromCurrencyKey == 'sUSD' ? toCurrencyKey : fromCurrencyKey),
+  );
 
   let fromSynthAddress = fromSynth != null ? fromSynth.proxyAddress : ZERO_ADDRESS;
   let toSynthAddress = toSynth != null ? toSynth.proxyAddress : ZERO_ADDRESS;

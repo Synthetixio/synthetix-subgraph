@@ -1,7 +1,10 @@
 const { getContractDeployments, versions, getCurrentNetwork, getCurrentSubgraph } = require('../utils/network');
 
 const exchangeRatesContractAddresses = getContractDeployments('ExchangeRates');
+const systemSettingsAddresses = getContractDeployments('SystemSettings');
+console.log('systemsettings', systemSettingsAddresses.length);
 
+const systemSettingsManifests = [];
 const exchangeRatesManifests = [];
 
 // the rates updated event changed from bytes4 to bytes32 in the sirius release
@@ -13,6 +16,48 @@ const EXCHANGER_START_BLOCK = 10537958;
 const EXCHANGES_START_BLOCK = 6841188;
 // the earliest start block to track shorts subgraph rates
 const SHORTS_START_BLOCK = 11513382;
+
+systemSettingsAddresses.forEach((a, i) => {
+  console.log('adding a system settings', a);
+  systemSettingsManifests.push({
+    kind: 'ethereum/contract',
+    // for some reason sUSD has different contract name
+    name: `latestRates-SystemSettings_${i}`,
+    network: getCurrentNetwork(),
+    source: {
+      address: a.address,
+      startBlock: a.startBlock,
+      abi: 'SystemSettings',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.5',
+      language: 'wasm/assemblyscript',
+      file: '../src/fragments/latest-rates.ts',
+      entities: ['FeeRate'],
+      abis: [
+        {
+          name: 'Synth',
+          file: '../abis/Synth.json',
+        },
+        {
+          name: 'SystemSettings',
+          file: '../abis/SystemSettings.json',
+        },
+      ],
+      eventHandlers: [
+        {
+          event: 'ExchangeFeeUpdated(bytes32,uint256)',
+          handler: 'handleExchangeFeeUpdated',
+        },
+        {
+          event: 'AtomicExchangeFeeUpdated(bytes32,uint256)',
+          handler: 'handleAtomicExchangeFeeUpdated',
+        },
+      ],
+    },
+  });
+});
 
 exchangeRatesContractAddresses.forEach((ca, i) => {
   let startBlock = ca.startBlock;
@@ -278,6 +323,6 @@ const inverseAggregatorTemplate = {
 };
 
 module.exports = {
-  dataSources: exchangeRatesManifests,
+  dataSources: [...exchangeRatesManifests, ...systemSettingsManifests],
   templates: [...proxyTemplates, aggregatorTemplate, synthAggregatorTemplate, inverseAggregatorTemplate],
 };

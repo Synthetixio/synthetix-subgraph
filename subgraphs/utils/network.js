@@ -139,6 +139,12 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
 }
 
 function createSubgraphManifest(name, dataSources, templates) {
+  const dataSourcesArray = Object.values(dataSources);
+  const templatesArray = Object.values(templates);
+
+  dataSourcesArray.reverse();
+  templatesArray.reverse();
+
   const manifest = {
     specVersion: '0.0.4',
     features: ['grafting'],
@@ -147,8 +153,8 @@ function createSubgraphManifest(name, dataSources, templates) {
     schema: {
       file: `./${name}.graphql`,
     },
-    dataSources: Object.values(dataSources),
-    templates: Object.values(templates),
+    dataSources: dataSourcesArray,
+    templates: templatesArray,
   };
 
   if (process.env.GRAFT_BASE) {

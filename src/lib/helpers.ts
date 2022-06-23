@@ -1,7 +1,7 @@
 import { BigDecimal, BigInt, Bytes, ByteArray, log, Address, dataSource } from '@graphprotocol/graph-ts';
 
-import { LatestRate } from '../../generated/subgraphs/latest-rates/schema';
-import { initFeed } from '../fragments/latest-rates';
+import { LatestRate, FeeRate } from '../../generated/subgraphs/latest-rates/schema';
+import { initFeed, initFeeRate } from '../fragments/latest-rates';
 import { getContractDeployment } from '../../generated/addresses';
 
 export let ZERO = BigInt.fromI32(0);
@@ -58,6 +58,17 @@ export function getLatestRate(synth: string, txHash: string): BigDecimal | null 
     return initFeed(synth);
   }
   return latestRate.rate;
+}
+
+export function getExchangeFee(type: string, synth: string): BigDecimal {
+  let rate = FeeRate.load(type + '-' + synth);
+  if (rate == null) {
+    log.warning('atomic exchange rate missing for synth: {}', [synth]);
+
+    // load feed for the first time, and use contract call to get rate
+    return initFeeRate(type, synth);
+  }
+  return rate.rate;
 }
 
 export function isEscrow(holder: string, network: string): boolean {

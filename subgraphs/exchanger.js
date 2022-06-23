@@ -83,7 +83,10 @@ getContractDeployments('ProxyERC20').forEach((a, i) => {
     network: getCurrentNetwork(),
     source: {
       address: a.address,
-      startBlock: i === 0 && getCurrentNetwork() === 'mainnet' ? 12733161 : a.startBlock,
+      startBlock:
+        i === 0 && getCurrentNetwork() === 'mainnet'
+          ? Math.max(parseInt(process.env.SNX_START_BLOCK || '0'), 12733161)
+          : a.startBlock,
       abi: 'Synthetix',
     },
     mapping: {

@@ -11,6 +11,12 @@ import {
   AggregatorConfirmed as AggregatorConfirmedEvent,
 } from '../../generated/subgraphs/latest-rates/ExchangeRates_13/AggregatorProxy';
 
+import {
+  ExchangeFeeUpdated,
+  AtomicExchangeFeeUpdated,
+  SystemSettings,
+} from '../../generated/subgraphs/latest-rates/latestRates-SystemSettings_0/SystemSettings';
+
 import { AnswerUpdated as AnswerUpdatedEvent } from '../../generated/subgraphs/latest-rates/templates/Aggregator/Aggregator';
 
 import {
@@ -25,6 +31,7 @@ import {
   LatestRate,
   InversePricingInfo,
   RateUpdate,
+  FeeRate,
   DailyCandle,
   Candle,
 } from '../../generated/subgraphs/latest-rates/schema';
@@ -232,6 +239,43 @@ export function initFeed(currencyKey: string): BigDecimal | null {
   return null;
 }
 
+export function initFeeRate(type: string, currencyKey: string): BigDecimal {
+  let addressResolverAddress = getContractDeployment(
+    'AddressResolver',
+    dataSource.network(),
+    BigInt.fromI32(1000000000),
+  )!;
+
+  let resolver = AddressResolver.bind(addressResolverAddress);
+  let systemSettingsAddressTry = resolver.try_getAddress(strToBytes('SystemSettings', 32));
+
+  if (!systemSettingsAddressTry.reverted) {
+    let ss = SystemSettings.bind(systemSettingsAddressTry.value);
+
+    let result = ss.try_atomicExchangeFeeRate(strToBytes(currencyKey, 32));
+    if (type === 'exchangeFeeRate') {
+      result = ss.try_exchangeFeeRate(strToBytes(currencyKey, 32));
+      // eslint-disable-next-line no-empty
+    } else if (type === 'atomicExchangeFeeRate') {
+    } else {
+      log.warning('unknown fee type {}', [type]);
+      return toDecimal(BigInt.fromI32(0));
+    }
+
+    if (!result.reverted) {
+      let entity = new FeeRate(type + '-' + currencyKey);
+      entity.setting = type;
+      entity.synth = currencyKey;
+      entity.rate = toDecimal(result.value);
+      entity.save();
+
+      return toDecimal(result.value);
+    }
+  }
+
+  return toDecimal(BigInt.fromI32(0));
+}
+
 export function handleAggregatorAdded(event: AggregatorAddedEvent): void {
   addProxyAggregator(event.params.currencyKey.toString(), event.params.aggregator);
 }
@@ -353,6 +397,24 @@ export function handleChainlinkUpdate(event: ExecutionSuccess): void {
   if (index == 0) {
     log.warning('no aggregator keys found in rates contract for chainlink update, or reverted', []);
   }
+}
+
+export function handleExchangeFeeUpdated(event: ExchangeFeeUpdated): void {
+  let entity = new FeeRate('exchangeFeeRate-' + event.params.synthKey.toString());
+  entity.setting = 'exchangeFee';
+  entity.synth = event.params.synthKey.toString();
+  entity.rate = toDecimal(event.params.newExchangeFeeRate);
+  entity.save();
+  return;
+}
+
+export function handleAtomicExchangeFeeUpdated(event: AtomicExchangeFeeUpdated): void {
+  let entity = new FeeRate('atomicExchangeFeeRate-' + event.params.synthKey.toString());
+  entity.setting = 'atomicExchangeFeeRate';
+  entity.synth = event.params.synthKey.toString();
+  entity.rate = toDecimal(event.params.newExchangeFeeRate);
+  entity.save();
+  return;
 }
 
 // DEPRECATED: See updateCandle
