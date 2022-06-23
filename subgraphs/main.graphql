@@ -454,6 +454,16 @@ type Candle @entity {
   aggregatedPrices: BigInt!
 }
 
+type FeeRate @entity {
+  " string representing the setting name "
+  id: ID!
+  setting: String!
+  " name of the synth this record applies to, if any "
+  synth: String
+  " value of the setting "
+  rate: BigDecimal!
+}
+
 type AccountFlaggedForLiquidation @entity {
   " the deadline plus the staker address "
   id: ID!
