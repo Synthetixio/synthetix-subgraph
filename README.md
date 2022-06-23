@@ -113,7 +113,7 @@ Each time a synth is exchanged, a new SynthExchange entity is created.
 
 ### Total
 
-The Total entities aggregate SynthExchange data over time. Note that we are only collecting a single entity to record all-time totals for each combination of `bucketMagnitude` and `synth` filters. (i.e. All totals with a period of 0 have a timestamp of 0.)
+The Total entities aggregate SynthExchange data and futures trades over time. Note that we are only collecting a single entity to record all-time totals for each combination of `bucketMagnitude` and `synth` filters. (i.e. All totals with a period of 0 have a timestamp of 0.)
 
 - `id` (string) - The unique identifier for this total, represented as _timestamp_-_bucketMagnitude_-_synth_-_period_
 - `period` (integer) - The duration this candle is tracking, in seconds. The following periods are available: year (31556736), quarter (7889184), month (2629728), week (604800), day (86400), 15 minutes (900), and all-time (0). This is especially useful for filtering.

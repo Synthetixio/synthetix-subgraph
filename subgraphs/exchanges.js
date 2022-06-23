@@ -222,7 +222,71 @@ getContractDeployments('SystemSettings').forEach((a, i) => {
   });
 });
 
+getContractDeployments('FuturesMarketManager').forEach((a, i) => {
+  manifest.push({
+    kind: 'ethereum/contract',
+    name: `exchanges_FuturesMarketManager_${i}`,
+    network: getCurrentNetwork(),
+    source: {
+      address: a.address,
+      startBlock: a.startBlock,
+      abi: 'FuturesMarketManager',
+    },
+    mapping: {
+      kind: 'ethereum/events',
+      apiVersion: '0.0.5',
+      language: 'wasm/assemblyscript',
+      file: '../src/exchanges.ts',
+      entities: ['FuturesMarket'],
+      abis: [
+        {
+          name: 'FuturesMarket',
+          file: '../abis/FuturesMarket.json',
+        },
+        {
+          name: 'FuturesMarketManager',
+          file: '../abis/FuturesMarketManager.json',
+        },
+      ],
+      eventHandlers: [
+        {
+          event: 'MarketAdded(address,indexed bytes32,indexed bytes32)',
+          handler: 'handleMarketAdded',
+        },
+      ],
+    },
+  });
+});
+
+let futuresMarketTemplate = {
+  kind: 'ethereum/contract',
+  name: 'FuturesMarketTemplate',
+  network: getCurrentNetwork(),
+  source: {
+    abi: 'FuturesMarket',
+  },
+  mapping: {
+    kind: 'ethereum/events',
+    apiVersion: '0.0.5',
+    language: 'wasm/assemblyscript',
+    file: '../src/exchanges.ts',
+    entities: ['FuturesMarket'],
+    abis: [
+      {
+        name: 'FuturesMarket',
+        file: '../abis/FuturesMarket.json',
+      },
+    ],
+    eventHandlers: [
+      {
+        event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)',
+        handler: 'handlePositionModified',
+      },
+    ],
+  },
+};
+
 manifest.push(...balances.dataSources);
 manifest.push(...latestRates.dataSources);
 
-module.exports = createSubgraphManifest('exchanges', manifest, latestRates.templates);
+module.exports = createSubgraphManifest('exchanges', manifest, [...latestRates.templates, futuresMarketTemplate]);
