@@ -2,7 +2,6 @@ const { getContractDeployments, versions, getCurrentNetwork, getCurrentSubgraph 
 
 const exchangeRatesContractAddresses = getContractDeployments('ExchangeRates');
 const systemSettingsAddresses = getContractDeployments('SystemSettings');
-console.log('systemsettings', systemSettingsAddresses.length);
 
 const systemSettingsManifests = [];
 const exchangeRatesManifests = [];
@@ -18,7 +17,6 @@ const EXCHANGES_START_BLOCK = 6841188;
 const SHORTS_START_BLOCK = 11513382;
 
 systemSettingsAddresses.forEach((a, i) => {
-  console.log('adding a system settings', a);
   systemSettingsManifests.push({
     kind: 'ethereum/contract',
     // for some reason sUSD has different contract name

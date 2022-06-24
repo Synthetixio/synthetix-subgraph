@@ -113,18 +113,25 @@ program.action(async () => {
     settings.graftBase ||
     (await readPreviousDeploymentId(settings.team, networkPrefix(settings.network) + settings.subgraph));
 
-  if (prevDeployId && !OPTIONS.graftBlock && !OPTIONS.buildOnly) {
-    await inquirer.prompt(
-      [
-        {
-          message: `Previous graftable base found (${prevDeployId}). Specify graft start block (0 to disable):`,
-          type: 'number',
-          name: 'graftBlock',
-        },
-      ],
-      OPTIONS,
-    );
+  if (prevDeployId && !settings.graftBlock && !settings.buildOnly) {
+    settings = {
+      ...(await inquirer.prompt(
+        [
+          {
+            message: `Previous graftable base found (${prevDeployId}). Specify graft start block (0 to disable):`,
+            type: 'number',
+            name: 'graftBlock',
+          },
+        ],
+        settings,
+      )),
+      ...settings,
+    };
+
+    settings.graftBase = prevDeployId;
   }
+
+  console.log('RESOLVED SETTINGS', settings);
 
   if (settings.subgraph == 'main') {
     console.log('Generating the main subgraph...');
