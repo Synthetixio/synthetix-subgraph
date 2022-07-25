@@ -22,6 +22,7 @@ async function readPreviousDeploymentId(subgraphBaseUrl, team, subgraphName) {
   const res = await fetch(`${subgraphBaseUrl}/subgraphs/name/${team}/${subgraphName}`, {
     headers: {
       'User-Agent': 'Synthetix/0.0.1',
+      'Content-Type': 'application/json',
     },
     body: '{"query":"{_meta { deployment }}","variables":null,"extensions":{"headers":null}}',
     method: 'POST',
