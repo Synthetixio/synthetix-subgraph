@@ -55,7 +55,9 @@ program
     '--graft-base <id>',
     'ID of subgraph to graft. If unspecified, will attempt to read existing from the graph API',
   )
-  .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting');
+  .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting')
+  .option('--node <node>', 'graph node endpoint')
+  .option('--ipfs <ipfs>', 'ipfs server endpoint');
 
 program.action(async () => {
   const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
@@ -102,6 +104,16 @@ program.action(async () => {
   if (!OPTIONS.team) {
     OPTIONS.team = 'synthetixio-team';
     console.log(`Using default team ${OPTIONS.team}`);
+  }
+
+  if (!OPTIONS.node) {
+    OPTIONS.node = 'https://api.thegraph.com/deploy/';
+    console.log(`Using default node url: ${OPTIONS.node}`);
+  }
+
+  if (!OPTIONS.ipfs) {
+    OPTIONS.ipfs = 'https://api.thegraph.com/ipfs/';
+    console.log(`Using default ipfs: ${OPTIONS.ipfs}`);
   }
 
   let settings = {
@@ -194,7 +206,7 @@ program.action(async () => {
 
         if (!settings.buildOnly) {
           await exec(
-            `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
+            `${prefixArgs} ./node_modules/.bin/graph deploy --node ${settings.node} --ipfs ${settings.ipfs} ${
               settings.team
             }/${networkPrefix(network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
           );
@@ -213,7 +225,7 @@ program.action(async () => {
 
       if (!settings.buildOnly) {
         await exec(
-          `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
+          `${prefixArgs} ./node_modules/.bin/graph deploy --node ${settings.node} --ipfs ${settings.ipfs} ${
             settings.team
           }/${networkPrefix(settings.network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
         );
