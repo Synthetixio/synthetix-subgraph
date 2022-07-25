@@ -100,18 +100,25 @@ function trackMintOrBurn(synthAddress: Address, value: BigDecimal): void {
 
     synth.save();
   }
+  log.error('Synth is null even though we tried to create it', []);
 }
 
 export function handleTransferSynth(event: SynthTransferEvent): void {
   if (event.params.from.toHex() != ZERO_ADDRESS.toHex() && event.params.from != event.address) {
     trackSynthHolder(event.address, event.params.from, event.block.timestamp, toDecimal(event.params.value).neg());
-  } else {
-    trackMintOrBurn(event.address, toDecimal(event.params.value));
+    return;
   }
-
   if (event.params.to.toHex() != ZERO_ADDRESS.toHex() && event.params.to != event.address) {
     trackSynthHolder(event.address, event.params.to, event.block.timestamp, toDecimal(event.params.value));
-  } else {
-    trackMintOrBurn(event.address, toDecimal(event.params.value).neg());
+    return;
   }
+  if (event.params.from == event.address) {
+    trackMintOrBurn(event.address, toDecimal(event.params.value));
+    return;
+  }
+  if (event.params.to == event.address) {
+    trackMintOrBurn(event.address, toDecimal(event.params.value).neg());
+    return;
+  }
+  log.warning('Expected condition to handle all transfer events', []);
 }
