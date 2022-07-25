@@ -16,12 +16,13 @@ const parseBoolean = (val) => {
   return val == 'false' ? false : val;
 };
 
-async function readPreviousDeploymentId(team, subgraphName) {
+async function readPreviousDeploymentId(subgraphBaseUrl, team, subgraphName) {
   // now that we have most of the information, see if we have a previous subgraph version
   // if so, prompt the user to graft onto it
-  const res = await fetch(`https://api.thegraph.com/subgraphs/name/${team}/${subgraphName}`, {
+  const res = await fetch(`${subgraphBaseUrl}/subgraphs/name/${team}/${subgraphName}`, {
     headers: {
       'User-Agent': 'Synthetix/0.0.1',
+      'Content-Type': 'application/json',
     },
     body: '{"query":"{_meta { deployment }}","variables":null,"extensions":{"headers":null}}',
     method: 'POST',
@@ -30,6 +31,14 @@ async function readPreviousDeploymentId(team, subgraphName) {
   const body = await res.json();
 
   return body.data ? body.data._meta.deployment : undefined;
+}
+
+function getNetworkSubgraphName(network, subgraph) {
+  return `${networkPrefix(network)}${subgraph}`;
+}
+
+function getFullSubgraphName(teamName, network, subgraphName) {
+  return `${teamName}/${getNetworkSubgraphName(network, subgraphName)}`;
 }
 
 function exec(cmd) {
@@ -55,7 +64,10 @@ program
     '--graft-base <id>',
     'ID of subgraph to graft. If unspecified, will attempt to read existing from the graph API',
   )
-  .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting');
+  .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting')
+  .option('--node <node>', 'graph node endpoint')
+  .option('--ipfs <ipfs>', 'ipfs server endpoint')
+  .option('--subgraph-base-url <subgraphBaseUrl>', 'subgraph base url');
 
 program.action(async () => {
   const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
@@ -104,6 +116,21 @@ program.action(async () => {
     console.log(`Using default team ${OPTIONS.team}`);
   }
 
+  if (!OPTIONS.node) {
+    OPTIONS.node = 'https://api.thegraph.com/deploy/';
+    console.log(`Using default node url: ${OPTIONS.node}`);
+  }
+
+  if (!OPTIONS.ipfs) {
+    OPTIONS.ipfs = 'https://api.thegraph.com/ipfs/';
+    console.log(`Using default ipfs: ${OPTIONS.ipfs}`);
+  }
+
+  if (!OPTIONS.subgraphBaseUrl) {
+    OPTIONS.subgraphBaseUrl = 'https://api.thegraph.com';
+    console.log(`Using default subgraph base url: ${OPTIONS.subgraphBaseUrl}`);
+  }
+
   let settings = {
     ...(await inquirer.prompt(inquiries, OPTIONS)),
     ...OPTIONS,
@@ -111,7 +138,14 @@ program.action(async () => {
 
   const prevDeployId =
     settings.graftBase ||
-    (await readPreviousDeploymentId(settings.team, networkPrefix(settings.network) + settings.subgraph));
+    (await readPreviousDeploymentId(settings.subgraphBaseUrl, settings.team, getNetworkSubgraphName(settings.network, settings.subgraph)));
+
+  // if no previous deployment found, create the graph
+  if (!prevDeployId) {
+    exec(
+      `./node_modules/.bin/graph create --node ${OPTIONS.node} ${getFullSubgraphName(settings.team, settings.network, settings.subgraph)}`
+    );
+  }
 
   if (prevDeployId && !settings.graftBlock && !settings.buildOnly) {
     settings = {
@@ -194,9 +228,9 @@ program.action(async () => {
 
         if (!settings.buildOnly) {
           await exec(
-            `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
-              settings.team
-            }/${networkPrefix(network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
+            `${prefixArgs} ./node_modules/.bin/graph deploy --node ${settings.node} --ipfs ${settings.ipfs} ${
+              getFullSubgraphName(settings.team, settings.network, settings.subgraph)
+            } ./subgraphs/${settings.subgraph}.js`,
           );
           console.log(green(`Successfully deployed to ${network} on the hosted service.`));
         }
@@ -213,9 +247,9 @@ program.action(async () => {
 
       if (!settings.buildOnly) {
         await exec(
-          `${prefixArgs} ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
-            settings.team
-          }/${networkPrefix(settings.network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
+          `${prefixArgs} ./node_modules/.bin/graph deploy --node ${settings.node} --ipfs ${settings.ipfs} ${
+            getFullSubgraphName(settings.team, settings.network, settings.subgraph)
+          } ./subgraphs/${settings.subgraph}.js`,
         );
         console.log(green(`Successfully deployed to ${settings.network} on the hosted service.`));
       }
