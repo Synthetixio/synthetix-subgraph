@@ -142,7 +142,7 @@ program.action(async () => {
   // if no previous deployment found, create the graph
   if (!prevDeployId) {
     exec(
-      `./node_modules/.bin/graph create --node ${OPTIONS.node} ${settings.subgraph}`
+      `./node_modules/.bin/graph create --node ${OPTIONS.node} ${getFullSubgraphName(settings.team, settings.network, settings.subgraph)}`
     );
   }
 
