@@ -4,6 +4,7 @@ const synths = getFuturesMarkets(getCurrentNetwork());
 
 const manifest = [];
 
+// futures market manager
 getContractDeployments('FuturesMarketManager').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
@@ -44,6 +45,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
   });
 });
 
+// futures markets
 synths.forEach((synth, i) => {
   getContractDeployments(`FuturesMarket${synth}`).forEach((a, i) => {
     manifest.push({
@@ -96,6 +98,45 @@ synths.forEach((synth, i) => {
       },
     });
   });
+});
+
+// crossmargin
+// addresses
+TESTNET_CROSSMARGIN_ADDRESS = '0xB2e8d9832C8a22C6fB6D2c92c7E2a69d654749CB';
+MAINNET_CROSSMARGIN_ADDRESS = '';
+
+// set up
+const crossMarginAddress =
+  getCurrentNetwork() === 'optimism-main' ? MAINNET_CROSSMARGIN_ADDRESS : TESTNET_CROSSMARGIN_ADDRESS;
+
+manifest.push({
+  kind: 'ethereum/contract',
+  name: `crossmargin_factory`,
+  network: getCurrentNetwork(),
+  source: {
+    address: crossMarginAddress,
+    startBlock: 0,
+    abi: 'MarginAccountFactory',
+  },
+  mapping: {
+    kind: 'ethereum/events',
+    apiVersion: '0.0.5',
+    language: 'wasm/assemblyscript',
+    file: '../src/crossmargin.ts',
+    entities: ['MarginAccountFactory'],
+    abis: [
+      {
+        name: 'MarginAccountFactory',
+        file: '../abis/MarginAccountFactory.json',
+      },
+    ],
+    eventHandlers: [
+      {
+        event: 'NewAccount(indexed address,address)',
+        handler: 'handleNewAccount',
+      },
+    ],
+  },
 });
 
 module.exports = {

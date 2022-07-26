@@ -11,6 +11,7 @@ import {
   FuturesOneMinStat,
   FundingRateUpdate,
   FuturesOrder,
+  CrossMarginAccount,
 } from '../generated/subgraphs/futures/schema';
 import {
   MarketAdded as MarketAddedEvent,
@@ -44,21 +45,23 @@ export function handleMarketRemoved(event: MarketRemovedEvent): void {
 }
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
+  let sendingAccount = event.params.account;
+  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+  const accountType = crossMarginAccount ? 'cross_margin' : 'isolated_margin';
+
   let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
-  let statId = event.params.account.toHex();
   let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
   let positionEntity = FuturesPosition.load(positionId);
-  let statEntity = FuturesStat.load(statId);
+  let statEntity = FuturesStat.load(account.toHex());
   let cumulativeEntity = getOrCreateCumulativeEntity();
-  let marginAccountEntity = FuturesMarginAccount.load(
-    event.params.account.toHex() + '-' + futuresMarketAddress.toHex(),
-  );
+  let marginAccountEntity = FuturesMarginAccount.load(sendingAccount.toHex() + '-' + futuresMarketAddress.toHex());
 
   // create new entities
   if (statEntity == null) {
-    statEntity = new FuturesStat(statId);
-    statEntity.account = event.params.account;
+    statEntity = new FuturesStat(account.toHex());
+    statEntity.account = account;
     statEntity.feesPaid = ZERO;
     statEntity.pnl = ZERO;
     statEntity.pnlWithFeesPaid = ZERO;
@@ -74,7 +77,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     if (marketEntity && marketEntity.asset) {
       positionEntity.asset = marketEntity.asset;
     }
-    positionEntity.account = event.params.account;
+    positionEntity.account = account;
+    positionEntity.abstractAccount = sendingAccount;
+    positionEntity.accountType = accountType;
     positionEntity.isLiquidated = false;
     positionEntity.isOpen = true;
     positionEntity.size = event.params.size;
@@ -98,7 +103,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   if (event.params.tradeSize.isZero() == false) {
     let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
     tradeEntity.timestamp = event.block.timestamp;
-    tradeEntity.account = event.params.account;
+    tradeEntity.account = account;
+    tradeEntity.abstractAccount = sendingAccount;
+    tradeEntity.accountType = accountType;
     tradeEntity.size = event.params.tradeSize;
     tradeEntity.margin = event.params.margin.plus(event.params.fee);
     tradeEntity.positionSize = event.params.size;
@@ -166,7 +173,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       // if its not a withdrawal (or deposit), it's a liquidation
       let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
       tradeEntity.timestamp = event.block.timestamp;
-      tradeEntity.account = event.params.account;
+      tradeEntity.account = account;
+      tradeEntity.abstractAccount = sendingAccount;
+      tradeEntity.accountType = accountType;
 
       // create a placeholder for trade size as long/short
       // this will help figure out the trade direction during a liquidation
@@ -286,14 +295,18 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 }
 
 export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
+  let sendingAccount = event.params.account;
+  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+
   let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
   let positionEntity = FuturesPosition.load(positionId);
   let tradeEntity = FuturesTrade.load(
     event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
   );
-  let statId = event.params.account.toHex();
-  let statEntity = FuturesStat.load(statId);
+
+  let statEntity = FuturesStat.load(account.toHex());
   if (statEntity && statEntity.liquidations) {
     statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
     statEntity.save();
@@ -423,13 +436,12 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
 export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
     let futuresMarketAddress = event.address as Address;
+    let sendingAccount = event.params.account;
+    let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+    const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
 
     const futuresOrderEntityId =
-      futuresMarketAddress.toHex() +
-      '-' +
-      event.params.account.toHexString() +
-      '-' +
-      event.params.targetRoundId.toString();
+      futuresMarketAddress.toHex() + '-' + sendingAccount.toHexString() + '-' + event.params.targetRoundId.toString();
 
     let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
 
@@ -447,7 +459,7 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
     }
 
     futuresOrderEntity.market = futuresMarketAddress;
-    futuresOrderEntity.account = event.params.account;
+    futuresOrderEntity.account = account;
     futuresOrderEntity.size = event.params.sizeDelta;
     futuresOrderEntity.targetRoundId = event.params.targetRoundId;
     futuresOrderEntity.timestamp = event.block.timestamp;
@@ -458,16 +470,15 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
 
 export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): void {
   if (event.params.trackingCode.toString() == 'KWENTA') {
-    const statId = event.params.account.toHex();
-    let statEntity = FuturesStat.load(statId);
+    let sendingAccount = event.params.account;
+    let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+    const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+
+    let statEntity = FuturesStat.load(account.toHex());
 
     let futuresMarketAddress = event.address as Address;
     let futuresOrderEntity = FuturesOrder.load(
-      futuresMarketAddress.toHex() +
-        '-' +
-        event.params.account.toHexString() +
-        '-' +
-        event.params.targetRoundId.toString(),
+      futuresMarketAddress.toHex() + '-' + sendingAccount.toHexString() + '-' + event.params.targetRoundId.toString(),
     );
 
     if (futuresOrderEntity) {

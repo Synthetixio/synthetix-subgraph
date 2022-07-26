@@ -173,6 +173,8 @@ type FuturesTrade @entity {
   id: ID!
   timestamp: BigInt!
   account: Bytes!
+  abstractAccount: Bytes!
+  margin: BigInt!
   size: BigInt!
   asset: Bytes!
   price: BigInt!
@@ -193,6 +195,7 @@ type FuturesPosition @entity {
   market: Bytes!
   asset: Bytes!
   account: Bytes!
+  abstractAccount: Bytes!
   isOpen: Boolean!
   isLiquidated: Boolean!
   trades: BigInt!
@@ -203,6 +206,7 @@ type FuturesPosition @entity {
   pnl: BigInt!
   feesPaid: BigInt!
   netFunding: BigInt!
+  pnlWithFeesPaid: BigInt!
   netTransfers: BigInt!
   totalDeposits: BigInt!
   fundingIndex: BigInt!
@@ -291,4 +295,9 @@ type FuturesOrder @entity {
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
   keeper: Bytes!
+}
+
+type CrossMarginAccount @entity {
+  id: ID!
+  owner: Bytes!
 }
