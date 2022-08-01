@@ -9,6 +9,7 @@
     "snxData": "bin.js"
   },
   "scripts": {
+    "test": "node run-tests.js",
     "lint": "eslint src/ scripts/ subgraphs/",
     "prepare": "husky install",
     "deploy": "node ./scripts/deploy.js"
@@ -18,7 +19,7 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.25.1",
-    "@graphprotocol/graph-ts": "0.24.1",
+    "@graphprotocol/graph-ts": "0.27.0",
     "@graphql-tools/merge": "^8.2.1",
     "chalk": "4.1.2",
     "commander": "8.2.0",
@@ -29,12 +30,15 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.32.0",
     "@typescript-eslint/parser": "4.32.0",
+    "acorn": "8.8.0",
     "eslint": "7.32.0",
     "eslint-import-resolver-typescript": "2.5.0",
     "eslint-plugin-import": "2.24.2",
     "eslint-plugin-prettier": "4.0.0",
     "husky": "7.0.2",
+    "js-yaml": "4.1.0",
     "lint-staged": "11.1.2",
+    "matchstick-as": "0.5.0",
     "minify": "7.2.1",
     "node-fetch": "^2.6.7",
     "prettier": "2.4.1",
