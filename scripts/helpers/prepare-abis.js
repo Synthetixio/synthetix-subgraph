@@ -9,7 +9,7 @@ const snx = require('synthetix');
 
 program.action(async () => {
   const abiPath = path.join(__dirname, '../../abis');
-  const sources = snx.getSource({ network: 'kovan' });
+  const sources = snx.getSource({ network: 'goerli' });
 
   const doesEntryHaveMultidimensionalArrays = ({ type }) => /\[[0-9]*\]\[[0-9]*\]/.test(type);
 

@@ -127,7 +127,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
   });
 });
 
-if (getCurrentNetwork() === 'mainnet' || getCurrentNetwork() == 'kovan') {
+if (getCurrentNetwork() === 'mainnet' || getCurrentNetwork() == 'goerli') {
   // hack for chainlink, tracking of aggregator address changes
   exchangeRatesManifests.push({
     kind: 'ethereum/contract',
