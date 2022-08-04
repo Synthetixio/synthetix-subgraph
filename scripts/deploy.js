@@ -58,7 +58,7 @@ program
   .option('--graft-block <number>', 'Block to begin the graft. 0 disables grafting');
 
 program.action(async () => {
-  const NETWORK_CHOICES = ['mainnet', 'kovan', 'optimism', 'optimism-kovan'];
+  const NETWORK_CHOICES = ['mainnet', 'goerli', 'optimism', 'optimism-goerli'];
   const SUBGRAPH_CHOICES = await fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
     if (val.endsWith('.js') && val !== 'main.js') {
       acc.push(val.slice(0, -3));

@@ -46,7 +46,10 @@ getContractDeployments('Exchanger').forEach((a, i) => {
 
 // add synthetix (only the new contracts)
 getContractDeployments('ProxyERC20').forEach((a, i) => {
-  if (i === 0 && (getCurrentNetwork() !== 'optimism' || getCurrentNetwork() !== 'optimism-kovan')) {
+  if (
+    (i === 0 && (getCurrentNetwork() !== 'optimism' || getCurrentNetwork() !== 'optimism-goerli')) ||
+    getCurrentNetwork() !== 'goerli'
+  ) {
     manifest.push({
       kind: 'ethereum/contract',
       name: 'exchanger_SynthetixOldTracking',
