@@ -109,8 +109,7 @@ function getContractDeployments(contractName, startBlock = 0, endBlock = Number.
 
         // Relevant information is missing from the kovan versions.json file, so we hardcode a minimum here
         if (network == 'goerli' || getCurrentNetwork() == 'goerli') {
-          // TODO ask someone if this still is needed, and if it is what block to use
-          contractStartBlock = Math.max(contractStartBlock, 10412700);
+          contractStartBlock = Math.max(contractStartBlock, 7228468);
         }
 
         if (contractStartBlock >= endBlock) break;
