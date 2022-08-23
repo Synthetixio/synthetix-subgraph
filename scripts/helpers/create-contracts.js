@@ -18,19 +18,19 @@ interface ContractInfo { address: string };
 export function getContractDeployment(contractName: string, network: string, block: BigInt): Address | null {
 `);
 
-for (const network of ['mainnet', 'mainnet-ovm', 'kovan', 'kovan-ovm']) {
+for (const network of ['mainnet', 'mainnet-ovm', 'goerli', 'goerli-ovm']) {
   const versions = require(`synthetix/publish/deployed/${network}/versions.json`);
 
   let networkName;
   switch (network) {
     case 'mainnet':
-    case 'kovan':
+    case 'goerli':
       networkName = network;
       break;
     case 'mainnet-ovm':
       networkName = 'optimism';
       break;
-    case 'kovan-ovm':
+    case 'goerli-ovm':
       networkName = 'optimism-kovan';
       break;
   }

@@ -14,12 +14,12 @@ function getReleaseInfo(file, network = undefined) {
   const net = network || getCurrentNetwork();
 
   let info = null;
-  if (net === 'mainnet' || net === 'kovan') {
+  if (net === 'mainnet' || net === 'goerli') {
     return require('synthetix/publish/deployed/' + net + '/' + file);
   } else if (net === 'optimism') {
     return require('synthetix/publish/deployed/mainnet-ovm/' + file);
-  } else if (net === 'optimism-kovan') {
-    return require('synthetix/publish/deployed/kovan-ovm/' + file);
+  } else if (net === 'optimism-goerli') {
+    return require('synthetix/publish/deployed/goerli-ovm/' + file);
   }
 
   return info;
@@ -105,11 +105,6 @@ function getContractDeployments(contractName, network = undefined, startBlock = 
       } else {
         let contractStartBlock = Math.max(info.block || estimateBlock(info.date), BLOCK_SAFETY_OFFSET);
 
-        // Relevant information is missing from the kovan versions.json file, so we hardcode a minimum here
-        if (network == 'kovan' || getCurrentNetwork() == 'kovan') {
-          contractStartBlock = Math.max(contractStartBlock, 10412700);
-        }
-
         if (contractStartBlock >= endBlock) break;
 
         if (contractStartBlock < startBlock) {
@@ -141,7 +136,7 @@ function getFuturesMarkets(network = 'optimism') {
   return futuresMarkets.map(({ marketKey }) => marketKey.substring(1) /* Slicing off the `s` from marketKey */);
 }
 
-const NETWORKS = ['mainnet', 'kovan', 'optimism-kovan', 'optimism'];
+const NETWORKS = ['mainnet', 'goerli', 'optimism-goerli', 'optimism'];
 
 module.exports = {
   getCurrentNetwork,
