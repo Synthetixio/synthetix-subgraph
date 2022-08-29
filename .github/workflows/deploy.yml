@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - master
 
 jobs:
   build:
@@ -42,6 +41,14 @@ jobs:
         run: node scripts/deploy.js -t kwenta -s futures -n optimism-goerli
         env:
           NETWORK: optimism-goerli
+      - name: Deploy optimistic goerli main subgraph
+        run: node scripts/deploy.js -t kwenta -s main -n optimism-goerli
+        env:
+          NETWORK: optimism-goerli
+      - name: Deploy optimistic mainnet futures subgraph
+        run: node scripts/deploy.js -t kwenta -s futures -n optimism
+        env:
+          NETWORK: optimism
       - name: Deploy optimistic mainnet main subgraph
         run: node scripts/deploy.js -t kwenta -s main -n optimism
         env:
