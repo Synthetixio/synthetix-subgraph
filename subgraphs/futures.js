@@ -102,12 +102,19 @@ synths.forEach((synth, i) => {
 
 // crossmargin
 // addresses
-TESTNET_CROSSMARGIN_ADDRESS = '0xB2e8d9832C8a22C6fB6D2c92c7E2a69d654749CB';
+OP_KOVAN_CROSSMARGIN_ADDRESS = '0xB2e8d9832C8a22C6fB6D2c92c7E2a69d654749CB';
+OP_GOERLI_CROSSMARGIN_ADDRESS = '0xB16A014734cF9d43b90D3db5e75E31B93E0C9cf1';
 MAINNET_CROSSMARGIN_ADDRESS = '';
 
 // set up
 const crossMarginAddress =
-  getCurrentNetwork() === 'optimism-main' ? MAINNET_CROSSMARGIN_ADDRESS : TESTNET_CROSSMARGIN_ADDRESS;
+  getCurrentNetwork() === 'optimism-main'
+    ? MAINNET_CROSSMARGIN_ADDRESS
+    : getCurrentNetwork() === 'optimism-kovan'
+    ? OP_KOVAN_CROSSMARGIN_ADDRESS
+    : getCurrentNetwork() === 'optimism-goerli'
+    ? OP_GOERLI_CROSSMARGIN_ADDRESS
+    : OP_GOERLI_CROSSMARGIN_ADDRESS;
 
 manifest.push({
   kind: 'ethereum/contract',
