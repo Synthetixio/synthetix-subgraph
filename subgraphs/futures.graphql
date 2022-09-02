@@ -68,6 +68,7 @@ type FuturesCumulativeStat @entity {
   id: ID!
   totalLiquidations: BigInt!
   totalTrades: BigInt!
+  totalTraders: BigInt!
   totalVolume: BigInt!
   averageTradeSize: BigInt!
 }

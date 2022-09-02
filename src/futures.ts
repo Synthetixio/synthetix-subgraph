@@ -68,6 +68,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.liquidations = ZERO;
     statEntity.totalTrades = ZERO;
     statEntity.totalVolume = ZERO;
+
+    cumulativeEntity.totalTraders = cumulativeEntity.totalTraders.plus(BigInt.fromI32(1));
   }
 
   // if it's a new position...
@@ -346,6 +348,7 @@ function getOrCreateCumulativeEntity(): FuturesCumulativeStat {
     cumulativeEntity = new FuturesCumulativeStat(SINGLE_INDEX);
     cumulativeEntity.totalLiquidations = ZERO;
     cumulativeEntity.totalTrades = ZERO;
+    cumulativeEntity.totalTraders = ZERO;
     cumulativeEntity.totalVolume = ZERO;
     cumulativeEntity.averageTradeSize = ZERO;
   }
@@ -358,6 +361,7 @@ function getOrCreateMarketStats(asset: string): FuturesCumulativeStat {
     cumulativeEntity = new FuturesCumulativeStat(asset);
     cumulativeEntity.totalLiquidations = ZERO;
     cumulativeEntity.totalTrades = ZERO;
+    cumulativeEntity.totalTraders = ZERO;
     cumulativeEntity.totalVolume = ZERO;
     cumulativeEntity.averageTradeSize = ZERO;
   }
@@ -406,6 +410,11 @@ export function handleMarginTransferred(event: MarginTransferredEvent): void {
 
     if (marketEntity && marketEntity.asset) {
       marginAccountEntity.asset = marketEntity.asset;
+
+      // add a new trader to market stats
+      let marketStats = getOrCreateMarketStats(marketEntity.asset.toHex());
+      marketStats.totalTraders = marketStats.totalTraders.plus(BigInt.fromI32(1));
+      marketStats.save();
     }
   }
 
