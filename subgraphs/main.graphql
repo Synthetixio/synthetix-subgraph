@@ -233,8 +233,17 @@ type FuturesCumulativeStat @entity {
   id: ID!
   totalLiquidations: BigInt!
   totalTrades: BigInt!
+  totalTraders: BigInt!
   totalVolume: BigInt!
   averageTradeSize: BigInt!
+}
+
+type FuturesHourlyStat @entity {
+  id: ID!
+  asset: Bytes!
+  trades: BigInt!
+  volume: BigInt!
+  timestamp: BigInt!
 }
 
 type FuturesOneMinStat @entity {

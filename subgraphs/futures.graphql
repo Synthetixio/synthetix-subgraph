@@ -73,6 +73,14 @@ type FuturesCumulativeStat @entity {
   averageTradeSize: BigInt!
 }
 
+type FuturesHourlyStat @entity {
+  id: ID!
+  asset: Bytes!
+  trades: BigInt!
+  volume: BigInt!
+  timestamp: BigInt!
+}
+
 type FuturesOneMinStat @entity {
   id: ID!
   trades: BigInt!

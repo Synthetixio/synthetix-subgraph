@@ -1,4 +1,4 @@
-import { Address, BigInt, store } from '@graphprotocol/graph-ts';
+import { Address, BigInt, Bytes, store } from '@graphprotocol/graph-ts';
 
 import {
   FuturesMarket as FuturesMarketEntity,
@@ -8,6 +8,7 @@ import {
   FuturesTrade,
   FuturesStat,
   FuturesCumulativeStat,
+  FuturesHourlyStat,
   FuturesOneMinStat,
   FundingRateUpdate,
   FuturesOrder,
@@ -29,12 +30,13 @@ import { ZERO } from './lib/helpers';
 
 let ETHER = BigInt.fromI32(10).pow(18);
 let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
+let ONE_HOUR_SECONDS = BigInt.fromI32(3600);
 let SINGLE_INDEX = '0';
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
   marketEntity.asset = event.params.asset;
-  let marketStats = getOrCreateMarketStats(event.params.asset.toHex());
+  let marketStats = getOrCreateMarketCumulativeStats(event.params.asset.toHex());
   marketStats.save();
   marketEntity.marketStats = marketStats.id;
   marketEntity.save();
@@ -143,24 +145,31 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.trades = positionEntity.trades.plus(BigInt.fromI32(1));
     positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
-    let timestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
-    let oneMinStat = FuturesOneMinStat.load(timestamp.toString());
+    const oneMinTimestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
+    let oneMinStat = FuturesOneMinStat.load(oneMinTimestamp.toString());
     if (oneMinStat == null) {
-      oneMinStat = new FuturesOneMinStat(timestamp.toString());
+      oneMinStat = new FuturesOneMinStat(oneMinTimestamp.toString());
       oneMinStat.trades = BigInt.fromI32(1);
       oneMinStat.volume = volume;
-      oneMinStat.timestamp = event.block.timestamp;
+      oneMinStat.timestamp = oneMinTimestamp;
     } else {
       oneMinStat.trades = oneMinStat.trades.plus(BigInt.fromI32(1));
       oneMinStat.volume = oneMinStat.volume.plus(volume);
     }
     oneMinStat.save();
+
+    const oneHourTimestamp = getTimeID(event.block.timestamp, ONE_HOUR_SECONDS);
     if (marketEntity && marketEntity.asset) {
-      let marketStats = getOrCreateMarketStats(marketEntity.asset.toHex());
-      marketStats.totalTrades = marketStats.totalTrades.plus(BigInt.fromI32(1));
-      marketStats.totalVolume = marketStats.totalVolume.plus(volume);
-      marketStats.averageTradeSize = marketStats.totalVolume.div(marketStats.totalTrades);
-      marketStats.save();
+      let marketCumulativeStats = getOrCreateMarketCumulativeStats(marketEntity.asset.toHex());
+      marketCumulativeStats.totalTrades = marketCumulativeStats.totalTrades.plus(BigInt.fromI32(1));
+      marketCumulativeStats.totalVolume = marketCumulativeStats.totalVolume.plus(volume);
+      marketCumulativeStats.averageTradeSize = marketCumulativeStats.totalVolume.div(marketCumulativeStats.totalTrades);
+      marketCumulativeStats.save();
+
+      let marketHourlyStats = getOrCreateMarketHourlyStats(marketEntity.asset, oneHourTimestamp);
+      marketHourlyStats.trades = marketHourlyStats.trades.plus(BigInt.fromI32(1));
+      marketHourlyStats.volume = marketHourlyStats.volume.plus(volume);
+      marketHourlyStats.save();
     }
   } else {
     const txHash = event.transaction.hash.toHex();
@@ -336,9 +345,9 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   cumulativeEntity.save();
 
   if (positionEntity && positionEntity.asset) {
-    let marketStats = getOrCreateMarketStats(positionEntity.asset.toHex());
-    marketStats.totalLiquidations = marketStats.totalLiquidations.plus(BigInt.fromI32(1));
-    marketStats.save();
+    let marketCumulativeStats = getOrCreateMarketCumulativeStats(positionEntity.asset.toHex());
+    marketCumulativeStats.totalLiquidations = marketCumulativeStats.totalLiquidations.plus(BigInt.fromI32(1));
+    marketCumulativeStats.save();
   }
 }
 
@@ -355,7 +364,7 @@ function getOrCreateCumulativeEntity(): FuturesCumulativeStat {
   return cumulativeEntity as FuturesCumulativeStat;
 }
 
-function getOrCreateMarketStats(asset: string): FuturesCumulativeStat {
+function getOrCreateMarketCumulativeStats(asset: string): FuturesCumulativeStat {
   let cumulativeEntity = FuturesCumulativeStat.load(asset);
   if (cumulativeEntity == null) {
     cumulativeEntity = new FuturesCumulativeStat(asset);
@@ -366,6 +375,19 @@ function getOrCreateMarketStats(asset: string): FuturesCumulativeStat {
     cumulativeEntity.averageTradeSize = ZERO;
   }
   return cumulativeEntity as FuturesCumulativeStat;
+}
+
+function getOrCreateMarketHourlyStats(asset: Bytes, timestamp: BigInt): FuturesHourlyStat {
+  const id = `${timestamp.toString()}-${asset.toHex()}`;
+  let hourlyEntity = FuturesHourlyStat.load(id);
+  if (hourlyEntity == null) {
+    hourlyEntity = new FuturesHourlyStat(id);
+    hourlyEntity.timestamp = timestamp;
+    hourlyEntity.asset = asset;
+    hourlyEntity.trades = ZERO;
+    hourlyEntity.volume = ZERO;
+  }
+  return hourlyEntity as FuturesHourlyStat;
 }
 
 function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
@@ -412,7 +434,7 @@ export function handleMarginTransferred(event: MarginTransferredEvent): void {
       marginAccountEntity.asset = marketEntity.asset;
 
       // add a new trader to market stats
-      let marketStats = getOrCreateMarketStats(marketEntity.asset.toHex());
+      let marketStats = getOrCreateMarketCumulativeStats(marketEntity.asset.toHex());
       marketStats.totalTraders = marketStats.totalTraders.plus(BigInt.fromI32(1));
       marketStats.save();
     }
