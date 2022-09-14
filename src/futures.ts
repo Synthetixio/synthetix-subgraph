@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, store } from '@graphprotocol/graph-ts';
+import { Address, BigInt, Bytes, DataSourceContext, store } from '@graphprotocol/graph-ts';
 
 import {
   FuturesMarket as FuturesMarketEntity,
@@ -25,7 +25,8 @@ import {
   FundingRecomputed as FundingRecomputedEvent,
   NextPriceOrderSubmitted as NextPriceOrderSubmittedEvent,
   NextPriceOrderRemoved as NextPriceOrderRemovedEvent,
-} from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarket';
+} from '../generated/subgraphs/futures/templates/FuturesMarket/FuturesMarket';
+import { FuturesMarket } from '../generated/subgraphs/futures/templates';
 import { ZERO } from './lib/helpers';
 
 let ETHER = BigInt.fromI32(10).pow(18);
@@ -40,6 +41,10 @@ export function handleMarketAdded(event: MarketAddedEvent): void {
   marketStats.save();
   marketEntity.marketStats = marketStats.id;
   marketEntity.save();
+
+  let context = new DataSourceContext();
+  context.setString('market', event.params.market.toHex());
+  FuturesMarket.createWithContext(event.params.market, context);
 }
 
 export function handleMarketRemoved(event: MarketRemovedEvent): void {
@@ -471,31 +476,29 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
     let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
     const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
 
-    const futuresOrderEntityId =
-      futuresMarketAddress.toHex() + '-' + sendingAccount.toHexString() + '-' + event.params.targetRoundId.toString();
-
-    let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
-
-    if (futuresOrderEntity == null) {
-      futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
-    }
-
     let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
-
-    futuresOrderEntity.orderType = 'NextPrice';
-    futuresOrderEntity.status = 'Pending';
-
     if (marketEntity) {
-      futuresOrderEntity.asset = marketEntity.asset;
+      let marketAsset = marketEntity.asset;
+
+      const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
+
+      let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+      if (futuresOrderEntity == null) {
+        futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
+      }
+
+      futuresOrderEntity.orderType = 'NextPrice';
+      futuresOrderEntity.status = 'Pending';
+      futuresOrderEntity.asset = marketAsset;
+      futuresOrderEntity.account = account;
+      futuresOrderEntity.abstractAccount = sendingAccount;
+      futuresOrderEntity.size = event.params.sizeDelta;
+      futuresOrderEntity.orderId = event.params.targetRoundId;
+      futuresOrderEntity.targetRoundId = event.params.targetRoundId;
+      futuresOrderEntity.timestamp = event.block.timestamp;
+
+      futuresOrderEntity.save();
     }
-
-    futuresOrderEntity.market = futuresMarketAddress;
-    futuresOrderEntity.account = account;
-    futuresOrderEntity.size = event.params.sizeDelta;
-    futuresOrderEntity.targetRoundId = event.params.targetRoundId;
-    futuresOrderEntity.timestamp = event.block.timestamp;
-
-    futuresOrderEntity.save();
   }
 }
 
@@ -508,47 +511,53 @@ export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): 
     let statEntity = FuturesStat.load(account.toHex());
 
     let futuresMarketAddress = event.address as Address;
-    let futuresOrderEntity = FuturesOrder.load(
-      futuresMarketAddress.toHex() + '-' + sendingAccount.toHexString() + '-' + event.params.targetRoundId.toString(),
-    );
 
-    if (futuresOrderEntity) {
-      futuresOrderEntity.keeper = event.transaction.from;
-      let tradeEntity = FuturesTrade.load(
-        event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
-      );
+    let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
+    if (marketEntity) {
+      let marketAsset = marketEntity.asset;
 
-      if (statEntity && tradeEntity) {
-        // if trade exists get the position
-        let positionEntity = FuturesPosition.load(tradeEntity.positionId);
+      const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
 
-        // update order values
-        futuresOrderEntity.status = 'Filled';
-        tradeEntity.orderType = 'NextPrice';
+      let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
 
-        // add fee if not self-executed
-        if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
-          tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.keeperDeposit);
-          statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
-          if (positionEntity) {
-            positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.keeperDeposit);
-            positionEntity.save();
+      if (futuresOrderEntity) {
+        futuresOrderEntity.keeper = event.transaction.from;
+        let tradeEntity = FuturesTrade.load(
+          event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
+        );
+
+        if (statEntity && tradeEntity) {
+          // if trade exists get the position
+          let positionEntity = FuturesPosition.load(tradeEntity.positionId);
+
+          // update order values
+          futuresOrderEntity.status = 'Filled';
+          tradeEntity.orderType = 'NextPrice';
+
+          // add fee if not self-executed
+          if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
+            tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.keeperDeposit);
+            statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
+            if (positionEntity) {
+              positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.keeperDeposit);
+              positionEntity.save();
+            }
+
+            statEntity.save();
           }
 
-          statEntity.save();
+          tradeEntity.save();
+        } else if (statEntity) {
+          if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
+            statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
+            statEntity.save();
+          }
+
+          futuresOrderEntity.status = 'Cancelled';
         }
 
-        tradeEntity.save();
-      } else if (statEntity) {
-        if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
-          statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
-          statEntity.save();
-        }
-
-        futuresOrderEntity.status = 'Cancelled';
+        futuresOrderEntity.save();
       }
-
-      futuresOrderEntity.save();
     }
   }
 }

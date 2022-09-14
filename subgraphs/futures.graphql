@@ -120,6 +120,7 @@ type FundingRateUpdate @entity {
 enum FuturesOrderType {
   NextPrice
   Limit
+  Stop
   Market
   Liquidation
 }
@@ -141,7 +142,9 @@ type FuturesOrder @entity {
   asset: Bytes!
   market: Bytes!
   account: Bytes!
-  targetRoundId: BigInt!
+  abstractAccount: Bytes!
+  orderId: BigInt!
+  targetRoundId: BigInt! # DEPRECATED
   timestamp: BigInt!
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
