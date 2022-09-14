@@ -1,10 +1,10 @@
-import { Address, BigInt, DataSourceContext } from '@graphprotocol/graph-ts';
+import { Address, DataSourceContext } from '@graphprotocol/graph-ts';
 import { NewAccount as NewAccountEvent } from '../generated/subgraphs/futures/crossmargin_factory/MarginAccountFactory';
 import {
   OrderPlaced as OrderPlacedEvent,
   OrderFilled as OrderFilledEvent,
   OrderCancelled as OrderCancelledEvent,
-} from '../generated/subgraphs/futures/crossmargin_MarginBase/MarginBase';
+} from '../generated/subgraphs/futures/templates/MarginBase/MarginBase';
 import { MarginBase } from '../generated/subgraphs/futures/templates';
 import { CrossMarginAccount, FuturesOrder, FuturesTrade } from '../generated/subgraphs/futures/schema';
 
