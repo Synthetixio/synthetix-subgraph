@@ -310,6 +310,7 @@ type FuturesOrder @entity {
   abstractAccount: Bytes!
   orderId: BigInt!
   targetRoundId: BigInt!
+  targetPrice: BigInt!
   timestamp: BigInt!
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!

@@ -48,6 +48,7 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
   futuresOrderEntity.account = account;
   futuresOrderEntity.abstractAccount = sendingAccount;
   futuresOrderEntity.size = event.params.sizeDelta;
+  futuresOrderEntity.targetPrice = event.params.targetPrice;
   futuresOrderEntity.orderId = event.params.orderId;
   futuresOrderEntity.timestamp = event.block.timestamp;
 
