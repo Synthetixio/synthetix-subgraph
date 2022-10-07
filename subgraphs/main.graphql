@@ -285,13 +285,14 @@ type FundingRateUpdate @entity {
 enum FuturesOrderType {
   NextPrice
   Limit
-  Stop
+  StopMarket
   Market
   Liquidation
 }
 
 enum FuturesOrderStatus {
   Pending
+  Open
   Filled
   Cancelled
 }
@@ -311,6 +312,7 @@ type FuturesOrder @entity {
   orderId: BigInt!
   targetRoundId: BigInt!
   targetPrice: BigInt!
+  marginDelta: BigInt!
   timestamp: BigInt!
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
