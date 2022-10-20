@@ -5,14 +5,18 @@ import { initFeed } from '../fragments/latest-rates';
 
 export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
+export let ETHER = BigInt.fromI32(10).pow(18);
 
 export let ZERO_ADDRESS = changetype<Address>(Address.fromHexString('0x0000000000000000000000000000000000000000'));
 export let FEE_ADDRESS = changetype<Address>(Address.fromHexString('0xfeefeefeefeefeefeefeefeefeefeefeefeefeef'));
 
 export let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
 export let FIFTEEN_MINUTE_SECONDS = BigInt.fromI32(900);
+export let ONE_HOUR_SECONDS = BigInt.fromI32(3600);
 export let DAY_SECONDS = BigInt.fromI32(86400);
 export let YEAR_SECONDS = BigInt.fromI32(31556736);
+
+export let BPS_CONVERSION = BigInt.fromI32(10000);
 
 export let CANDLE_PERIODS: BigInt[] = [
   DAY_SECONDS.times(BigInt.fromI32(30)),

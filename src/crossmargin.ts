@@ -1,4 +1,4 @@
-import { Address, DataSourceContext } from '@graphprotocol/graph-ts';
+import { Address, BigInt, DataSourceContext } from '@graphprotocol/graph-ts';
 import { NewAccount as NewAccountEvent } from '../generated/subgraphs/futures/crossmargin_factory/MarginAccountFactory';
 import {
   OrderPlaced as OrderPlacedEvent,
@@ -6,7 +6,17 @@ import {
   OrderCancelled as OrderCancelledEvent,
 } from '../generated/subgraphs/futures/templates/MarginBase/MarginBase';
 import { MarginBase } from '../generated/subgraphs/futures/templates';
-import { CrossMarginAccount, FuturesOrder, FuturesTrade } from '../generated/subgraphs/futures/schema';
+import {
+  CrossMarginAccount,
+  FuturesOrder,
+  FuturesPosition,
+  FuturesStat,
+  FuturesTrade,
+} from '../generated/subgraphs/futures/schema';
+import { BPS_CONVERSION, ETHER } from './lib/helpers';
+
+// temporary cross-margin fee solution
+let CROSSMARGIN_ADVANCED_ORDER_BPS = BigInt.fromI32(3);
 
 export function handleNewAccount(event: NewAccountEvent): void {
   // create a new entity to store the cross-margin account owner
@@ -72,9 +82,33 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
       const futuresTradeEntityId = `${event.transaction.hash.toHex()}-${inc}`;
       let tradeEntity = FuturesTrade.load(futuresTradeEntityId);
 
-      if (tradeEntity) {
+      const positionEntityId = tradeEntity ? tradeEntity.positionId : '';
+      let positionEntity = FuturesPosition.load(positionEntityId);
+      let statEntity = FuturesStat.load(futuresOrderEntity.account.toHex());
+
+      if (tradeEntity && positionEntity && statEntity) {
         tradeEntity.orderType = futuresOrderEntity.orderType;
+
+        // update fees and pnl
+        const feePaid = tradeEntity.size
+          .abs()
+          .times(tradeEntity.price)
+          .div(ETHER)
+          .times(CROSSMARGIN_ADVANCED_ORDER_BPS)
+          .div(BPS_CONVERSION);
+        tradeEntity.feesPaid = tradeEntity.feesPaid.plus(feePaid);
+
+        positionEntity.feesPaid = positionEntity.feesPaid.plus(feePaid);
+        positionEntity.pnlWithFeesPaid = positionEntity.pnl
+          .minus(positionEntity.feesPaid)
+          .plus(positionEntity.netFunding);
+
+        statEntity.feesPaid = statEntity.feesPaid.plus(feePaid);
+        statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
+
         tradeEntity.save();
+        positionEntity.save();
+        statEntity.save();
         break;
       }
     }

@@ -46,7 +46,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
 // futures markets
 const futuresMarketTemplate = {
   kind: 'ethereum/contract',
-  name: `FuturesMarket`,
+  name: 'FuturesMarket',
   network: getCurrentNetwork(),
   source: {
     abi: 'FuturesMarket',
@@ -94,10 +94,10 @@ const futuresMarketTemplate = {
 
 // crossmargin
 // addresses
-OP_GOERLI_CROSSMARGIN_ADDRESS = '0xf6Be6F3b4DDC804978169F5B96A6D6dDA9212168';
+OP_GOERLI_CROSSMARGIN_ADDRESS = '0x73a70947fe787a4167a27f8bd876349b7206ee77';
 OP_MAINNET_CROSSMARGIN_ADDRESS = '0x1fcFf1c7911dc209bdFc1648E5cDdB320f08AC08';
 
-START_BLOCK_OP_GOERLI = 1272039;
+START_BLOCK_OP_GOERLI = 2088449;
 START_BLOCK_OP_MAINNET = 30134307;
 
 // set up
@@ -117,7 +117,7 @@ const crossMarginStartBlock =
 
 manifest.push({
   kind: 'ethereum/contract',
-  name: `crossmargin_factory`,
+  name: 'crossmargin_factory',
   network: getCurrentNetwork(),
   source: {
     address: crossMarginAddress,
@@ -147,7 +147,7 @@ manifest.push({
 
 const marginBaseTemplate = {
   kind: 'ethereum/contract',
-  name: `MarginBase`,
+  name: 'MarginBase',
   network: getCurrentNetwork(),
   source: {
     abi: 'MarginBase',

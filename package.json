@@ -10,6 +10,7 @@
   },
   "scripts": {
     "lint": "eslint src/ scripts/ subgraphs/",
+    "lint:fix": "eslint --fix src/ scripts/ subgraphs/",
     "prepare": "husky install",
     "auth": "graph auth --product hosted-service",
     "deploy": "node ./scripts/deploy.js",

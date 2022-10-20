@@ -27,12 +27,12 @@ import {
   NextPriceOrderRemoved as NextPriceOrderRemovedEvent,
 } from '../generated/subgraphs/futures/templates/FuturesMarket/FuturesMarket';
 import { FuturesMarket } from '../generated/subgraphs/futures/templates';
-import { ZERO } from './lib/helpers';
+import { BPS_CONVERSION, ETHER, ONE_HOUR_SECONDS, ONE_MINUTE_SECONDS, ZERO } from './lib/helpers';
 
-let ETHER = BigInt.fromI32(10).pow(18);
-let ONE_MINUTE_SECONDS = BigInt.fromI32(60);
-let ONE_HOUR_SECONDS = BigInt.fromI32(3600);
 let SINGLE_INDEX = '0';
+
+// temporary cross-margin fee solution
+let CROSSMARGIN_TRADING_BPS = BigInt.fromI32(2);
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
@@ -123,6 +123,18 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.feesPaid = event.params.fee;
     tradeEntity.orderType = 'Market';
 
+    // add cross margin fee if appropriate
+    if (accountType === 'cross_margin') {
+      tradeEntity.feesPaid = tradeEntity.feesPaid.plus(
+        event.params.tradeSize
+          .abs()
+          .times(event.params.lastPrice)
+          .div(ETHER)
+          .times(CROSSMARGIN_TRADING_BPS)
+          .div(BPS_CONVERSION),
+      );
+    }
+
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
     }
@@ -184,7 +196,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
     // this check is here to get around the fact that the sometimes a withdrawalAll margin transfer event
     // will trigger a trade entity liquidation to be created. guarding against this event for now.
-    // TODO confirm this is the correct fix for the long term - https://github.com/Kwenta/kwenta/issues/843
     if (marginTransferEntity == null && event.params.size.isZero() && event.params.margin.isZero()) {
       // if its not a withdrawal (or deposit), it's a liquidation
       let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
@@ -286,14 +297,24 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   }
 
   //Calc fees paid to exchange and include in PnL
-  statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
+  const crossMarginFees =
+    accountType === 'cross_margin'
+      ? event.params.tradeSize
+          .abs()
+          .times(event.params.lastPrice)
+          .div(ETHER)
+          .times(CROSSMARGIN_TRADING_BPS)
+          .div(BPS_CONVERSION)
+      : ZERO;
+
+  statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee).plus(crossMarginFees);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
 
   // update global values
   positionEntity.size = event.params.size;
   positionEntity.margin = event.params.margin;
   positionEntity.lastPrice = event.params.lastPrice;
-  positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
+  positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee).plus(crossMarginFees);
   positionEntity.pnlWithFeesPaid = positionEntity.pnl.minus(positionEntity.feesPaid).plus(positionEntity.netFunding);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
