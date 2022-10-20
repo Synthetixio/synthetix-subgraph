@@ -1,6 +1,4 @@
-const { getCurrentNetwork, getContractDeployments, getFuturesMarkets } = require('./utils/network');
-
-const synths = getFuturesMarkets(getCurrentNetwork());
+const { getCurrentNetwork, getContractDeployments } = require('./utils/network');
 
 const manifest = [];
 
@@ -96,19 +94,26 @@ const futuresMarketTemplate = {
 
 // crossmargin
 // addresses
-OP_KOVAN_CROSSMARGIN_ADDRESS = '0xB2e8d9832C8a22C6fB6D2c92c7E2a69d654749CB';
-OP_GOERLI_CROSSMARGIN_ADDRESS = '0x73a70947fe787A4167a27f8bd876349b7206ee77';
-MAINNET_CROSSMARGIN_ADDRESS = '';
+OP_GOERLI_CROSSMARGIN_ADDRESS = '0xf6Be6F3b4DDC804978169F5B96A6D6dDA9212168';
+OP_MAINNET_CROSSMARGIN_ADDRESS = '0x1fcFf1c7911dc209bdFc1648E5cDdB320f08AC08';
+
+START_BLOCK_OP_GOERLI = 1272039;
+START_BLOCK_OP_MAINNET = 30134307;
 
 // set up
 const crossMarginAddress =
-  getCurrentNetwork() === 'optimism-main'
-    ? MAINNET_CROSSMARGIN_ADDRESS
-    : getCurrentNetwork() === 'optimism-kovan'
-    ? OP_KOVAN_CROSSMARGIN_ADDRESS
+  getCurrentNetwork() === 'optimism'
+    ? OP_MAINNET_CROSSMARGIN_ADDRESS
     : getCurrentNetwork() === 'optimism-goerli'
     ? OP_GOERLI_CROSSMARGIN_ADDRESS
     : OP_GOERLI_CROSSMARGIN_ADDRESS;
+
+const crossMarginStartBlock =
+  getCurrentNetwork() === 'optimism'
+    ? START_BLOCK_OP_MAINNET
+    : getCurrentNetwork() === 'optimism-goerli'
+    ? START_BLOCK_OP_GOERLI
+    : 0;
 
 manifest.push({
   kind: 'ethereum/contract',
@@ -116,7 +121,7 @@ manifest.push({
   network: getCurrentNetwork(),
   source: {
     address: crossMarginAddress,
-    startBlock: 0,
+    startBlock: crossMarginStartBlock,
     abi: 'MarginAccountFactory',
   },
   mapping: {
