@@ -158,3 +158,11 @@ type CrossMarginAccount @entity {
   id: ID!
   owner: Bytes!
 }
+
+type CrossMarginAccountTransfer @entity {
+  id: ID!
+  account: Bytes!
+  abstractAccount: Bytes!
+  timestamp: BigInt!
+  amount: BigInt!
+}

@@ -4,6 +4,8 @@ import {
   OrderPlaced as OrderPlacedEvent,
   OrderFilled as OrderFilledEvent,
   OrderCancelled as OrderCancelledEvent,
+  Deposit as DepositEvent,
+  Withdraw as WithdrawEvent,
 } from '../generated/subgraphs/futures/templates/MarginBase/MarginBase';
 import { MarginBase } from '../generated/subgraphs/futures/templates';
 import {
@@ -12,6 +14,7 @@ import {
   FuturesPosition,
   FuturesStat,
   FuturesTrade,
+  CrossMarginAccountTransfer,
 } from '../generated/subgraphs/futures/schema';
 import { BPS_CONVERSION, ETHER } from './lib/helpers';
 
@@ -123,5 +126,41 @@ export function handleOrderCancelled(event: OrderCancelledEvent): void {
     futuresOrderEntity.status = 'Cancelled';
     futuresOrderEntity.timestamp = event.block.timestamp;
     futuresOrderEntity.save();
+  }
+}
+
+export function handleDeposit(event: DepositEvent): void {
+  let sendingAccount = event.params.user;
+  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+  if (crossMarginAccount) {
+    const accountOwner = crossMarginAccount.owner;
+
+    let crossMarginTransfer = new CrossMarginAccountTransfer(
+      sendingAccount.toHex() + '-' + event.transaction.hash.toHex(),
+    );
+
+    crossMarginTransfer.account = accountOwner;
+    crossMarginTransfer.abstractAccount = sendingAccount;
+    crossMarginTransfer.timestamp = event.block.timestamp;
+    crossMarginTransfer.amount = event.params.amount;
+    crossMarginTransfer.save();
+  }
+}
+
+export function handleWithdraw(event: WithdrawEvent): void {
+  let sendingAccount = event.params.user;
+  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+  if (crossMarginAccount) {
+    const accountOwner = crossMarginAccount.owner;
+
+    let crossMarginTransfer = new CrossMarginAccountTransfer(
+      sendingAccount.toHex() + '-' + event.transaction.hash.toHex(),
+    );
+
+    crossMarginTransfer.account = accountOwner;
+    crossMarginTransfer.abstractAccount = sendingAccount;
+    crossMarginTransfer.timestamp = event.block.timestamp;
+    crossMarginTransfer.amount = event.params.amount.times(BigInt.fromI32(-1));
+    crossMarginTransfer.save();
   }
 }
