@@ -177,6 +177,14 @@ const marginBaseTemplate = {
         event: 'OrderFilled(indexed address,uint256,uint256,uint256)',
         handler: 'handleOrderFilled',
       },
+      {
+        event: 'Deposit(indexed address,uint256)',
+        handler: 'handleDeposit',
+      },
+      {
+        event: 'Withdraw(indexed address,uint256)',
+        handler: 'handleWithdraw',
+      },
     ],
   },
 };

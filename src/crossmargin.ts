@@ -130,9 +130,9 @@ export function handleOrderCancelled(event: OrderCancelledEvent): void {
 }
 
 export function handleDeposit(event: DepositEvent): void {
-  let sendingAccount = event.params.user;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  if (crossMarginAccount) {
+  let sendingAccount = event.transaction.to;
+  let crossMarginAccount = CrossMarginAccount.load(sendingAccount ? sendingAccount.toHex() : '');
+  if (sendingAccount && crossMarginAccount) {
     const accountOwner = crossMarginAccount.owner;
 
     let crossMarginTransfer = new CrossMarginAccountTransfer(
@@ -148,9 +148,9 @@ export function handleDeposit(event: DepositEvent): void {
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
-  let sendingAccount = event.params.user;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  if (crossMarginAccount) {
+  let sendingAccount = event.transaction.to;
+  let crossMarginAccount = CrossMarginAccount.load(sendingAccount ? sendingAccount.toHex() : '');
+  if (sendingAccount && crossMarginAccount) {
     const accountOwner = crossMarginAccount.owner;
 
     let crossMarginTransfer = new CrossMarginAccountTransfer(
