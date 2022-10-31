@@ -75,6 +75,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.liquidations = ZERO;
     statEntity.totalTrades = ZERO;
     statEntity.totalVolume = ZERO;
+    statEntity.crossMarginVolume = ZERO;
 
     cumulativeEntity.totalTraders = cumulativeEntity.totalTraders.plus(BigInt.fromI32(1));
   }
@@ -158,6 +159,10 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     statEntity.totalVolume = statEntity.totalVolume.plus(volume);
+
+    if (accountType === 'cross_margin') {
+      statEntity.crossMarginVolume = statEntity.crossMarginVolume.plus(volume);
+    }
 
     positionEntity.trades = positionEntity.trades.plus(BigInt.fromI32(1));
     positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
