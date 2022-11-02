@@ -165,5 +165,6 @@ type CrossMarginAccountTransfer @entity {
   account: Bytes!
   abstractAccount: Bytes!
   timestamp: BigInt!
-  amount: BigInt!
+  size: BigInt!
+  txHash: String!
 }

@@ -142,7 +142,8 @@ export function handleDeposit(event: DepositEvent): void {
     crossMarginTransfer.account = accountOwner;
     crossMarginTransfer.abstractAccount = sendingAccount;
     crossMarginTransfer.timestamp = event.block.timestamp;
-    crossMarginTransfer.amount = event.params.amount;
+    crossMarginTransfer.size = event.params.amount;
+    crossMarginTransfer.txHash = event.transaction.hash.toHex();
     crossMarginTransfer.save();
   }
 }
@@ -160,7 +161,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
     crossMarginTransfer.account = accountOwner;
     crossMarginTransfer.abstractAccount = sendingAccount;
     crossMarginTransfer.timestamp = event.block.timestamp;
-    crossMarginTransfer.amount = event.params.amount.times(BigInt.fromI32(-1));
+    crossMarginTransfer.size = event.params.amount.times(BigInt.fromI32(-1));
+    crossMarginTransfer.txHash = event.transaction.hash.toHex();
     crossMarginTransfer.save();
   }
 }
