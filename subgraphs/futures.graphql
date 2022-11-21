@@ -82,11 +82,15 @@ type FuturesHourlyStat @entity {
   timestamp: BigInt!
 }
 
-type FuturesOneMinStat @entity {
+type FuturesAggregateStat @entity {
   id: ID!
+  period: BigInt!
+  timestamp: BigInt!
+  asset: Bytes!
   trades: BigInt!
   volume: BigInt!
-  timestamp: BigInt!
+  feesKwenta: BigInt!
+  feesSynthetix: BigInt!
 }
 
 type FuturesMarginTransfer @entity {

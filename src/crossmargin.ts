@@ -16,7 +16,8 @@ import {
   FuturesTrade,
   CrossMarginAccountTransfer,
 } from '../generated/subgraphs/futures/schema';
-import { BPS_CONVERSION, ETHER } from './lib/helpers';
+import { BPS_CONVERSION, ETHER, ZERO } from './lib/helpers';
+import { updateAggregateStatEntities } from './futures';
 
 // temporary cross-margin fee solution
 let CROSSMARGIN_ADVANCED_ORDER_BPS = BigInt.fromI32(3);
@@ -100,6 +101,8 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
           .times(CROSSMARGIN_ADVANCED_ORDER_BPS)
           .div(BPS_CONVERSION);
         tradeEntity.feesPaid = tradeEntity.feesPaid.plus(feePaid);
+
+        updateAggregateStatEntities(positionEntity.asset, event.block.timestamp, ZERO, ZERO, ZERO, feePaid);
 
         positionEntity.feesPaid = positionEntity.feesPaid.plus(feePaid);
         positionEntity.pnlWithFeesPaid = positionEntity.pnl

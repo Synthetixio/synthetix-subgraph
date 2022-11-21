@@ -8,8 +8,8 @@ import {
   FuturesTrade,
   FuturesStat,
   FuturesCumulativeStat,
-  FuturesHourlyStat,
-  FuturesOneMinStat,
+  FuturesAggregateStat,
+  FuturesHourlyStat, // DEPRECATE
   FundingRateUpdate,
   FuturesOrder,
   CrossMarginAccount,
@@ -27,12 +27,15 @@ import {
   NextPriceOrderRemoved as NextPriceOrderRemovedEvent,
 } from '../generated/subgraphs/futures/templates/FuturesMarket/FuturesMarket';
 import { FuturesMarket } from '../generated/subgraphs/futures/templates';
-import { BPS_CONVERSION, ETHER, ONE_HOUR_SECONDS, ONE_MINUTE_SECONDS, ZERO } from './lib/helpers';
+import { BPS_CONVERSION, DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, strToBytes, ZERO } from './lib/helpers';
 
 let SINGLE_INDEX = '0';
 
 // temporary cross-margin fee solution
 let CROSSMARGIN_TRADING_BPS = BigInt.fromI32(2);
+
+// Timeframes to aggregate stats in seconds
+export const AGG_PERIODS = [ONE_HOUR_SECONDS, DAY_SECONDS];
 
 export function handleMarketAdded(event: MarketAddedEvent): void {
   let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
@@ -64,6 +67,20 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   let statEntity = FuturesStat.load(account.toHex());
   let cumulativeEntity = getOrCreateCumulativeEntity();
   let marginAccountEntity = FuturesMarginAccount.load(sendingAccount.toHex() + '-' + futuresMarketAddress.toHex());
+
+  // calculated values
+  const synthetixFeePaid = event.params.fee;
+  const kwentaFeePaid =
+    accountType === 'cross_margin'
+      ? event.params.tradeSize
+          .abs()
+          .times(event.params.lastPrice)
+          .div(ETHER)
+          .times(CROSSMARGIN_TRADING_BPS)
+          .div(BPS_CONVERSION)
+      : ZERO;
+
+  const totalFeesPaid = synthetixFeePaid.plus(kwentaFeePaid);
 
   // create new entities
   if (statEntity == null) {
@@ -117,24 +134,12 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.abstractAccount = sendingAccount;
     tradeEntity.accountType = accountType;
     tradeEntity.size = event.params.tradeSize;
-    tradeEntity.margin = event.params.margin.plus(event.params.fee);
+    tradeEntity.margin = event.params.margin.plus(totalFeesPaid);
     tradeEntity.positionSize = event.params.size;
     tradeEntity.positionId = positionId;
     tradeEntity.price = event.params.lastPrice;
-    tradeEntity.feesPaid = event.params.fee;
+    tradeEntity.feesPaid = totalFeesPaid;
     tradeEntity.orderType = 'Market';
-
-    // add cross margin fee if appropriate
-    if (accountType === 'cross_margin') {
-      tradeEntity.feesPaid = tradeEntity.feesPaid.plus(
-        event.params.tradeSize
-          .abs()
-          .times(event.params.lastPrice)
-          .div(ETHER)
-          .times(CROSSMARGIN_TRADING_BPS)
-          .div(BPS_CONVERSION),
-      );
-    }
 
     if (marketEntity && marketEntity.asset) {
       tradeEntity.asset = marketEntity.asset;
@@ -167,20 +172,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.trades = positionEntity.trades.plus(BigInt.fromI32(1));
     positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
-    const oneMinTimestamp = getTimeID(event.block.timestamp, ONE_MINUTE_SECONDS);
-    let oneMinStat = FuturesOneMinStat.load(oneMinTimestamp.toString());
-    if (oneMinStat == null) {
-      oneMinStat = new FuturesOneMinStat(oneMinTimestamp.toString());
-      oneMinStat.trades = BigInt.fromI32(1);
-      oneMinStat.volume = volume;
-      oneMinStat.timestamp = oneMinTimestamp;
-    } else {
-      oneMinStat.trades = oneMinStat.trades.plus(BigInt.fromI32(1));
-      oneMinStat.volume = oneMinStat.volume.plus(volume);
-    }
-    oneMinStat.save();
-
-    const oneHourTimestamp = getTimeID(event.block.timestamp, ONE_HOUR_SECONDS);
     if (marketEntity && marketEntity.asset) {
       let marketCumulativeStats = getOrCreateMarketCumulativeStats(marketEntity.asset.toHex());
       marketCumulativeStats.totalTrades = marketCumulativeStats.totalTrades.plus(BigInt.fromI32(1));
@@ -188,6 +179,18 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       marketCumulativeStats.averageTradeSize = marketCumulativeStats.totalVolume.div(marketCumulativeStats.totalTrades);
       marketCumulativeStats.save();
 
+      // update aggregates
+      updateAggregateStatEntities(
+        positionEntity.asset,
+        event.block.timestamp,
+        ONE,
+        volume,
+        synthetixFeePaid,
+        kwentaFeePaid,
+      );
+
+      // DEPRECATE
+      const oneHourTimestamp = getTimeID(event.block.timestamp, ONE_HOUR_SECONDS);
       let marketHourlyStats = getOrCreateMarketHourlyStats(marketEntity.asset, oneHourTimestamp);
       marketHourlyStats.trades = marketHourlyStats.trades.plus(BigInt.fromI32(1));
       marketHourlyStats.volume = marketHourlyStats.volume.plus(volume);
@@ -216,7 +219,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.positionSize = ZERO;
       tradeEntity.positionId = positionId;
       tradeEntity.price = event.params.lastPrice;
-      tradeEntity.feesPaid = event.params.fee;
+      tradeEntity.feesPaid = totalFeesPaid;
       tradeEntity.orderType = 'Liquidation';
       tradeEntity.asset = positionEntity.asset;
       tradeEntity.positionClosed = true;
@@ -296,25 +299,14 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
   }
 
-  //Calc fees paid to exchange and include in PnL
-  const crossMarginFees =
-    accountType === 'cross_margin'
-      ? event.params.tradeSize
-          .abs()
-          .times(event.params.lastPrice)
-          .div(ETHER)
-          .times(CROSSMARGIN_TRADING_BPS)
-          .div(BPS_CONVERSION)
-      : ZERO;
-
-  statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee).plus(crossMarginFees);
+  statEntity.feesPaid = statEntity.feesPaid.plus(totalFeesPaid);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
 
   // update global values
   positionEntity.size = event.params.size;
   positionEntity.margin = event.params.margin;
   positionEntity.lastPrice = event.params.lastPrice;
-  positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee).plus(crossMarginFees);
+  positionEntity.feesPaid = positionEntity.feesPaid.plus(totalFeesPaid);
   positionEntity.pnlWithFeesPaid = positionEntity.pnl.minus(positionEntity.feesPaid).plus(positionEntity.netFunding);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
@@ -349,6 +341,7 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
     statEntity.save();
   }
   if (positionEntity) {
+    // update position
     positionEntity.isLiquidated = true;
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
     positionEntity.pnlWithFeesPaid = positionEntity.initialMargin
@@ -357,6 +350,7 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
     positionEntity.pnl = positionEntity.pnlWithFeesPaid.plus(positionEntity.feesPaid).minus(positionEntity.netFunding);
     positionEntity.save();
   }
+
   if (tradeEntity) {
     tradeEntity.size = event.params.size.times(BigInt.fromI32(-1));
     tradeEntity.positionSize = ZERO;
@@ -402,6 +396,53 @@ function getOrCreateMarketCumulativeStats(asset: string): FuturesCumulativeStat 
   return cumulativeEntity as FuturesCumulativeStat;
 }
 
+function getOrCreateMarketAggregateStats(asset: Bytes, timestamp: BigInt, period: BigInt): FuturesAggregateStat {
+  const id = `${timestamp.toString()}-${period.toString()}-${asset.toHex()}`;
+  let aggregateEntity = FuturesAggregateStat.load(id);
+  if (aggregateEntity == null) {
+    aggregateEntity = new FuturesAggregateStat(id);
+    aggregateEntity.period = period;
+    aggregateEntity.timestamp = timestamp;
+    aggregateEntity.asset = asset;
+    aggregateEntity.trades = ZERO;
+    aggregateEntity.volume = ZERO;
+    aggregateEntity.feesKwenta = ZERO;
+    aggregateEntity.feesSynthetix = ZERO;
+  }
+  return aggregateEntity as FuturesAggregateStat;
+}
+
+export function updateAggregateStatEntities(
+  asset: Bytes,
+  timestamp: BigInt,
+  trades: BigInt,
+  volume: BigInt,
+  feesSynthetix: BigInt,
+  feesKwenta: BigInt,
+): void {
+  for (let period = 0; period < AGG_PERIODS.length; period++) {
+    const thisPeriod = AGG_PERIODS[period];
+    const aggTimestamp = getTimeID(timestamp, thisPeriod);
+
+    // update the aggregate for this market
+    let aggStats = getOrCreateMarketAggregateStats(asset, aggTimestamp, thisPeriod);
+    aggStats.trades = aggStats.trades.plus(trades);
+    aggStats.volume = aggStats.volume.plus(volume);
+    aggStats.feesSynthetix = aggStats.feesSynthetix.plus(feesSynthetix);
+    aggStats.feesKwenta = aggStats.feesKwenta.plus(feesKwenta);
+    aggStats.save();
+
+    // update the aggregate for all markets
+    let aggCumulativeStats = getOrCreateMarketAggregateStats(new Bytes(0), aggTimestamp, thisPeriod);
+    aggCumulativeStats.trades = aggCumulativeStats.trades.plus(trades);
+    aggCumulativeStats.volume = aggCumulativeStats.volume.plus(volume);
+    aggCumulativeStats.feesSynthetix = aggCumulativeStats.feesSynthetix.plus(feesSynthetix);
+    aggCumulativeStats.feesKwenta = aggCumulativeStats.feesKwenta.plus(feesKwenta);
+    aggCumulativeStats.save();
+  }
+}
+
+// DEPRECATE
 function getOrCreateMarketHourlyStats(asset: Bytes, timestamp: BigInt): FuturesHourlyStat {
   const id = `${timestamp.toString()}-${asset.toHex()}`;
   let hourlyEntity = FuturesHourlyStat.load(id);
