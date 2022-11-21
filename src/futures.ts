@@ -209,11 +209,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.abstractAccount = sendingAccount;
       tradeEntity.accountType = accountType;
 
-      // create a placeholder for trade size as long/short
-      // this will help figure out the trade direction during a liquidation
-      // since the position size will be set to zero before the PositionLiquidated event
-      tradeEntity.size = positionEntity.size.gt(ZERO) ? BigInt.fromI32(-1) : BigInt.fromI32(1);
-
       // temporarily set the pnl to the total margin in the account before liquidation
       // we will check this again in the PositionLiquidated event
       tradeEntity.pnl = positionEntity.margin.times(BigInt.fromI32(-1));
@@ -363,8 +358,7 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
     positionEntity.save();
   }
   if (tradeEntity) {
-    // size will be either -1 or 1 in this scenario (see handlePositionModified for details)
-    tradeEntity.size = event.params.size.times(tradeEntity.size);
+    tradeEntity.size = event.params.size.times(BigInt.fromI32(-1));
     tradeEntity.positionSize = ZERO;
     tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.fee);
     tradeEntity.pnl = tradeEntity.pnl.plus(event.params.fee);
