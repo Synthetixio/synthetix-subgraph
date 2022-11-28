@@ -181,6 +181,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
       // update aggregates
       updateAggregateStatEntities(
+        accountType,
         positionEntity.asset,
         event.block.timestamp,
         ONE,
@@ -408,11 +409,13 @@ function getOrCreateMarketAggregateStats(asset: Bytes, timestamp: BigInt, period
     aggregateEntity.volume = ZERO;
     aggregateEntity.feesKwenta = ZERO;
     aggregateEntity.feesSynthetix = ZERO;
+    aggregateEntity.feesCrossMarginAccounts = ZERO;
   }
   return aggregateEntity as FuturesAggregateStat;
 }
 
 export function updateAggregateStatEntities(
+  accountType: string,
   asset: Bytes,
   timestamp: BigInt,
   trades: BigInt,
@@ -423,6 +426,8 @@ export function updateAggregateStatEntities(
   for (let period = 0; period < AGG_PERIODS.length; period++) {
     const thisPeriod = AGG_PERIODS[period];
     const aggTimestamp = getTimeID(timestamp, thisPeriod);
+    const totalFees = feesSynthetix.plus(feesKwenta);
+    const feesCrossMarginAccounts = accountType === 'cross_margin' ? totalFees : ZERO;
 
     // update the aggregate for this market
     let aggStats = getOrCreateMarketAggregateStats(asset, aggTimestamp, thisPeriod);
@@ -430,6 +435,7 @@ export function updateAggregateStatEntities(
     aggStats.volume = aggStats.volume.plus(volume);
     aggStats.feesSynthetix = aggStats.feesSynthetix.plus(feesSynthetix);
     aggStats.feesKwenta = aggStats.feesKwenta.plus(feesKwenta);
+    aggStats.feesCrossMarginAccounts = aggStats.feesCrossMarginAccounts.plus(feesCrossMarginAccounts);
     aggStats.save();
 
     // update the aggregate for all markets
@@ -438,6 +444,7 @@ export function updateAggregateStatEntities(
     aggCumulativeStats.volume = aggCumulativeStats.volume.plus(volume);
     aggCumulativeStats.feesSynthetix = aggCumulativeStats.feesSynthetix.plus(feesSynthetix);
     aggCumulativeStats.feesKwenta = aggCumulativeStats.feesKwenta.plus(feesKwenta);
+    aggStats.feesCrossMarginAccounts = aggStats.feesCrossMarginAccounts.plus(feesCrossMarginAccounts);
     aggCumulativeStats.save();
   }
 }

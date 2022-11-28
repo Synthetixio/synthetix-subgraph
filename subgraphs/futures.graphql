@@ -91,6 +91,7 @@ type FuturesAggregateStat @entity {
   volume: BigInt!
   feesKwenta: BigInt!
   feesSynthetix: BigInt!
+  feesCrossMarginAccounts: BigInt!
 }
 
 type FuturesMarginTransfer @entity {

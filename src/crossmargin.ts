@@ -102,7 +102,15 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
           .div(BPS_CONVERSION);
         tradeEntity.feesPaid = tradeEntity.feesPaid.plus(feePaid);
 
-        updateAggregateStatEntities(positionEntity.asset, event.block.timestamp, ZERO, ZERO, ZERO, feePaid);
+        updateAggregateStatEntities(
+          'cross_margin',
+          positionEntity.asset,
+          event.block.timestamp,
+          ZERO,
+          ZERO,
+          ZERO,
+          feePaid,
+        );
 
         positionEntity.feesPaid = positionEntity.feesPaid.plus(feePaid);
         positionEntity.pnlWithFeesPaid = positionEntity.pnl
