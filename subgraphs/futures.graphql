@@ -1,6 +1,7 @@
 type FuturesMarket @entity {
   id: ID!
   asset: Bytes!
+  marketKey: Bytes!
   marketStats: FuturesCumulativeStat!
 }
 
@@ -13,6 +14,7 @@ type FuturesTrade @entity {
   margin: BigInt!
   size: BigInt!
   asset: Bytes!
+  marketKey: Bytes!
   price: BigInt!
   positionId: ID!
   positionSize: BigInt!
@@ -30,6 +32,7 @@ type FuturesPosition @entity {
   timestamp: BigInt!
   market: Bytes!
   asset: Bytes!
+  marketKey: Bytes!
   account: Bytes!
   abstractAccount: Bytes!
   accountType: FuturesAccountType!
@@ -74,18 +77,11 @@ type FuturesCumulativeStat @entity {
   averageTradeSize: BigInt!
 }
 
-type FuturesHourlyStat @entity {
-  id: ID!
-  asset: Bytes!
-  trades: BigInt!
-  volume: BigInt!
-  timestamp: BigInt!
-}
-
 type FuturesAggregateStat @entity {
   id: ID!
   period: BigInt!
   timestamp: BigInt!
+  marketKey: Bytes!
   asset: Bytes!
   trades: BigInt!
   volume: BigInt!

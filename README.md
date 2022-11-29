@@ -233,3 +233,12 @@ The CLI automatically generates the main subgraph, which is composed of the othe
 All of the prompts in the CLI can be provided via options. For more information, run `npm run deploy -- --help`.
 
 PRs to the `main` branch of this repository will result in deploys of main subgraphs to each network: Optimism mainnet, Optimism kovan, and Ethereum mainnet.
+
+### Codegen
+
+To generate a set of subgraph functions for a frontend, use the following commands but replace the endpoint:
+
+```
+npx codegen-graph-ts pull https://api.thegraph.com/subgraphs/name/example-team/example-subgraph > manifest.json
+npx codegen-graph-ts gen -s manifest.json -o subgraph.ts
+```

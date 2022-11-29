@@ -104,6 +104,7 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
 
         updateAggregateStatEntities(
           'cross_margin',
+          positionEntity.marketKey,
           positionEntity.asset,
           event.block.timestamp,
           ZERO,
