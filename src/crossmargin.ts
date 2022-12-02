@@ -40,7 +40,7 @@ export function handleNewAccount(event: NewAccountEvent): void {
 }
 
 export function handleOrderPlaced(event: OrderPlacedEvent): void {
-  const marketAsset = event.params.marketKey;
+  const marketKey = event.params.marketKey;
 
   // look up the cross margin account address
   let sendingAccount = event.params.account;
@@ -58,7 +58,8 @@ export function handleOrderPlaced(event: OrderPlacedEvent): void {
   futuresOrderEntity.orderType =
     event.params.orderType === 0 ? 'Limit' : event.params.orderType === 1 ? 'StopMarket' : 'Market';
   futuresOrderEntity.status = 'Pending';
-  futuresOrderEntity.asset = marketAsset;
+  futuresOrderEntity.asset = marketKey; // TODO: Deprecase asset from this entity
+  futuresOrderEntity.marketKey = marketKey;
   futuresOrderEntity.account = account;
   futuresOrderEntity.abstractAccount = sendingAccount;
   futuresOrderEntity.size = event.params.sizeDelta;

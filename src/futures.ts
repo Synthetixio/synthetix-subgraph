@@ -218,6 +218,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.price = event.params.lastPrice;
       tradeEntity.feesPaid = totalFeesPaid;
       tradeEntity.orderType = 'Liquidation';
+      tradeEntity.marketKey = positionEntity.marketKey;
       tradeEntity.asset = positionEntity.asset;
       tradeEntity.positionClosed = true;
       tradeEntity.save();
@@ -472,8 +473,9 @@ export function handleMarginTransferred(event: MarginTransferredEvent): void {
   marginTransferEntity.size = event.params.marginDelta;
   marginTransferEntity.txHash = txHash;
 
-  if (marketEntity && marketEntity.asset) {
+  if (marketEntity) {
     marginTransferEntity.asset = marketEntity.asset;
+    marginTransferEntity.marketKey = marketEntity.marketKey;
   }
 
   // handle margin account
@@ -536,6 +538,7 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
     let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
     if (marketEntity) {
       let marketAsset = marketEntity.asset;
+      let marketKey = marketEntity.marketKey;
 
       const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
 
@@ -547,6 +550,7 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
       futuresOrderEntity.orderType = 'NextPrice';
       futuresOrderEntity.status = 'Pending';
       futuresOrderEntity.asset = marketAsset;
+      futuresOrderEntity.marketKey = marketKey;
       futuresOrderEntity.market = futuresMarketAddress;
       futuresOrderEntity.account = account;
       futuresOrderEntity.abstractAccount = sendingAccount;

@@ -96,6 +96,7 @@ type FuturesMarginTransfer @entity {
   account: Bytes!
   market: Bytes!
   asset: Bytes!
+  marketKey: Bytes!
   size: BigInt!
   txHash: String!
 }
@@ -143,6 +144,7 @@ type FuturesOrder @entity {
   id: ID!
   size: BigInt!
   asset: Bytes!
+  marketKey: Bytes!
   market: Bytes!
   account: Bytes!
   abstractAccount: Bytes!
