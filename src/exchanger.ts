@@ -228,11 +228,6 @@ export function handleExchangeTrackingV2(event: ExchangeTrackingEventV2): void {
 
   updateExchangePartner(exchangePartner as ExchangePartner, usdVolume, fee);
 
-  exchangePartner.usdVolume = exchangePartner.usdVolume.plus(usdVolume);
-  exchangePartner.usdFees = exchangePartner.usdFees.plus(fee);
-  exchangePartner.trades = exchangePartner.trades.plus(BigInt.fromI32(1));
-  exchangePartner.save();
-
   let timestamp = getTimeID(event.block.timestamp, DAY_SECONDS);
   let dailyExchangePartnerID = timestamp.toString() + '-' + exchangePartnerID;
   let dailyExchangePartner = DailyExchangePartner.load(dailyExchangePartnerID);
