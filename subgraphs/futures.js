@@ -32,7 +32,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
       eventHandlers: [
         {
           event: 'MarketAdded(address,indexed bytes32,indexed bytes32)',
-          handler: 'handleMarketAdded',
+          handler: 'handleV1MarketAdded',
         },
         {
           event: 'MarketRemoved(address,indexed bytes32,indexed bytes32)',
@@ -43,7 +43,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
   });
 });
 
-// futures markets
+// futures v1 markets
 const futuresMarketTemplate = {
   kind: 'ethereum/contract',
   name: 'FuturesMarket',
@@ -189,6 +189,51 @@ const marginBaseTemplate = {
   },
 };
 
+// perps v2 markets
+const perpsMarketTemplate = {
+  kind: 'ethereum/contract',
+  name: 'PerpsMarket',
+  network: getCurrentNetwork(),
+  source: {
+    abi: 'PerpsV2MarketProxyable',
+  },
+  mapping: {
+    kind: 'ethereum/events',
+    apiVersion: '0.0.5',
+    language: 'wasm/assemblyscript',
+    file: '../src/futures.ts',
+    entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
+    abis: [
+      {
+        name: 'PerpsV2MarketProxyable',
+        file: '../abis/PerpsV2MarketProxyable.json',
+      },
+    ],
+    eventHandlers: [
+      {
+        event: 'MarginTransferred(indexed address,int256)',
+        handler: 'handleMarginTransferred',
+      },
+      {
+        event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256)',
+        handler: 'handlePositionModified',
+      },
+      {
+        event: 'PositionLiquidated(uint256,address,address,int256,uint256,uint256)',
+        handler: 'handlePositionLiquidated',
+      },
+      {
+        event: 'DelayedOrderSubmitted(indexed address,bool,int256,uint256,uint256,uint256,uint256,uint256,bytes32)',
+        handler: 'handleDelayedOrderSubmitted',
+      },
+      {
+        event: 'DelayedOrderRemoved(indexed address,bool,uint256,int256,uint256,uint256,uint256,bytes32)',
+        handler: 'handleDelayedOrderRemoved',
+      },
+    ],
+  },
+};
+
 module.exports = {
   specVersion: '0.0.2',
   description: 'Kwenta Futures API',
@@ -197,5 +242,5 @@ module.exports = {
     file: './futures.graphql',
   },
   dataSources: manifest,
-  templates: [marginBaseTemplate, futuresMarketTemplate],
+  templates: [marginBaseTemplate, futuresMarketTemplate, perpsMarketTemplate],
 };

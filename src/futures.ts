@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, DataSourceContext, store } from '@graphprotocol/graph-ts';
+import { Address, BigInt, Bytes, DataSourceContext, log, store } from '@graphprotocol/graph-ts';
 
 import {
   FuturesMarket as FuturesMarketEntity,
@@ -25,8 +25,12 @@ import {
   NextPriceOrderSubmitted as NextPriceOrderSubmittedEvent,
   NextPriceOrderRemoved as NextPriceOrderRemovedEvent,
 } from '../generated/subgraphs/futures/templates/FuturesMarket/FuturesMarket';
-import { FuturesMarket } from '../generated/subgraphs/futures/templates';
-import { BPS_CONVERSION, DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, strToBytes, ZERO } from './lib/helpers';
+import {
+  DelayedOrderSubmitted as DelayedOrderSubmittedEvent,
+  DelayedOrderRemoved as DelayedOrderRemovedEvent,
+} from '../generated/subgraphs/futures/templates/PerpsMarket/PerpsV2MarketProxyable';
+import { FuturesMarket, PerpsMarket } from '../generated/subgraphs/futures/templates';
+import { BPS_CONVERSION, DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO } from './lib/helpers';
 
 let SINGLE_INDEX = '0';
 
@@ -36,18 +40,54 @@ let CROSSMARGIN_TRADING_BPS = BigInt.fromI32(2);
 // Timeframes to aggregate stats in seconds
 export const AGG_PERIODS = [ONE_HOUR_SECONDS, DAY_SECONDS];
 
-export function handleMarketAdded(event: MarketAddedEvent): void {
+export function handleV1MarketAdded(event: MarketAddedEvent): void {
+  const marketKey = event.params.marketKey.toString();
+
+  // create futures market
   let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
   marketEntity.asset = event.params.asset;
   marketEntity.marketKey = event.params.marketKey;
-  let marketStats = getOrCreateMarketCumulativeStats(event.params.asset.toHex());
+
+  // create market cumulative stats
+  let marketStats = getOrCreateMarketCumulativeStats(event.params.marketKey.toHex());
   marketStats.save();
   marketEntity.marketStats = marketStats.id;
   marketEntity.save();
 
   let context = new DataSourceContext();
-  context.setString('market', event.params.market.toHex());
-  FuturesMarket.createWithContext(event.params.market, context);
+  // check that it's a v1 market before adding
+  if (marketKey.startsWith('s')) {
+    log.info('New V1 market added: {}', [marketKey]);
+
+    // futures v1 market
+    context.setString('market', event.params.market.toHex());
+    FuturesMarket.createWithContext(event.params.market, context);
+  }
+}
+
+export function handleV2MarketAdded(event: MarketAddedEvent): void {
+  const marketKey = event.params.marketKey.toString();
+
+  // create futures market
+  let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
+  marketEntity.asset = event.params.asset;
+  marketEntity.marketKey = event.params.marketKey;
+
+  // create market cumulative stats
+  let marketStats = getOrCreateMarketCumulativeStats(event.params.marketKey.toHex());
+  marketStats.save();
+  marketEntity.marketStats = marketStats.id;
+  marketEntity.save();
+
+  let context = new DataSourceContext();
+  // Check that it's a v2 market before adding
+  if (marketKey.endsWith('PERP')) {
+    log.info('New V2 market added: {}', [marketKey]);
+
+    // perps v2 market
+    context.setString('market', event.params.market.toHex());
+    PerpsMarket.createWithContext(event.params.market, context);
+  }
 }
 
 export function handleMarketRemoved(event: MarketRemovedEvent): void {
@@ -381,10 +421,10 @@ function getOrCreateCumulativeEntity(): FuturesCumulativeStat {
   return cumulativeEntity as FuturesCumulativeStat;
 }
 
-function getOrCreateMarketCumulativeStats(asset: string): FuturesCumulativeStat {
-  let cumulativeEntity = FuturesCumulativeStat.load(asset);
+function getOrCreateMarketCumulativeStats(marketKey: string): FuturesCumulativeStat {
+  let cumulativeEntity = FuturesCumulativeStat.load(marketKey);
   if (cumulativeEntity == null) {
-    cumulativeEntity = new FuturesCumulativeStat(asset);
+    cumulativeEntity = new FuturesCumulativeStat(marketKey);
     cumulativeEntity.totalLiquidations = ZERO;
     cumulativeEntity.totalTrades = ZERO;
     cumulativeEntity.totalTraders = ZERO;
@@ -595,6 +635,100 @@ export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): 
           // update order values
           futuresOrderEntity.status = 'Filled';
           tradeEntity.orderType = 'NextPrice';
+
+          // add fee if not self-executed
+          if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
+            tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.keeperDeposit);
+            statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
+            if (positionEntity) {
+              positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.keeperDeposit);
+              positionEntity.save();
+            }
+
+            statEntity.save();
+          }
+
+          tradeEntity.save();
+        } else if (statEntity) {
+          if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
+            statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
+            statEntity.save();
+          }
+
+          futuresOrderEntity.status = 'Cancelled';
+        }
+
+        futuresOrderEntity.save();
+      }
+    }
+  }
+}
+
+export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): void {
+  if (event.params.trackingCode.toString() == 'KWENTA') {
+    let futuresMarketAddress = event.address as Address;
+    let sendingAccount = event.params.account;
+    let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+    const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+
+    let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
+    if (marketEntity) {
+      let marketAsset = marketEntity.asset;
+
+      const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
+
+      let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+      if (futuresOrderEntity == null) {
+        futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
+      }
+
+      futuresOrderEntity.orderType = event.params.isOffchain ? 'DelayedOffchain' : 'Delayed';
+      futuresOrderEntity.status = 'Pending';
+      futuresOrderEntity.asset = marketAsset;
+      futuresOrderEntity.market = futuresMarketAddress;
+      futuresOrderEntity.account = account;
+      futuresOrderEntity.abstractAccount = sendingAccount;
+      futuresOrderEntity.size = event.params.sizeDelta;
+      futuresOrderEntity.orderId = event.params.targetRoundId;
+      futuresOrderEntity.targetRoundId = event.params.targetRoundId;
+      futuresOrderEntity.timestamp = event.block.timestamp;
+
+      futuresOrderEntity.save();
+    }
+  }
+}
+
+export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void {
+  if (event.params.trackingCode.toString() == 'KWENTA') {
+    let sendingAccount = event.params.account;
+    let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
+    const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+
+    let statEntity = FuturesStat.load(account.toHex());
+
+    let futuresMarketAddress = event.address as Address;
+
+    let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
+    if (marketEntity) {
+      let marketAsset = marketEntity.asset;
+
+      const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
+
+      let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+
+      if (futuresOrderEntity) {
+        futuresOrderEntity.keeper = event.transaction.from;
+        let tradeEntity = FuturesTrade.load(
+          event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
+        );
+
+        if (statEntity && tradeEntity) {
+          // if trade exists get the position
+          let positionEntity = FuturesPosition.load(tradeEntity.positionId);
+
+          // update order values
+          futuresOrderEntity.status = 'Filled';
+          tradeEntity.orderType = futuresOrderEntity.orderType;
 
           // add fee if not self-executed
           if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
