@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes, DataSourceContext, log, store } from '@graphprotocol/graph-ts';
+import { Address, BigInt, Bytes, log, store } from '@graphprotocol/graph-ts';
 
 import {
   FuturesMarket as FuturesMarketEntity,
@@ -30,12 +30,13 @@ import {
   DelayedOrderRemoved as DelayedOrderRemovedEvent,
 } from '../generated/subgraphs/futures/templates/PerpsMarket/PerpsV2MarketProxyable';
 import { FuturesMarket, PerpsMarket } from '../generated/subgraphs/futures/templates';
-import { BPS_CONVERSION, DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO } from './lib/helpers';
+import { BPS_CONVERSION, DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO, ZERO_ADDRESS } from './lib/helpers';
 
 let SINGLE_INDEX = '0';
 
 // temporary cross-margin fee solution
 let CROSSMARGIN_TRADING_BPS = BigInt.fromI32(2);
+let CROSSMARGIN_ADVANCED_TRADE_BPS = BigInt.fromI32(3);
 
 // Timeframes to aggregate stats in seconds
 export const AGG_PERIODS = [ONE_HOUR_SECONDS, DAY_SECONDS];
@@ -54,14 +55,12 @@ export function handleV1MarketAdded(event: MarketAddedEvent): void {
   marketEntity.marketStats = marketStats.id;
   marketEntity.save();
 
-  let context = new DataSourceContext();
   // check that it's a v1 market before adding
-  if (marketKey.startsWith('s')) {
+  if (marketKey.startsWith('s') && !marketKey.endsWith('PERP')) {
     log.info('New V1 market added: {}', [marketKey]);
 
     // futures v1 market
-    context.setString('market', event.params.market.toHex());
-    FuturesMarket.createWithContext(event.params.market, context);
+    FuturesMarket.create(event.params.market);
   }
 }
 
@@ -79,14 +78,12 @@ export function handleV2MarketAdded(event: MarketAddedEvent): void {
   marketEntity.marketStats = marketStats.id;
   marketEntity.save();
 
-  let context = new DataSourceContext();
   // Check that it's a v2 market before adding
   if (marketKey.endsWith('PERP')) {
     log.info('New V2 market added: {}', [marketKey]);
 
     // perps v2 market
-    context.setString('market', event.params.market.toHex());
-    PerpsMarket.createWithContext(event.params.market, context);
+    PerpsMarket.create(event.params.market);
   }
 }
 
@@ -110,13 +107,15 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
   // calculated values
   const synthetixFeePaid = event.params.fee;
+  const isAdvancedOrder = accountType === 'cross_margin' && event.transaction.from !== account;
+
   const kwentaFeePaid =
     accountType === 'cross_margin'
       ? event.params.tradeSize
           .abs()
           .times(event.params.lastPrice)
           .div(ETHER)
-          .times(CROSSMARGIN_TRADING_BPS)
+          .times(CROSSMARGIN_TRADING_BPS.plus(isAdvancedOrder ? CROSSMARGIN_ADVANCED_TRADE_BPS : ZERO))
           .div(BPS_CONVERSION)
       : ZERO;
 
@@ -165,6 +164,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.pnlWithFeesPaid = ZERO;
     positionEntity.netTransfers = ZERO;
     positionEntity.totalDeposits = ZERO;
+    positionEntity.totalVolume = ZERO;
     positionEntity.fundingIndex = event.params.fundingIndex;
   }
 
@@ -174,11 +174,14 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.account = account;
     tradeEntity.abstractAccount = sendingAccount;
     tradeEntity.accountType = accountType;
-    tradeEntity.size = event.params.tradeSize;
     tradeEntity.margin = event.params.margin.plus(totalFeesPaid);
-    tradeEntity.positionSize = event.params.size;
-    tradeEntity.positionId = positionId;
+    tradeEntity.size = event.params.tradeSize;
+    tradeEntity.asset = ZERO_ADDRESS;
+    tradeEntity.marketKey = ZERO_ADDRESS;
     tradeEntity.price = event.params.lastPrice;
+    tradeEntity.positionId = positionId;
+    tradeEntity.positionSize = event.params.size;
+    tradeEntity.pnl = ZERO;
     tradeEntity.feesPaid = totalFeesPaid;
     tradeEntity.orderType = 'Market';
 
@@ -251,16 +254,17 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
       // temporarily set the pnl to the total margin in the account before liquidation
       // we will check this again in the PositionLiquidated event
-      tradeEntity.pnl = positionEntity.margin.times(BigInt.fromI32(-1));
       tradeEntity.margin = ZERO;
-      tradeEntity.positionSize = ZERO;
-      tradeEntity.positionId = positionId;
+      tradeEntity.size = ZERO;
+      tradeEntity.asset = positionEntity.asset;
+      tradeEntity.marketKey = positionEntity.marketKey;
       tradeEntity.price = event.params.lastPrice;
+      tradeEntity.positionId = positionId;
+      tradeEntity.positionSize = ZERO;
+      tradeEntity.positionClosed = true;
+      tradeEntity.pnl = positionEntity.margin.times(BigInt.fromI32(-1));
       tradeEntity.feesPaid = totalFeesPaid;
       tradeEntity.orderType = 'Liquidation';
-      tradeEntity.marketKey = positionEntity.marketKey;
-      tradeEntity.asset = positionEntity.asset;
-      tradeEntity.positionClosed = true;
       tradeEntity.save();
     } else if (marginTransferEntity) {
       // if margin transfer exists, add it to net transfers
@@ -587,17 +591,20 @@ export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEven
         futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
       }
 
-      futuresOrderEntity.orderType = 'NextPrice';
-      futuresOrderEntity.status = 'Pending';
+      futuresOrderEntity.size = event.params.sizeDelta;
       futuresOrderEntity.asset = marketAsset;
       futuresOrderEntity.marketKey = marketKey;
       futuresOrderEntity.market = futuresMarketAddress;
       futuresOrderEntity.account = account;
       futuresOrderEntity.abstractAccount = sendingAccount;
-      futuresOrderEntity.size = event.params.sizeDelta;
       futuresOrderEntity.orderId = event.params.targetRoundId;
       futuresOrderEntity.targetRoundId = event.params.targetRoundId;
+      futuresOrderEntity.targetPrice = ZERO;
+      futuresOrderEntity.marginDelta = ZERO;
       futuresOrderEntity.timestamp = event.block.timestamp;
+      futuresOrderEntity.orderType = 'NextPrice';
+      futuresOrderEntity.status = 'Pending';
+      futuresOrderEntity.keeper = ZERO_ADDRESS;
 
       futuresOrderEntity.save();
     }
@@ -682,16 +689,20 @@ export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): 
         futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
       }
 
-      futuresOrderEntity.orderType = event.params.isOffchain ? 'DelayedOffchain' : 'Delayed';
-      futuresOrderEntity.status = 'Pending';
+      futuresOrderEntity.size = event.params.sizeDelta;
       futuresOrderEntity.asset = marketAsset;
+      futuresOrderEntity.marketKey = marketEntity.marketKey;
       futuresOrderEntity.market = futuresMarketAddress;
       futuresOrderEntity.account = account;
       futuresOrderEntity.abstractAccount = sendingAccount;
-      futuresOrderEntity.size = event.params.sizeDelta;
       futuresOrderEntity.orderId = event.params.targetRoundId;
       futuresOrderEntity.targetRoundId = event.params.targetRoundId;
+      futuresOrderEntity.targetPrice = ZERO;
+      futuresOrderEntity.marginDelta = ZERO;
       futuresOrderEntity.timestamp = event.block.timestamp;
+      futuresOrderEntity.orderType = event.params.isOffchain ? 'DelayedOffchain' : 'Delayed';
+      futuresOrderEntity.status = 'Pending';
+      futuresOrderEntity.keeper = ZERO_ADDRESS;
 
       futuresOrderEntity.save();
     }

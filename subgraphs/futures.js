@@ -2,6 +2,50 @@ const { getCurrentNetwork, getContractDeployments } = require('./utils/network')
 
 const manifest = [];
 
+// constants
+// addresses
+OP_MAINNET_CROSSMARGIN_ADDRESS = '0x8e43BF1910ad1461EEe0Daca10547c7e6d9D2f36';
+OP_GOERLI_CROSSMARGIN_ADDRESS = '0x9320170B37eDEb4f41cb6E5A8F82B984aD9c44eE';
+
+START_BLOCK_OP_MAINNET = 30657407;
+START_BLOCK_OP_GOERLI = 2172242;
+
+GRAFT_BLOCK_OP_MAINNET = 66271334;
+GRAFT_BLOCK_OP_GOERLI = 4254066;
+
+GRAFT_BASE_OP_MAINNET = 'QmZydEAXDYbNyRzhbDGdg5D47Wv5R99D2jDyf9fYZrqrXH';
+GRAFT_BASE_OP_GOERLI = 'QmbguxdYpf1GKSYdcRjMJuNTtMH7jafbwVa5E3S6mnW8V6';
+
+// calculated variables
+const currentNetwork = getCurrentNetwork();
+const crossMarginAddress =
+  currentNetwork === 'optimism'
+    ? OP_MAINNET_CROSSMARGIN_ADDRESS
+    : currentNetwork === 'optimism-goerli'
+    ? OP_GOERLI_CROSSMARGIN_ADDRESS
+    : OP_GOERLI_CROSSMARGIN_ADDRESS;
+
+const crossMarginStartBlock =
+  currentNetwork === 'optimism'
+    ? START_BLOCK_OP_MAINNET
+    : currentNetwork === 'optimism-goerli'
+    ? START_BLOCK_OP_GOERLI
+    : 0;
+
+const graftBlock =
+  currentNetwork === 'optimism'
+    ? GRAFT_BLOCK_OP_MAINNET
+    : currentNetwork === 'optimism-goerli'
+    ? GRAFT_BLOCK_OP_GOERLI
+    : null;
+
+const graftBase =
+  currentNetwork === 'optimism'
+    ? GRAFT_BASE_OP_MAINNET
+    : currentNetwork === 'optimism-goerli'
+    ? GRAFT_BASE_OP_GOERLI
+    : null;
+
 // futures market manager
 getContractDeployments('FuturesMarketManager').forEach((a, i) => {
   manifest.push({
@@ -15,7 +59,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.5',
+      apiVersion: '0.0.6',
       language: 'wasm/assemblyscript',
       file: '../src/futures.ts',
       entities: ['FuturesMarket'],
@@ -53,7 +97,7 @@ const futuresMarketTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.5',
+    apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
     file: '../src/futures.ts',
     entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
@@ -93,28 +137,6 @@ const futuresMarketTemplate = {
 };
 
 // crossmargin
-// addresses
-OP_GOERLI_CROSSMARGIN_ADDRESS = '0x9320170B37eDEb4f41cb6E5A8F82B984aD9c44eE';
-START_BLOCK_OP_GOERLI = 2172242;
-
-OP_MAINNET_CROSSMARGIN_ADDRESS = '0x8e43BF1910ad1461EEe0Daca10547c7e6d9D2f36';
-START_BLOCK_OP_MAINNET = 30657407;
-
-// set up
-const crossMarginAddress =
-  getCurrentNetwork() === 'optimism'
-    ? OP_MAINNET_CROSSMARGIN_ADDRESS
-    : getCurrentNetwork() === 'optimism-goerli'
-    ? OP_GOERLI_CROSSMARGIN_ADDRESS
-    : OP_GOERLI_CROSSMARGIN_ADDRESS;
-
-const crossMarginStartBlock =
-  getCurrentNetwork() === 'optimism'
-    ? START_BLOCK_OP_MAINNET
-    : getCurrentNetwork() === 'optimism-goerli'
-    ? START_BLOCK_OP_GOERLI
-    : 0;
-
 manifest.push({
   kind: 'ethereum/contract',
   name: 'crossmargin_factory',
@@ -126,7 +148,7 @@ manifest.push({
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.5',
+    apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
     file: '../src/crossmargin.ts',
     entities: ['MarginAccountFactory'],
@@ -154,7 +176,7 @@ const marginBaseTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.5',
+    apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
     file: '../src/crossmargin.ts',
     entities: ['MarginBase'],
@@ -164,28 +186,7 @@ const marginBaseTemplate = {
         file: '../abis/MarginBase.json',
       },
     ],
-    eventHandlers: [
-      {
-        event: 'OrderPlaced(indexed address,uint256,bytes32,int256,int256,uint256,uint8)',
-        handler: 'handleOrderPlaced',
-      },
-      {
-        event: 'OrderCancelled(indexed address,uint256)',
-        handler: 'handleOrderCancelled',
-      },
-      {
-        event: 'OrderFilled(indexed address,uint256,uint256,uint256)',
-        handler: 'handleOrderFilled',
-      },
-      {
-        event: 'Deposit(indexed address,uint256)',
-        handler: 'handleDeposit',
-      },
-      {
-        event: 'Withdraw(indexed address,uint256)',
-        handler: 'handleWithdraw',
-      },
-    ],
+    eventHandlers: [],
   },
 };
 
@@ -199,7 +200,7 @@ const perpsMarketTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.5',
+    apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
     file: '../src/futures.ts',
     entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
@@ -234,13 +235,25 @@ const perpsMarketTemplate = {
   },
 };
 
+const graftConfig =
+  graftBase && graftBase
+    ? {
+        graft: {
+          base: graftBase,
+          block: graftBlock,
+        },
+        features: ['grafting'],
+      }
+    : {};
+
 module.exports = {
-  specVersion: '0.0.2',
+  specVersion: '0.0.4',
   description: 'Kwenta Futures API',
   repository: 'https://github.com/kwenta/kwenta-subgraph',
   schema: {
     file: './futures.graphql',
   },
+  ...graftConfig,
   dataSources: manifest,
   templates: [marginBaseTemplate, futuresMarketTemplate, perpsMarketTemplate],
 };

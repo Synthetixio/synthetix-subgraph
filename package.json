@@ -20,8 +20,8 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.25.1",
-    "@graphprotocol/graph-ts": "0.25.0",
+    "@graphprotocol/graph-cli": "0.37.2",
+    "@graphprotocol/graph-ts": "0.27.0",
     "@graphql-tools/merge": "^8.2.1",
     "chalk": "4.1.2",
     "codegen-graph-ts": "^0.1.4",
