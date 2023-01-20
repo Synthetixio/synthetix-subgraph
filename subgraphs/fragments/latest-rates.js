@@ -18,7 +18,7 @@ exchangeRatesContractAddresses.forEach((ca, i) => {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.5',
+      apiVersion: '0.0.6',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
       entities: ['LatestRate'],
@@ -57,7 +57,7 @@ for (const proxyTemplateName of ['AggregatorProxy', 'SynthAggregatorProxy']) {
     },
     mapping: {
       kind: 'ethereum/events',
-      apiVersion: '0.0.5',
+      apiVersion: '0.0.6',
       language: 'wasm/assemblyscript',
       file: '../src/fragments/latest-rates.ts',
       entities: [],
@@ -86,7 +86,7 @@ const aggregatorTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.5',
+    apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
     file: '../src/fragments/latest-rates.ts',
     entities: ['LatestRates'],
@@ -122,7 +122,7 @@ const synthAggregatorTemplate = {
   },
   mapping: {
     kind: 'ethereum/events',
-    apiVersion: '0.0.5',
+    apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
     file: '../src/fragments/latest-rates.ts',
     entities: ['LatestRates'],

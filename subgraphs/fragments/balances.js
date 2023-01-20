@@ -59,7 +59,7 @@ for (const { name } of synths) {
       },
       mapping: {
         kind: 'ethereum/events',
-        apiVersion: '0.0.5',
+        apiVersion: '0.0.6',
         language: 'wasm/assemblyscript',
         file: '../src/fragments/balances.ts',
         entities: ['Synth', 'LatestSynthBalance', 'AggregateSynthBalance'],

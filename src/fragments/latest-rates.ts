@@ -196,6 +196,7 @@ export function addDollar(dollarID: string): void {
   let dollarRate = new LatestRate(dollarID);
   dollarRate.rate = new BigDecimal(BigInt.fromI32(1));
   dollarRate.aggregator = ZERO_ADDRESS;
+  dollarRate.timestamp = ZERO;
   dollarRate.save();
 }
 
