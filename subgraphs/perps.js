@@ -2,13 +2,15 @@ const { getCurrentNetwork, getContractDeployments } = require('./utils/network')
 
 const manifest = [];
 
-START_BLOCK_OP_GOERLI = 0;
+START_BLOCK_OP_GOERLI = 3495320;
 START_BLOCK_OP_MAINNET = 52456507;
 
+const currentNetwork = getCurrentNetwork();
+
 const managerStartBlock =
-  getCurrentNetwork() === 'optimism'
+  currentNetwork === 'optimism'
     ? START_BLOCK_OP_MAINNET
-    : getCurrentNetwork() === 'optimism-goerli'
+    : currentNetwork === 'optimism-goerli'
     ? START_BLOCK_OP_GOERLI
     : 0;
 
@@ -17,7 +19,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
   manifest.push({
     kind: 'ethereum/contract',
     name: `futures_FuturesMarketManager_${i}`,
-    network: getCurrentNetwork(),
+    network: currentNetwork,
     source: {
       address: a.address,
       startBlock: managerStartBlock,
@@ -57,7 +59,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
 const perpsMarketTemplate = {
   kind: 'ethereum/contract',
   name: 'PerpsMarket',
-  network: getCurrentNetwork(),
+  network: currentNetwork,
   source: {
     abi: 'PerpsV2MarketProxyable',
   },
@@ -93,6 +95,10 @@ const perpsMarketTemplate = {
       {
         event: 'DelayedOrderRemoved(indexed address,bool,uint256,int256,uint256,uint256,uint256,bytes32)',
         handler: 'handleDelayedOrderRemoved',
+      },
+      {
+        event: 'FundingRecomputed(int256,int256,uint256,uint256)',
+        handler: 'handleFundingRecomputed',
       },
     ],
   },

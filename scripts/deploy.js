@@ -9,7 +9,12 @@ const inquirer = require('inquirer');
 const { execSync } = require('child_process');
 const { print } = require('graphql');
 const { mergeTypeDefs } = require('@graphql-tools/merge');
+require('dotenv').config();
 
+// env variables
+const SATSUMA_DEPLOY_KEY = process.env.SATSUMA_DEPLOY_KEY;
+
+// functions
 const parseBoolean = (val) => {
   return val == 'false' ? false : val;
 };
@@ -20,9 +25,10 @@ function exec(cmd) {
 
 program
   .option('-u --update-synthetix [version]', 'Update the Synthetix package and contract ABIs to the given version')
-  .option('-s --subgraph <names>', 'The subgraph to deploy to the hosted service')
+  .option('-s --subgraph <names>', 'The subgraph to deployed')
+  .option('-p --provider <name>', 'The subgraph to ')
   .option('-t --team <name>', 'The Graph team name')
-  .option('-n --network <value>', 'Network to deploy on for the hosted service')
+  .option('-n --network <value>', 'Network used for this deploy')
   .option('-a --access-token <token>', 'The Graph access token')
   .option('-d, --deploy-decentralized [value]', 'Deploy to the decentralized network', parseBoolean)
   .option('-v, --version-label [value]', 'Version label for the deployment to the decentralized network')
@@ -61,6 +67,19 @@ program.action(async () => {
     });
   }
 
+  if (!OPTIONS.provider) {
+    inquiries.push({
+      message: 'Which provider would you like to use for this deploy?',
+      name: 'provider',
+      type: 'list',
+      default: 'hosted_subgraph',
+      choices: [
+        { name: 'Satsuma', value: 'satsuma' },
+        { name: 'The Graph', value: 'hosted_service' },
+      ],
+    });
+  }
+
   if (!OPTIONS.network) {
     inquiries.push({
       message: 'Which networks should be built (and deployed)?',
@@ -76,6 +95,14 @@ program.action(async () => {
       message: 'What is your team name on The Graph?',
       name: 'team',
       default: 'synthetixio-team',
+    });
+  }
+
+  if (!OPTIONS.version_label) {
+    inquiries.push({
+      message: 'What is the version label for this deploy?',
+      name: 'version_label',
+      default: '0.0.1-test',
     });
   }
 
@@ -159,14 +186,25 @@ program.action(async () => {
       }
 
       if (!settings.buildOnly) {
-        await exec(
-          `NETWORK=${
-            settings.network
-          } ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
-            settings.team
-          }/${networkPrefix(settings.network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
-        );
-        console.log(green(`Successfully deployed to ${settings.network} on the hosted service.`));
+        if (settings.provider === 'hosted_service') {
+          await exec(
+            `NETWORK=${
+              settings.network
+            } ./node_modules/.bin/graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${
+              settings.team
+            }/${networkPrefix(settings.network)}${settings.subgraph} ./subgraphs/${settings.subgraph}.js`,
+          );
+          console.log(green(`Successfully deployed to ${settings.network} on the hosted service.`));
+        } else if (settings.provider === 'satsuma') {
+          await exec(
+            `NETWORK=${settings.network} ./node_modules/.bin/graph deploy ${networkPrefix(settings.network)}${
+              settings.subgraph
+            } --deploy-key ${SATSUMA_DEPLOY_KEY} --version-label ${
+              settings.version_label
+            } --node https://app.satsuma.xyz/api/subgraphs/deploy ./subgraphs/${settings.subgraph}.js`,
+          );
+          console.log(green(`Successfully deployed to ${settings.network} on Satsuma.`));
+        }
       }
     }
   }

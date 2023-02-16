@@ -22,6 +22,7 @@ type FuturesTrade @entity {
   pnl: BigInt!
   feesPaid: BigInt!
   orderType: FuturesOrderType!
+  trackingCode: Bytes!
 }
 
 type FuturesPosition @entity {
@@ -116,8 +117,11 @@ type FundingRateUpdate @entity {
   id: ID!
   timestamp: BigInt!
   market: Bytes!
+  marketKey: Bytes!
+  asset: Bytes!
   sequenceLength: BigInt!
   funding: BigInt!
+  fundingRate: BigInt!
 }
 
 enum FuturesOrderType {
