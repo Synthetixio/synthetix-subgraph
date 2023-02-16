@@ -38,26 +38,26 @@ jobs:
       - name: Authenticate
         run: npm run auth ${{ secrets.ACCESS_TOKEN }}
       - name: Deploy optimistic goerli perps subgraph
-        run: node scripts/deploy.js -t kwenta -s perps -n optimism-goerli
+        run: node scripts/deploy.js -t kwenta -s perps -n optimism-goerli -p hosted_service
         env:
           NETWORK: optimism-goerli
       - name: Deploy optimistic goerli rates subgraph
-        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism-goerli
+        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism-goerli -p hosted_service
         env:
           NETWORK: optimism-goerli
       - name: Deploy optimistic mainnet perps subgraph
-        run: node scripts/deploy.js -t kwenta -s perps -n optimism
+        run: node scripts/deploy.js -t kwenta -s perps -n optimism -p hosted_service
         env:
           NETWORK: optimism
       - name: Deploy optimistic mainnet rates subgraph
-        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism
+        run: node scripts/deploy.js -t kwenta -s latest-rates -n optimism -p hosted_service
         env:
           NETWORK: optimism
       - name: Deploy ethereum mainnet main subgraph
-        run: node scripts/deploy.js -t kwenta -s main -n mainnet
+        run: node scripts/deploy.js -t kwenta -s main -n mainnet -p hosted_service
         env:
           NETWORK: mainnet
       - name: Deploy goerli testnet main subgraph
-        run: node scripts/deploy.js -t kwenta -s main -n goerli
+        run: node scripts/deploy.js -t kwenta -s main -n goerli -p hosted_service
         env:
           NETWORK: goerli
