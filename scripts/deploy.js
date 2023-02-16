@@ -31,7 +31,7 @@ program
   .option('-n --network <value>', 'Network used for this deploy')
   .option('-a --access-token <token>', 'The Graph access token')
   .option('-d, --deploy-decentralized [value]', 'Deploy to the decentralized network', parseBoolean)
-  .option('-v, --version-label [value]', 'Version label for the deployment to the decentralized network')
+  .option('-v, --version <value>', 'Version label for the deployment to the decentralized network')
   .option('--build-only', 'Skip deploy');
 
 program.action(async () => {
@@ -98,10 +98,10 @@ program.action(async () => {
     });
   }
 
-  if (!OPTIONS.version_label) {
+  if (!OPTIONS.version) {
     inquiries.push({
       message: 'What is the version label for this deploy?',
-      name: 'version_label',
+      name: 'version',
       default: '0.0.1-test',
     });
   }
