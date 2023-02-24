@@ -200,7 +200,7 @@ program.action(async () => {
             `NETWORK=${settings.network} ./node_modules/.bin/graph deploy ${networkPrefix(settings.network)}${
               settings.subgraph
             } --deploy-key ${SATSUMA_DEPLOY_KEY} --version-label ${
-              settings.version_label
+              settings.version
             } --node https://app.satsuma.xyz/api/subgraphs/deploy ./subgraphs/${settings.subgraph}.js`,
           );
           console.log(green(`Successfully deployed to ${settings.network} on Satsuma.`));

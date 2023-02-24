@@ -168,6 +168,32 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.fundingIndex = event.params.fundingIndex;
   }
 
+  // if there is an existing position, add funding
+  if (positionEntity.fundingIndex != event.params.fundingIndex) {
+    // add accrued funding to position
+    let pastFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
+    );
+
+    let currentFundingEntity = FundingRateUpdate.load(
+      futuresMarketAddress.toHex() + '-' + event.params.fundingIndex.toString(),
+    );
+
+    if (pastFundingEntity && currentFundingEntity) {
+      // add accrued funding
+      let fundingAccrued = currentFundingEntity.funding
+        .minus(pastFundingEntity.funding)
+        .times(positionEntity.size)
+        .div(ETHER);
+
+      positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
+      statEntity.feesPaid = statEntity.feesPaid.minus(fundingAccrued);
+
+      // set the new index
+      positionEntity.fundingIndex = event.params.fundingIndex;
+    }
+  }
+
   if (event.params.tradeSize.isZero() == false) {
     let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
     tradeEntity.timestamp = event.block.timestamp;
@@ -197,10 +223,65 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
 
     // calculate pnl
-    const newPnl = event.params.lastPrice.minus(positionEntity.lastPrice).times(positionEntity.size).div(ETHER);
+    // update pnl and avg entry
+    // if the position is closed during this transaction...
+    // set the exit price and close the position
+    if (event.params.size.isZero() == true) {
+      // calculate pnl
+      const newPnl = event.params.lastPrice.minus(positionEntity.avgEntryPrice).times(positionEntity.size).div(ETHER);
 
-    // add pnl to this position and the trader's overall stats
-    tradeEntity.pnl = newPnl;
+      // add pnl to this position and the trader's overall stats
+      statEntity.pnl = statEntity.pnl.plus(newPnl);
+      tradeEntity.pnl = newPnl;
+      positionEntity.pnl = positionEntity.pnl.plus(newPnl);
+
+      positionEntity.isOpen = false;
+      positionEntity.exitPrice = event.params.lastPrice;
+      positionEntity.closeTimestamp = event.block.timestamp;
+    } else {
+      // if the position is not closed...
+      // if position changes sides, reset the entry price
+      if (
+        (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
+        (positionEntity.size.gt(ZERO) && event.params.size.lt(ZERO))
+      ) {
+        // calculate pnl
+        const newPnl = event.params.lastPrice.minus(positionEntity.avgEntryPrice).times(positionEntity.size).div(ETHER);
+
+        // add pnl to this position and the trader's overall stats
+        tradeEntity.pnl = newPnl;
+        statEntity.pnl = statEntity.pnl.plus(newPnl);
+        positionEntity.pnl = positionEntity.pnl.plus(newPnl);
+
+        positionEntity.entryPrice = event.params.lastPrice; // Deprecate this after migrating frontend
+        positionEntity.avgEntryPrice = event.params.lastPrice;
+      } else {
+        // check if the position side increases (long or short)
+        if (event.params.size.abs().gt(positionEntity.size.abs())) {
+          // if so, calculate the new average price
+          const existingSize = positionEntity.size.abs();
+          const existingPrice = existingSize.times(positionEntity.entryPrice);
+
+          const newSize = event.params.tradeSize.abs();
+          const newPrice = newSize.times(event.params.lastPrice);
+          positionEntity.entryPrice = existingPrice.plus(newPrice).div(event.params.size.abs()); // Deprecate this after migrating frontend
+          positionEntity.avgEntryPrice = existingPrice.plus(newPrice).div(event.params.size.abs());
+        } else {
+          // if reducing position size, calculate pnl
+          // calculate pnl
+          const newPnl = event.params.lastPrice
+            .minus(positionEntity.avgEntryPrice)
+            .times(event.params.tradeSize.abs())
+            .times(event.params.size.gt(ZERO) ? BigInt.fromI32(1) : BigInt.fromI32(-1))
+            .div(ETHER);
+
+          // add pnl to this position and the trader's overall stats
+          tradeEntity.pnl = newPnl;
+          statEntity.pnl = statEntity.pnl.plus(newPnl);
+          positionEntity.pnl = positionEntity.pnl.plus(newPnl);
+        }
+      }
+    }
     tradeEntity.save();
 
     let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER).abs();
@@ -253,8 +334,16 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.abstractAccount = sendingAccount;
       tradeEntity.accountType = accountType;
 
-      // temporarily set the pnl to the total margin in the account before liquidation
-      // we will check this again in the PositionLiquidated event
+      // recalculate pnl to ensure a 100% position loss
+      // this calculation is required since the liquidation price could result in pnl slightly above/below 100%
+      const newPositionPnlWithFeesPaid = positionEntity.initialMargin
+        .plus(positionEntity.netTransfers)
+        .times(BigInt.fromI32(-1));
+      const newPositionPnl = newPositionPnlWithFeesPaid.plus(positionEntity.feesPaid).minus(positionEntity.netFunding);
+      const newTradePnl = newPositionPnl.minus(positionEntity.pnl);
+
+      // temporarily set the pnl to the difference in the position pnl
+      // we will add liquidation fees during the PositionLiquidated handler
       tradeEntity.margin = ZERO;
       tradeEntity.size = ZERO;
       tradeEntity.asset = positionEntity.asset;
@@ -263,11 +352,18 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.positionId = positionId;
       tradeEntity.positionSize = ZERO;
       tradeEntity.positionClosed = true;
-      tradeEntity.pnl = positionEntity.margin.times(BigInt.fromI32(-1));
+      tradeEntity.pnl = newTradePnl;
       tradeEntity.feesPaid = totalFeesPaid;
       tradeEntity.orderType = 'Liquidation';
       tradeEntity.trackingCode = ZERO_ADDRESS;
       tradeEntity.save();
+
+      // set position values
+      positionEntity.pnl = newPositionPnl;
+      positionEntity.pnlWithFeesPaid = newPositionPnlWithFeesPaid;
+
+      // set stat values
+      statEntity.pnl = statEntity.pnl.plus(newTradePnl);
     } else if (marginTransferEntity) {
       // if margin transfer exists, add it to net transfers
       positionEntity.netTransfers = positionEntity.netTransfers.plus(marginTransferEntity.size);
@@ -276,70 +372,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       if (marginTransferEntity.size.gt(ZERO)) {
         positionEntity.totalDeposits = positionEntity.totalDeposits.plus(marginTransferEntity.size);
       }
-    }
-  }
-
-  // if there is an existing position...
-  if (positionEntity.fundingIndex != event.params.fundingIndex) {
-    // add accrued funding to position
-    let pastFundingEntity = FundingRateUpdate.load(
-      futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
-    );
-
-    let currentFundingEntity = FundingRateUpdate.load(
-      futuresMarketAddress.toHex() + '-' + event.params.fundingIndex.toString(),
-    );
-
-    if (pastFundingEntity && currentFundingEntity) {
-      // add accrued funding
-      let fundingAccrued = currentFundingEntity.funding
-        .minus(pastFundingEntity.funding)
-        .times(positionEntity.size)
-        .div(ETHER);
-
-      positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
-      statEntity.feesPaid = statEntity.feesPaid.minus(fundingAccrued);
-
-      // set the new index
-      positionEntity.fundingIndex = event.params.fundingIndex;
-    }
-
-    // calculate pnl
-    const newPnl = event.params.lastPrice.minus(positionEntity.lastPrice).times(positionEntity.size).div(ETHER);
-
-    // add pnl to this position and the trader's overall stats
-    positionEntity.pnl = positionEntity.pnl.plus(newPnl);
-    statEntity.pnl = statEntity.pnl.plus(newPnl);
-  }
-
-  // if the position is closed during this transaction...
-  // set the exit price and close the position
-  if (event.params.size.isZero() == true) {
-    positionEntity.isOpen = false;
-    positionEntity.exitPrice = event.params.lastPrice;
-    positionEntity.closeTimestamp = event.block.timestamp;
-  } else {
-    // if the position is not closed...
-    // if position changes sides, reset the entry price
-    if (
-      (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
-      (positionEntity.size.gt(ZERO) && event.params.size.lt(ZERO))
-    ) {
-      positionEntity.entryPrice = event.params.lastPrice; // Deprecate this after migrating frontend
-      positionEntity.avgEntryPrice = event.params.lastPrice;
-    } else {
-      // check if the position side increases (long or short)
-      if (event.params.size.abs().gt(positionEntity.size.abs())) {
-        // if so, calculate the new average price
-        const existingSize = positionEntity.size.abs();
-        const existingPrice = existingSize.times(positionEntity.entryPrice);
-
-        const newSize = event.params.tradeSize.abs();
-        const newPrice = newSize.times(event.params.lastPrice);
-        positionEntity.entryPrice = existingPrice.plus(newPrice).div(event.params.size.abs()); // Deprecate this after migrating frontend
-        positionEntity.avgEntryPrice = existingPrice.plus(newPrice).div(event.params.size.abs());
-      }
-      // otherwise do nothing
     }
   }
 
@@ -380,27 +412,35 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   );
 
   let statEntity = FuturesStat.load(account.toHex());
-  if (statEntity && statEntity.liquidations) {
-    statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
-    statEntity.save();
-  }
   if (positionEntity) {
     // update position
     positionEntity.isLiquidated = true;
+    positionEntity.isOpen = false;
+    positionEntity.closeTimestamp = event.block.timestamp;
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
-    positionEntity.pnlWithFeesPaid = positionEntity.initialMargin
-      .plus(positionEntity.netTransfers)
-      .times(BigInt.fromI32(-1));
-    positionEntity.pnl = positionEntity.pnlWithFeesPaid.plus(positionEntity.feesPaid).minus(positionEntity.netFunding);
-    positionEntity.save();
-  }
 
-  if (tradeEntity) {
-    tradeEntity.size = event.params.size.times(BigInt.fromI32(-1));
-    tradeEntity.positionSize = ZERO;
-    tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.fee);
-    tradeEntity.pnl = tradeEntity.pnl.plus(event.params.fee);
-    tradeEntity.save();
+    // adjust pnl for the additional fee paid
+    positionEntity.pnl = positionEntity.pnl.plus(event.params.fee);
+    positionEntity.pnlWithFeesPaid = positionEntity.pnl.minus(positionEntity.feesPaid).plus(positionEntity.netFunding);
+    positionEntity.save();
+
+    // update stats
+    if (statEntity) {
+      statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
+      statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
+      statEntity.pnl = statEntity.pnl.plus(event.params.fee);
+      statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
+      statEntity.save();
+    }
+
+    // update trade
+    if (tradeEntity) {
+      tradeEntity.size = event.params.size.times(BigInt.fromI32(-1));
+      tradeEntity.positionSize = ZERO;
+      tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.fee);
+      tradeEntity.pnl = tradeEntity.pnl.plus(event.params.fee);
+      tradeEntity.save();
+    }
   }
 
   let cumulativeEntity = getOrCreateCumulativeEntity();
@@ -761,12 +801,7 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
         }
 
         tradeEntity.save();
-      } else if (statEntity) {
-        if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
-          statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
-          statEntity.save();
-        }
-
+      } else {
         futuresOrderEntity.status = 'Cancelled';
       }
 
