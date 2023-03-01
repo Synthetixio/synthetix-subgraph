@@ -30,13 +30,9 @@ import {
   FundingRecomputed as FundingRecomputedEvent,
 } from '../generated/subgraphs/futures/templates/PerpsMarket/PerpsV2MarketProxyable';
 import { FuturesMarket, PerpsMarket } from '../generated/subgraphs/futures/templates';
-import { BPS_CONVERSION, DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO, ZERO_ADDRESS } from './lib/helpers';
+import { DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO, ZERO_ADDRESS } from './lib/helpers';
 
 let SINGLE_INDEX = '0';
-
-// temporary cross-margin fee solution
-let CROSSMARGIN_TRADING_BPS = BigInt.fromI32(2);
-let CROSSMARGIN_ADVANCED_TRADE_BPS = BigInt.fromI32(3);
 
 // Timeframes to aggregate stats in seconds
 export const AGG_PERIODS = [ONE_HOUR_SECONDS, DAY_SECONDS];
@@ -107,19 +103,6 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
   // calculated values
   const synthetixFeePaid = event.params.fee;
-  const isAdvancedOrder = accountType === 'cross_margin' && event.transaction.from !== account;
-
-  const kwentaFeePaid =
-    accountType === 'cross_margin'
-      ? event.params.tradeSize
-          .abs()
-          .times(event.params.lastPrice)
-          .div(ETHER)
-          .times(CROSSMARGIN_TRADING_BPS.plus(isAdvancedOrder ? CROSSMARGIN_ADVANCED_TRADE_BPS : ZERO))
-          .div(BPS_CONVERSION)
-      : ZERO;
-
-  const totalFeesPaid = synthetixFeePaid.plus(kwentaFeePaid);
 
   // create new entities
   if (statEntity == null) {
@@ -200,7 +183,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.account = account;
     tradeEntity.abstractAccount = sendingAccount;
     tradeEntity.accountType = accountType;
-    tradeEntity.margin = event.params.margin.plus(totalFeesPaid);
+    tradeEntity.margin = event.params.margin.plus(synthetixFeePaid);
     tradeEntity.size = event.params.tradeSize;
     tradeEntity.asset = ZERO_ADDRESS;
     tradeEntity.marketKey = ZERO_ADDRESS;
@@ -208,7 +191,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.positionId = positionId;
     tradeEntity.positionSize = event.params.size;
     tradeEntity.pnl = ZERO;
-    tradeEntity.feesPaid = totalFeesPaid;
+    tradeEntity.feesPaid = synthetixFeePaid;
     tradeEntity.orderType = 'Market';
     tradeEntity.trackingCode = ZERO_ADDRESS;
 
@@ -315,7 +298,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
         ONE,
         volume,
         synthetixFeePaid,
-        kwentaFeePaid,
+        ZERO,
       );
     }
   } else {
@@ -353,7 +336,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.positionSize = ZERO;
       tradeEntity.positionClosed = true;
       tradeEntity.pnl = newTradePnl;
-      tradeEntity.feesPaid = totalFeesPaid;
+      tradeEntity.feesPaid = synthetixFeePaid;
       tradeEntity.orderType = 'Liquidation';
       tradeEntity.trackingCode = ZERO_ADDRESS;
       tradeEntity.save();
@@ -375,14 +358,14 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
   }
 
-  statEntity.feesPaid = statEntity.feesPaid.plus(totalFeesPaid);
+  statEntity.feesPaid = statEntity.feesPaid.plus(synthetixFeePaid);
   statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
 
   // update global values
   positionEntity.size = event.params.size;
   positionEntity.margin = event.params.margin;
   positionEntity.lastPrice = event.params.lastPrice;
-  positionEntity.feesPaid = positionEntity.feesPaid.plus(totalFeesPaid);
+  positionEntity.feesPaid = positionEntity.feesPaid.plus(synthetixFeePaid);
   positionEntity.pnlWithFeesPaid = positionEntity.pnl.minus(positionEntity.feesPaid).plus(positionEntity.netFunding);
   positionEntity.lastTxHash = event.transaction.hash;
   positionEntity.timestamp = event.block.timestamp;
@@ -534,7 +517,8 @@ export function updateAggregateStatEntities(
     aggCumulativeStats.volume = aggCumulativeStats.volume.plus(volume);
     aggCumulativeStats.feesSynthetix = aggCumulativeStats.feesSynthetix.plus(feesSynthetix);
     aggCumulativeStats.feesKwenta = aggCumulativeStats.feesKwenta.plus(feesKwenta);
-    aggStats.feesCrossMarginAccounts = aggStats.feesCrossMarginAccounts.plus(feesCrossMarginAccounts);
+    aggCumulativeStats.feesCrossMarginAccounts =
+      aggCumulativeStats.feesCrossMarginAccounts.plus(feesCrossMarginAccounts);
     aggCumulativeStats.save();
   }
 }
@@ -760,6 +744,7 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
   let sendingAccount = event.params.account;
   let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
   const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+  const accountType = crossMarginAccount ? 'cross_margin' : 'isolated_margin';
 
   let statEntity = FuturesStat.load(account.toHex());
 
@@ -795,6 +780,20 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
           if (positionEntity) {
             positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.keeperDeposit);
             positionEntity.save();
+          }
+
+          // add fees based on tracking code
+          if (event.params.trackingCode.toString() == 'KWENTA') {
+            updateAggregateStatEntities(
+              accountType,
+              marketEntity.marketKey,
+              marketEntity.asset,
+              event.block.timestamp,
+              ZERO,
+              ZERO,
+              ZERO,
+              tradeEntity.feesPaid, // add kwenta fees
+            );
           }
 
           statEntity.save();
