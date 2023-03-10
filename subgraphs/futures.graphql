@@ -21,6 +21,7 @@ type FuturesTrade @entity {
   positionClosed: Boolean!
   pnl: BigInt!
   feesPaid: BigInt!
+  keeperFeesPaid: BigInt!
   orderType: FuturesOrderType!
   trackingCode: Bytes!
 }

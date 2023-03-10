@@ -192,6 +192,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.positionSize = event.params.size;
     tradeEntity.pnl = ZERO;
     tradeEntity.feesPaid = synthetixFeePaid;
+    tradeEntity.keeperFeesPaid = ZERO;
     tradeEntity.orderType = 'Market';
     tradeEntity.trackingCode = ZERO_ADDRESS;
 
@@ -337,6 +338,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.positionClosed = true;
       tradeEntity.pnl = newTradePnl;
       tradeEntity.feesPaid = synthetixFeePaid;
+      tradeEntity.keeperFeesPaid = ZERO;
       tradeEntity.orderType = 'Liquidation';
       tradeEntity.trackingCode = ZERO_ADDRESS;
       tradeEntity.save();
@@ -776,6 +778,7 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
         // add fee if not self-executed
         if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
           tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.keeperDeposit);
+          tradeEntity.keeperFeesPaid = event.params.keeperDeposit;
           statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
           if (positionEntity) {
             positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.keeperDeposit);
