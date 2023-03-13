@@ -21,6 +21,7 @@ type FuturesTrade @entity {
   positionClosed: Boolean!
   pnl: BigInt!
   feesPaid: BigInt!
+  fundingAccrued: BigInt!
   keeperFeesPaid: BigInt!
   orderType: FuturesOrderType!
   trackingCode: Bytes!
@@ -112,6 +113,16 @@ type FuturesMarginAccount @entity {
   margin: BigInt!
   deposits: BigInt!
   withdrawals: BigInt!
+}
+
+type FundingPayment @entity {
+  id: ID!
+  timestamp: BigInt!
+  account: Bytes!
+  positionId: ID!
+  marketKey: Bytes!
+  asset: Bytes!
+  amount: BigInt!
 }
 
 type FundingRateUpdate @entity {

@@ -9,6 +9,7 @@ import {
   FuturesStat,
   FuturesCumulativeStat,
   FuturesAggregateStat,
+  FundingPayment,
   FundingRateUpdate,
   FuturesOrder,
   CrossMarginAccount,
@@ -152,6 +153,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   }
 
   // if there is an existing position, add funding
+  let fundingAccrued = ZERO;
   if (positionEntity.fundingIndex != event.params.fundingIndex) {
     // add accrued funding to position
     let pastFundingEntity = FundingRateUpdate.load(
@@ -164,10 +166,23 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
     if (pastFundingEntity && currentFundingEntity) {
       // add accrued funding
-      let fundingAccrued = currentFundingEntity.funding
+      fundingAccrued = currentFundingEntity.funding
         .minus(pastFundingEntity.funding)
         .times(positionEntity.size)
         .div(ETHER);
+
+      if (fundingAccrued.abs().gt(ZERO)) {
+        let fundingPaymentEntity = new FundingPayment(
+          positionId + '-' + event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
+        );
+        fundingPaymentEntity.timestamp = event.block.timestamp;
+        fundingPaymentEntity.account = account;
+        fundingPaymentEntity.positionId = positionId;
+        fundingPaymentEntity.marketKey = positionEntity.marketKey;
+        fundingPaymentEntity.asset = positionEntity.asset;
+        fundingPaymentEntity.amount = fundingAccrued;
+        fundingPaymentEntity.save();
+      }
 
       positionEntity.netFunding = positionEntity.netFunding.plus(fundingAccrued);
       statEntity.feesPaid = statEntity.feesPaid.minus(fundingAccrued);
@@ -192,6 +207,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     tradeEntity.positionSize = event.params.size;
     tradeEntity.pnl = ZERO;
     tradeEntity.feesPaid = synthetixFeePaid;
+    tradeEntity.fundingAccrued = fundingAccrued;
     tradeEntity.keeperFeesPaid = ZERO;
     tradeEntity.orderType = 'Market';
     tradeEntity.trackingCode = ZERO_ADDRESS;
@@ -338,6 +354,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.positionClosed = true;
       tradeEntity.pnl = newTradePnl;
       tradeEntity.feesPaid = synthetixFeePaid;
+      tradeEntity.fundingAccrued = fundingAccrued;
       tradeEntity.keeperFeesPaid = ZERO;
       tradeEntity.orderType = 'Liquidation';
       tradeEntity.trackingCode = ZERO_ADDRESS;
