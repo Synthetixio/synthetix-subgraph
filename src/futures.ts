@@ -12,7 +12,6 @@ import {
   FundingPayment,
   FundingRateUpdate,
   FuturesOrder,
-  CrossMarginAccount,
 } from '../generated/subgraphs/futures/schema';
 import {
   MarketAdded as MarketAddedEvent,
@@ -22,8 +21,6 @@ import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
   MarginTransferred as MarginTransferredEvent,
-  NextPriceOrderSubmitted as NextPriceOrderSubmittedEvent,
-  NextPriceOrderRemoved as NextPriceOrderRemovedEvent,
 } from '../generated/subgraphs/futures/templates/FuturesMarket/FuturesMarket';
 import {
   DelayedOrderSubmitted as DelayedOrderSubmittedEvent,
@@ -32,6 +29,7 @@ import {
 } from '../generated/subgraphs/futures/templates/PerpsMarket/PerpsV2MarketProxyable';
 import { FuturesMarket, PerpsMarket } from '../generated/subgraphs/futures/templates';
 import { DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO, ZERO_ADDRESS } from './lib/helpers';
+import { SmartMarginAccount } from '../generated/subgraphs/perps/schema';
 
 let SINGLE_INDEX = '0';
 
@@ -90,9 +88,9 @@ export function handleMarketRemoved(event: MarketRemovedEvent): void {
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
   let sendingAccount = event.params.account;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
-  const accountType = crossMarginAccount ? 'cross_margin' : 'isolated_margin';
+  let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
+  const accountType = smartMarginAccount ? 'smart_margin' : 'isolated_margin';
 
   let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
@@ -115,7 +113,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.liquidations = ZERO;
     statEntity.totalTrades = ZERO;
     statEntity.totalVolume = ZERO;
-    statEntity.crossMarginVolume = ZERO;
+    statEntity.smartMarginVolume = ZERO;
 
     cumulativeEntity.totalTraders = cumulativeEntity.totalTraders.plus(BigInt.fromI32(1));
   }
@@ -292,8 +290,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     statEntity.totalVolume = statEntity.totalVolume.plus(volume);
 
-    if (accountType === 'cross_margin') {
-      statEntity.crossMarginVolume = statEntity.crossMarginVolume.plus(volume);
+    if (accountType === 'smart_margin') {
+      statEntity.smartMarginVolume = statEntity.smartMarginVolume.plus(volume);
     }
 
     positionEntity.trades = positionEntity.trades.plus(BigInt.fromI32(1));
@@ -403,8 +401,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 
 export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   let sendingAccount = event.params.account;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+  let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
 
   let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
@@ -519,7 +517,7 @@ export function updateAggregateStatEntities(
     const thisPeriod = AGG_PERIODS[period];
     const aggTimestamp = getTimeID(timestamp, thisPeriod);
     const totalFees = feesSynthetix.plus(feesKwenta);
-    const feesCrossMarginAccounts = accountType === 'cross_margin' ? totalFees : ZERO;
+    const feesCrossMarginAccounts = accountType === 'smart_margin' ? totalFees : ZERO;
 
     // update the aggregate for this market
     let aggStats = getOrCreateMarketAggregateStats(marketKey, asset, aggTimestamp, thisPeriod);
@@ -628,106 +626,11 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
   fundingRateUpdateEntity.save();
 }
 
-export function handleNextPriceOrderSubmitted(event: NextPriceOrderSubmittedEvent): void {
-  let futuresMarketAddress = event.address as Address;
-  let sendingAccount = event.params.account;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
-
-  let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
-  if (marketEntity) {
-    let marketAsset = marketEntity.asset;
-    let marketKey = marketEntity.marketKey;
-
-    const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
-
-    let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
-    if (futuresOrderEntity == null) {
-      futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
-    }
-
-    futuresOrderEntity.size = event.params.sizeDelta;
-    futuresOrderEntity.asset = marketAsset;
-    futuresOrderEntity.marketKey = marketKey;
-    futuresOrderEntity.market = futuresMarketAddress;
-    futuresOrderEntity.account = account;
-    futuresOrderEntity.abstractAccount = sendingAccount;
-    futuresOrderEntity.orderId = event.params.targetRoundId;
-    futuresOrderEntity.targetRoundId = event.params.targetRoundId;
-    futuresOrderEntity.targetPrice = ZERO;
-    futuresOrderEntity.marginDelta = ZERO;
-    futuresOrderEntity.timestamp = event.block.timestamp;
-    futuresOrderEntity.orderType = 'NextPrice';
-    futuresOrderEntity.status = 'Pending';
-    futuresOrderEntity.keeper = ZERO_ADDRESS;
-
-    futuresOrderEntity.save();
-  }
-}
-
-export function handleNextPriceOrderRemoved(event: NextPriceOrderRemovedEvent): void {
-  let sendingAccount = event.params.account;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
-
-  let statEntity = FuturesStat.load(account.toHex());
-
-  let futuresMarketAddress = event.address as Address;
-
-  let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
-  if (marketEntity) {
-    let marketAsset = marketEntity.asset;
-
-    const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
-
-    let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
-
-    if (futuresOrderEntity) {
-      futuresOrderEntity.keeper = event.transaction.from;
-      let tradeEntity = FuturesTrade.load(
-        event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
-      );
-
-      if (statEntity && tradeEntity) {
-        // if trade exists get the position
-        let positionEntity = FuturesPosition.load(tradeEntity.positionId);
-
-        // update order values
-        futuresOrderEntity.status = 'Filled';
-        tradeEntity.orderType = 'NextPrice';
-
-        // add fee if not self-executed
-        if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
-          tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.keeperDeposit);
-          statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
-          if (positionEntity) {
-            positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.keeperDeposit);
-            positionEntity.save();
-          }
-
-          statEntity.save();
-        }
-
-        tradeEntity.save();
-      } else if (statEntity) {
-        if (futuresOrderEntity.keeper != futuresOrderEntity.account) {
-          statEntity.feesPaid = statEntity.feesPaid.plus(event.params.keeperDeposit);
-          statEntity.save();
-        }
-
-        futuresOrderEntity.status = 'Cancelled';
-      }
-
-      futuresOrderEntity.save();
-    }
-  }
-}
-
 export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): void {
   let futuresMarketAddress = event.address as Address;
   let sendingAccount = event.params.account;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
+  let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
 
   let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
   if (marketEntity) {
@@ -761,9 +664,9 @@ export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): 
 
 export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void {
   let sendingAccount = event.params.account;
-  let crossMarginAccount = CrossMarginAccount.load(sendingAccount.toHex());
-  const account = crossMarginAccount ? crossMarginAccount.owner : sendingAccount;
-  const accountType = crossMarginAccount ? 'cross_margin' : 'isolated_margin';
+  let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
+  const accountType = smartMarginAccount ? 'smart_margin' : 'isolated_margin';
 
   let statEntity = FuturesStat.load(account.toHex());
 

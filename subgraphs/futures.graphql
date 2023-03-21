@@ -68,7 +68,7 @@ type FuturesStat @entity {
   liquidations: BigInt!
   totalTrades: BigInt!
   totalVolume: BigInt!
-  crossMarginVolume: BigInt!
+  smartMarginVolume: BigInt!
 }
 
 type FuturesCumulativeStat @entity {
@@ -155,7 +155,7 @@ enum FuturesOrderStatus {
 
 enum FuturesAccountType {
   isolated_margin
-  cross_margin
+  smart_margin
 }
 
 type FuturesOrder @entity {
@@ -179,6 +179,12 @@ type FuturesOrder @entity {
 type CrossMarginAccount @entity {
   id: ID!
   owner: Bytes!
+}
+
+type SmartMarginAccount @entity {
+  id: ID!
+  owner: Bytes!
+  version: Bytes!
 }
 
 type CrossMarginAccountTransfer @entity {

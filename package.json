@@ -14,7 +14,7 @@
     "prepare": "husky install",
     "auth": "graph auth --product hosted-service",
     "deploy": "node ./scripts/deploy.js",
-    "build": "node ./scripts/deploy.js --build-only --team noneya --network optimism"
+    "build": "node ./scripts/deploy.js --build-only --team noneya --network optimism --provider hosted_service --version 0.0.1-test"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"

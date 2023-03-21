@@ -2,17 +2,26 @@ const { getCurrentNetwork, getContractDeployments } = require('./utils/network')
 
 const manifest = [];
 
-START_BLOCK_OP_GOERLI = 3495320;
-START_BLOCK_OP_MAINNET = 52456507;
-
+// get config
 const currentNetwork = getCurrentNetwork();
 
-const managerStartBlock =
-  currentNetwork === 'optimism'
-    ? START_BLOCK_OP_MAINNET
-    : currentNetwork === 'optimism-goerli'
-    ? START_BLOCK_OP_GOERLI
-    : 0;
+const mainnetConfig = {
+  managerStartBlock: 52456507,
+  smartMarginFactoryAddress: '0xa5Aac6b5De821E631C7Ad01f978e32e80a8461c7',
+  smartMarginFactoryStartBlock: 78921742,
+  smartMarginEventsAddress: '0x319Ae7F3a0D635eD9CCF0276dCeAF680F9C7c397',
+  smartMarginEventsStartBlock: 78921720,
+};
+
+const testnetConfig = {
+  managerStartBlock: 3495320,
+  smartMarginFactoryAddress: '0xfc026f2230C55DC8BDE3bD9bE8941fbDCA6B39C2',
+  smartMarginFactoryStartBlock: 6434063,
+  smartMarginEventsAddress: '0x78016932540193e2E80683B8F9Be222729eF08D4',
+  smartMarginEventsStartBlock: 6434056,
+};
+
+const config = currentNetwork === 'optimism' ? mainnetConfig : testnetConfig;
 
 // futures market manager
 getContractDeployments('FuturesMarketManager').forEach((a, i) => {
@@ -22,7 +31,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
     network: currentNetwork,
     source: {
       address: a.address,
-      startBlock: managerStartBlock,
+      startBlock: config.managerStartBlock,
       abi: 'FuturesMarketManager',
     },
     mapping: {
@@ -103,6 +112,37 @@ const perpsMarketTemplate = {
     ],
   },
 };
+
+// smart margin
+manifest.push({
+  kind: 'ethereum/contract',
+  name: 'smartmargin_factory',
+  network: getCurrentNetwork(),
+  source: {
+    address: config.smartMarginFactoryAddress,
+    startBlock: config.smartMarginFactoryStartBlock,
+    abi: 'Factory',
+  },
+  mapping: {
+    kind: 'ethereum/events',
+    apiVersion: '0.0.6',
+    language: 'wasm/assemblyscript',
+    file: '../src/smartmargin.ts',
+    entities: ['Factory'],
+    abis: [
+      {
+        name: 'Factory',
+        file: '../abis/Factory.json',
+      },
+    ],
+    eventHandlers: [
+      {
+        event: 'NewAccount(indexed address,indexed address,bytes32)',
+        handler: 'handleNewAccount',
+      },
+    ],
+  },
+});
 
 module.exports = {
   specVersion: '0.0.4',
