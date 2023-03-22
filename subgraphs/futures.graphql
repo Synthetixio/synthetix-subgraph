@@ -176,17 +176,22 @@ type FuturesOrder @entity {
   keeper: Bytes!
 }
 
-type CrossMarginAccount @entity {
-  id: ID!
-  owner: Bytes!
-}
-
 type SmartMarginAccount @entity {
   id: ID!
   owner: Bytes!
   version: Bytes!
 }
 
+type SmartMarginAccountTransfer @entity {
+  id: ID!
+  account: Bytes!
+  abstractAccount: Bytes!
+  timestamp: BigInt!
+  size: BigInt!
+  txHash: String!
+}
+
+# Deprecated
 type CrossMarginAccountTransfer @entity {
   id: ID!
   account: Bytes!
@@ -194,4 +199,9 @@ type CrossMarginAccountTransfer @entity {
   timestamp: BigInt!
   size: BigInt!
   txHash: String!
+}
+
+type CrossMarginAccount @entity {
+  id: ID!
+  owner: Bytes!
 }

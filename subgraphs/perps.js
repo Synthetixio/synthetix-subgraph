@@ -113,7 +113,7 @@ const perpsMarketTemplate = {
   },
 };
 
-// smart margin
+// smart margin factory
 manifest.push({
   kind: 'ethereum/contract',
   name: 'smartmargin_factory',
@@ -139,6 +139,41 @@ manifest.push({
       {
         event: 'NewAccount(indexed address,indexed address,bytes32)',
         handler: 'handleNewAccount',
+      },
+    ],
+  },
+});
+
+// smart margin events
+manifest.push({
+  kind: 'ethereum/contract',
+  name: 'smartmargin_events',
+  network: getCurrentNetwork(),
+  source: {
+    address: config.smartMarginEventsAddress,
+    startBlock: config.smartMarginEventsStartBlock,
+    abi: 'Events',
+  },
+  mapping: {
+    kind: 'ethereum/events',
+    apiVersion: '0.0.6',
+    language: 'wasm/assemblyscript',
+    file: '../src/smartmargin.ts',
+    entities: ['Events'],
+    abis: [
+      {
+        name: 'Events',
+        file: '../abis/Events.json',
+      },
+    ],
+    eventHandlers: [
+      {
+        event: 'Deposit(indexed address,indexed address,uint256)',
+        handler: 'handleDeposit',
+      },
+      {
+        event: 'Withdraw(indexed address,indexed address,uint256)',
+        handler: 'handleWithdraw',
       },
     ],
   },
