@@ -26,6 +26,8 @@ import {
   DelayedOrderSubmitted as DelayedOrderSubmittedEvent,
   DelayedOrderRemoved as DelayedOrderRemovedEvent,
   FundingRecomputed as FundingRecomputedEvent,
+  PositionModified1 as PositionModifiedV2Event,
+  PositionLiquidated1 as PositionLiquidatedV2Event,
 } from '../generated/subgraphs/futures/templates/PerpsMarket/PerpsV2MarketProxyable';
 import { FuturesMarket, PerpsMarket } from '../generated/subgraphs/futures/templates';
 import { DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO, ZERO_ADDRESS } from './lib/helpers';
@@ -399,6 +401,24 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   cumulativeEntity.save();
 }
 
+export function handlePositionModifiedV2(event: PositionModifiedV2Event): void {
+  const v1Params = event.parameters.filter((value) => {
+    return value.name !== 'skew';
+  });
+
+  const v1Event = new PositionModifiedEvent(
+    event.address,
+    event.logIndex,
+    event.transactionLogIndex,
+    event.logType,
+    event.block,
+    event.transaction,
+    v1Params,
+    event.receipt,
+  );
+  handlePositionModified(v1Event);
+}
+
 export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   let sendingAccount = event.params.account;
   let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
@@ -439,6 +459,62 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
       tradeEntity.positionSize = ZERO;
       tradeEntity.feesPaid = tradeEntity.feesPaid.plus(event.params.fee);
       tradeEntity.pnl = tradeEntity.pnl.plus(event.params.fee);
+      tradeEntity.save();
+    }
+  }
+
+  let cumulativeEntity = getOrCreateCumulativeEntity();
+  cumulativeEntity.totalLiquidations = cumulativeEntity.totalLiquidations.plus(BigInt.fromI32(1));
+  cumulativeEntity.save();
+
+  if (positionEntity && positionEntity.asset) {
+    let marketCumulativeStats = getOrCreateMarketCumulativeStats(positionEntity.asset.toHex());
+    marketCumulativeStats.totalLiquidations = marketCumulativeStats.totalLiquidations.plus(BigInt.fromI32(1));
+    marketCumulativeStats.save();
+  }
+}
+
+export function handlePositionLiquidatedV2(event: PositionLiquidatedV2Event): void {
+  let sendingAccount = event.params.account;
+  let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
+
+  let futuresMarketAddress = event.address as Address;
+  let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
+  let positionEntity = FuturesPosition.load(positionId);
+  let tradeEntity = FuturesTrade.load(
+    event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
+  );
+
+  let totalFee = event.params.flaggerFee.plus(event.params.liquidatorFee).plus(event.params.stakersFee);
+  let statEntity = FuturesStat.load(account.toHex());
+  if (positionEntity) {
+    // update position
+    positionEntity.isLiquidated = true;
+    positionEntity.isOpen = false;
+    positionEntity.closeTimestamp = event.block.timestamp;
+    positionEntity.feesPaid = positionEntity.feesPaid.plus(totalFee);
+
+    // adjust pnl for the additional fee paid
+    positionEntity.pnl = positionEntity.pnl.plus(totalFee);
+    positionEntity.pnlWithFeesPaid = positionEntity.pnl.minus(positionEntity.feesPaid).plus(positionEntity.netFunding);
+    positionEntity.save();
+
+    // update stats
+    if (statEntity) {
+      statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
+      statEntity.feesPaid = statEntity.feesPaid.plus(totalFee);
+      statEntity.pnl = statEntity.pnl.plus(totalFee);
+      statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
+      statEntity.save();
+    }
+
+    // update trade
+    if (tradeEntity) {
+      tradeEntity.size = event.params.size.times(BigInt.fromI32(-1));
+      tradeEntity.positionSize = ZERO;
+      tradeEntity.feesPaid = tradeEntity.feesPaid.plus(totalFee);
+      tradeEntity.pnl = tradeEntity.pnl.plus(totalFee);
       tradeEntity.save();
     }
   }
@@ -636,7 +712,7 @@ export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): 
   if (marketEntity) {
     let marketAsset = marketEntity.asset;
 
-    const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
+    const futuresOrderEntityId = `D-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
 
     let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
     if (futuresOrderEntity == null) {
@@ -644,16 +720,14 @@ export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): 
     }
 
     futuresOrderEntity.size = event.params.sizeDelta;
-    futuresOrderEntity.asset = marketAsset;
     futuresOrderEntity.marketKey = marketEntity.marketKey;
-    futuresOrderEntity.market = futuresMarketAddress;
     futuresOrderEntity.account = account;
     futuresOrderEntity.abstractAccount = sendingAccount;
-    futuresOrderEntity.orderId = event.params.targetRoundId;
-    futuresOrderEntity.targetRoundId = event.params.targetRoundId;
     futuresOrderEntity.targetPrice = ZERO;
     futuresOrderEntity.marginDelta = ZERO;
     futuresOrderEntity.timestamp = event.block.timestamp;
+    futuresOrderEntity.txnHash = ZERO_ADDRESS;
+    futuresOrderEntity.orderId = event.params.targetRoundId;
     futuresOrderEntity.orderType = event.params.isOffchain ? 'DelayedOffchain' : 'Delayed';
     futuresOrderEntity.status = 'Pending';
     futuresOrderEntity.keeper = ZERO_ADDRESS;
@@ -676,7 +750,7 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
   if (marketEntity) {
     let marketAsset = marketEntity.asset;
 
-    const futuresOrderEntityId = `NP-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
+    const futuresOrderEntityId = `D-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
 
     let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
 

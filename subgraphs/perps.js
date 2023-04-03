@@ -7,18 +7,18 @@ const currentNetwork = getCurrentNetwork();
 
 const mainnetConfig = {
   managerStartBlock: 52456507,
-  smartMarginFactoryAddress: '0xa5Aac6b5De821E631C7Ad01f978e32e80a8461c7',
-  smartMarginFactoryStartBlock: 78921742,
-  smartMarginEventsAddress: '0x319Ae7F3a0D635eD9CCF0276dCeAF680F9C7c397',
-  smartMarginEventsStartBlock: 78921720,
+  smartMarginFactoryAddress: '0xD56b9537ee5E0779F0522475525053eE614b07Ba',
+  smartMarginFactoryStartBlock: 84860950,
+  smartMarginEventsAddress: '0x79bB35A27bfC441b21078debeE52DE3215106A5B',
+  smartMarginEventsStartBlock: 84860972,
 };
 
 const testnetConfig = {
   managerStartBlock: 3495320,
-  smartMarginFactoryAddress: '0xfc026f2230C55DC8BDE3bD9bE8941fbDCA6B39C2',
-  smartMarginFactoryStartBlock: 6434063,
-  smartMarginEventsAddress: '0x78016932540193e2E80683B8F9Be222729eF08D4',
-  smartMarginEventsStartBlock: 6434056,
+  smartMarginFactoryAddress: '0x500A139459fA3628C416A6b19BFADd83B20e5D0b',
+  smartMarginFactoryStartBlock: 7378387,
+  smartMarginEventsAddress: '0xa0bb2Ebdf6FA0F1d6363D96a8e981EC6323157B7',
+  smartMarginEventsStartBlock: 7378391,
 };
 
 const config = currentNetwork === 'optimism' ? mainnetConfig : testnetConfig;
@@ -94,8 +94,16 @@ const perpsMarketTemplate = {
         handler: 'handlePositionModified',
       },
       {
+        event: 'PositionModified(indexed uint256,indexed address,uint256,int256,int256,uint256,uint256,uint256,int256)',
+        handler: 'handlePositionModifiedV2',
+      },
+      {
         event: 'PositionLiquidated(uint256,address,address,int256,uint256,uint256)',
         handler: 'handlePositionLiquidated',
+      },
+      {
+        event: 'PositionLiquidated(uint256,address,address,int256,uint256,uint256,uint256,uint256)',
+        handler: 'handlePositionLiquidatedV2',
       },
       {
         event: 'DelayedOrderSubmitted(indexed address,bool,int256,uint256,uint256,uint256,uint256,uint256,bytes32)',
@@ -174,6 +182,18 @@ manifest.push({
       {
         event: 'Withdraw(indexed address,indexed address,uint256)',
         handler: 'handleWithdraw',
+      },
+      {
+        event: 'ConditionalOrderPlaced(indexed address,uint256,bytes32,int256,int256,uint256,uint8,uint128,bool)',
+        handler: 'handleOrderPlaced',
+      },
+      {
+        event: 'ConditionalOrderCancelled(indexed address,uint256,uint8)',
+        handler: 'handleOrderCancelled',
+      },
+      {
+        event: 'ConditionalOrderFilled(indexed address,uint256,uint256,uint256)',
+        handler: 'handleOrderFilled',
       },
     ],
   },
