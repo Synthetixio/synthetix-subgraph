@@ -7,17 +7,17 @@ const currentNetwork = getCurrentNetwork();
 
 const mainnetConfig = {
   managerStartBlock: 52456507,
-  smartMarginFactoryAddress: '0xD56b9537ee5E0779F0522475525053eE614b07Ba',
-  smartMarginFactoryStartBlock: 84860950,
-  smartMarginEventsAddress: '0x79bB35A27bfC441b21078debeE52DE3215106A5B',
-  smartMarginEventsStartBlock: 84860972,
+  smartMarginFactoryAddress: '0xf1BC9852e89e0b6ABa81548A10c0afF9ACa95CaA',
+  smartMarginFactoryStartBlock: 89109827,
+  smartMarginEventsAddress: '0x64Db098EDbB149DBe99900c96CC73b6F9A1Af2db',
+  smartMarginEventsStartBlock: 89109878,
 };
 
 const testnetConfig = {
   managerStartBlock: 3495320,
-  smartMarginFactoryAddress: '0x500A139459fA3628C416A6b19BFADd83B20e5D0b',
+  smartMarginFactoryAddress: '0xb5dCFb08a2CB07399b75B650B980732340c5Ed90',
   smartMarginFactoryStartBlock: 7378387,
-  smartMarginEventsAddress: '0xa0bb2Ebdf6FA0F1d6363D96a8e981EC6323157B7',
+  smartMarginEventsAddress: '0x3617154844291712cBD2148D912b61d6641229a4',
   smartMarginEventsStartBlock: 7378391,
 };
 
