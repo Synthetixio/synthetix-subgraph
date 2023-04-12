@@ -28,6 +28,7 @@
     "commander": "8.2.0",
     "dotenv": "^16.0.3",
     "eslint-config-prettier": "^8.3.0",
+    "graph-cli": "^0.0.1",
     "mustache": "4.2.0",
     "synthetix": "2.85.0"
   },
