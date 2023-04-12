@@ -16,9 +16,9 @@ const mainnetConfig = {
 const testnetConfig = {
   managerStartBlock: 3495320,
   smartMarginFactoryAddress: '0xb5dCFb08a2CB07399b75B650B980732340c5Ed90',
-  smartMarginFactoryStartBlock: 7378387,
+  smartMarginFactoryStartBlock: 7900382,
   smartMarginEventsAddress: '0x3617154844291712cBD2148D912b61d6641229a4',
-  smartMarginEventsStartBlock: 7378391,
+  smartMarginEventsStartBlock: 7900386,
 };
 
 const config = currentNetwork === 'optimism' ? mainnetConfig : testnetConfig;
