@@ -211,7 +211,7 @@ config.events.forEach((events, ind) => {
           handler: 'handleWithdraw',
         },
         {
-          event: 'ConditionalOrderPlaced(indexed address,uint256,bytes32,int256,int256,uint256,uint8,uint128,bool)',
+          event: 'ConditionalOrderPlaced(indexed address,uint256,bytes32,int256,int256,uint256,uint8,uint256,bool)',
           handler: 'handleOrderPlaced',
         },
         {

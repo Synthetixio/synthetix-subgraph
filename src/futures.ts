@@ -12,6 +12,7 @@ import {
   FundingPayment,
   FundingRateUpdate,
   FuturesOrder,
+  SmartMarginOrder,
 } from '../generated/subgraphs/futures/schema';
 import {
   MarketAdded as MarketAddedEvent,
@@ -726,7 +727,7 @@ export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): 
     futuresOrderEntity.targetPrice = ZERO;
     futuresOrderEntity.marginDelta = ZERO;
     futuresOrderEntity.timestamp = event.block.timestamp;
-    futuresOrderEntity.txnHash = ZERO_ADDRESS;
+    futuresOrderEntity.txnHash = event.transaction.hash;
     futuresOrderEntity.orderId = event.params.targetRoundId;
     futuresOrderEntity.orderType = event.params.isOffchain ? 'DelayedOffchain' : 'Delayed';
     futuresOrderEntity.status = 'Pending';
@@ -753,6 +754,9 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
     const futuresOrderEntityId = `D-${marketAsset}-${sendingAccount.toHexString()}-${event.params.targetRoundId.toString()}`;
 
     let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+    let smartMarginOrderEntity = SmartMarginOrder.load(
+      sendingAccount.toHex() + '-' + marketEntity.marketKey.toString(),
+    );
 
     if (futuresOrderEntity) {
       futuresOrderEntity.keeper = event.transaction.from;
@@ -766,8 +770,14 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
 
         // update order values
         futuresOrderEntity.status = 'Filled';
-        tradeEntity.orderType = futuresOrderEntity.orderType;
         tradeEntity.trackingCode = event.params.trackingCode;
+        tradeEntity.orderType = futuresOrderEntity.orderType;
+        if (smartMarginOrderEntity && smartMarginOrderEntity.recordTrade && smartMarginOrderEntity.orderType !== null) {
+          tradeEntity.orderType = smartMarginOrderEntity.orderType;
+
+          smartMarginOrderEntity.recordTrade = false;
+          smartMarginOrderEntity.save();
+        }
 
         // add fee if not self-executed
         if (futuresOrderEntity.keeper != futuresOrderEntity.account) {

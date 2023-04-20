@@ -189,6 +189,15 @@ type SmartMarginAccountTransfer @entity {
   txHash: String!
 }
 
+type SmartMarginOrder @entity {
+  id: ID!
+  account: Bytes!
+  orderType: FuturesOrderType!
+  marketKey: Bytes!
+  recordTrade: Boolean!
+  feesPaid: BigInt!
+}
+
 # Deprecated
 type CrossMarginAccountTransfer @entity {
   id: ID!
