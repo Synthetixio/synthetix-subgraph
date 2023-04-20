@@ -1,12 +1,12 @@
 import { Address, Bytes } from '@graphprotocol/graph-ts';
-import { NewAccount as NewAccountEvent } from '../generated/subgraphs/perps/smartmargin_factory/Factory';
+import { NewAccount as NewAccountEvent } from '../generated/subgraphs/perps/smartmargin_factory_0/Factory';
 import {
   Deposit as DepositEvent,
   Withdraw as WithdrawEvent,
   ConditionalOrderPlaced as ConditionalOrderPlacedEvent,
   ConditionalOrderFilled as ConditionalOrderFilledEvent,
   ConditionalOrderCancelled as ConditionalOrderCancelledEvent,
-} from '../generated/subgraphs/perps/smartmargin_events/Events';
+} from '../generated/subgraphs/perps/smartmargin_events_0/Events';
 import {
   FuturesOrder,
   SmartMarginAccount,
