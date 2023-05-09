@@ -62,7 +62,7 @@ getContractDeployments('FuturesMarketManager').forEach((a, i) => {
       kind: 'ethereum/events',
       apiVersion: '0.0.6',
       language: 'wasm/assemblyscript',
-      file: '../src/futures.ts',
+      file: '../src/perps.ts',
       entities: ['FuturesMarket'],
       abis: [
         {
@@ -100,7 +100,7 @@ const perpsMarketTemplate = {
     kind: 'ethereum/events',
     apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
-    file: '../src/futures.ts',
+    file: '../src/perps.ts',
     entities: ['FuturesMarket', 'FuturesPosition', 'FuturesTrade'],
     abis: [
       {
@@ -229,10 +229,10 @@ config.events.forEach((events, ind) => {
 
 module.exports = {
   specVersion: '0.0.4',
-  description: 'Kwenta Futures API',
+  description: 'Kwenta Perps API',
   repository: 'https://github.com/kwenta/kwenta-subgraph',
   schema: {
-    file: './futures.graphql',
+    file: './perps.graphql',
   },
   dataSources: manifest,
   templates: [perpsMarketTemplate],

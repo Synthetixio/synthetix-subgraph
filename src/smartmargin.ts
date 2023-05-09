@@ -16,6 +16,7 @@ import {
 import { ZERO, ZERO_ADDRESS } from './lib/helpers';
 
 export function handleNewAccount(event: NewAccountEvent): void {
+  // handle new account event for smart margin account factory
   // create a new entity to store the cross-margin account owner
   const smAccountAddress = event.params.account as Address;
   let smartMarginAccount = SmartMarginAccount.load(smAccountAddress.toHex());
@@ -29,6 +30,7 @@ export function handleNewAccount(event: NewAccountEvent): void {
 }
 
 export function handleDeposit(event: DepositEvent): void {
+  // handle deposit event for smart margin account
   // get the user smart margin account
   const userAccount = event.params.user;
   const smartMarginAccount = event.params.account;
@@ -46,6 +48,7 @@ export function handleDeposit(event: DepositEvent): void {
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
+  // handle withdraw event for smart margin account
   // get the user smart margin account
   const userAccount = event.params.user;
   const smartMarginAccount = event.params.account;
@@ -63,6 +66,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
 }
 
 export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
+  // handle order placed event for smart margin account
+  // creates a new entity to store the order
   const marketKey = event.params.marketKey;
 
   // look up the cross margin account address
@@ -100,6 +105,8 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
 }
 
 export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
+  // handle order filled event for smart margin account
+  // update the order status to filled
   const smAccountAddress = event.params.account as Address;
 
   const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
@@ -119,6 +126,8 @@ export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
 }
 
 export function handleOrderCancelled(event: ConditionalOrderCancelledEvent): void {
+  // handle order cancelled event for smart margin account
+  // update the order status to cancelled
   const smAccountAddress = event.params.account as Address;
 
   const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
@@ -133,6 +142,7 @@ export function handleOrderCancelled(event: ConditionalOrderCancelledEvent): voi
 }
 
 function getOrCreateSmartMarginOrder(account: Address, marketKey: Bytes): SmartMarginOrder {
+  // helper function to get or create a smart margin order entity
   const smOrderEntityId = account.toHex() + '-' + marketKey.toString();
   let smartMarginOrderEntity = SmartMarginOrder.load(smOrderEntityId);
   if (smartMarginOrderEntity == null) {

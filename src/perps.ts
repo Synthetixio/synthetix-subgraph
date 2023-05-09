@@ -13,24 +13,24 @@ import {
   FundingRateUpdate,
   FuturesOrder,
   SmartMarginOrder,
-} from '../generated/subgraphs/futures/schema';
+} from '../generated/subgraphs/perps/schema';
 import {
   MarketAdded as MarketAddedEvent,
   MarketRemoved as MarketRemovedEvent,
-} from '../generated/subgraphs/futures/futures_FuturesMarketManager_0/FuturesMarketManager';
+} from '../generated/subgraphs/perps/futures_FuturesMarketManager_0/FuturesMarketManager';
 import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
   MarginTransferred as MarginTransferredEvent,
-} from '../generated/subgraphs/futures/templates/FuturesMarket/FuturesMarket';
+} from '../generated/subgraphs/perps/templates/PerpsMarket/PerpsV2MarketProxyable';
 import {
   DelayedOrderSubmitted as DelayedOrderSubmittedEvent,
   DelayedOrderRemoved as DelayedOrderRemovedEvent,
   FundingRecomputed as FundingRecomputedEvent,
   PositionModified1 as PositionModifiedV2Event,
   PositionLiquidated1 as PositionLiquidatedV2Event,
-} from '../generated/subgraphs/futures/templates/PerpsMarket/PerpsV2MarketProxyable';
-import { FuturesMarket, PerpsMarket } from '../generated/subgraphs/futures/templates';
+} from '../generated/subgraphs/perps/templates/PerpsMarket/PerpsV2MarketProxyable';
+import { PerpsMarket } from '../generated/subgraphs/perps/templates';
 import { DAY_SECONDS, ETHER, ONE, ONE_HOUR_SECONDS, ZERO, ZERO_ADDRESS } from './lib/helpers';
 import { SmartMarginAccount } from '../generated/subgraphs/perps/schema';
 
@@ -38,29 +38,6 @@ let SINGLE_INDEX = '0';
 
 // Timeframes to aggregate stats in seconds
 export const AGG_PERIODS = [ONE_HOUR_SECONDS, DAY_SECONDS];
-
-export function handleV1MarketAdded(event: MarketAddedEvent): void {
-  const marketKey = event.params.marketKey.toString();
-
-  // create futures market
-  let marketEntity = new FuturesMarketEntity(event.params.market.toHex());
-  marketEntity.asset = event.params.asset;
-  marketEntity.marketKey = event.params.marketKey;
-
-  // create market cumulative stats
-  let marketStats = getOrCreateMarketCumulativeStats(event.params.marketKey.toHex());
-  marketStats.save();
-  marketEntity.marketStats = marketStats.id;
-  marketEntity.save();
-
-  // check that it's a v1 market before adding
-  if (marketKey.startsWith('s') && !marketKey.endsWith('PERP')) {
-    log.info('New V1 market added: {}', [marketKey]);
-
-    // futures v1 market
-    FuturesMarket.create(event.params.market);
-  }
-}
 
 export function handleV2MarketAdded(event: MarketAddedEvent): void {
   const marketKey = event.params.marketKey.toString();
@@ -86,10 +63,18 @@ export function handleV2MarketAdded(event: MarketAddedEvent): void {
 }
 
 export function handleMarketRemoved(event: MarketRemovedEvent): void {
-  store.remove('FuturesMarket', event.params.market.toHex());
+  store.remove('PerpsMarket', event.params.market.toHex());
 }
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
+  // handler for the position modified function
+  // the PositionModified event it emitted any time a user interacts with a position
+  // this handler is build to handle many different types of interactions:
+  // - opening a new position
+  // - modifying a position
+  // - transferring margin in or out of a market
+  // - liquidating a position (also see PositionLiquidated)
+
   let sendingAccount = event.params.account;
   let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
   const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
@@ -106,7 +91,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   // calculated values
   const synthetixFeePaid = event.params.fee;
 
-  // create new entities
+  // each trader will have a stats entity created during their first transfer
   if (statEntity == null) {
     statEntity = new FuturesStat(account.toHex());
     statEntity.account = account;
@@ -121,7 +106,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     cumulativeEntity.totalTraders = cumulativeEntity.totalTraders.plus(BigInt.fromI32(1));
   }
 
-  // if it's a new position...
+  // if it's a new position, create a position entity
   if (positionEntity == null) {
     positionEntity = new FuturesPosition(positionId);
     positionEntity.market = futuresMarketAddress;
@@ -153,10 +138,11 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.fundingIndex = event.params.fundingIndex;
   }
 
-  // if there is an existing position, add funding
+  // if there is an existing position, add funding accrued
   let fundingAccrued = ZERO;
   if (positionEntity.fundingIndex != event.params.fundingIndex) {
     // add accrued funding to position
+    // funding is accrued from the last `fundingIndex` to the current `fundingIndex`
     let pastFundingEntity = FundingRateUpdate.load(
       futuresMarketAddress.toHex() + '-' + positionEntity.fundingIndex.toString(),
     );
@@ -166,7 +152,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     );
 
     if (pastFundingEntity && currentFundingEntity) {
-      // add accrued funding
+      // accrued funding is equal to the difference between the entities per 1 unit of size
+      // It is multiplied by the position size to get the total funding accrued in USD
       fundingAccrued = currentFundingEntity.funding
         .minus(pastFundingEntity.funding)
         .times(positionEntity.size)
@@ -193,6 +180,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
   }
 
+  // check that tradeSize is not zero to filter out margin transfers
   if (event.params.tradeSize.isZero() == false) {
     let tradeEntity = new FuturesTrade(event.transaction.hash.toHex() + '-' + event.logIndex.toString());
     tradeEntity.timestamp = event.block.timestamp;
@@ -223,10 +211,9 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       tradeEntity.positionClosed = false;
     }
 
-    // calculate pnl
-    // update pnl and avg entry
+    // update pnl and avg entry price
     // if the position is closed during this transaction...
-    // set the exit price and close the position
+    // set the exit price and set the position to closed
     if (event.params.size.isZero() == true) {
       // calculate pnl
       const newPnl = event.params.lastPrice.minus(positionEntity.avgEntryPrice).times(positionEntity.size).div(ETHER);
@@ -241,7 +228,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       positionEntity.closeTimestamp = event.block.timestamp;
     } else {
       // if the position is not closed...
-      // if position changes sides, reset the entry price
+      // check if the position changes sides, reset the entry price
       if (
         (positionEntity.size.lt(ZERO) && event.params.size.gt(ZERO)) ||
         (positionEntity.size.gt(ZERO) && event.params.size.lt(ZERO))
@@ -285,21 +272,25 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
     tradeEntity.save();
 
+    // update cumulative stats
     let volume = tradeEntity.size.times(tradeEntity.price).div(ETHER).abs();
     cumulativeEntity.totalTrades = cumulativeEntity.totalTrades.plus(BigInt.fromI32(1));
     cumulativeEntity.totalVolume = cumulativeEntity.totalVolume.plus(volume);
     cumulativeEntity.averageTradeSize = cumulativeEntity.totalVolume.div(cumulativeEntity.totalTrades);
 
+    // update trader stats
     statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
     statEntity.totalVolume = statEntity.totalVolume.plus(volume);
-
     if (accountType === 'smart_margin') {
       statEntity.smartMarginVolume = statEntity.smartMarginVolume.plus(volume);
     }
 
+    // update position stats
     positionEntity.trades = positionEntity.trades.plus(BigInt.fromI32(1));
     positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
+    // update cumulative and aggregate stats
+    // aggregate stats are created for various time periods
     if (marketEntity && marketEntity.asset) {
       let marketCumulativeStats = getOrCreateMarketCumulativeStats(marketEntity.asset.toHex());
       marketCumulativeStats.totalTrades = marketCumulativeStats.totalTrades.plus(BigInt.fromI32(1));
@@ -320,6 +311,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
       );
     }
   } else {
+    // if the tradeSize is equal to zero, it must be a margin transfer or a liquidation
     const txHash = event.transaction.hash.toHex();
     let marginTransferEntity = FuturesMarginTransfer.load(
       futuresMarketAddress.toHex() + '-' + txHash + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
@@ -378,10 +370,10 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     }
   }
 
-  statEntity.feesPaid = statEntity.feesPaid.plus(synthetixFeePaid);
-  statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
-
   // update global values
+  statEntity.pnlWithFeesPaid = statEntity.pnl.minus(statEntity.feesPaid);
+  statEntity.feesPaid = statEntity.feesPaid.plus(synthetixFeePaid);
+
   positionEntity.size = event.params.size;
   positionEntity.margin = event.params.margin;
   positionEntity.lastPrice = event.params.lastPrice;
@@ -403,6 +395,8 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
 }
 
 export function handlePositionModifiedV2(event: PositionModifiedV2Event): void {
+  // Wrapper for handling PositionModified events after a contract upgrade
+  // The new event has a different signature, so we need to handle it separately
   const v1Params = event.parameters.filter((value) => {
     return value.name !== 'skew';
   });
@@ -421,31 +415,34 @@ export function handlePositionModifiedV2(event: PositionModifiedV2Event): void {
 }
 
 export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
+  // handler for the PositionLiquidated event
+  // get account entities
   let sendingAccount = event.params.account;
   let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
   const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
 
+  // get market, position, trade, and stat entities
   let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
   let positionEntity = FuturesPosition.load(positionId);
   let tradeEntity = FuturesTrade.load(
     event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
   );
-
   let statEntity = FuturesStat.load(account.toHex());
+
   if (positionEntity) {
-    // update position
+    // update position values
     positionEntity.isLiquidated = true;
     positionEntity.isOpen = false;
     positionEntity.closeTimestamp = event.block.timestamp;
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.fee);
 
-    // adjust pnl for the additional fee paid
+    // adjust pnl for the additional fees paid
     positionEntity.pnl = positionEntity.pnl.plus(event.params.fee);
     positionEntity.pnlWithFeesPaid = positionEntity.pnl.minus(positionEntity.feesPaid).plus(positionEntity.netFunding);
     positionEntity.save();
 
-    // update stats
+    // update stats entity
     if (statEntity) {
       statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
       statEntity.feesPaid = statEntity.feesPaid.plus(event.params.fee);
@@ -454,7 +451,7 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
       statEntity.save();
     }
 
-    // update trade
+    // update trade entity
     if (tradeEntity) {
       tradeEntity.size = event.params.size.times(BigInt.fromI32(-1));
       tradeEntity.positionSize = ZERO;
@@ -464,10 +461,12 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
     }
   }
 
+  // update cumulative entity
   let cumulativeEntity = getOrCreateCumulativeEntity();
   cumulativeEntity.totalLiquidations = cumulativeEntity.totalLiquidations.plus(BigInt.fromI32(1));
   cumulativeEntity.save();
 
+  // update market cumulative entity
   if (positionEntity && positionEntity.asset) {
     let marketCumulativeStats = getOrCreateMarketCumulativeStats(positionEntity.asset.toHex());
     marketCumulativeStats.totalLiquidations = marketCumulativeStats.totalLiquidations.plus(BigInt.fromI32(1));
@@ -476,19 +475,26 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
 }
 
 export function handlePositionLiquidatedV2(event: PositionLiquidatedV2Event): void {
+  // Wrapper for handling PositionLiquidated events after a contract upgrade
+  // The new event has a different signature, so we need to handle it separately
+  // The key difference is the calculation of a `totalFee` value from the individual fees:
+  // - totalFee = flaggerFee + liquidatorFee + stakersFee
+  // get account entities
   let sendingAccount = event.params.account;
   let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
   const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
 
+  // get market, position, trade, and stat entities
   let futuresMarketAddress = event.address as Address;
   let positionId = futuresMarketAddress.toHex() + '-' + event.params.id.toHex();
   let positionEntity = FuturesPosition.load(positionId);
   let tradeEntity = FuturesTrade.load(
     event.transaction.hash.toHex() + '-' + event.logIndex.minus(BigInt.fromI32(1)).toString(),
   );
-
-  let totalFee = event.params.flaggerFee.plus(event.params.liquidatorFee).plus(event.params.stakersFee);
   let statEntity = FuturesStat.load(account.toHex());
+
+  // calculate total fee
+  let totalFee = event.params.flaggerFee.plus(event.params.liquidatorFee).plus(event.params.stakersFee);
   if (positionEntity) {
     // update position
     positionEntity.isLiquidated = true;
@@ -501,7 +507,7 @@ export function handlePositionLiquidatedV2(event: PositionLiquidatedV2Event): vo
     positionEntity.pnlWithFeesPaid = positionEntity.pnl.minus(positionEntity.feesPaid).plus(positionEntity.netFunding);
     positionEntity.save();
 
-    // update stats
+    // update stats entity
     if (statEntity) {
       statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
       statEntity.feesPaid = statEntity.feesPaid.plus(totalFee);
@@ -510,7 +516,7 @@ export function handlePositionLiquidatedV2(event: PositionLiquidatedV2Event): vo
       statEntity.save();
     }
 
-    // update trade
+    // update trade entity
     if (tradeEntity) {
       tradeEntity.size = event.params.size.times(BigInt.fromI32(-1));
       tradeEntity.positionSize = ZERO;
@@ -520,10 +526,12 @@ export function handlePositionLiquidatedV2(event: PositionLiquidatedV2Event): vo
     }
   }
 
+  // update cumulative entity
   let cumulativeEntity = getOrCreateCumulativeEntity();
   cumulativeEntity.totalLiquidations = cumulativeEntity.totalLiquidations.plus(BigInt.fromI32(1));
   cumulativeEntity.save();
 
+  // update market cumulative entity
   if (positionEntity && positionEntity.asset) {
     let marketCumulativeStats = getOrCreateMarketCumulativeStats(positionEntity.asset.toHex());
     marketCumulativeStats.totalLiquidations = marketCumulativeStats.totalLiquidations.plus(BigInt.fromI32(1));
@@ -532,6 +540,8 @@ export function handlePositionLiquidatedV2(event: PositionLiquidatedV2Event): vo
 }
 
 function getOrCreateCumulativeEntity(): FuturesCumulativeStat {
+  // helper function for creating a cumulative entity if one doesn't exist
+  // this allows functions to safely call this function without checking for null
   let cumulativeEntity = FuturesCumulativeStat.load(SINGLE_INDEX);
   if (cumulativeEntity == null) {
     cumulativeEntity = new FuturesCumulativeStat(SINGLE_INDEX);
@@ -545,6 +555,8 @@ function getOrCreateCumulativeEntity(): FuturesCumulativeStat {
 }
 
 function getOrCreateMarketCumulativeStats(marketKey: string): FuturesCumulativeStat {
+  // helper function for creating a cumulative entity if one doesn't exist
+  // this allows functions to safely call this function without checking for null
   let cumulativeEntity = FuturesCumulativeStat.load(marketKey);
   if (cumulativeEntity == null) {
     cumulativeEntity = new FuturesCumulativeStat(marketKey);
@@ -563,6 +575,8 @@ function getOrCreateMarketAggregateStats(
   timestamp: BigInt,
   period: BigInt,
 ): FuturesAggregateStat {
+  // helper function for creating a market aggregate entity if one doesn't exist
+  // this allows functions to safely call this function without checking for null
   const id = `${timestamp.toString()}-${period.toString()}-${asset.toHex()}`;
   let aggregateEntity = FuturesAggregateStat.load(id);
   if (aggregateEntity == null) {
@@ -590,6 +604,10 @@ export function updateAggregateStatEntities(
   feesSynthetix: BigInt,
   feesKwenta: BigInt,
 ): void {
+  // this function updates the aggregate stat entities for the specified account and market
+  // it is called when users interact with positions or when positions are liquidated
+  // to add new aggregate periods, update the `AGG_PERIODS` array in `constants.ts`
+  // new aggregates will be created for any resolution present in the array
   for (let period = 0; period < AGG_PERIODS.length; period++) {
     const thisPeriod = AGG_PERIODS[period];
     const aggTimestamp = getTimeID(timestamp, thisPeriod);
@@ -618,11 +636,16 @@ export function updateAggregateStatEntities(
 }
 
 function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
+  // helper function for reducing a timestamp by a given resolution
   let remainder = timestamp.mod(num);
   return timestamp.minus(remainder);
 }
 
 export function handleMarginTransferred(event: MarginTransferredEvent): void {
+  // this function handles margin transfers
+  // it is called when users transfer margin to or from an account
+  // A new entity is created to represent the transfer
+  // Another account entity is created or updated to track the account's margin balance
   let futuresMarketAddress = event.address as Address;
   const txHash = event.transaction.hash.toHex();
   let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
@@ -681,6 +704,8 @@ export function handleMarginTransferred(event: MarginTransferredEvent): void {
 }
 
 export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
+  // this function handles funding recomputations
+  // this handler simply creates a new entity to represent the update
   let futuresMarketAddress = event.address as Address;
   let marketEntity = FuturesMarketEntity.load(futuresMarketAddress.toHex());
 
@@ -704,6 +729,9 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
 }
 
 export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): void {
+  // this function handles delayed order submissions
+  // a new order is created to represent the delayed order
+  // this entity will be updated when the order is executed or cancelled
   let futuresMarketAddress = event.address as Address;
   let sendingAccount = event.params.account;
   let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
@@ -738,6 +766,8 @@ export function handleDelayedOrderSubmitted(event: DelayedOrderSubmittedEvent): 
 }
 
 export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void {
+  // this function handles delayed order executions
+  // get the order entity and update the relevant fields
   let sendingAccount = event.params.account;
   let smartMarginAccount = SmartMarginAccount.load(sendingAccount.toHex());
   const account = smartMarginAccount ? smartMarginAccount.owner : sendingAccount;
@@ -799,7 +829,7 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
               ZERO,
               ZERO,
               ZERO,
-              tradeEntity.feesPaid, // add kwenta fees
+              tradeEntity.feesPaid,
             );
           }
 
@@ -808,6 +838,7 @@ export function handleDelayedOrderRemoved(event: DelayedOrderRemovedEvent): void
 
         tradeEntity.save();
       } else {
+        // if no trade exists, the order was cancelled
         futuresOrderEntity.status = 'Cancelled';
       }
 
