@@ -136,6 +136,13 @@ type FundingRateUpdate @entity {
   fundingRate: BigInt!
 }
 
+type FundingRatePeriod @entity {
+  id: ID!
+  timestamp: BigInt!
+  fundingRate: FundingRateUpdate!
+  period: BigInt!
+}
+
 enum FuturesOrderType {
   NextPrice
   Limit
