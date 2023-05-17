@@ -140,7 +140,7 @@ type FundingRatePeriod @entity {
   id: ID!
   timestamp: BigInt!
   fundingRate: FundingRateUpdate!
-  period: BigInt!
+  period: FundingRatePeriodType!
 }
 
 enum FuturesOrderType {
@@ -151,6 +151,11 @@ enum FuturesOrderType {
   Liquidation
   Delayed
   DelayedOffchain
+}
+
+enum FundingRatePeriodType {
+  Hourly
+  Daily
 }
 
 enum FuturesOrderStatus {

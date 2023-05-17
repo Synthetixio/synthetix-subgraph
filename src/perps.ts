@@ -32,7 +32,16 @@ import {
   PositionLiquidated1 as PositionLiquidatedV2Event,
 } from '../generated/subgraphs/perps/templates/PerpsMarket/PerpsV2MarketProxyable';
 import { PerpsMarket } from '../generated/subgraphs/perps/templates';
-import { DAY_SECONDS, ETHER, FUNDING_RATE_PREIODS, ONE, ONE_HOUR_SECONDS, ZERO, ZERO_ADDRESS } from './lib/helpers';
+import {
+  DAY_SECONDS,
+  ETHER,
+  FUNDING_RATE_PERIOD_TYPES,
+  FUNDING_RATE_PERIODS,
+  ONE,
+  ONE_HOUR_SECONDS,
+  ZERO,
+  ZERO_ADDRESS,
+} from './lib/helpers';
 import { SmartMarginAccount } from '../generated/subgraphs/perps/schema';
 
 let SINGLE_INDEX = '0';
@@ -731,19 +740,20 @@ export function handleFundingRecomputed(event: FundingRecomputedEvent): void {
 }
 
 function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: FundingRateUpdate): void {
-  for (let p = 0; p < FUNDING_RATE_PREIODS.length; p++) {
-    let period = FUNDING_RATE_PREIODS[p];
-    let periodId = timestamp.div(period);
+  for (let p = 0; p < FUNDING_RATE_PERIODS.length; p++) {
+    let periodSeconds = FUNDING_RATE_PERIODS[p];
+    let periodType = FUNDING_RATE_PERIOD_TYPES[p];
+    let periodId = timestamp.div(periodSeconds);
 
-    let id = asset + '-' + period.toString() + '-' + periodId.toString();
+    let id = asset + '-' + periodType + '-' + periodId.toString();
 
     let existingPeriod = FundingRatePeriod.load(id);
 
     if (existingPeriod == null) {
       let newPeriod = new FundingRatePeriod(id);
       newPeriod.fundingRate = rate.id;
-      newPeriod.period = period;
-      newPeriod.timestamp = timestamp.minus(timestamp.mod(period)); // store the beginning of this period, rather than the timestamp of the first rate update.
+      newPeriod.period = periodType;
+      newPeriod.timestamp = timestamp.minus(timestamp.mod(periodSeconds)); // store the beginning of this period, rather than the timestamp of the first rate update.
       newPeriod.save();
     } else {
       existingPeriod.fundingRate = rate.id;
