@@ -743,7 +743,7 @@ function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: Fundin
   for (let p = 0; p < FUNDING_RATE_PERIODS.length; p++) {
     let periodSeconds = FUNDING_RATE_PERIODS[p];
     let periodType = FUNDING_RATE_PERIOD_TYPES[p];
-    let periodId = timestamp.div(periodSeconds);
+    let periodId = getTimeID(timestamp, periodSeconds);
 
     let id = asset + '-' + periodType + '-' + periodId.toString();
 
@@ -751,12 +751,14 @@ function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: Fundin
 
     if (existingPeriod == null) {
       let newPeriod = new FundingRatePeriod(id);
-      newPeriod.fundingRate = rate.id;
+      newPeriod.fundingRate = rate.fundingRate;
+      newPeriod.asset = rate.asset;
+      newPeriod.marketKey = rate.marketKey;
       newPeriod.period = periodType;
       newPeriod.timestamp = timestamp.minus(timestamp.mod(periodSeconds)); // store the beginning of this period, rather than the timestamp of the first rate update.
       newPeriod.save();
     } else {
-      existingPeriod.fundingRate = rate.id;
+      existingPeriod.fundingRate = rate.fundingRate;
       existingPeriod.save();
     }
   }

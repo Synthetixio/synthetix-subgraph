@@ -139,7 +139,9 @@ type FundingRateUpdate @entity {
 type FundingRatePeriod @entity {
   id: ID!
   timestamp: BigInt!
-  fundingRate: FundingRateUpdate!
+  fundingRate: BigInt!
+  marketKey: Bytes!
+  asset: Bytes!
   period: FundingRatePeriodType!
 }
 
