@@ -136,6 +136,15 @@ type FundingRateUpdate @entity {
   fundingRate: BigInt!
 }
 
+type FundingRatePeriod @entity {
+  id: ID!
+  timestamp: BigInt!
+  fundingRate: BigInt!
+  marketKey: Bytes!
+  asset: Bytes!
+  period: FundingRatePeriodType!
+}
+
 enum FuturesOrderType {
   NextPrice
   Limit
@@ -144,6 +153,11 @@ enum FuturesOrderType {
   Liquidation
   Delayed
   DelayedOffchain
+}
+
+enum FundingRatePeriodType {
+  Hourly
+  Daily
 }
 
 enum FuturesOrderStatus {

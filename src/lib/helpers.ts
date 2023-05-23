@@ -34,6 +34,10 @@ export let CANDLE_PERIODS: BigInt[] = [
   ONE_MINUTE_SECONDS,
 ];
 
+export let FUNDING_RATE_PERIOD_TYPES: string[] = ['Daily', 'Hourly'];
+
+export let FUNDING_RATE_PERIODS: BigInt[] = [DAY_SECONDS, ONE_MINUTE_SECONDS.times(BigInt.fromI32(60))];
+
 export function toDecimal(value: BigInt, decimals: u32 = 18): BigDecimal {
   let precision = BigInt.fromI32(10)
     .pow(<u8>decimals)
