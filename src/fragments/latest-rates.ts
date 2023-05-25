@@ -43,9 +43,11 @@ export function initFeed(currencyKey: string): BigDecimal | null {
       addProxyAggregator(currencyKey, aggregatorAddress.value);
 
       let r = er.try_rateForCurrency(strToBytes(currencyKey, 32));
+      let proxy = AggregatorProxyContract.bind(aggregatorAddress.value);
+      let decimals = proxy.try_decimals();
 
-      if (!r.reverted) {
-        return toDecimal(r.value);
+      if (!r.reverted && !decimals.reverted) {
+        return toDecimal(r.value, BigInt.fromI32(decimals.value).toU32());
       }
     }
   }
@@ -54,7 +56,8 @@ export function initFeed(currencyKey: string): BigDecimal | null {
 }
 
 export function addLatestRate(synth: string, rate: BigInt, aggregator: Address, event: ethereum.Event): void {
-  let decimalRate = toDecimal(rate);
+  let context = dataSource.context();
+  let decimalRate = toDecimal(rate, context.getBigInt('decimals').toU32());
   addLatestRateFromDecimal(synth, decimalRate, aggregator, event);
 }
 
@@ -203,10 +206,18 @@ export function addDollar(dollarID: string): void {
 export function addProxyAggregator(currencyKey: string, aggregatorProxyAddress: Address): void {
   let proxy = AggregatorProxyContract.bind(aggregatorProxyAddress);
   let underlyingAggregator = proxy.try_aggregator();
+  let decimals = proxy.try_decimals();
 
   if (!underlyingAggregator.reverted) {
     let context = new DataSourceContext();
     context.setString('currencyKey', currencyKey);
+
+    if (decimals.reverted) {
+      log.error('Aggregator decimals reverted {}', [currencyKey]);
+      context.setBigInt('decimals', BigInt.fromI32(8));
+    } else {
+      context.setBigInt('decimals', BigInt.fromI32(decimals.value));
+    }
 
     log.info('adding proxy aggregator for synth {}', [currencyKey]);
 
@@ -238,6 +249,15 @@ export function addAggregator(currencyKey: string, aggregatorAddress: Address): 
   }
 
   let context = new DataSourceContext();
+  let aggregator = AggregatorProxyContract.bind(aggregatorAddress);
+  let decimals = aggregator.try_decimals();
+
+  if (!decimals.reverted) {
+    context.setBigInt('decimals', BigInt.fromI32(decimals.value));
+  } else {
+    context.setBigInt('decimals', BigInt.fromI32(8));
+  }
+
   context.setString('currencyKey', currencyKey);
 
   if (currencyKey.startsWith('s')) {
