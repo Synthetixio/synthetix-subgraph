@@ -42,6 +42,10 @@ const testnetConfig = {
       address: '0x3617154844291712cBD2148D912b61d6641229a4',
       startBlock: 7900386,
     },
+    {
+      address: '0x4516b854803b058907DC7522A7a1E197b4CE92E6',
+      startBlock: 9680618,
+    },
   ],
 };
 
@@ -210,16 +214,35 @@ config.events.forEach((events, ind) => {
           event: 'Withdraw(indexed address,indexed address,uint256)',
           handler: 'handleWithdraw',
         },
+        // smart margin v1
         {
           event: 'ConditionalOrderPlaced(indexed address,uint256,bytes32,int256,int256,uint256,uint8,uint256,bool)',
           handler: 'handleOrderPlaced',
         },
+        // smart margin v2
+        {
+          event:
+            'ConditionalOrderPlaced(indexed address,uint256,indexed bytes32,bytes32,int256,int256,uint256,uint8,uint256,bool)',
+          handler: 'handleOrderPlaced',
+        },
+        // smart margin v1
         {
           event: 'ConditionalOrderCancelled(indexed address,uint256,uint8)',
           handler: 'handleOrderCancelled',
         },
+        // smart margin v2
+        {
+          event: 'ConditionalOrderCancelled(indexed address,uint256,indexed bytes32,uint8)',
+          handler: 'handleOrderCancelled',
+        },
+        // smart margin v1
         {
           event: 'ConditionalOrderFilled(indexed address,uint256,uint256,uint256)',
+          handler: 'handleOrderFilled',
+        },
+        // smart margin v2
+        {
+          event: 'ConditionalOrderFilled(indexed address,uint256,indexed bytes32,uint256,uint256)',
           handler: 'handleOrderFilled',
         },
       ],
