@@ -292,8 +292,7 @@ export function handleRatesUpdated(event: RatesUpdatedEvent): void {
 
 export function handleAggregatorAnswerUpdated(event: AnswerUpdatedEvent): void {
   let context = dataSource.context();
-  let rate = event.params.current.times(BigInt.fromI32(10).pow(10));
 
   addDollar('sUSD');
-  addLatestRate(context.getString('currencyKey'), rate, event.address, event);
+  addLatestRate(context.getString('currencyKey'), event.params.current, event.address, event);
 }
