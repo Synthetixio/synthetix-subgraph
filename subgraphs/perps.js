@@ -251,7 +251,7 @@ config.events.forEach((events, ind) => {
         // smart margin v2.0.2
         {
           event: 'ConditionalOrderFilled(indexed address,uint256,indexed bytes32,uint256,uint256,uint8)',
-          handler: 'handleOrderFilled',
+          handler: 'handleOrderV2Filled',
         },
       ],
     },

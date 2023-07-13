@@ -5,6 +5,7 @@ import {
   Withdraw as WithdrawEvent,
   ConditionalOrderPlaced as ConditionalOrderPlacedEvent,
   ConditionalOrderFilled as ConditionalOrderFilledEvent,
+  ConditionalOrderFilled1 as ConditionalOrderFilled1Event,
   ConditionalOrderCancelled as ConditionalOrderCancelledEvent,
 } from '../generated/subgraphs/perps/smartmargin_events_0/Events';
 import {
@@ -100,6 +101,8 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
       : 'Market';
   futuresOrderEntity.status = 'Pending';
   futuresOrderEntity.keeper = ZERO_ADDRESS;
+  // Set false vor v1 orders
+  futuresOrderEntity.reduceOnly = event.params.reduceOnly || false;
 
   futuresOrderEntity.save();
 }
@@ -115,6 +118,29 @@ export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
     // update the order status
     futuresOrderEntity.status = 'Filled';
     futuresOrderEntity.timestamp = event.block.timestamp;
+
+    const smartMarginOrder = getOrCreateSmartMarginOrder(smAccountAddress, futuresOrderEntity.marketKey);
+    smartMarginOrder.orderType = futuresOrderEntity.orderType;
+    smartMarginOrder.recordTrade = true;
+
+    futuresOrderEntity.save();
+    smartMarginOrder.save();
+  }
+}
+
+export function handleOrderV2Filled(event: ConditionalOrderFilled1Event): void {
+  // handle order filled event for smart margin account
+  // update the order status to filled
+  const smAccountAddress = event.params.account as Address;
+
+  const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
+  const futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+  if (futuresOrderEntity) {
+    // update the order status
+    futuresOrderEntity.status = 'Filled';
+    futuresOrderEntity.timestamp = event.block.timestamp;
+
+    futuresOrderEntity.priceOracle = event.params.priceOracle === 0 ? 'PYTH' : 'CHAINLINK';
 
     const smartMarginOrder = getOrCreateSmartMarginOrder(smAccountAddress, futuresOrderEntity.marketKey);
     smartMarginOrder.orderType = futuresOrderEntity.orderType;
