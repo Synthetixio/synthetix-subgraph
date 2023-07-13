@@ -107,7 +107,30 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
   futuresOrderEntity.save();
 }
 
-export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
+export function handleOrderV1Filled(event: ConditionalOrderFilledEvent): void {
+  handleOrderFilled(event, 'CHAINLINK');
+}
+
+export function handleOrderV2Filled(event: ConditionalOrderFilled1Event): void {
+  const priceOracle = event.params.priceOracle === 0 ? 'PYTH' : 'CHAINLINK';
+  const v1Params = event.parameters.filter((value) => {
+    return value.name !== 'priceOracle';
+  });
+
+  const v1Event = new ConditionalOrderFilledEvent(
+    event.address,
+    event.logIndex,
+    event.transactionLogIndex,
+    event.logType,
+    event.block,
+    event.transaction,
+    v1Params,
+    event.receipt,
+  );
+  handleOrderFilled(v1Event, priceOracle);
+}
+
+function handleOrderFilled(event: ConditionalOrderFilledEvent, priceOracle: string): void {
   // handle order filled event for smart margin account
   // update the order status to filled
   const smAccountAddress = event.params.account as Address;
@@ -118,6 +141,7 @@ export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
     // update the order status
     futuresOrderEntity.status = 'Filled';
     futuresOrderEntity.timestamp = event.block.timestamp;
+    futuresOrderEntity.priceOracle = priceOracle;
 
     const smartMarginOrder = getOrCreateSmartMarginOrder(smAccountAddress, futuresOrderEntity.marketKey);
     smartMarginOrder.orderType = futuresOrderEntity.orderType;
@@ -125,33 +149,6 @@ export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
 
     futuresOrderEntity.save();
     smartMarginOrder.save();
-  }
-}
-
-export function handleOrderV2Filled(event: ConditionalOrderFilled1Event): void {
-  const v1Params = event.parameters.filter((value) => {
-    return value.name !== 'priceOracle';
-  });
-
-  const v1Event = new ConditionalOrderFilled1Event(
-    event.address,
-    event.logIndex,
-    event.transactionLogIndex,
-    event.logType,
-    event.block,
-    event.transaction,
-    v1Params,
-    event.receipt,
-  );
-  handleOrderFilled(v1Event);
-
-  // Add price oracle only for v2
-  const smAccountAddress = event.params.account as Address;
-  const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
-  const futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
-  if (futuresOrderEntity) {
-    futuresOrderEntity.priceOracle = event.params.priceOracle === 0 ? 'PYTH' : 'CHAINLINK';
-    futuresOrderEntity.save();
   }
 }
 
