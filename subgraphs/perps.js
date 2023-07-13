@@ -229,6 +229,12 @@ config.events.forEach((events, ind) => {
             'ConditionalOrderPlaced(indexed address,uint256,indexed bytes32,bytes32,int256,int256,uint256,uint8,uint256,bool)',
           handler: 'handleOrderPlaced',
         },
+        // smart margin v2.0.2
+        {
+          event:
+            'ConditionalOrderPlaced(indexed address,indexed uint256,indexed bytes32,bytes32,int256,int256,uint256,uint8,uint256,bool)',
+          handler: 'handleOrderPlaced',
+        },
         // smart margin v1
         {
           event: 'ConditionalOrderCancelled(indexed address,uint256,uint8)',
@@ -239,6 +245,11 @@ config.events.forEach((events, ind) => {
           event: 'ConditionalOrderCancelled(indexed address,uint256,indexed bytes32,uint8)',
           handler: 'handleOrderCancelled',
         },
+        // smart margin v2.0.2
+        {
+          event: 'ConditionalOrderCancelled(indexed address,indexed uint256,indexed bytes32,uint8)',
+          handler: 'handleOrderCancelled',
+        },
         // smart margin v1
         {
           event: 'ConditionalOrderFilled(indexed address,uint256,uint256,uint256)',
@@ -247,6 +258,11 @@ config.events.forEach((events, ind) => {
         // smart margin v2
         {
           event: 'ConditionalOrderFilled(indexed address,uint256,indexed bytes32,uint256,uint256)',
+          handler: 'handleOrderFilled',
+        },
+        // smart margin v2.0.2
+        {
+          event: 'ConditionalOrderFilled(indexed address,indexed uint256,indexed bytes32,uint256,uint256,uint8)',
           handler: 'handleOrderFilled',
         },
       ],
