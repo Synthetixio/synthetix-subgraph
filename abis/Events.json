@@ -25,32 +25,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "conditionalOrderId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "enum IAccount.ConditionalOrderCancelledReason",
-        "name": "reason",
-        "type": "uint8"
-      }
-    ],
-    "name": "ConditionalOrderCancelled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
@@ -81,38 +56,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "conditionalOrderId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "fillPrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "keeperFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "ConditionalOrderFilled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
@@ -134,6 +78,12 @@
         "internalType": "uint256",
         "name": "keeperFee",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IAccount.PriceOracleUsed",
+        "name": "priceOracle",
+        "type": "uint8"
       }
     ],
     "name": "ConditionalOrderFilled",
@@ -149,68 +99,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "conditionalOrderId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "marketKey",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "marginDelta",
-        "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "int256",
-        "name": "sizeDelta",
-        "type": "int256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "targetPrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "enum IAccount.ConditionalOrderTypes",
-        "name": "conditionalOrderType",
-        "type": "uint8"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "desiredFillPrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "reduceOnly",
-        "type": "bool"
-      }
-    ],
-    "name": "ConditionalOrderPlaced",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
@@ -350,6 +239,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "bytes32",
+        "name": "gelatoTaskId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "enum IAccount.ConditionalOrderCancelledReason",
         "name": "reason",
         "type": "uint8"
@@ -368,6 +262,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "bytes32",
+        "name": "gelatoTaskId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "uint256",
         "name": "fillPrice",
         "type": "uint256"
@@ -376,6 +275,11 @@
         "internalType": "uint256",
         "name": "keeperFee",
         "type": "uint256"
+      },
+      {
+        "internalType": "enum IAccount.PriceOracleUsed",
+        "name": "priceOracle",
+        "type": "uint8"
       }
     ],
     "name": "emitConditionalOrderFilled",
@@ -389,6 +293,11 @@
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "gelatoTaskId",
+        "type": "bytes32"
       },
       {
         "internalType": "bytes32",

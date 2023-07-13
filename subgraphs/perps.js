@@ -46,6 +46,10 @@ const testnetConfig = {
       address: '0x4516b854803b058907DC7522A7a1E197b4CE92E6',
       startBlock: 9680618,
     },
+    {
+      address: '0xa7AE3969A128048290968b41865Eaa53B20FA69e',
+      startBlock: 10276247,
+    },
   ],
 };
 
