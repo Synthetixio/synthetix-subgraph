@@ -129,25 +129,29 @@ export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
 }
 
 export function handleOrderV2Filled(event: ConditionalOrderFilled1Event): void {
-  // handle order filled event for smart margin account
-  // update the order status to filled
-  const smAccountAddress = event.params.account as Address;
+  const v1Params = event.parameters.filter((value) => {
+    return value.name !== 'priceOracle';
+  });
 
+  const v1Event = new ConditionalOrderFilled1Event(
+    event.address,
+    event.logIndex,
+    event.transactionLogIndex,
+    event.logType,
+    event.block,
+    event.transaction,
+    v1Params,
+    event.receipt,
+  );
+  handleOrderFilled(v1Event);
+
+  // Add price oracle only for v2
+  const smAccountAddress = event.params.account as Address;
   const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
   const futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
   if (futuresOrderEntity) {
-    // update the order status
-    futuresOrderEntity.status = 'Filled';
-    futuresOrderEntity.timestamp = event.block.timestamp;
-
     futuresOrderEntity.priceOracle = event.params.priceOracle === 0 ? 'PYTH' : 'CHAINLINK';
-
-    const smartMarginOrder = getOrCreateSmartMarginOrder(smAccountAddress, futuresOrderEntity.marketKey);
-    smartMarginOrder.orderType = futuresOrderEntity.orderType;
-    smartMarginOrder.recordTrade = true;
-
     futuresOrderEntity.save();
-    smartMarginOrder.save();
   }
 }
 
