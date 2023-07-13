@@ -138,7 +138,7 @@
       {
         "indexed": false,
         "internalType": "enum IAccount.PriceOracleUsed",
-        "name": "keeperFee",
+        "name": "priceOracle",
         "type": "uint8"
       }
     ],
