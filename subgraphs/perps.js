@@ -26,6 +26,10 @@ const mainnetConfig = {
       address: '0x6ba8eb350c72a665b841da90f03401539e7d765f',
       startBlock: 92005518,
     },
+    {
+      address: '0x11193470df30B37Af9fc5Ec696c240D878bdfb42',
+      startBlock: 105932574,
+    },
   ],
 };
 
@@ -45,6 +49,10 @@ const testnetConfig = {
     {
       address: '0x4516b854803b058907DC7522A7a1E197b4CE92E6',
       startBlock: 9680618,
+    },
+    {
+      address: '0xa7AE3969A128048290968b41865Eaa53B20FA69e',
+      startBlock: 10276247,
     },
   ],
 };
@@ -240,10 +248,10 @@ config.events.forEach((events, ind) => {
           event: 'ConditionalOrderFilled(indexed address,uint256,uint256,uint256)',
           handler: 'handleOrderFilled',
         },
-        // smart margin v2
+        // smart margin v2.0.2
         {
-          event: 'ConditionalOrderFilled(indexed address,uint256,indexed bytes32,uint256,uint256)',
-          handler: 'handleOrderFilled',
+          event: 'ConditionalOrderFilled(indexed address,uint256,indexed bytes32,uint256,uint256,uint8)',
+          handler: 'handleOrderV2Filled',
         },
       ],
     },

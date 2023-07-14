@@ -5,6 +5,7 @@ import {
   Withdraw as WithdrawEvent,
   ConditionalOrderPlaced as ConditionalOrderPlacedEvent,
   ConditionalOrderFilled as ConditionalOrderFilledEvent,
+  ConditionalOrderFilled1 as ConditionalOrderFilled1Event,
   ConditionalOrderCancelled as ConditionalOrderCancelledEvent,
 } from '../generated/subgraphs/perps/smartmargin_events_0/Events';
 import {
@@ -100,11 +101,36 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
       : 'Market';
   futuresOrderEntity.status = 'Pending';
   futuresOrderEntity.keeper = ZERO_ADDRESS;
+  // Set false vor v1 orders
+  futuresOrderEntity.reduceOnly = event.params.reduceOnly || false;
 
   futuresOrderEntity.save();
 }
 
-export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
+export function handleOrderV1Filled(event: ConditionalOrderFilledEvent): void {
+  handleOrderFilled(event, 'CHAINLINK');
+}
+
+export function handleOrderV2Filled(event: ConditionalOrderFilled1Event): void {
+  const priceOracle = event.params.priceOracle === 0 ? 'PYTH' : 'CHAINLINK';
+  const v1Params = event.parameters.filter((value) => {
+    return value.name !== 'priceOracle';
+  });
+
+  const v1Event = new ConditionalOrderFilledEvent(
+    event.address,
+    event.logIndex,
+    event.transactionLogIndex,
+    event.logType,
+    event.block,
+    event.transaction,
+    v1Params,
+    event.receipt,
+  );
+  handleOrderFilled(v1Event, priceOracle);
+}
+
+function handleOrderFilled(event: ConditionalOrderFilledEvent, priceOracle: string): void {
   // handle order filled event for smart margin account
   // update the order status to filled
   const smAccountAddress = event.params.account as Address;
@@ -115,6 +141,7 @@ export function handleOrderFilled(event: ConditionalOrderFilledEvent): void {
     // update the order status
     futuresOrderEntity.status = 'Filled';
     futuresOrderEntity.timestamp = event.block.timestamp;
+    futuresOrderEntity.priceOracle = priceOracle;
 
     const smartMarginOrder = getOrCreateSmartMarginOrder(smAccountAddress, futuresOrderEntity.marketKey);
     smartMarginOrder.orderType = futuresOrderEntity.orderType;

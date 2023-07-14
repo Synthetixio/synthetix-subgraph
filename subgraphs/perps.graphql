@@ -155,6 +155,11 @@ enum FuturesOrderType {
   DelayedOffchain
 }
 
+enum FuturesPriceOracleUsed {
+  PYTH
+  CHAINLINK
+}
+
 enum FundingRatePeriodType {
   Hourly
   Daily
@@ -186,6 +191,8 @@ type FuturesOrder @entity {
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
   keeper: Bytes!
+  reduceOnly: Boolean
+  priceOracle: FuturesPriceOracleUsed
 }
 
 type SmartMarginAccount @entity {

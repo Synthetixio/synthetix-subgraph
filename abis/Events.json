@@ -134,6 +134,12 @@
         "internalType": "uint256",
         "name": "keeperFee",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IAccount.PriceOracleUsed",
+        "name": "priceOracle",
+        "type": "uint8"
       }
     ],
     "name": "ConditionalOrderFilled",
