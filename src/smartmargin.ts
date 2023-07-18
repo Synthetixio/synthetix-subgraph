@@ -4,10 +4,12 @@ import {
   Deposit as DepositEvent,
   Withdraw as WithdrawEvent,
   ConditionalOrderPlaced as ConditionalOrderPlacedEvent,
+  ConditionalOrderPlaced1 as ConditionalOrderPlacedEvent1,
   ConditionalOrderFilled as ConditionalOrderFilledEvent,
   ConditionalOrderFilled1 as ConditionalOrderFilled1Event,
+  ConditionalOrderFilled2 as ConditionalOrderFilled2Event,
   ConditionalOrderCancelled as ConditionalOrderCancelledEvent,
-} from '../generated/subgraphs/perps/smartmargin_events_0/Events';
+} from '../generated/subgraphs/perps/smartmargin_events_2/Events';
 import {
   FuturesOrder,
   SmartMarginAccount,
@@ -102,9 +104,28 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
   futuresOrderEntity.status = 'Pending';
   futuresOrderEntity.keeper = ZERO_ADDRESS;
   // Set false vor v1 orders
-  futuresOrderEntity.reduceOnly = event.params.reduceOnly || false;
+  futuresOrderEntity.reduceOnly = event.params.reduceOnly;
 
   futuresOrderEntity.save();
+}
+
+export function handleOrderPlacedV2(event: ConditionalOrderPlacedEvent1): void {
+  const v1Params = event.parameters.filter((value) => {
+    return value.name !== 'gelatoTaskId';
+  });
+
+  const v1Event = new ConditionalOrderPlacedEvent(
+    event.address,
+    event.logIndex,
+    event.transactionLogIndex,
+    event.logType,
+    event.block,
+    event.transaction,
+    v1Params,
+    event.receipt,
+  );
+
+  handleOrderPlaced(v1Event);
 }
 
 export function handleOrderV1Filled(event: ConditionalOrderFilledEvent): void {
@@ -112,6 +133,21 @@ export function handleOrderV1Filled(event: ConditionalOrderFilledEvent): void {
 }
 
 export function handleOrderV2Filled(event: ConditionalOrderFilled1Event): void {
+  const v1Event = new ConditionalOrderFilledEvent(
+    event.address,
+    event.logIndex,
+    event.transactionLogIndex,
+    event.logType,
+    event.block,
+    event.transaction,
+    event.parameters,
+    event.receipt,
+  );
+
+  handleOrderFilled(v1Event, 'CHAINLINK');
+}
+
+export function handleOrderV2FilledWithPriceOracle(event: ConditionalOrderFilled2Event): void {
   const priceOracle = event.params.priceOracle === 0 ? 'PYTH' : 'CHAINLINK';
   const v1Params = event.parameters.filter((value) => {
     return value.name !== 'priceOracle';

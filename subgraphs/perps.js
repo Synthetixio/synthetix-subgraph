@@ -231,7 +231,7 @@ config.events.forEach((events, ind) => {
         {
           event:
             'ConditionalOrderPlaced(indexed address,indexed uint256,indexed bytes32,bytes32,int256,int256,uint256,uint8,uint256,bool)',
-          handler: 'handleOrderPlaced',
+          handler: 'handleOrderPlacedV2',
         },
         // smart margin v1
         {
@@ -248,10 +248,15 @@ config.events.forEach((events, ind) => {
           event: 'ConditionalOrderFilled(indexed address,uint256,uint256,uint256)',
           handler: 'handleOrderV1Filled',
         },
+        // smart margin v2
+        {
+          event: 'ConditionalOrderFilled(indexed address,indexed uint256,indexed bytes32,uint256,uint256)',
+          handler: 'handleOrderV2Filled',
+        },
         // smart margin v2.0.2
         {
           event: 'ConditionalOrderFilled(indexed address,indexed uint256,indexed bytes32,uint256,uint256,uint8)',
-          handler: 'handleOrderV2Filled',
+          handler: 'handleOrderV2FilledWithPriceOracle',
         },
       ],
     },

@@ -134,6 +134,43 @@
         "internalType": "uint256",
         "name": "keeperFee",
         "type": "uint256"
+      }
+    ],
+    "name": "ConditionalOrderFilled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "conditionalOrderId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "gelatoTaskId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fillPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "keeperFee",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -395,6 +432,59 @@
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "marketKey",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "int256",
+        "name": "marginDelta",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "sizeDelta",
+        "type": "int256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "targetPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum IAccount.ConditionalOrderTypes",
+        "name": "conditionalOrderType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "desiredFillPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "reduceOnly",
+        "type": "bool"
+      }
+    ],
+    "name": "emitConditionalOrderPlaced",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "conditionalOrderId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "gelatoTaskId",
+        "type": "bytes32"
       },
       {
         "internalType": "bytes32",
