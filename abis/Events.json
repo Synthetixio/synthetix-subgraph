@@ -50,7 +50,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
@@ -112,7 +112,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
@@ -216,7 +216,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "conditionalOrderId",
         "type": "uint256"
