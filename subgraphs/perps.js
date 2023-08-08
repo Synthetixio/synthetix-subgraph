@@ -30,6 +30,10 @@ const mainnetConfig = {
       address: '0x11193470df30B37Af9fc5Ec696c240D878bdfb42',
       startBlock: 105932574,
     },
+    {
+      address: '0xB753d2EE5dcA1fF39A83CA3Ec500656c31Be940b',
+      startBlock: 107960610,
+    },
   ],
 };
 
