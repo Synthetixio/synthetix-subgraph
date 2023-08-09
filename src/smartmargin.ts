@@ -42,8 +42,8 @@ export function handleDeposit(event: DepositEvent): void {
     smartMarginAccount.toHex() + '-' + event.transaction.hash.toHex(),
   );
 
-  smartMarginTransfer.account = smartMarginAccount;
-  smartMarginTransfer.abstractAccount = userAccount;
+  smartMarginTransfer.account = userAccount;
+  smartMarginTransfer.abstractAccount = smartMarginAccount;
   smartMarginTransfer.timestamp = event.block.timestamp;
   smartMarginTransfer.size = event.params.amount;
   smartMarginTransfer.txHash = event.transaction.hash.toHex();
@@ -60,8 +60,8 @@ export function handleWithdraw(event: WithdrawEvent): void {
     smartMarginAccount.toHex() + '-' + event.transaction.hash.toHex(),
   );
 
-  smartMarginTransfer.account = smartMarginAccount;
-  smartMarginTransfer.abstractAccount = userAccount;
+  smartMarginTransfer.account = userAccount;
+  smartMarginTransfer.abstractAccount = smartMarginAccount;
   smartMarginTransfer.timestamp = event.block.timestamp;
   smartMarginTransfer.size = event.params.amount.neg();
   smartMarginTransfer.txHash = event.transaction.hash.toHex();
@@ -75,6 +75,8 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
 
   // look up the cross margin account address
   const smAccountAddress = event.params.account as Address;
+  let smartMarginAccount = SmartMarginAccount.load(smAccountAddress.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : smAccountAddress;
 
   // load or create the order
   const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
@@ -86,8 +88,8 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
   // fill in the data and save
   futuresOrderEntity.size = event.params.sizeDelta;
   futuresOrderEntity.marketKey = marketKey;
-  futuresOrderEntity.account = smAccountAddress;
-  futuresOrderEntity.abstractAccount = event.transaction.from;
+  futuresOrderEntity.account = account;
+  futuresOrderEntity.abstractAccount = smAccountAddress;
   futuresOrderEntity.orderId = event.params.conditionalOrderId;
   futuresOrderEntity.targetPrice = event.params.targetPrice;
   futuresOrderEntity.marginDelta = event.params.marginDelta;
@@ -113,6 +115,8 @@ export function handleOrderPlacedV2(event: ConditionalOrderPlacedEvent1): void {
 
   // look up the cross margin account address
   const smAccountAddress = event.params.account as Address;
+  let smartMarginAccount = SmartMarginAccount.load(smAccountAddress.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : smAccountAddress;
 
   // load or create the order
   const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
@@ -124,8 +128,8 @@ export function handleOrderPlacedV2(event: ConditionalOrderPlacedEvent1): void {
   // fill in the data and save
   futuresOrderEntity.size = event.params.sizeDelta;
   futuresOrderEntity.marketKey = marketKey;
-  futuresOrderEntity.account = smAccountAddress;
-  futuresOrderEntity.abstractAccount = event.transaction.from;
+  futuresOrderEntity.account = account;
+  futuresOrderEntity.abstractAccount = smAccountAddress;
   futuresOrderEntity.orderId = event.params.conditionalOrderId;
   futuresOrderEntity.targetPrice = event.params.targetPrice;
   futuresOrderEntity.marginDelta = event.params.marginDelta;
