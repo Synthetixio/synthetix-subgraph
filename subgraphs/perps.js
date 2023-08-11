@@ -30,6 +30,10 @@ const mainnetConfig = {
       address: '0x11193470df30B37Af9fc5Ec696c240D878bdfb42',
       startBlock: 105932574,
     },
+    {
+      address: '0xB753d2EE5dcA1fF39A83CA3Ec500656c31Be940b',
+      startBlock: 107960610,
+    },
   ],
 };
 
@@ -53,6 +57,10 @@ const testnetConfig = {
     {
       address: '0xa7AE3969A128048290968b41865Eaa53B20FA69e',
       startBlock: 10276247,
+    },
+    {
+      address: '0xe32F27B27F4ea5f10f269b52223910bA83e2933C',
+      startBlock: 12484966,
     },
   ],
 };
@@ -230,8 +238,8 @@ config.events.forEach((events, ind) => {
         // smart margin v2
         {
           event:
-            'ConditionalOrderPlaced(indexed address,uint256,indexed bytes32,bytes32,int256,int256,uint256,uint8,uint256,bool)',
-          handler: 'handleOrderPlaced',
+            'ConditionalOrderPlaced(indexed address,indexed uint256,indexed bytes32,bytes32,int256,int256,uint256,uint8,uint256,bool)',
+          handler: 'handleOrderPlacedV2',
         },
         // smart margin v1
         {
@@ -240,7 +248,7 @@ config.events.forEach((events, ind) => {
         },
         // smart margin v2
         {
-          event: 'ConditionalOrderCancelled(indexed address,uint256,indexed bytes32,uint8)',
+          event: 'ConditionalOrderCancelled(indexed address,indexed uint256,indexed bytes32,uint8)',
           handler: 'handleOrderCancelled',
         },
         // smart margin v1
@@ -248,10 +256,15 @@ config.events.forEach((events, ind) => {
           event: 'ConditionalOrderFilled(indexed address,uint256,uint256,uint256)',
           handler: 'handleOrderV1Filled',
         },
+        // smart margin v2
+        {
+          event: 'ConditionalOrderFilled(indexed address,indexed uint256,indexed bytes32,uint256,uint256)',
+          handler: 'handleOrderV2Filled',
+        },
         // smart margin v2.0.2
         {
-          event: 'ConditionalOrderFilled(indexed address,uint256,indexed bytes32,uint256,uint256,uint8)',
-          handler: 'handleOrderV2Filled',
+          event: 'ConditionalOrderFilled(indexed address,indexed uint256,indexed bytes32,uint256,uint256,uint8)',
+          handler: 'handleOrderV2FilledWithPriceOracle',
         },
       ],
     },

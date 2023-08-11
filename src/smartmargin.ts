@@ -4,10 +4,12 @@ import {
   Deposit as DepositEvent,
   Withdraw as WithdrawEvent,
   ConditionalOrderPlaced as ConditionalOrderPlacedEvent,
+  ConditionalOrderPlaced1 as ConditionalOrderPlacedEvent1,
   ConditionalOrderFilled as ConditionalOrderFilledEvent,
   ConditionalOrderFilled1 as ConditionalOrderFilled1Event,
+  ConditionalOrderFilled2 as ConditionalOrderFilled2Event,
   ConditionalOrderCancelled as ConditionalOrderCancelledEvent,
-} from '../generated/subgraphs/perps/smartmargin_events_0/Events';
+} from '../generated/subgraphs/perps/smartmargin_events_2/Events';
 import {
   FuturesOrder,
   SmartMarginAccount,
@@ -101,8 +103,47 @@ export function handleOrderPlaced(event: ConditionalOrderPlacedEvent): void {
       : 'Market';
   futuresOrderEntity.status = 'Pending';
   futuresOrderEntity.keeper = ZERO_ADDRESS;
-  // Set false vor v1 orders
-  futuresOrderEntity.reduceOnly = event.params.reduceOnly || false;
+  futuresOrderEntity.reduceOnly = event.params.reduceOnly;
+
+  futuresOrderEntity.save();
+}
+
+export function handleOrderPlacedV2(event: ConditionalOrderPlacedEvent1): void {
+  // handle order placed event for smart margin account
+  // creates a new entity to store the order
+  const marketKey = event.params.marketKey;
+
+  // look up the cross margin account address
+  const smAccountAddress = event.params.account as Address;
+  let smartMarginAccount = SmartMarginAccount.load(smAccountAddress.toHex());
+  const account = smartMarginAccount ? smartMarginAccount.owner : smAccountAddress;
+
+  // load or create the order
+  const futuresOrderEntityId = `SM-${smAccountAddress.toHexString()}-${event.params.conditionalOrderId.toString()}`;
+  let futuresOrderEntity = FuturesOrder.load(futuresOrderEntityId);
+  if (futuresOrderEntity == null) {
+    futuresOrderEntity = new FuturesOrder(futuresOrderEntityId);
+  }
+
+  // fill in the data and save
+  futuresOrderEntity.size = event.params.sizeDelta;
+  futuresOrderEntity.marketKey = marketKey;
+  futuresOrderEntity.account = account;
+  futuresOrderEntity.abstractAccount = smAccountAddress;
+  futuresOrderEntity.orderId = event.params.conditionalOrderId;
+  futuresOrderEntity.targetPrice = event.params.targetPrice;
+  futuresOrderEntity.marginDelta = event.params.marginDelta;
+  futuresOrderEntity.timestamp = event.block.timestamp;
+  futuresOrderEntity.txnHash = event.transaction.hash;
+  futuresOrderEntity.orderType =
+    event.params.conditionalOrderType === 0
+      ? 'Limit'
+      : event.params.conditionalOrderType === 1
+      ? 'StopMarket'
+      : 'Market';
+  futuresOrderEntity.status = 'Pending';
+  futuresOrderEntity.keeper = ZERO_ADDRESS;
+  futuresOrderEntity.reduceOnly = event.params.reduceOnly;
 
   futuresOrderEntity.save();
 }
@@ -112,6 +153,21 @@ export function handleOrderV1Filled(event: ConditionalOrderFilledEvent): void {
 }
 
 export function handleOrderV2Filled(event: ConditionalOrderFilled1Event): void {
+  const v1Event = new ConditionalOrderFilledEvent(
+    event.address,
+    event.logIndex,
+    event.transactionLogIndex,
+    event.logType,
+    event.block,
+    event.transaction,
+    event.parameters,
+    event.receipt,
+  );
+
+  handleOrderFilled(v1Event, 'CHAINLINK');
+}
+
+export function handleOrderV2FilledWithPriceOracle(event: ConditionalOrderFilled2Event): void {
   const priceOracle = event.params.priceOracle === 0 ? 'PYTH' : 'CHAINLINK';
   const v1Params = event.parameters.filter((value) => {
     return value.name !== 'priceOracle';
