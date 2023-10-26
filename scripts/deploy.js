@@ -36,7 +36,7 @@ program
 
 program.action(async () => {
   const MAIN_SUBGRAPH_EXCLUDE = [];
-  const NETWORK_CHOICES = ['mainnet', 'goerli', 'optimism', 'optimism-goerli'];
+  const NETWORK_CHOICES = ['mainnet', 'goerli', 'optimism', 'optimism-goerli', 'base-testnet'];
   const SUBGRAPH_CHOICES = await fs.readdirSync(path.join(__dirname, '../subgraphs')).reduce((acc, val) => {
     if (val.endsWith('.js') && val !== 'main.js') {
       acc.push(val.slice(0, -3));
@@ -201,7 +201,7 @@ program.action(async () => {
               settings.subgraph
             } --deploy-key ${SATSUMA_DEPLOY_KEY} --version-label ${
               settings.version
-            } --node https://app.satsuma.xyz/api/subgraphs/deploy ./subgraphs/${settings.subgraph}.js`,
+            } --node https://subgraphs.alchemy.com/api/subgraphs/deploy ./subgraphs/${settings.subgraph}.js`,
           );
           console.log(green(`Successfully deployed to ${settings.network} on Satsuma.`));
         }
