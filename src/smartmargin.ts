@@ -9,8 +9,12 @@ import {
   ConditionalOrderFilled1 as ConditionalOrderFilled1Event,
   ConditionalOrderFilled2 as ConditionalOrderFilled2Event,
   ConditionalOrderCancelled as ConditionalOrderCancelledEvent,
+  DelegatedAccountAdded as DelegatedAccountAddedEvent,
+  DelegatedAccountRemoved as DelegatedAccountRemovedEvent,
 } from '../generated/subgraphs/perps/smartmargin_events_2/Events';
 import {
+  DelegatedAccountAdded,
+  DelegatedAccountRemoved,
   FuturesOrder,
   SmartMarginAccount,
   SmartMarginAccountTransfer,
@@ -30,6 +34,30 @@ export function handleNewAccount(event: NewAccountEvent): void {
     smartMarginAccount.version = event.params.version;
     smartMarginAccount.save();
   }
+}
+
+export function handleDelegatedAccountAdded(event: DelegatedAccountAddedEvent): void {
+  let entity = new DelegatedAccountAdded(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  entity.caller = event.params.caller;
+  entity.delegate = event.params.delegate;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+
+  entity.save();
+}
+
+export function handleDelegatedAccountRemoved(event: DelegatedAccountRemovedEvent): void {
+  let entity = new DelegatedAccountRemoved(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  entity.caller = event.params.caller;
+  entity.delegate = event.params.delegate;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+
+  entity.save();
 }
 
 export function handleDeposit(event: DepositEvent): void {

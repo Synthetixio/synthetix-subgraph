@@ -219,6 +219,24 @@ type SmartMarginOrder @entity {
   feesPaid: BigInt!
 }
 
+type DelegatedAccountAdded @entity {
+  id: Bytes!
+  caller: Bytes! # address
+  delegate: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DelegatedAccountRemoved @entity {
+  id: Bytes!
+  caller: Bytes! # address
+  delegate: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 # Deprecated
 type CrossMarginAccountTransfer @entity {
   id: ID!

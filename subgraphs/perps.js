@@ -34,6 +34,10 @@ const mainnetConfig = {
       address: '0xB753d2EE5dcA1fF39A83CA3Ec500656c31Be940b',
       startBlock: 107960610,
     },
+    {
+      address: '0xc3d16e00833355b48d2fD69D838c6ACF004cf4b6',
+      startBlock: 111335504,
+    },
   ],
 };
 
@@ -61,6 +65,10 @@ const testnetConfig = {
     {
       address: '0xe32F27B27F4ea5f10f269b52223910bA83e2933C',
       startBlock: 12484966,
+    },
+    {
+      address: '0x1FCb6ea040623cd56029402F3973BDCF1aFc6141',
+      startBlock: 16414279,
     },
   ],
 };
@@ -229,6 +237,14 @@ config.events.forEach((events, ind) => {
         {
           event: 'Withdraw(indexed address,indexed address,uint256)',
           handler: 'handleWithdraw',
+        },
+        {
+          event: 'DelegatedAccountAdded(indexed address,indexed address)',
+          handler: 'handleDelegatedAccountAdded',
+        },
+        {
+          event: 'DelegatedAccountRemoved(indexed address,indexed address)',
+          handler: 'handleDelegatedAccountRemoved',
         },
         // smart margin v1
         {
