@@ -23,6 +23,7 @@ import {
   PositionLiquidated as PositionLiquidatedEvent,
   PositionModified as PositionModifiedEvent,
   MarginTransferred as MarginTransferredEvent,
+  PerpsTracking as PerpsTrackingEvent,
 } from '../generated/subgraphs/perps/templates/PerpsMarket/PerpsV2MarketProxyable';
 import {
   DelayedOrderSubmitted as DelayedOrderSubmittedEvent,
@@ -42,7 +43,7 @@ import {
   ZERO,
   ZERO_ADDRESS,
 } from './lib/helpers';
-import { SmartMarginAccount } from '../generated/subgraphs/perps/schema';
+import { SmartMarginAccount, PerpsTracking } from '../generated/subgraphs/perps/schema';
 
 let SINGLE_INDEX = '0';
 
@@ -300,8 +301,10 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
     // update cumulative and aggregate stats
-    // aggregate stats are created for various time periods
-    if (marketEntity && marketEntity.asset) {
+    const perpsTrackingEntity = PerpsTracking.load(
+      event.transaction.hash.toHex() + '-' + event.block.timestamp.toString(),
+    );
+    if (marketEntity && marketEntity.asset && perpsTrackingEntity != null) {
       let marketCumulativeStats = getOrCreateMarketCumulativeStats(marketEntity.asset.toHex());
       marketCumulativeStats.totalTrades = marketCumulativeStats.totalTrades.plus(BigInt.fromI32(1));
       marketCumulativeStats.totalVolume = marketCumulativeStats.totalVolume.plus(volume);
@@ -402,6 +405,15 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
   positionEntity.save();
   statEntity.save();
   cumulativeEntity.save();
+}
+
+export function handlePerpsTracking(event: PerpsTrackingEvent): void {
+  // Only save PerpsTracking entity code if it's KWENTA
+  if (event.params.trackingCode.toString() == 'KWENTA') {
+    const perpsTrackingEntity = new PerpsTracking(event.transaction.hash.toHex());
+
+    perpsTrackingEntity.save();
+  }
 }
 
 export function handlePositionModifiedV2(event: PositionModifiedV2Event): void {

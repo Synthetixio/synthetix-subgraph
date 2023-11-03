@@ -219,6 +219,10 @@ type SmartMarginOrder @entity {
   feesPaid: BigInt!
 }
 
+type PerpsTracking @entity {
+  id: ID!
+}
+
 # Deprecated
 type CrossMarginAccountTransfer @entity {
   id: ID!
