@@ -301,9 +301,7 @@ export function handlePositionModified(event: PositionModifiedEvent): void {
     positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
     // update cumulative and aggregate stats
-    const perpsTrackingEntity = PerpsTracking.load(
-      event.transaction.hash.toHex() + '-' + event.block.timestamp.toString(),
-    );
+    const perpsTrackingEntity = PerpsTracking.load(event.transaction.hash.toHex());
     if (marketEntity && marketEntity.asset && perpsTrackingEntity != null) {
       let marketCumulativeStats = getOrCreateMarketCumulativeStats(marketEntity.asset.toHex());
       marketCumulativeStats.totalTrades = marketCumulativeStats.totalTrades.plus(BigInt.fromI32(1));
