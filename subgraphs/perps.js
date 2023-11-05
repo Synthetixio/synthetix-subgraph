@@ -169,6 +169,10 @@ const perpsMarketTemplate = {
         event: 'FundingRecomputed(int256,int256,uint256,uint256)',
         handler: 'handleFundingRecomputed',
       },
+      {
+        event: 'PerpsTracking(indexed bytes32,bytes32,bytes32,int256,uint256)',
+        handler: 'handlePerpsTracking',
+      },
     ],
   },
 };

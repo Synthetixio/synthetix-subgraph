@@ -237,6 +237,10 @@ type DelegatedAccountRemoved @entity {
   transactionHash: Bytes!
 }
 
+type PerpsTracking @entity {
+  id: ID!
+}
+
 # Deprecated
 type CrossMarginAccountTransfer @entity {
   id: ID!
