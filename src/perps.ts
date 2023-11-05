@@ -74,7 +74,10 @@ export function handleV2MarketAdded(event: MarketAddedEvent): void {
 }
 
 export function handleMarketRemoved(event: MarketRemovedEvent): void {
-  store.remove('PerpsMarket', event.params.market.toHex());
+  let market = store.get('PerpsMarket', event.params.market.toHex());
+  if (market != null) {
+    store.remove('PerpsMarket', event.params.market.toHex());
+  }
 }
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
