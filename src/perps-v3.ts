@@ -87,6 +87,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
   }
 
   let positionEntity = PerpsV3Position.load(openPositionEntity.position !== null ? openPositionEntity.position! : '');
+  let volume = order.sizeDelta.abs().times(order.fillPrice).div(ETHER).abs();
 
   if (positionEntity == null) {
     let marketEntity = PerpsV3Market.load(event.params.marketId.toString());
@@ -119,7 +120,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.feesPaid = event.params.totalFees;
     positionEntity.netFunding = event.params.accruedFunding;
     positionEntity.pnlWithFeesPaid = ZERO;
-    positionEntity.totalVolume = ZERO;
+    positionEntity.totalVolume = volume;
     positionEntity.save();
   } else {
     if (event.params.newSize.isZero()) {
@@ -131,7 +132,6 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     } else {
       positionEntity.totalTrades = positionEntity.totalTrades.plus(BigInt.fromI32(1));
 
-      let volume = order.sizeDelta.abs().times(order.fillPrice).div(ETHER).abs();
       positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
       if (
