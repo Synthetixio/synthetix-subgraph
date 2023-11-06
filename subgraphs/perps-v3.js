@@ -44,6 +44,15 @@ manifest.push({
         event: 'PositionLiquidated(indexed uint128,indexed uint128,uint256,int128)',
         handler: 'handlePositionLiquidated',
       },
+      {
+        event:
+          'SettlementStrategyAdded(indexed uint128,(uint8,uint256,uint256,uint256,address,bytes32,string,uint256,uint256,bool),indexed uint256)',
+        handler: 'handleSettlementStrategyAdded',
+      },
+      {
+        event: 'SettlementStrategyEnabled(indexed uint128,uint256,bool)',
+        handler: 'handleSettlementStrategyEnabled',
+      },
     ],
   },
 });

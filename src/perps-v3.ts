@@ -5,6 +5,7 @@ import {
   OrderSettled,
   PerpsV3Market,
   PerpsV3Position,
+  SettlementStrategy,
 } from '../generated/subgraphs/perps-v3/schema';
 import {
   OrderSettled as OrderSettledEvent,
@@ -12,7 +13,11 @@ import {
 } from '../generated/subgraphs/perps-v3/templates/PerpsV3/PerpsV3MarketProxy';
 import { BigInt, log } from '@graphprotocol/graph-ts';
 import { ETHER, ZERO } from './lib/helpers';
-import { MarketCreated } from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
+import {
+  MarketCreated,
+  SettlementStrategyAdded,
+  SettlementStrategyEnabled,
+} from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
 
 export function handleMarketCreated(event: MarketCreated): void {
   let marketId = event.params.perpsMarketId.toString();
@@ -110,7 +115,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.totalTrades = BigInt.fromI32(1);
     positionEntity.entryPrice = event.params.fillPrice;
     positionEntity.lastPrice = event.params.fillPrice;
-    positionEntity.pnl = ZERO;
+    positionEntity.realizedPnl = ZERO;
     positionEntity.feesPaid = event.params.totalFees;
     positionEntity.netFunding = event.params.accruedFunding;
     positionEntity.pnlWithFeesPaid = ZERO;
@@ -141,6 +146,13 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
         const existingNotionalValue = positionEntity.size.abs().times(positionEntity.avgEntryPrice);
         const tradeNotionalValue = event.params.sizeDelta.abs().times(event.params.fillPrice);
         positionEntity.avgEntryPrice = existingNotionalValue.plus(tradeNotionalValue).div(event.params.newSize.abs());
+      } else {
+        // position decreasing - calc realized pnl
+        const cost = positionEntity.avgEntryPrice.times(event.params.sizeDelta.abs());
+        const sellValue = event.params.fillPrice.times(event.params.sizeDelta.abs());
+        const tradePnl = sellValue.minus(cost);
+        positionEntity.realizedPnl = positionEntity.realizedPnl.plus(tradePnl);
+        positionEntity.pnlWithFeesPaid = positionEntity.realizedPnl.minus(positionEntity.feesPaid);
       }
     }
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.totalFees);
@@ -149,4 +161,35 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.save();
   }
   openPositionEntity.save();
+}
+
+export function handleSettlementStrategyAdded(event: SettlementStrategyAdded): void {
+  const id = event.params.strategyId.toString() + '-' + event.params.marketId.toString();
+  const strategy = new SettlementStrategy(id);
+
+  strategy.strategyId = event.params.strategyId;
+  strategy.marketId = event.params.marketId;
+
+  strategy.strategyType = event.params.strategy.strategyType;
+  strategy.settlementDelay = event.params.strategy.settlementDelay;
+  strategy.settlementWindowDuration = event.params.strategy.settlementWindowDuration;
+  strategy.priceVerificationContract = event.params.strategy.priceVerificationContract.toHexString();
+  strategy.feedId = event.params.strategy.feedId;
+  strategy.url = event.params.strategy.url;
+  strategy.settlementReward = event.params.strategy.settlementReward;
+  strategy.enabled = !event.params.strategy.disabled;
+
+  strategy.save();
+}
+
+export function handleSettlementStrategyEnabled(event: SettlementStrategyEnabled): void {
+  const id = event.params.strategyId.toString() + '-' + event.params.marketId.toString();
+  const strategy = SettlementStrategy.load(id);
+
+  if (!strategy) {
+    return;
+  }
+
+  strategy.enabled = event.params.enabled;
+  strategy.save();
 }

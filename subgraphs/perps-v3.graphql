@@ -52,7 +52,7 @@ type PerpsV3Position @entity {
   totalTrades: BigInt!
   totalVolume: BigInt!
   size: BigInt!
-  pnl: BigInt!
+  realizedPnl: BigInt!
   feesPaid: BigInt!
   netFunding: BigInt!
   pnlWithFeesPaid: BigInt!
@@ -71,4 +71,21 @@ type PerpsV3Market @entity {
   id: ID!
   marketName: String!
   marketSymbol: String!
+}
+
+type SettlementStrategy @entity {
+  id: ID!
+  strategyId: BigInt!
+  marketId: BigInt!
+  enabled: Boolean
+  strategyType: Int
+  settlementDelay: BigInt
+  settlementWindowDuration: BigInt
+  priceVerificationContract: String
+  feedId: Bytes
+  url: String
+  settlementReward: BigInt
+  priceDeviationTolerance: BigInt
+  minimumUsdExchangeAmount: BigInt
+  maxRoundingLoss: BigInt
 }
