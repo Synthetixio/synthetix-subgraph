@@ -1,0 +1,74 @@
+type Account @entity {
+  "NFT token id"
+  id: ID!
+  owner: Bytes!
+  created_at: BigInt!
+  created_at_block: BigInt!
+  updated_at: BigInt!
+  updated_at_block: BigInt!
+  permissions: [AccountPermissionUsers!]
+}
+
+type AccountPermissionUsers @entity {
+  "NFT token id + user address"
+  id: ID!
+  address: Bytes!
+  account: Account!
+  permissions: [Bytes!]!
+  created_at: BigInt!
+  created_at_block: BigInt!
+  updated_at: BigInt!
+  updated_at_block: BigInt!
+}
+
+type OrderSettled @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  accountId: BigInt!
+  fillPrice: BigInt!
+  accruedFunding: BigInt!
+  sizeDelta: BigInt!
+  newSize: BigInt!
+  totalFees: BigInt!
+  referralFees: BigInt!
+  collectedFees: BigInt!
+  settlementReward: BigInt!
+  trackingCode: Bytes!
+  settler: Bytes!
+}
+
+type PerpsV3Position @entity {
+  id: ID!
+  openTimestamp: BigInt!
+  closeTimestamp: BigInt
+  timestamp: BigInt!
+  marketId: BigInt!
+  marketSymbol: String!
+  accountId: BigInt!
+  account: Account!
+  isOpen: Boolean!
+  isLiquidated: Boolean!
+  totalTrades: BigInt!
+  totalVolume: BigInt!
+  size: BigInt!
+  pnl: BigInt!
+  feesPaid: BigInt!
+  netFunding: BigInt!
+  pnlWithFeesPaid: BigInt!
+  entryPrice: BigInt!
+  avgEntryPrice: BigInt!
+  lastPrice: BigInt!
+  exitPrice: BigInt
+}
+
+type OpenPerpsV3Position @entity {
+  id: ID!
+  position: PerpsV3Position
+}
+
+type PerpsV3Market @entity {
+  id: ID!
+  marketName: String!
+  marketSymbol: String!
+}
