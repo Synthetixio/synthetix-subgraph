@@ -1,4 +1,4 @@
-import { Address, Bytes } from '@graphprotocol/graph-ts';
+import { Address, Bytes, store } from '@graphprotocol/graph-ts';
 import { NewAccount as NewAccountEvent } from '../generated/subgraphs/perps/smartmargin_factory_0/Factory';
 import {
   Deposit as DepositEvent,
@@ -13,14 +13,13 @@ import {
   DelegatedAccountRemoved as DelegatedAccountRemovedEvent,
 } from '../generated/subgraphs/perps/smartmargin_events_2/Events';
 import {
-  DelegatedAccountAdded,
-  DelegatedAccountRemoved,
+  DelegatedAccount,
   FuturesOrder,
   SmartMarginAccount,
   SmartMarginAccountTransfer,
   SmartMarginOrder,
 } from '../generated/subgraphs/perps/schema';
-import { ZERO, ZERO_ADDRESS } from './lib/helpers';
+import { ZERO, ZERO_ADDRESS, strToBytes } from './lib/helpers';
 
 export function handleNewAccount(event: NewAccountEvent): void {
   // handle new account event for smart margin account factory
@@ -37,10 +36,15 @@ export function handleNewAccount(event: NewAccountEvent): void {
 }
 
 export function handleDelegatedAccountAdded(event: DelegatedAccountAddedEvent): void {
-  let entity = new DelegatedAccountAdded(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  let id = strToBytes(event.params.caller.toHex().concat('-').concat(event.params.delegate.toHex()));
+  let entity = DelegatedAccount.load(id);
+
+  if (entity == null) {
+    entity = new DelegatedAccount(id);
+  }
+
   entity.caller = event.params.caller;
   entity.delegate = event.params.delegate;
-
   entity.blockNumber = event.block.number;
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
@@ -49,15 +53,12 @@ export function handleDelegatedAccountAdded(event: DelegatedAccountAddedEvent): 
 }
 
 export function handleDelegatedAccountRemoved(event: DelegatedAccountRemovedEvent): void {
-  let entity = new DelegatedAccountRemoved(event.transaction.hash.concatI32(event.logIndex.toI32()));
-  entity.caller = event.params.caller;
-  entity.delegate = event.params.delegate;
+  let id = strToBytes(event.params.caller.toHex().concat('-').concat(event.params.delegate.toHex()));
+  let entity = DelegatedAccount.load(id);
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
+  if (entity != null) {
+    store.remove('DelegatedAccount', id.toHexString());
+  }
 }
 
 export function handleDeposit(event: DepositEvent): void {

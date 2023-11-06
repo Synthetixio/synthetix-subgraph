@@ -219,16 +219,7 @@ type SmartMarginOrder @entity {
   feesPaid: BigInt!
 }
 
-type DelegatedAccountAdded @entity {
-  id: Bytes!
-  caller: Bytes! # address
-  delegate: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type DelegatedAccountRemoved @entity {
+type DelegatedAccount @entity {
   id: Bytes!
   caller: Bytes! # address
   delegate: Bytes! # address
