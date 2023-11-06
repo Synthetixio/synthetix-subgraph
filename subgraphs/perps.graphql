@@ -219,6 +219,15 @@ type SmartMarginOrder @entity {
   feesPaid: BigInt!
 }
 
+type DelegatedAccount @entity {
+  id: ID!
+  caller: Bytes! # address
+  delegate: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type PerpsTracking @entity {
   id: ID!
 }
