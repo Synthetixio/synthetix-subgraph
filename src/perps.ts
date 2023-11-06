@@ -74,7 +74,7 @@ export function handleV2MarketAdded(event: MarketAddedEvent): void {
 }
 
 export function handleMarketRemoved(event: MarketRemovedEvent): void {
-  store.remove('PerpsMarket', event.params.market.toHex());
+  // TODO: Handle market removal
 }
 
 export function handlePositionModified(event: PositionModifiedEvent): void {
