@@ -19,7 +19,7 @@ import {
   SmartMarginAccountTransfer,
   SmartMarginOrder,
 } from '../generated/subgraphs/perps/schema';
-import { ZERO, ZERO_ADDRESS, strToBytes } from './lib/helpers';
+import { ZERO, ZERO_ADDRESS } from './lib/helpers';
 
 export function handleNewAccount(event: NewAccountEvent): void {
   // handle new account event for smart margin account factory
@@ -36,7 +36,7 @@ export function handleNewAccount(event: NewAccountEvent): void {
 }
 
 export function handleDelegatedAccountAdded(event: DelegatedAccountAddedEvent): void {
-  let id = strToBytes(event.params.caller.toHex().concat('-').concat(event.params.delegate.toHex()));
+  let id = event.params.caller.toHex().concat('-').concat(event.params.delegate.toHex());
   let entity = DelegatedAccount.load(id);
 
   if (entity == null) {
@@ -53,11 +53,11 @@ export function handleDelegatedAccountAdded(event: DelegatedAccountAddedEvent): 
 }
 
 export function handleDelegatedAccountRemoved(event: DelegatedAccountRemovedEvent): void {
-  let id = strToBytes(event.params.caller.toHex().concat('-').concat(event.params.delegate.toHex()));
+  let id = event.params.caller.toHex().concat('-').concat(event.params.delegate.toHex());
   let entity = DelegatedAccount.load(id);
 
   if (entity != null) {
-    store.remove('DelegatedAccount', id.toHexString());
+    store.remove('DelegatedAccount', id);
   }
 }
 
