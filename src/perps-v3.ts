@@ -78,7 +78,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
   order.newSize = event.params.newSize;
   order.referralFees = event.params.referralFees;
   order.settler = event.params.settler;
-  order.save();
+  order.pnl = ZERO;
 
   let positionId = event.params.marketId.toString() + '-' + event.params.accountId.toString();
   let openPositionEntity = OpenPerpsV3Position.load(positionId);
@@ -129,16 +129,18 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
       positionEntity.exitPrice = event.params.fillPrice;
       openPositionEntity.position = null;
       openPositionEntity.save();
+
+      calculatePnl(positionEntity, order, event);
     } else {
       positionEntity.totalTrades = positionEntity.totalTrades.plus(BigInt.fromI32(1));
-
       positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
 
       if (
         (positionEntity.size.lt(ZERO) && event.params.newSize.gt(ZERO)) ||
         (positionEntity.size.gt(ZERO) && event.params.newSize.lt(ZERO))
       ) {
-        // TODO: Handle flipping sides
+        // TODO: Better handle flipping sides
+        calculatePnl(positionEntity, order, event);
         positionEntity.avgEntryPrice = event.params.fillPrice;
         positionEntity.entryPrice = event.params.fillPrice;
       } else if (event.params.newSize.abs().gt(positionEntity.size.abs())) {
@@ -147,12 +149,8 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
         const tradeNotionalValue = event.params.sizeDelta.abs().times(event.params.fillPrice);
         positionEntity.avgEntryPrice = existingNotionalValue.plus(tradeNotionalValue).div(event.params.newSize.abs());
       } else {
-        // position decreasing - calc realized pnl
-        const cost = positionEntity.avgEntryPrice.times(event.params.sizeDelta.abs());
-        const sellValue = event.params.fillPrice.times(event.params.sizeDelta.abs());
-        const tradePnl = sellValue.minus(cost);
-        positionEntity.realizedPnl = positionEntity.realizedPnl.plus(tradePnl);
-        positionEntity.pnlWithFeesPaid = positionEntity.realizedPnl.minus(positionEntity.feesPaid);
+        // If decreasing calc the pnl
+        calculatePnl(positionEntity, order, event);
       }
     }
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.totalFees);
@@ -161,6 +159,8 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.save();
   }
   openPositionEntity.save();
+
+  order.save();
 }
 
 export function handleSettlementStrategyAdded(event: SettlementStrategyAdded): void {
@@ -192,4 +192,13 @@ export function handleSettlementStrategyEnabled(event: SettlementStrategyEnabled
 
   strategy.enabled = event.params.enabled;
   strategy.save();
+}
+
+function calculatePnl(position: PerpsV3Position, order: OrderSettled, event: OrderSettledEvent): void {
+  let pnl = event.params.fillPrice.minus(position.avgEntryPrice).times(event.params.sizeDelta).div(ETHER);
+  position.realizedPnl = position.realizedPnl.plus(pnl);
+  position.pnlWithFeesPaid = position.realizedPnl.minus(position.feesPaid);
+  order.pnl = order.pnl.plus(pnl);
+  order.save();
+  position.save();
 }

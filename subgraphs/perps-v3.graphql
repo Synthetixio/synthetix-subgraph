@@ -36,6 +36,7 @@ type OrderSettled @entity {
   settlementReward: BigInt!
   trackingCode: Bytes!
   settler: Bytes!
+  pnl: BigInt!
 }
 
 type PerpsV3Position @entity {
