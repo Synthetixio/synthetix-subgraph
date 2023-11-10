@@ -53,6 +53,10 @@ manifest.push({
         event: 'SettlementStrategyEnabled(indexed uint128,uint256,bool)',
         handler: 'handleSettlementStrategyEnabled',
       },
+      {
+        event: 'MarketUpdated(uint128,uint256,int256,uint256,int256,int256,int256)',
+        handler: 'handleFundingRecomputed',
+      },
     ],
   },
 });
