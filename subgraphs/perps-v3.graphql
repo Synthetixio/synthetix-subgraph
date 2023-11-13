@@ -90,3 +90,26 @@ type SettlementStrategy @entity {
   minimumUsdExchangeAmount: BigInt
   maxRoundingLoss: BigInt
 }
+
+type FundingRateUpdate @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  fundingRate: BigInt!
+  marketName: String!
+  marketSymbol: String!
+}
+
+type FundingRatePeriod @entity {
+  id: ID!
+  timestamp: BigInt!
+  fundingRate: BigInt!
+  marketName: String!
+  marketSymbol: String!
+  period: FundingRatePeriodType!
+}
+
+enum FundingRatePeriodType {
+  Hourly
+  Daily
+}

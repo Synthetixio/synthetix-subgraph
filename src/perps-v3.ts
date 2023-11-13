@@ -1,6 +1,7 @@
-import { AccountCreated } from '../generated/subgraphs/perps-v3/templates/PerpsV3/PerpsV3CoreProxy';
 import {
   Account,
+  FundingRatePeriod,
+  FundingRateUpdate,
   OpenPerpsV3Position,
   OrderSettled,
   PerpsV3Market,
@@ -8,11 +9,13 @@ import {
   SettlementStrategy,
 } from '../generated/subgraphs/perps-v3/schema';
 import {
+  AccountCreated,
+  MarketUpdated,
   OrderSettled as OrderSettledEvent,
   PositionLiquidated as PositionLiquidatedEvent,
-} from '../generated/subgraphs/perps-v3/templates/PerpsV3/PerpsV3MarketProxy';
+} from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
 import { BigInt, log } from '@graphprotocol/graph-ts';
-import { ETHER, ZERO } from './lib/helpers';
+import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO } from './lib/helpers';
 import {
   MarketCreated,
   SettlementStrategyAdded,
@@ -192,6 +195,56 @@ export function handleSettlementStrategyEnabled(event: SettlementStrategyEnabled
 
   strategy.enabled = event.params.enabled;
   strategy.save();
+}
+
+export function handleFundingRecomputed(event: MarketUpdated): void {
+  let marketEntity = PerpsV3Market.load(event.params.marketId.toString());
+
+  let fundingRateUpdateEntity = new FundingRateUpdate(
+    event.params.marketId.toString() + '-' + event.transaction.hash.toHex(),
+  );
+
+  fundingRateUpdateEntity.timestamp = event.block.timestamp;
+  fundingRateUpdateEntity.marketId = event.params.marketId;
+  fundingRateUpdateEntity.fundingRate = event.params.currentFundingRate;
+
+  if (marketEntity) {
+    fundingRateUpdateEntity.marketSymbol = marketEntity.marketSymbol;
+    fundingRateUpdateEntity.marketName = marketEntity.marketName;
+    updateFundingRatePeriods(event.block.timestamp, marketEntity.marketSymbol, fundingRateUpdateEntity);
+  }
+
+  fundingRateUpdateEntity.save();
+}
+
+function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: FundingRateUpdate): void {
+  for (let p = 0; p < FUNDING_RATE_PERIODS.length; p++) {
+    let periodSeconds = FUNDING_RATE_PERIODS[p];
+    let periodType = FUNDING_RATE_PERIOD_TYPES[p];
+    let periodId = getTimeID(timestamp, periodSeconds);
+
+    let id = asset + '-' + periodType + '-' + periodId.toString();
+
+    let existingPeriod = FundingRatePeriod.load(id);
+
+    if (existingPeriod == null) {
+      let newPeriod = new FundingRatePeriod(id);
+      newPeriod.fundingRate = rate.fundingRate;
+      newPeriod.marketSymbol = rate.marketSymbol;
+      newPeriod.marketName = rate.marketName;
+      newPeriod.period = periodType;
+      newPeriod.timestamp = timestamp.minus(timestamp.mod(periodSeconds));
+      newPeriod.save();
+    } else {
+      existingPeriod.fundingRate = rate.fundingRate;
+      existingPeriod.save();
+    }
+  }
+}
+
+function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
+  let remainder = timestamp.mod(num);
+  return timestamp.minus(remainder);
 }
 
 function calculatePnl(position: PerpsV3Position, order: OrderSettled, event: OrderSettledEvent): void {
