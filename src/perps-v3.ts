@@ -15,7 +15,7 @@ import {
   PositionLiquidated as PositionLiquidatedEvent,
 } from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
 import { BigInt, log } from '@graphprotocol/graph-ts';
-import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO } from './lib/helpers';
+import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO, getTimeID } from './lib/helpers';
 import {
   MarketCreated,
   SettlementStrategyAdded,
@@ -240,11 +240,6 @@ function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: Fundin
       existingPeriod.save();
     }
   }
-}
-
-function getTimeID(timestamp: BigInt, num: BigInt): BigInt {
-  let remainder = timestamp.mod(num);
-  return timestamp.minus(remainder);
 }
 
 function calculatePnl(position: PerpsV3Position, order: OrderSettled, event: OrderSettledEvent): void {

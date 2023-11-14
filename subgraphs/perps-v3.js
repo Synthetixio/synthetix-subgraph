@@ -10,9 +10,9 @@ manifest.push({
   name: 'PerpsV3',
   network: currentNetwork,
   source: {
-    address: '0x9863Dae3f4b5F4Ffe3A841a21565d57F2BA10E87',
+    address: '0xEED61f0CB02f3B38923b1b6EAa939D5f04f431b6',
     abi: 'PerpsV3MarketProxy',
-    startBlock: 9243743,
+    startBlock: 99337,
   },
   mapping: {
     kind: 'ethereum/events',
