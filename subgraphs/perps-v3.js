@@ -46,7 +46,7 @@ manifest.push({
       },
       {
         event:
-          'SettlementStrategyAdded(indexed uint128,(uint8,uint256,uint256,uint256,address,bytes32,string,uint256,uint256,bool),indexed uint256)',
+          'SettlementStrategyAdded(indexed uint128,(uint8,uint256,uint256,uint256,address,bytes32,string,uint256,bool),indexed uint256)',
         handler: 'handleSettlementStrategyAdded',
       },
       {

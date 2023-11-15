@@ -243,7 +243,11 @@ function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: Fundin
 }
 
 function calculatePnl(position: PerpsV3Position, order: OrderSettled, event: OrderSettledEvent): void {
-  let pnl = event.params.fillPrice.minus(position.avgEntryPrice).times(event.params.sizeDelta).div(ETHER);
+  let pnl = event.params.fillPrice
+    .minus(position.avgEntryPrice)
+    .times(event.params.sizeDelta.abs())
+    .div(ETHER)
+    .times(position.size.gt(ZERO) ? BigInt.fromI32(1) : BigInt.fromI32(-1));
   position.realizedPnl = position.realizedPnl.plus(pnl);
   position.pnlWithFeesPaid = position.realizedPnl.minus(position.feesPaid);
   order.pnl = order.pnl.plus(pnl);

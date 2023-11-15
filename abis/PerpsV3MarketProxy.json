@@ -196,7 +196,20 @@
         "type": "uint128"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "requestedAccountId",
+        "type": "uint128"
+      }
+    ],
+    "name": "createAccount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -301,7 +314,7 @@
     ],
     "name": "grantPermission",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -377,7 +390,7 @@
     ],
     "name": "notifyAccountTransfer",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -395,7 +408,7 @@
     ],
     "name": "renouncePermission",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -418,7 +431,7 @@
     ],
     "name": "revokePermission",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -544,7 +557,7 @@
     ],
     "name": "initOrUpgradeNft",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -577,7 +590,7 @@
     ],
     "name": "initOrUpgradeToken",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -595,7 +608,7 @@
     ],
     "name": "registerUnmanagedSystem",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -612,22 +625,6 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "parameter",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "reason",
-        "type": "string"
-      }
-    ],
-    "name": "InvalidParameter",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "",
         "type": "address"
@@ -635,19 +632,6 @@
     ],
     "name": "RecursiveMulticall",
     "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "getMessageSender",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [
@@ -665,53 +649,6 @@
         "type": "bytes[]"
       }
     ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "to",
-        "type": "address[]"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "data",
-        "type": "bytes[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "values",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "multicallThrough",
-    "outputs": [
-      {
-        "internalType": "bytes[]",
-        "name": "results",
-        "type": "bytes[]"
-      }
-    ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "target",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "allowlisted",
-        "type": "bool"
-      }
-    ],
-    "name": "setAllowlistedMulticallTarget",
-    "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
@@ -913,6 +850,22 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "parameter",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "InvalidParameter",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "OverflowInt256ToUint256",
     "type": "error"
@@ -996,7 +949,7 @@
         "type": "uint128"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1009,7 +962,7 @@
         "type": "uint128"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1079,7 +1032,7 @@
     ],
     "name": "setSpotMarket",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1092,7 +1045,7 @@
     ],
     "name": "setSynthetix",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1455,7 +1408,7 @@
     ],
     "name": "modifyCollateral",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2010,7 +1963,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2188,23 +2141,12 @@
   },
   {
     "inputs": [],
-    "name": "OverflowUint256ToUint64",
+    "name": "OverflowInt128ToUint128",
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "deviation",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tolerance",
-        "type": "uint256"
-      }
-    ],
-    "name": "PriceDeviationToleranceExceeded",
+    "inputs": [],
+    "name": "OverflowUint256ToUint64",
     "type": "error"
   },
   {
@@ -2543,7 +2485,7 @@
     ],
     "name": "addToFeatureFlagAllowlist",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2661,7 +2603,7 @@
     ],
     "name": "removeFromFeatureFlagAllowlist",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2679,7 +2621,7 @@
     ],
     "name": "setDeniers",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2697,7 +2639,7 @@
     ],
     "name": "setFeatureFlagAllowAll",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2715,7 +2657,7 @@
     ],
     "name": "setFeatureFlagDenyAll",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2820,7 +2762,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2833,7 +2775,36 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint128",
+        "name": "marketId",
+        "type": "uint128"
+      }
+    ],
+    "name": "liquidationCapacity",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "capacity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxLiquidationInWindow",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "latestLiquidationTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -3075,11 +3046,6 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "priceDeviationTolerance",
-            "type": "uint256"
-          },
-          {
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
@@ -3175,11 +3141,6 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "priceDeviationTolerance",
-            "type": "uint256"
-          },
-          {
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
@@ -3198,7 +3159,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3418,11 +3379,6 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "priceDeviationTolerance",
-            "type": "uint256"
-          },
-          {
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
@@ -3456,7 +3412,7 @@
     ],
     "name": "setFundingParameters",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3494,7 +3450,7 @@
     ],
     "name": "setLiquidationParameters",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3512,7 +3468,7 @@
     ],
     "name": "setLockedOiRatio",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3545,7 +3501,7 @@
     ],
     "name": "setMaxLiquidationParameters",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3563,7 +3519,7 @@
     ],
     "name": "setMaxMarketSize",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3586,7 +3542,7 @@
     ],
     "name": "setOrderFees",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3609,7 +3565,7 @@
     ],
     "name": "setSettlementStrategyEnabled",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3627,7 +3583,7 @@
     ],
     "name": "updatePriceData",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3877,7 +3833,7 @@
     ],
     "name": "setFeeCollector",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3895,7 +3851,7 @@
     ],
     "name": "setLiquidationRewardGuards",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3913,7 +3869,7 @@
     ],
     "name": "setMaxCollateralAmount",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3931,7 +3887,7 @@
     ],
     "name": "setPerAccountCaps",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3944,7 +3900,7 @@
     ],
     "name": "setSynthDeductionPriority",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3975,7 +3931,7 @@
     ],
     "name": "updateReferrerShare",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
