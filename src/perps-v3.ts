@@ -19,7 +19,7 @@ import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO, getTimeID
 import {
   MarketCreated,
   SettlementStrategyAdded,
-  SettlementStrategyEnabled,
+  SettlementStrategySet,
 } from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
 
 export function handleMarketCreated(event: MarketCreated): void {
@@ -178,14 +178,13 @@ export function handleSettlementStrategyAdded(event: SettlementStrategyAdded): v
   strategy.settlementWindowDuration = event.params.strategy.settlementWindowDuration;
   strategy.priceVerificationContract = event.params.strategy.priceVerificationContract.toHexString();
   strategy.feedId = event.params.strategy.feedId;
-  strategy.url = event.params.strategy.url;
   strategy.settlementReward = event.params.strategy.settlementReward;
   strategy.enabled = !event.params.strategy.disabled;
 
   strategy.save();
 }
 
-export function handleSettlementStrategyEnabled(event: SettlementStrategyEnabled): void {
+export function handleSettlementStrategyEnabled(event: SettlementStrategySet): void {
   const id = event.params.strategyId.toString() + '-' + event.params.marketId.toString();
   const strategy = SettlementStrategy.load(id);
 
@@ -193,7 +192,7 @@ export function handleSettlementStrategyEnabled(event: SettlementStrategyEnabled
     return;
   }
 
-  strategy.enabled = event.params.enabled;
+  strategy.enabled = !event.params.strategy.disabled;
   strategy.save();
 }
 

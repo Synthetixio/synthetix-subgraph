@@ -10,9 +10,9 @@ manifest.push({
   name: 'PerpsV3',
   network: currentNetwork,
   source: {
-    address: '0xEED61f0CB02f3B38923b1b6EAa939D5f04f431b6',
+    address: '0x75c43165ea38cB857C45216a37C5405A7656673c',
     abi: 'PerpsV3MarketProxy',
-    startBlock: 99337,
+    startBlock: 13044488,
   },
   mapping: {
     kind: 'ethereum/events',
@@ -46,11 +46,12 @@ manifest.push({
       },
       {
         event:
-          'SettlementStrategyAdded(indexed uint128,(uint8,uint256,uint256,uint256,address,bytes32,string,uint256,bool),indexed uint256)',
+          'SettlementStrategyAdded(indexed uint128,(uint8,uint256,uint256,address,bytes32,uint256,bool),indexed uint256)',
         handler: 'handleSettlementStrategyAdded',
       },
       {
-        event: 'SettlementStrategyEnabled(indexed uint128,uint256,bool)',
+        event:
+          'SettlementStrategySet(indexed uint128,indexed uint256,(uint8,uint256,uint256,address,bytes32,uint256,bool))',
         handler: 'handleSettlementStrategyEnabled',
       },
       {

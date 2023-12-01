@@ -84,7 +84,6 @@ type SettlementStrategy @entity {
   settlementWindowDuration: BigInt
   priceVerificationContract: String
   feedId: Bytes
-  url: String
   settlementReward: BigInt
   priceDeviationTolerance: BigInt
   minimumUsdExchangeAmount: BigInt
