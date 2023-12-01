@@ -19,7 +19,7 @@ manifest.push({
     apiVersion: '0.0.6',
     language: 'wasm/assemblyscript',
     file: '../src/perps-v3.ts',
-    entities: ['Account', 'OrderSettled'],
+    entities: ['Account', 'OrderSettled', 'DelegatedAccount'],
     abis: [
       {
         name: 'PerpsV3MarketProxy',
@@ -58,12 +58,20 @@ manifest.push({
         event: 'MarketUpdated(uint128,uint256,int256,uint256,int256,int256,int256)',
         handler: 'handleFundingRecomputed',
       },
+      {
+        event: 'PermissionGranted(indexed uint128,indexed bytes32,indexed address,address)',
+        handler: 'handlePermissionGranted',
+      },
+      {
+        event: 'PermissionRevoked(indexed uint128,indexed bytes32,indexed address,address)',
+        handler: 'handlePermissionRevoked',
+      },
     ],
   },
 });
 
 module.exports = {
-  specVersion: '0.0.4',
+  specVersion: '0.0.5',
   description: 'Kwenta Perps V3 API',
   repository: 'https://github.com/kwenta/kwenta-subgraph',
   schema: {

@@ -1,5 +1,6 @@
 import {
   Account,
+  DelegatedAccount,
   FundingRatePeriod,
   FundingRateUpdate,
   OpenPerpsV3Position,
@@ -13,9 +14,11 @@ import {
   MarketUpdated,
   OrderSettled as OrderSettledEvent,
   PositionLiquidated as PositionLiquidatedEvent,
+  PermissionGranted as PermissionGrantedEvent,
+  PermissionRevoked as PermissionRevokedEvent,
 } from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
-import { BigInt, log } from '@graphprotocol/graph-ts';
-import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO, getTimeID } from './lib/helpers';
+import { BigInt, log, store } from '@graphprotocol/graph-ts';
+import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO, getTimeID, strToBytes } from './lib/helpers';
 import {
   MarketCreated,
   SettlementStrategyAdded,
@@ -214,6 +217,36 @@ export function handleFundingRecomputed(event: MarketUpdated): void {
   }
 
   fundingRateUpdateEntity.save();
+}
+
+export function handlePermissionGranted(event: PermissionGrantedEvent): void {
+  if (event.params.permission.toHex().startsWith(strToBytes('PERPS_COMMIT_ASYNC_ORDER').toHex())) {
+    let id = event.params.accountId.toHex().concat('-').concat(event.params.user.toHex());
+    let entity = DelegatedAccount.load(id);
+
+    if (entity == null) {
+      entity = new DelegatedAccount(id);
+    }
+
+    entity.caller = event.params.sender;
+    entity.delegate = event.params.user;
+    entity.blockNumber = event.block.number;
+    entity.blockTimestamp = event.block.timestamp;
+    entity.transactionHash = event.transaction.hash;
+
+    entity.save();
+  }
+}
+
+export function handlePermissionRevoked(event: PermissionRevokedEvent): void {
+  if (event.params.permission.toHex().startsWith(strToBytes('PERPS_COMMIT_ASYNC_ORDER').toHex())) {
+    let id = event.params.accountId.toHex().concat('-').concat(event.params.user.toHex());
+    let entity = DelegatedAccount.load(id);
+
+    if (entity != null) {
+      store.remove('DelegatedAccount', id);
+    }
+  }
 }
 
 function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: FundingRateUpdate): void {

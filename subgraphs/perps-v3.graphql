@@ -112,3 +112,12 @@ enum FundingRatePeriodType {
   Hourly
   Daily
 }
+
+type DelegatedAccount @entity {
+  id: ID!
+  caller: Bytes! # address
+  delegate: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
