@@ -180,6 +180,7 @@ export function handleSettlementStrategyAdded(event: SettlementStrategyAdded): v
   strategy.settlementDelay = event.params.strategy.settlementDelay;
   strategy.settlementWindowDuration = event.params.strategy.settlementWindowDuration;
   strategy.priceVerificationContract = event.params.strategy.priceVerificationContract.toHexString();
+  strategy.commitmentPriceDelay = event.params.strategy.commitmentPriceDelay;
   strategy.feedId = event.params.strategy.feedId;
   strategy.settlementReward = event.params.strategy.settlementReward;
   strategy.enabled = !event.params.strategy.disabled;
