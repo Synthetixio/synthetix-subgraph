@@ -1,5 +1,6 @@
 import {
   Account,
+  CollateralChange,
   DelegatedAccount,
   FundingRatePeriod,
   FundingRateUpdate,
@@ -16,6 +17,7 @@ import {
   PositionLiquidated as PositionLiquidatedEvent,
   PermissionGranted as PermissionGrantedEvent,
   PermissionRevoked as PermissionRevokedEvent,
+  CollateralModified as CollateralModifiedEvent,
 } from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
 import { BigInt, log, store } from '@graphprotocol/graph-ts';
 import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO, getTimeID, strToBytes } from './lib/helpers';
@@ -286,4 +288,21 @@ function calculatePnl(position: PerpsV3Position, order: OrderSettled, event: Ord
   order.pnl = order.pnl.plus(pnl);
   order.save();
   position.save();
+}
+
+export function handleCollateralModified(event: CollateralModifiedEvent): void {
+  const accountId = event.params.accountId;
+  const account = Account.load(accountId.toString());
+
+  if (account !== null) {
+    let collateralChange = new CollateralChange(accountId.toString() + '-' + event.transaction.hash.toHex());
+
+    collateralChange.synthId = event.params.synthMarketId;
+    collateralChange.accountId = accountId;
+    collateralChange.sender = event.params.sender;
+    collateralChange.timestamp = event.block.timestamp;
+    collateralChange.amountDelta = event.params.amountDelta;
+    collateralChange.txHash = event.transaction.hash.toHex();
+    collateralChange.save();
+  }
 }
