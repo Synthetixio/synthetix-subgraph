@@ -5,14 +5,30 @@ const manifest = [];
 // get config
 const currentNetwork = getCurrentNetwork();
 
+const mainnetConfig = {
+  marketProxy: {
+    address: '0x0A2AF931eFFd34b81ebcc57E3d3c9B1E1dE1C9Ce',
+    startBlock: 4382,
+  },
+};
+
+const testnetConfig = {
+  marketProxy: {
+    address: '0x75c43165ea38cB857C45216a37C5405A7656673c',
+    startBlock: 13044488,
+  },
+};
+
+const config = currentNetwork === 'base' ? mainnetConfig : testnetConfig;
+
 manifest.push({
   kind: 'ethereum/contract',
   name: 'PerpsV3',
   network: currentNetwork,
   source: {
-    address: '0x75c43165ea38cB857C45216a37C5405A7656673c',
+    address: config.marketProxy.address,
     abi: 'PerpsV3MarketProxy',
-    startBlock: 13044488,
+    startBlock: config.marketProxy.startBlock,
   },
   mapping: {
     kind: 'ethereum/events',
