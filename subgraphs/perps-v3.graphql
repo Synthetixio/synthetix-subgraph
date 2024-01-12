@@ -120,3 +120,13 @@ type DelegatedAccount @entity {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type CollateralChange @entity {
+  id: ID!
+  synthId: BigInt!
+  accountId: BigInt!
+  sender: Bytes!
+  timestamp: BigInt!
+  amountDelta: BigInt!
+  txHash: String!
+}

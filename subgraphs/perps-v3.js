@@ -82,6 +82,10 @@ manifest.push({
         event: 'PermissionRevoked(indexed uint128,indexed bytes32,indexed address,address)',
         handler: 'handlePermissionRevoked',
       },
+      {
+        event: 'CollateralModified(indexed uint128,indexed uint128,int256,indexed address)',
+        handler: 'handleCollateralModified',
+      },
     ],
   },
 });
