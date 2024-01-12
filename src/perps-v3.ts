@@ -72,6 +72,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
   const orderId = event.params.accountId.toString() + '-' + event.block.timestamp.toString();
   const order = new OrderSettled(orderId);
   order.accountId = event.params.accountId;
+  order.account = event.params.accountId.toString();
   order.accruedFunding = event.params.accruedFunding;
   order.collectedFees = event.params.collectedFees;
   order.fillPrice = event.params.fillPrice;

@@ -26,6 +26,7 @@ type OrderSettled @entity {
   timestamp: BigInt!
   marketId: BigInt!
   accountId: BigInt!
+  account: Account!
   fillPrice: BigInt!
   accruedFunding: BigInt!
   sizeDelta: BigInt!
