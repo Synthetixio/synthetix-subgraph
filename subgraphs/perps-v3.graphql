@@ -130,3 +130,12 @@ type CollateralChange @entity {
   amountDelta: BigInt!
   txHash: String!
 }
+
+type PerpsV3AggregateStat @entity {
+  id: ID!
+  period: BigInt!
+  timestamp: BigInt!
+  marketId: BigInt!
+  marketSymbol: String!
+  volume: BigInt!
+}

@@ -6,6 +6,7 @@ import {
   FundingRateUpdate,
   OpenPerpsV3Position,
   OrderSettled,
+  PerpsV3AggregateStat,
   PerpsV3Market,
   PerpsV3Position,
   SettlementStrategy,
@@ -20,12 +21,23 @@ import {
   CollateralModified as CollateralModifiedEvent,
 } from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
 import { BigInt, log, store } from '@graphprotocol/graph-ts';
-import { ETHER, FUNDING_RATE_PERIODS, FUNDING_RATE_PERIOD_TYPES, ZERO, getTimeID, strToBytes } from './lib/helpers';
+import {
+  DAY_SECONDS,
+  ETHER,
+  FUNDING_RATE_PERIODS,
+  FUNDING_RATE_PERIOD_TYPES,
+  ONE_HOUR_SECONDS,
+  ZERO,
+  getTimeID,
+  strToBytes,
+} from './lib/helpers';
 import {
   MarketCreated,
   SettlementStrategyAdded,
   SettlementStrategySet,
 } from '../generated/subgraphs/perps-v3/PerpsV3/PerpsV3MarketProxy';
+
+const AGG_PERIODS = [ONE_HOUR_SECONDS, DAY_SECONDS];
 
 export function handleMarketCreated(event: MarketCreated): void {
   let marketId = event.params.perpsMarketId.toString();
@@ -130,6 +142,9 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.netFunding = event.params.accruedFunding;
     positionEntity.pnlWithFeesPaid = ZERO;
     positionEntity.totalVolume = volume;
+
+    updateAggregateStatEntities(positionEntity.marketId, positionEntity.marketSymbol, event.block.timestamp, volume);
+
     positionEntity.save();
   } else {
     if (event.params.newSize.isZero()) {
@@ -165,6 +180,9 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.totalFees);
     positionEntity.netFunding = positionEntity.netFunding.plus(event.params.accruedFunding);
     positionEntity.size = positionEntity.size.plus(event.params.sizeDelta);
+
+    updateAggregateStatEntities(positionEntity.marketId, positionEntity.marketSymbol, event.block.timestamp, volume);
+
     positionEntity.save();
   }
   openPositionEntity.save();
@@ -312,5 +330,47 @@ export function handleCollateralModified(event: CollateralModifiedEvent): void {
     collateralChange.amountDelta = event.params.amountDelta;
     collateralChange.txHash = event.transaction.hash.toHex();
     collateralChange.save();
+  }
+}
+
+function getOrCreateMarketAggregateStats(
+  marketId: BigInt,
+  marketSymbol: string,
+  timestamp: BigInt,
+  period: BigInt,
+): PerpsV3AggregateStat {
+  // helper function for creating a market aggregate entity if one doesn't exist
+  // this allows functions to safely call this function without checking for null
+  const id = `${timestamp.toString()}-${period.toString()}-${marketSymbol}`;
+  let aggregateEntity = PerpsV3AggregateStat.load(id);
+  if (aggregateEntity == null) {
+    aggregateEntity = new PerpsV3AggregateStat(id);
+    aggregateEntity.period = period;
+    aggregateEntity.timestamp = timestamp;
+    aggregateEntity.marketId = marketId;
+    aggregateEntity.marketSymbol = marketSymbol;
+    aggregateEntity.volume = ZERO;
+  }
+  return aggregateEntity as PerpsV3AggregateStat;
+}
+
+export function updateAggregateStatEntities(
+  marketId: BigInt,
+  marketSymbol: string,
+  timestamp: BigInt,
+  volume: BigInt,
+): void {
+  // this function updates the aggregate stat entities for the specified account and market
+  // it is called when users interact with positions or when positions are liquidated
+  // to add new aggregate periods, update the `AGG_PERIODS` array in `constants.ts`
+  // new aggregates will be created for any resolution present in the array
+  for (let period = 0; period < AGG_PERIODS.length; period++) {
+    const thisPeriod = AGG_PERIODS[period];
+    const aggTimestamp = getTimeID(timestamp, thisPeriod);
+
+    // update the aggregate for this market
+    let aggStats = getOrCreateMarketAggregateStats(marketId, marketSymbol, aggTimestamp, thisPeriod);
+    aggStats.volume = aggStats.volume.plus(volume);
+    aggStats.save();
   }
 }
