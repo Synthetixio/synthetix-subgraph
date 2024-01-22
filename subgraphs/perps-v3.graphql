@@ -137,5 +137,6 @@ type PerpsV3AggregateStat @entity {
   timestamp: BigInt!
   marketId: BigInt!
   marketSymbol: String!
+  trades: BigInt!
   volume: BigInt!
 }
