@@ -115,6 +115,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
   order.newSize = event.params.newSize;
   order.referralFees = event.params.referralFees;
   order.settler = event.params.settler;
+  order.txHash = event.transaction.hash.toHex();
   order.pnl = ZERO;
 
   let positionId = event.params.marketId.toString() + '-' + event.params.accountId.toString();

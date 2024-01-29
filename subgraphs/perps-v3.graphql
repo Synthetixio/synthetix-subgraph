@@ -38,6 +38,7 @@ type OrderSettled @entity {
   trackingCode: Bytes!
   settler: Bytes!
   pnl: BigInt!
+  txHash: String!
 }
 
 type PerpsV3Position @entity {
