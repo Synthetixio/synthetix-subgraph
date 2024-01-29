@@ -131,6 +131,17 @@ type CollateralChange @entity {
   txHash: String!
 }
 
+type PerpsV3Stat @entity {
+  id: ID!
+  account: Bytes!
+  feesPaid: BigInt!
+  pnl: BigInt!
+  pnlWithFeesPaid: BigInt!
+  liquidations: BigInt!
+  totalTrades: BigInt!
+  totalVolume: BigInt!
+}
+
 type PerpsV3AggregateStat @entity {
   id: ID!
   period: BigInt!

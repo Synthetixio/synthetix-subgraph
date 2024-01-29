@@ -9,6 +9,7 @@ import {
   PerpsV3AggregateStat,
   PerpsV3Market,
   PerpsV3Position,
+  PerpsV3Stat,
   SettlementStrategy,
 } from '../generated/subgraphs/perps-v3/schema';
 import {
@@ -68,6 +69,15 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   const positionId = event.params.marketId.toString() + '-' + event.params.accountId.toString();
   const openPosition = OpenPerpsV3Position.load(positionId);
 
+  let account = Account.load(event.params.accountId.toString());
+
+  if (account === null) {
+    log.error('Account not found for accountId: {}', [event.params.accountId.toString()]);
+    return;
+  }
+
+  let statEntity = PerpsV3Stat.load(account.owner.toHex());
+
   if (openPosition === null) {
     log.warning('Position entity not found for positionId {}', [positionId]);
     return;
@@ -79,6 +89,11 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
       openPosition.position = null;
       positionEntity.save();
       openPosition.save();
+
+      if (statEntity) {
+        statEntity.liquidations = statEntity.liquidations.plus(BigInt.fromI32(1));
+        statEntity.save();
+      }
     }
   }
 }
@@ -110,6 +125,26 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
 
   let positionEntity = PerpsV3Position.load(openPositionEntity.position !== null ? openPositionEntity.position! : '');
   let volume = order.sizeDelta.abs().times(order.fillPrice).div(ETHER).abs();
+  let account = Account.load(order.account);
+
+  if (account === null) {
+    log.error('Account not found for accountId: {}', [order.account.toString()]);
+    return;
+  }
+
+  let statEntity = PerpsV3Stat.load(account.owner.toHex());
+
+  if (statEntity == null) {
+    statEntity = new PerpsV3Stat(account.owner.toHex());
+    statEntity.account = account.owner;
+    statEntity.feesPaid = ZERO;
+    statEntity.pnl = ZERO;
+    statEntity.pnlWithFeesPaid = ZERO;
+    statEntity.liquidations = ZERO;
+    statEntity.totalTrades = ZERO;
+    statEntity.totalVolume = ZERO;
+    statEntity.save();
+  }
 
   if (positionEntity == null) {
     let marketEntity = PerpsV3Market.load(event.params.marketId.toString());
@@ -152,7 +187,12 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
       volume,
     );
 
+    statEntity.feesPaid = statEntity.feesPaid.plus(event.params.totalFees);
+    statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
+    statEntity.totalVolume = statEntity.totalVolume.plus(volume);
+
     positionEntity.save();
+    statEntity.save();
   } else {
     if (event.params.newSize.isZero()) {
       positionEntity.isOpen = false;
@@ -161,17 +201,20 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
       openPositionEntity.position = null;
       openPositionEntity.save();
 
-      calculatePnl(positionEntity, order, event);
+      calculatePnl(positionEntity, order, event, statEntity);
     } else {
       positionEntity.totalTrades = positionEntity.totalTrades.plus(BigInt.fromI32(1));
       positionEntity.totalVolume = positionEntity.totalVolume.plus(volume);
+
+      statEntity.totalTrades = statEntity.totalTrades.plus(BigInt.fromI32(1));
+      statEntity.totalVolume = statEntity.totalVolume.plus(volume);
 
       if (
         (positionEntity.size.lt(ZERO) && event.params.newSize.gt(ZERO)) ||
         (positionEntity.size.gt(ZERO) && event.params.newSize.lt(ZERO))
       ) {
         // TODO: Better handle flipping sides
-        calculatePnl(positionEntity, order, event);
+        calculatePnl(positionEntity, order, event, statEntity);
         positionEntity.avgEntryPrice = event.params.fillPrice;
         positionEntity.entryPrice = event.params.fillPrice;
       } else if (event.params.newSize.abs().gt(positionEntity.size.abs())) {
@@ -181,7 +224,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
         positionEntity.avgEntryPrice = existingNotionalValue.plus(tradeNotionalValue).div(event.params.newSize.abs());
       } else {
         // If decreasing calc the pnl
-        calculatePnl(positionEntity, order, event);
+        calculatePnl(positionEntity, order, event, statEntity);
       }
     }
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.totalFees);
@@ -196,7 +239,10 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
       volume,
     );
 
+    statEntity.feesPaid = statEntity.feesPaid.plus(event.params.totalFees).minus(event.params.accruedFunding);
+
     positionEntity.save();
+    statEntity.save();
   }
   openPositionEntity.save();
 
@@ -316,17 +362,25 @@ function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: Fundin
   }
 }
 
-function calculatePnl(position: PerpsV3Position, order: OrderSettled, event: OrderSettledEvent): void {
+function calculatePnl(
+  position: PerpsV3Position,
+  order: OrderSettled,
+  event: OrderSettledEvent,
+  statEntity: PerpsV3Stat,
+): void {
   let pnl = event.params.fillPrice
     .minus(position.avgEntryPrice)
     .times(event.params.sizeDelta.abs())
-    .div(ETHER)
-    .times(position.size.gt(ZERO) ? BigInt.fromI32(1) : BigInt.fromI32(-1));
+    .times(position.size.gt(ZERO) ? BigInt.fromI32(1) : BigInt.fromI32(-1))
+    .div(ETHER);
   position.realizedPnl = position.realizedPnl.plus(pnl);
   position.pnlWithFeesPaid = position.realizedPnl.minus(position.feesPaid);
   order.pnl = order.pnl.plus(pnl);
+  statEntity.pnl = statEntity.pnl.plus(pnl);
+  statEntity.pnlWithFeesPaid = statEntity.pnl.plus(pnl).minus(position.feesPaid).plus(position.netFunding);
   order.save();
   position.save();
+  statEntity.save();
 }
 
 export function handleCollateralModified(event: CollateralModifiedEvent): void {
