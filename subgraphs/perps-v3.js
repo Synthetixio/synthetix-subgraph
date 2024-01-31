@@ -86,6 +86,11 @@ manifest.push({
         event: 'CollateralModified(indexed uint128,indexed uint128,int256,indexed address)',
         handler: 'handleCollateralModified',
       },
+      {
+        event:
+          'OrderCommitted(indexed uint128,indexed uint128,uint8,int128,uint256,uint256,uint256,uint256,uint256,indexed bytes32,address)',
+        handler: 'handleOrderCommitted',
+      },
     ],
   },
 });

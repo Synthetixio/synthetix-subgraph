@@ -27,6 +27,7 @@ type OrderSettled @entity {
   marketId: BigInt!
   accountId: BigInt!
   account: Account!
+  orderCommitted: OrderCommitted
   fillPrice: BigInt!
   accruedFunding: BigInt!
   sizeDelta: BigInt!
@@ -38,7 +39,30 @@ type OrderSettled @entity {
   trackingCode: Bytes!
   settler: Bytes!
   pnl: BigInt!
-  txHash: String!
+  txnHash: String!
+}
+
+type OrderCommitted @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  accountId: BigInt!
+  account: Account!
+  orderType: Int!
+  sizeDelta: BigInt!
+  acceptablePrice: BigInt!
+  commitmentTime: BigInt!
+  expectedPriceTime: BigInt!
+  settlementTime: BigInt!
+  expirationTime: BigInt!
+  trackingCode: Bytes!
+  sender: Bytes!
+  txnHash: String!
+}
+
+type PendingOrder @entity {
+  id: ID!
+  orderCommittedId: String!
 }
 
 type PerpsV3Position @entity {
