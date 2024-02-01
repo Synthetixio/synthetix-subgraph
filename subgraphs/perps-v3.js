@@ -12,14 +12,14 @@ const mainnetConfig = {
   },
 };
 
-const testnetConfig = {
+const sepoliaConfig = {
   marketProxy: {
-    address: '0x75c43165ea38cB857C45216a37C5405A7656673c',
-    startBlock: 13044488,
+    address: '0xE6C5f05C415126E6b81FCc3619f65Db2fCAd58D0',
+    startBlock: 4548969,
   },
 };
 
-const config = currentNetwork === 'base' ? mainnetConfig : testnetConfig;
+const config = currentNetwork === 'base' ? mainnetConfig : sepoliaConfig;
 
 manifest.push({
   kind: 'ethereum/contract',
