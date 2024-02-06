@@ -136,7 +136,7 @@ function getFuturesMarkets(network = 'optimism') {
   return futuresMarkets.map(({ marketKey }) => marketKey.substring(1) /* Slicing off the `s` from marketKey */);
 }
 
-const NETWORKS = ['mainnet', 'goerli', 'optimism-goerli', 'optimism', 'base', 'base-testnet'];
+const NETWORKS = ['mainnet', 'goerli', 'optimism-goerli', 'optimism', 'base', 'base-sepolia'];
 
 module.exports = {
   getCurrentNetwork,
