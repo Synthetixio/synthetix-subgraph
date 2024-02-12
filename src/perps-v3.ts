@@ -388,10 +388,10 @@ function calculatePnl(
     .times(position.size.gt(ZERO) ? BigInt.fromI32(1) : BigInt.fromI32(-1))
     .div(ETHER);
   position.realizedPnl = position.realizedPnl.plus(pnl);
-  position.pnlWithFeesPaid = position.realizedPnl.minus(position.feesPaid);
+  position.pnlWithFeesPaid = position.realizedPnl.minus(position.feesPaid).plus(position.netFunding);
   order.pnl = order.pnl.plus(pnl);
   statEntity.pnl = statEntity.pnl.plus(pnl);
-  statEntity.pnlWithFeesPaid = statEntity.pnl.plus(pnl).minus(position.feesPaid).plus(position.netFunding);
+  statEntity.pnlWithFeesPaid = statEntity.pnlWithFeesPaid.plus(pnl).minus(position.feesPaid).plus(position.netFunding);
   order.save();
   position.save();
   statEntity.save();
