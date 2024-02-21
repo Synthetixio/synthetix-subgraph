@@ -101,7 +101,8 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   liquidation.timestamp = event.block.timestamp;
   liquidation.save();
 
-  let statEntity = PerpsV3Stat.load(account.owner.toHex());
+  let statId = event.params.accountId.toString() + '-' + account.owner.toHexString();
+  let statEntity = PerpsV3Stat.load(statId);
 
   if (openPosition === null) {
     log.warning('Position entity not found for positionId {}', [positionId]);
@@ -168,11 +169,13 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     return;
   }
 
-  let statEntity = PerpsV3Stat.load(account.owner.toHex());
+  let statId = event.params.accountId.toString() + '-' + account.owner.toHexString();
+  let statEntity = PerpsV3Stat.load(statId);
 
   if (statEntity == null) {
-    statEntity = new PerpsV3Stat(account.owner.toHex());
-    statEntity.account = account.owner;
+    statEntity = new PerpsV3Stat(statId);
+    statEntity.accountId = event.params.accountId;
+    statEntity.accountOwner = account.owner;
     statEntity.feesPaid = ZERO;
     statEntity.pnl = ZERO;
     statEntity.pnlWithFeesPaid = ZERO;
