@@ -72,7 +72,7 @@ manifest.push({
       },
       {
         event: 'MarketUpdated(uint128,uint256,int256,uint256,int256,int256,int256)',
-        handler: 'handleFundingRecomputed',
+        handler: 'handleMarketUpdated',
       },
       {
         event: 'PermissionGranted(indexed uint128,indexed bytes32,indexed address,address)',

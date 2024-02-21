@@ -13,6 +13,9 @@ import {
   PerpsV3Position,
   PerpsV3Stat,
   SettlementStrategy,
+  PnlSnapshot,
+  MarketPriceUpdate,
+  PositionLiquidation,
 } from '../generated/subgraphs/perps-v3/schema';
 import {
   AccountCreated,
@@ -47,6 +50,7 @@ const AGG_PERIODS = [ONE_HOUR_SECONDS, DAY_SECONDS];
 export function handleMarketCreated(event: MarketCreated): void {
   let marketId = event.params.perpsMarketId.toString();
   let market = new PerpsV3Market(marketId);
+  market.lastPrice = ZERO;
   market.marketSymbol = event.params.marketSymbol;
   market.marketName = event.params.marketName;
   market.save();
@@ -73,11 +77,29 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   const openPosition = OpenPerpsV3Position.load(positionId);
 
   let account = Account.load(event.params.accountId.toString());
+  let market = PerpsV3Market.load(event.params.marketId.toString());
+
+  if (market === null) {
+    log.error('Market not found for marketId: {}', [event.params.marketId.toString()]);
+    return;
+  }
 
   if (account === null) {
     log.error('Account not found for accountId: {}', [event.params.accountId.toString()]);
     return;
   }
+
+  let estiamtedNotionalSize = event.params.amountLiquidated.abs().times(market.lastPrice).div(ETHER).abs();
+  let liquidation = new PositionLiquidation(
+    event.params.marketId.toString() + '-' + event.params.accountId.toString() + '-' + event.block.timestamp.toString(),
+  );
+  liquidation.marketId = event.params.marketId;
+  liquidation.amount = event.params.amountLiquidated;
+  liquidation.accountId = event.params.accountId;
+  liquidation.notionalAmount = estiamtedNotionalSize;
+  liquidation.estimatedPrice = market.lastPrice;
+  liquidation.timestamp = event.block.timestamp;
+  liquidation.save();
 
   let statEntity = PerpsV3Stat.load(account.owner.toHex());
 
@@ -192,6 +214,7 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.netFunding = event.params.accruedFunding;
     positionEntity.pnlWithFeesPaid = ZERO;
     positionEntity.totalVolume = volume;
+    positionEntity.totalReducedNotional = ZERO;
 
     updateAggregateStatEntities(
       positionEntity.marketId,
@@ -208,10 +231,13 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
     positionEntity.save();
     statEntity.save();
   } else {
+    const tradeNotionalValue = event.params.sizeDelta.abs().times(event.params.fillPrice);
+
     if (event.params.newSize.isZero()) {
       positionEntity.isOpen = false;
       positionEntity.closeTimestamp = event.block.timestamp;
       positionEntity.exitPrice = event.params.fillPrice;
+      positionEntity.totalReducedNotional = positionEntity.totalReducedNotional.plus(tradeNotionalValue);
       openPositionEntity.position = null;
       openPositionEntity.save();
 
@@ -234,11 +260,11 @@ export function handleOrderSettled(event: OrderSettledEvent): void {
       } else if (event.params.newSize.abs().gt(positionEntity.size.abs())) {
         // If ths positions size is increasing then recalculate the average entry price
         const existingNotionalValue = positionEntity.size.abs().times(positionEntity.avgEntryPrice);
-        const tradeNotionalValue = event.params.sizeDelta.abs().times(event.params.fillPrice);
         positionEntity.avgEntryPrice = existingNotionalValue.plus(tradeNotionalValue).div(event.params.newSize.abs());
       } else {
         // If decreasing calc the pnl
         calculatePnl(positionEntity, order, event, statEntity);
+        // Track the total amount reduced
       }
     }
     positionEntity.feesPaid = positionEntity.feesPaid.plus(event.params.totalFees);
@@ -301,8 +327,19 @@ export function handleSettlementStrategyEnabled(event: SettlementStrategySet): v
   strategy.save();
 }
 
-export function handleFundingRecomputed(event: MarketUpdated): void {
+export function handleMarketUpdated(event: MarketUpdated): void {
   let marketEntity = PerpsV3Market.load(event.params.marketId.toString());
+
+  let price = event.params.price;
+  let timestamp = event.block.timestamp;
+
+  let marketPriceUpdate = new MarketPriceUpdate(
+    price.toString() + '-' + timestamp.toString() + '-' + event.params.marketId.toString(),
+  );
+  marketPriceUpdate.marketId = event.params.marketId;
+  marketPriceUpdate.timestamp = timestamp;
+  marketPriceUpdate.price = price;
+  marketPriceUpdate.save();
 
   let fundingRateUpdateEntity = new FundingRateUpdate(
     event.params.marketId.toString() + '-' + event.transaction.hash.toHex(),
@@ -316,6 +353,9 @@ export function handleFundingRecomputed(event: MarketUpdated): void {
     fundingRateUpdateEntity.marketSymbol = marketEntity.marketSymbol;
     fundingRateUpdateEntity.marketName = marketEntity.marketName;
     updateFundingRatePeriods(event.block.timestamp, marketEntity.marketSymbol, fundingRateUpdateEntity);
+
+    marketEntity.lastPrice = price;
+    marketEntity.save();
   }
 
   fundingRateUpdateEntity.save();
@@ -376,27 +416,6 @@ function updateFundingRatePeriods(timestamp: BigInt, asset: string, rate: Fundin
   }
 }
 
-function calculatePnl(
-  position: PerpsV3Position,
-  order: OrderSettled,
-  event: OrderSettledEvent,
-  statEntity: PerpsV3Stat,
-): void {
-  let pnl = event.params.fillPrice
-    .minus(position.avgEntryPrice)
-    .times(event.params.sizeDelta.abs())
-    .times(position.size.gt(ZERO) ? BigInt.fromI32(1) : BigInt.fromI32(-1))
-    .div(ETHER);
-  position.realizedPnl = position.realizedPnl.plus(pnl);
-  position.pnlWithFeesPaid = position.realizedPnl.minus(position.feesPaid).plus(position.netFunding);
-  order.pnl = order.pnl.plus(pnl);
-  statEntity.pnl = statEntity.pnl.plus(pnl);
-  statEntity.pnlWithFeesPaid = statEntity.pnlWithFeesPaid.plus(pnl).minus(position.feesPaid).plus(position.netFunding);
-  order.save();
-  position.save();
-  statEntity.save();
-}
-
 export function handleCollateralModified(event: CollateralModifiedEvent): void {
   const accountId = event.params.accountId;
   const account = Account.load(accountId.toString());
@@ -440,6 +459,34 @@ export function handleOrderCommitted(event: OrderCommittedEvent): void {
   orderCommitted.timestamp = event.block.timestamp;
 
   orderCommitted.save();
+}
+
+function calculatePnl(
+  position: PerpsV3Position,
+  order: OrderSettled,
+  event: OrderSettledEvent,
+  statEntity: PerpsV3Stat,
+): void {
+  let pnl = event.params.fillPrice
+    .minus(position.avgEntryPrice)
+    .times(event.params.sizeDelta.abs())
+    .times(position.size.gt(ZERO) ? BigInt.fromI32(1) : BigInt.fromI32(-1))
+    .div(ETHER);
+  position.realizedPnl = position.realizedPnl.plus(pnl);
+  position.pnlWithFeesPaid = position.realizedPnl.minus(position.feesPaid).plus(position.netFunding);
+  order.pnl = order.pnl.plus(pnl);
+  statEntity.pnl = statEntity.pnl.plus(pnl);
+  statEntity.pnlWithFeesPaid = statEntity.pnlWithFeesPaid.plus(pnl).minus(position.feesPaid).plus(position.netFunding);
+  let pnlSnapshot = new PnlSnapshot(
+    position.id + '-' + event.block.timestamp.toString() + '-' + event.transaction.hash.toHex(),
+  );
+  pnlSnapshot.pnl = statEntity.pnl;
+  pnlSnapshot.accountId = position.accountId;
+  pnlSnapshot.timestamp = event.block.timestamp;
+  pnlSnapshot.save();
+  order.save();
+  position.save();
+  statEntity.save();
 }
 
 function getOrCreateMarketAggregateStats(

@@ -80,6 +80,7 @@ type PerpsV3Position @entity {
   totalVolume: BigInt!
   size: BigInt!
   realizedPnl: BigInt!
+  totalReducedNotional: BigInt!
   feesPaid: BigInt!
   netFunding: BigInt!
   pnlWithFeesPaid: BigInt!
@@ -98,6 +99,7 @@ type PerpsV3Market @entity {
   id: ID!
   marketName: String!
   marketSymbol: String!
+  lastPrice: BigInt!
 }
 
 type SettlementStrategy @entity {
@@ -175,4 +177,28 @@ type PerpsV3AggregateStat @entity {
   marketSymbol: String!
   trades: BigInt!
   volume: BigInt!
+}
+
+type PnlSnapshot @entity {
+  id: ID!
+  accountId: BigInt!
+  pnl: BigInt!
+  timestamp: BigInt!
+}
+
+type MarketPriceUpdate @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  price: BigInt!
+}
+
+type PositionLiquidation @entity {
+  id: ID!
+  accountId: BigInt!
+  timestamp: BigInt!
+  marketId: BigInt!
+  amount: BigInt!
+  notionalAmount: BigInt!
+  estimatedPrice: BigInt!
 }
