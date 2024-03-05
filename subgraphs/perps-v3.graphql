@@ -197,6 +197,7 @@ type MarketPriceUpdate @entity {
 type PositionLiquidation @entity {
   id: ID!
   accountId: BigInt!
+  account: Account!
   timestamp: BigInt!
   marketId: BigInt!
   amount: BigInt!

@@ -96,6 +96,7 @@ export function handlePositionLiquidated(event: PositionLiquidatedEvent): void {
   liquidation.marketId = event.params.marketId;
   liquidation.amount = event.params.amountLiquidated;
   liquidation.accountId = event.params.accountId;
+  liquidation.account = event.params.accountId.toString();
   liquidation.notionalAmount = estiamtedNotionalSize;
   liquidation.estimatedPrice = market.lastPrice;
   liquidation.timestamp = event.block.timestamp;

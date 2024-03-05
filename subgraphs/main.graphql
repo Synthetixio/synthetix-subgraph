@@ -159,6 +159,219 @@ type Candle @entity {
   aggregatedPrices: BigInt!
 }
 
+type Account @entity {
+  "NFT token id"
+  id: ID!
+  owner: Bytes!
+  created_at: BigInt!
+  created_at_block: BigInt!
+  updated_at: BigInt!
+  updated_at_block: BigInt!
+  permissions: [AccountPermissionUsers!]
+}
+
+type AccountPermissionUsers @entity {
+  "NFT token id + user address"
+  id: ID!
+  address: Bytes!
+  account: Account!
+  permissions: [Bytes!]!
+  created_at: BigInt!
+  created_at_block: BigInt!
+  updated_at: BigInt!
+  updated_at_block: BigInt!
+}
+
+type OrderSettled @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  accountId: BigInt!
+  account: Account!
+  orderCommitted: OrderCommitted
+  fillPrice: BigInt!
+  accruedFunding: BigInt!
+  sizeDelta: BigInt!
+  newSize: BigInt!
+  totalFees: BigInt!
+  referralFees: BigInt!
+  collectedFees: BigInt!
+  settlementReward: BigInt!
+  trackingCode: Bytes!
+  settler: Bytes!
+  pnl: BigInt!
+  txnHash: String!
+}
+
+type OrderCommitted @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  accountId: BigInt!
+  account: Account!
+  orderType: Int!
+  sizeDelta: BigInt!
+  acceptablePrice: BigInt!
+  commitmentTime: BigInt!
+  expectedPriceTime: BigInt!
+  settlementTime: BigInt!
+  expirationTime: BigInt!
+  trackingCode: Bytes!
+  sender: Bytes!
+  txnHash: String!
+}
+
+type PendingOrder @entity {
+  id: ID!
+  orderCommittedId: String!
+}
+
+type PerpsV3Position @entity {
+  id: ID!
+  openTimestamp: BigInt!
+  closeTimestamp: BigInt
+  timestamp: BigInt!
+  marketId: BigInt!
+  marketSymbol: String!
+  accountId: BigInt!
+  account: Account!
+  isOpen: Boolean!
+  isLiquidated: Boolean!
+  totalTrades: BigInt!
+  totalVolume: BigInt!
+  size: BigInt!
+  realizedPnl: BigInt!
+  totalReducedNotional: BigInt!
+  feesPaid: BigInt!
+  netFunding: BigInt!
+  pnlWithFeesPaid: BigInt!
+  entryPrice: BigInt!
+  avgEntryPrice: BigInt!
+  lastPrice: BigInt!
+  exitPrice: BigInt
+}
+
+type OpenPerpsV3Position @entity {
+  id: ID!
+  position: PerpsV3Position
+}
+
+type PerpsV3Market @entity {
+  id: ID!
+  marketName: String!
+  marketSymbol: String!
+  lastPrice: BigInt!
+}
+
+type SettlementStrategy @entity {
+  id: ID!
+  strategyId: BigInt!
+  marketId: BigInt!
+  enabled: Boolean!
+  strategyType: Int!
+  settlementDelay: BigInt!
+  settlementWindowDuration: BigInt!
+  priceVerificationContract: String!
+  feedId: Bytes!
+  settlementReward: BigInt!
+  commitmentPriceDelay: BigInt!
+}
+
+type FundingRateUpdate @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  fundingRate: BigInt!
+  marketName: String!
+  marketSymbol: String!
+  market: Bytes!
+  marketKey: Bytes!
+  asset: Bytes!
+  sequenceLength: BigInt!
+  funding: BigInt!
+}
+
+type FundingRatePeriod @entity {
+  id: ID!
+  timestamp: BigInt!
+  fundingRate: BigInt!
+  marketName: String!
+  marketSymbol: String!
+  period: FundingRatePeriodType!
+  marketKey: Bytes!
+  asset: Bytes!
+}
+
+enum FundingRatePeriodType {
+  Hourly
+  Daily
+}
+
+type DelegatedAccount @entity {
+  id: ID!
+  caller: Bytes!
+  delegate: Bytes!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CollateralChange @entity {
+  id: ID!
+  synthId: BigInt!
+  accountId: BigInt!
+  sender: Bytes!
+  timestamp: BigInt!
+  amountDelta: BigInt!
+  txHash: String!
+}
+
+type PerpsV3Stat @entity {
+  id: ID!
+  accountId: BigInt!
+  accountOwner: Bytes!
+  feesPaid: BigInt!
+  pnl: BigInt!
+  pnlWithFeesPaid: BigInt!
+  liquidations: BigInt!
+  totalTrades: BigInt!
+  totalVolume: BigInt!
+}
+
+type PerpsV3AggregateStat @entity {
+  id: ID!
+  period: BigInt!
+  timestamp: BigInt!
+  marketId: BigInt!
+  marketSymbol: String!
+  trades: BigInt!
+  volume: BigInt!
+}
+
+type PnlSnapshot @entity {
+  id: ID!
+  accountId: BigInt!
+  pnl: BigInt!
+  timestamp: BigInt!
+}
+
+type MarketPriceUpdate @entity {
+  id: ID!
+  timestamp: BigInt!
+  marketId: BigInt!
+  price: BigInt!
+}
+
+type PositionLiquidation @entity {
+  id: ID!
+  accountId: BigInt!
+  timestamp: BigInt!
+  marketId: BigInt!
+  amount: BigInt!
+  notionalAmount: BigInt!
+  estimatedPrice: BigInt!
+}
+
 type FuturesMarket @entity {
   id: ID!
   asset: Bytes!
@@ -182,6 +395,8 @@ type FuturesTrade @entity {
   positionClosed: Boolean!
   pnl: BigInt!
   feesPaid: BigInt!
+  fundingAccrued: BigInt!
+  keeperFeesPaid: BigInt!
   orderType: FuturesOrderType!
   trackingCode: Bytes!
 }
@@ -227,7 +442,7 @@ type FuturesStat @entity {
   liquidations: BigInt!
   totalTrades: BigInt!
   totalVolume: BigInt!
-  crossMarginVolume: BigInt!
+  smartMarginVolume: BigInt!
 }
 
 type FuturesCumulativeStat @entity {
@@ -274,15 +489,14 @@ type FuturesMarginAccount @entity {
   withdrawals: BigInt!
 }
 
-type FundingRateUpdate @entity {
+type FundingPayment @entity {
   id: ID!
   timestamp: BigInt!
-  market: Bytes!
+  account: Bytes!
+  positionId: ID!
   marketKey: Bytes!
   asset: Bytes!
-  sequenceLength: BigInt!
-  funding: BigInt!
-  fundingRate: BigInt!
+  amount: BigInt!
 }
 
 enum FuturesOrderType {
@@ -295,6 +509,11 @@ enum FuturesOrderType {
   DelayedOffchain
 }
 
+enum FuturesPriceOracleUsed {
+  PYTH
+  CHAINLINK
+}
+
 enum FuturesOrderStatus {
   Pending
   Open
@@ -304,30 +523,53 @@ enum FuturesOrderStatus {
 
 enum FuturesAccountType {
   isolated_margin
-  cross_margin
+  smart_margin
 }
 
 type FuturesOrder @entity {
   id: ID!
   size: BigInt!
-  asset: Bytes!
   marketKey: Bytes!
-  market: Bytes!
   account: Bytes!
+  txnHash: Bytes!
   abstractAccount: Bytes!
   orderId: BigInt!
-  targetRoundId: BigInt!
   targetPrice: BigInt!
   marginDelta: BigInt!
   timestamp: BigInt!
   orderType: FuturesOrderType!
   status: FuturesOrderStatus!
   keeper: Bytes!
+  reduceOnly: Boolean
+  priceOracle: FuturesPriceOracleUsed
 }
 
-type CrossMarginAccount @entity {
+type SmartMarginAccount @entity {
   id: ID!
   owner: Bytes!
+  version: Bytes!
+}
+
+type SmartMarginAccountTransfer @entity {
+  id: ID!
+  account: Bytes!
+  abstractAccount: Bytes!
+  timestamp: BigInt!
+  size: BigInt!
+  txHash: String!
+}
+
+type SmartMarginOrder @entity {
+  id: ID!
+  account: Bytes!
+  orderType: FuturesOrderType!
+  marketKey: Bytes!
+  recordTrade: Boolean!
+  feesPaid: BigInt!
+}
+
+type PerpsTracking @entity {
+  id: ID!
 }
 
 type CrossMarginAccountTransfer @entity {
@@ -337,4 +579,22 @@ type CrossMarginAccountTransfer @entity {
   timestamp: BigInt!
   size: BigInt!
   txHash: String!
+}
+
+type CrossMarginAccount @entity {
+  id: ID!
+  owner: Bytes!
+}
+
+enum PeriodEnumType {
+  DAILY
+}
+
+type HistoricalMarketStats @entity {
+  id: Bytes!
+  timestamp: BigInt
+  marketKey: Bytes
+  marketAsset: Bytes
+  period: PeriodEnumType
+  marketSize: BigInt
 }
